@@ -4,6 +4,7 @@ plugins {
 }
 
 allprojects {
+    apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
     version = '2.1.0'
 
@@ -29,4 +30,28 @@ compileTestJava.options*.encoding = 'UTF-8'
 
 dependencies {
     testCompile "junit:junit:$junitVersion"
+}
+
+publishing {
+    publications {
+        core(MavenPublication) {
+            from project(":").components.java
+            artifactId = 'core'
+        }
+    }
+}
+
+bintray {   
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['core']
+    pkg {
+        repo = 'luajpp2'
+        name = 'luajpp2'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/anonl/luajpp2.git'
+        version {
+            name = project.version
+        }
+    }
 }
