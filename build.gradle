@@ -36,7 +36,7 @@ publishing {
     publications {
         core(MavenPublication) {
             from project(":").components.java
-            artifactId = 'core'
+            artifactId = 'luajpp2-core'
         }
     }
 }
