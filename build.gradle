@@ -6,11 +6,7 @@ plugins {
 allprojects {
     apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
-    version = '2.1.0'
-
-    ext {
-        junitVersion = '4.12'
-    }
+    version = '2.1.1'
 
     repositories {
         mavenCentral()
@@ -19,24 +15,51 @@ allprojects {
     }    
 }
 
-apply plugin: "eclipse"
-apply plugin: "idea"
-apply plugin: "java"
+subprojects {
+    apply plugin: "eclipse"
+    apply plugin: "idea"
+    apply plugin: "java"
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-compileJava.options*.encoding = 'UTF-8'
-compileTestJava.options*.encoding = 'UTF-8'
+    ext {
+        junitVersion = '4.12'
+    }
+    
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
 
-dependencies {
-    testCompile "junit:junit:$junitVersion"
+    dependencies {
+        testCompile "junit:junit:$junitVersion"
+    }
+}
+
+project(':core') {
+    eclipse.project {
+        name = "luajpp2-core"
+    }
+}
+
+
+project(':plugin') {
+    eclipse.project {
+        name = "luajpp2-plugin"
+    }
+    
+    dependencies {
+        compile project(':core')
+    }
 }
 
 publishing {
     publications {
         core(MavenPublication) {
-            from project(":").components.java
+            from project(":core").components.java
             artifactId = 'luajpp2-core'
+        }
+        plugin(MavenPublication) {
+            from project(":plugin").components.java
+            artifactId = 'luajpp2-plugin'
         }
     }
 }
@@ -44,7 +67,7 @@ publishing {
 bintray {   
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
-    publications = ['core']
+    publications = ['core', 'plugin']
     pkg {
         repo = 'luajpp2'
         name = 'luajpp2'
