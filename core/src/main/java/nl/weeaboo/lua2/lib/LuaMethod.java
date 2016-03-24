@@ -70,7 +70,9 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 			if (method == null) {
 				throw new NoSuchMethodException(String.format("Method %s with the specified parameter types doesn't exist", methodName));
 			}
-			return CoerceJavaToLua.coerce(invokeMethod(method, instance, args));
+			Object javaResult = invokeMethod(method, instance, args);
+            // Only allow access to declared type (prevents accidental use of nondeclared interfaces)
+            return CoerceJavaToLua.coerce(javaResult, method.getMethod().getReturnType());
 		} catch (InvocationTargetException ite) {
 			Throwable cause = ite.getCause();
 			String msg = "Error in invoked Java method: " + methodName + "(" + args + ")";
@@ -112,16 +114,15 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 
 		MethodInfo bestMatch = null;
 		int bestScore = Integer.MAX_VALUE;
-		for (int n = 0; n < methods.length; n++) {
-			Class<?>[] params = methods[n].getParams();
+        for (MethodInfo method : methods) {
+            Class<?>[] params = method.getParams();
 			int score = CoerceLuaToJava.scoreParamTypes(args, params);
 			if (score == 0) {
-				return methods[n]; //Perfect match, return at once
+                return method; // Perfect match, return at once
 			} else {
-				//System.out.println(methods[n].getMethod().getName() + " " + len + "," + params.length + " " + score);
 				if (score < bestScore) {
 					bestScore = score;
-					bestMatch = methods[n];
+                    bestMatch = method;
 				}
 			}
 		}

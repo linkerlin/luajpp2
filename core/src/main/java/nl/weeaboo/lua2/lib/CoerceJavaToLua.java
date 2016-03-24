@@ -73,25 +73,31 @@ public class CoerceJavaToLua {
 		COERCIONS.put(String.class, stringCoercion);
 	}
 
-	public static LuaValue coerce(Object o) {
-		if (o == null) {
+    public static LuaValue coerce(Object obj) {
+        if (obj == null) {
+            return NIL;
+        }
+        return coerce(obj, obj.getClass());
+    }
+
+    public static LuaValue coerce(Object obj, Class<?> declaredType) {
+        if (obj == null) {
 			return NIL;
 		}
 
-		Class<?> clazz = o.getClass();
-		Coercion c = COERCIONS.get(clazz);
+        Coercion c = COERCIONS.get(declaredType);
 		if (c != null) {
-			//A specialized coercion was found, use it
-			return c.coerce(o);
+            // A specialized coercion was found, use it
+            return c.coerce(obj);
 		}
 
-		if (LuaValue.class.isAssignableFrom(clazz)) {
-			//Java object is a Lua type
-			return (LuaValue)o;
+        if (LuaValue.class.isAssignableFrom(declaredType)) {
+            // Java object is a Lua type
+            return (LuaValue)obj;
 		}
 
-		//Use the general Java Object -> Lua conversion
-		return LuajavaLib.toUserdata(o, clazz);
+        // Use the general Java Object -> Lua conversion
+        return LuajavaLib.toUserdata(obj, declaredType);
 	}
 
 }
