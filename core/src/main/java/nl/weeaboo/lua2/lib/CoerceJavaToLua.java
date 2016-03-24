@@ -62,14 +62,22 @@ public class CoerceJavaToLua {
 			}
 		};
 
-		COERCIONS.put(Boolean.class, boolCoercion);
+        COERCIONS.put(Boolean.class, boolCoercion);
+        COERCIONS.put(Boolean.TYPE, boolCoercion);
 		COERCIONS.put(Byte.class, intCoercion);
-		COERCIONS.put(Character.class, charCoercion);
-		COERCIONS.put(Short.class, intCoercion);
+        COERCIONS.put(Byte.TYPE, intCoercion);
+        COERCIONS.put(Character.class, charCoercion);
+        COERCIONS.put(Character.TYPE, charCoercion);
+        COERCIONS.put(Short.class, intCoercion);
+        COERCIONS.put(Short.TYPE, intCoercion);
 		COERCIONS.put(Integer.class, intCoercion);
-		COERCIONS.put(Long.class, longCoercion);
-		COERCIONS.put(Float.class, doubleCoercion);
-		COERCIONS.put(Double.class, doubleCoercion);
+        COERCIONS.put(Integer.TYPE, intCoercion);
+        COERCIONS.put(Long.class, longCoercion);
+        COERCIONS.put(Long.TYPE, longCoercion);
+        COERCIONS.put(Float.class, doubleCoercion);
+        COERCIONS.put(Float.TYPE, doubleCoercion);
+        COERCIONS.put(Double.class, doubleCoercion);
+        COERCIONS.put(Double.TYPE, doubleCoercion);
 		COERCIONS.put(String.class, stringCoercion);
 	}
 
