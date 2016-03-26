@@ -34,21 +34,25 @@ import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
-import org.luaj.vm2.compiler.FuncState.BlockCnt;
 
-public class LexState {
+final class LexState {
 
-	protected static final String RESERVED_LOCAL_VAR_FOR_CONTROL = "(for control)";
-	protected static final String RESERVED_LOCAL_VAR_FOR_STATE = "(for state)";
-	protected static final String RESERVED_LOCAL_VAR_FOR_GENERATOR = "(for generator)";
-	protected static final String RESERVED_LOCAL_VAR_FOR_STEP = "(for step)";
-	protected static final String RESERVED_LOCAL_VAR_FOR_LIMIT = "(for limit)";
-	protected static final String RESERVED_LOCAL_VAR_FOR_INDEX = "(for index)";
+    private static final String RESERVED_LOCAL_VAR_FOR_CONTROL = "(for control)";
+    private static final String RESERVED_LOCAL_VAR_FOR_STATE = "(for state)";
+    private static final String RESERVED_LOCAL_VAR_FOR_GENERATOR = "(for generator)";
+    private static final String RESERVED_LOCAL_VAR_FOR_STEP = "(for step)";
+    private static final String RESERVED_LOCAL_VAR_FOR_LIMIT = "(for limit)";
+    private static final String RESERVED_LOCAL_VAR_FOR_INDEX = "(for index)";
 
 	// keywords array
-	protected static final String[] RESERVED_LOCAL_VAR_KEYWORDS = new String[] {
-			RESERVED_LOCAL_VAR_FOR_CONTROL, RESERVED_LOCAL_VAR_FOR_GENERATOR, RESERVED_LOCAL_VAR_FOR_INDEX,
-			RESERVED_LOCAL_VAR_FOR_LIMIT, RESERVED_LOCAL_VAR_FOR_STATE, RESERVED_LOCAL_VAR_FOR_STEP };
+    private static final String[] RESERVED_LOCAL_VAR_KEYWORDS = {
+        RESERVED_LOCAL_VAR_FOR_CONTROL,
+        RESERVED_LOCAL_VAR_FOR_STATE,
+        RESERVED_LOCAL_VAR_FOR_GENERATOR,
+        RESERVED_LOCAL_VAR_FOR_STEP,
+        RESERVED_LOCAL_VAR_FOR_LIMIT,
+        RESERVED_LOCAL_VAR_FOR_INDEX
+    };
 
 	private static final int EOZ = (-1);
 	private static final int MAXSRC = 80;

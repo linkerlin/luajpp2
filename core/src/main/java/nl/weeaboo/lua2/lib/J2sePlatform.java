@@ -22,7 +22,6 @@
 package nl.weeaboo.lua2.lib;
 
 import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.BaseLib;
 import org.luaj.vm2.lib.CoroutineLib;
 import org.luaj.vm2.lib.DebugLib;
@@ -40,8 +39,6 @@ public final class J2sePlatform {
      * Registers Lua standard libraries.
      */
     public static LuaTable registerStandardLibs(LuaRunState lrs) {
-        LuaC.install();
-
         PackageLib packageLib = new PackageLib();
         lrs.setPackageLib(packageLib);
 

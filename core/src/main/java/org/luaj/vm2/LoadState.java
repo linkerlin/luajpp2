@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * particular input stream.
  * <p>
  * A simple pattern for loading and executing code is
- * 
+ *
  * <pre>
  * {
  * 	&#064;code
@@ -46,10 +46,10 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * 	LoadState.load(new FileInputStream(&quot;main.lua&quot;), &quot;main.lua&quot;, _G).call();
  * }
  * </pre>
- * 
+ *
  * This should work regardless of which {@link LuaCompiler} has been installed.
  * <p>
- * 
+ *
  * Prior to loading code, a compiler should be installed.
  * <p>
  * By default, when using {@link J2sePlatform} or {@JmePlatform} to
@@ -57,7 +57,7 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * <p>
  * To override the default compiler with, say, the LuaJC lua-to-java
  * bytecode compiler, install it before loading, for example:
- * 
+ *
  * <pre>
  * {
  * 	&#064;code
@@ -66,7 +66,7 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * 	LoadState.load(new FileInputStream(&quot;main.lua&quot;), &quot;main.lua&quot;, _G).call();
  * }
  * </pre>
- * 
+ *
  * @see LuaCompiler
  * @see LuaClosure
  * @see LuaFunction
@@ -110,7 +110,7 @@ public class LoadState {
 	 * <p>
 	 * See the {@link LuaClosure} documentation for examples of how to use the
 	 * compiler.
-	 * 
+	 *
 	 * @see LuaClosure
 	 * @see #load(InputStream, String, LuaValue)
 	 * */
@@ -119,14 +119,14 @@ public class LoadState {
 		/**
 		 * Load into a Closure or LuaFunction from a Stream and initializes the
 		 * environment
-		 * 
+		 *
 		 * @throws IOException
 		 */
 		public LuaFunction load(InputStream stream, String filename, LuaValue env) throws IOException;
 	}
 
-	/** Compiler instance, if installed */
-	public static LuaCompiler compiler = null;
+    /** Compiler instance, if installed */
+    private static LuaCompiler compiler = new LuaC();
 
 	/** Signature byte indicating the file is a compiled binary chunk */
 	private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };
@@ -160,7 +160,7 @@ public class LoadState {
 	private int luacNumberFormat;
 
 	private final SharedByteAlloc alloc;
-	
+
 	/** input stream from which we are loading */
 	public final DataInputStream is;
 
@@ -182,10 +182,10 @@ public class LoadState {
 		this.is = new DataInputStream(stream);
 		this.alloc = SharedByteAlloc.getInstance();
 	}
-	
+
 	/**
 	 * Load a 4-byte int value from the input stream
-	 * 
+	 *
 	 * @return the int value laoded.
 	 **/
 	int loadInt() throws IOException {
@@ -197,7 +197,7 @@ public class LoadState {
 
 	/**
 	 * Load an array of int values from the input stream
-	 * 
+	 *
 	 * @return the array of int values laoded.
 	 **/
 	int[] loadIntArray() throws IOException {
@@ -219,7 +219,7 @@ public class LoadState {
 
 	/**
 	 * Load a long value from the input stream
-	 * 
+	 *
 	 * @return the long value laoded.
 	 **/
 	long loadInt64() throws IOException {
@@ -236,13 +236,13 @@ public class LoadState {
 
 	/**
 	 * Load a lua strin gvalue from the input stream
-	 * 
+	 *
 	 * @return the {@link LuaString} value laoded.
 	 **/
 	LuaString loadString() throws IOException {
 		int size = loadInt();
 		if (size == 0) return null;
-		
+
 		int offset = alloc.reserve(size);
 		byte[] bytes = alloc.getReserved();
 		is.readFully(bytes, offset, size);
@@ -251,7 +251,7 @@ public class LoadState {
 
 	/**
 	 * Convert bits in a long value to a {@link LuaValue}.
-	 * 
+	 *
 	 * @param bits long value containing the bits
 	 * @return {@link LuaInteger} or {@link LuaDouble} whose value corresponds
 	 *         to the bits provided.
@@ -278,7 +278,7 @@ public class LoadState {
 
 	/**
 	 * Load a number from a binary chunk
-	 * 
+	 *
 	 * @return the {@link LuaValue} loaded
 	 * @throws IOException if an i/o exception occurs
 	 */
@@ -292,7 +292,7 @@ public class LoadState {
 
 	/**
 	 * Load a list of constants from a binary chunk
-	 * 
+	 *
 	 * @param f the function prototype
 	 * @throws IOException if an i/o exception occurs
 	 */
@@ -331,7 +331,7 @@ public class LoadState {
 
 	/**
 	 * Load the debug infor for a function prototype
-	 * 
+	 *
 	 * @param f the function Prototype
 	 * @throws IOException if there is an i/o exception
 	 */
@@ -355,7 +355,7 @@ public class LoadState {
 
 	/**
 	 * Load a function prototype from the input stream
-	 * 
+	 *
 	 * @param p name of the source
 	 * @return {@link Prototype} instance that was loaded
 	 * @throws IOException
@@ -378,7 +378,7 @@ public class LoadState {
 
 	/**
 	 * Load the lua chunk header values.
-	 * 
+	 *
 	 * @throws IOException if an i/o exception occurs.
 	 */
 	public void loadHeader() throws IOException {
@@ -394,7 +394,7 @@ public class LoadState {
 
 	/**
 	 * Load lua in either binary or text form from an input stream.
-	 * 
+	 *
 	 * @param stream InputStream to read, after having read the first byte
 	 *        already
 	 * @param name Name to apply to the loaded chunk
@@ -403,8 +403,8 @@ public class LoadState {
 	 * @throws IOException if an IOException occurs
 	 */
 	public static LuaFunction load(InputStream stream, String name, LuaValue env) throws IOException {
-		if (compiler != null) return compiler.load(stream, name, env);
-		else {
+        if (compiler != null) return compiler.load(stream, name, env);
+        else {
 			int firstByte = stream.read();
 			if (firstByte != LUA_SIGNATURE[0]) throw new LuaError("no compiler");
 			Prototype p = loadBinaryChunk(firstByte, stream, name);
@@ -415,7 +415,7 @@ public class LoadState {
 	/**
 	 * Load lua thought to be a binary chunk from its first byte from an input
 	 * stream.
-	 * 
+	 *
 	 * @param firstByte the first byte of the input stream
 	 * @param stream InputStream to read, after having read the first byte
 	 *        already
@@ -451,7 +451,7 @@ public class LoadState {
 
 	/**
 	 * Construct a source name from a supplied chunk name
-	 * 
+	 *
 	 * @param name String name that appears in the chunk
 	 * @return source file name
 	 */
