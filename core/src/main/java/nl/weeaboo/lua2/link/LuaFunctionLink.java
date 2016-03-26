@@ -13,7 +13,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public class LuaFunctionLink extends LuaLink {
 
-	private static final long serialVersionUID = -6163676768549456849L;
+    private static final long serialVersionUID = 1L;
 
 	private LuaClosure func;
 	private String funcName;
@@ -32,7 +32,6 @@ public class LuaFunctionLink extends LuaLink {
 		this.args = LuaUtil.copyArgs(args);
 	}
 
-	//Functions
 	@Override
 	protected void init() throws LuaException {
 		if (func != null) {
@@ -76,9 +75,5 @@ public class LuaFunctionLink extends LuaLink {
 		sb.append(')');
 		return sb.toString();
 	}
-
-	//Getters
-
-	//Setters
 
 }

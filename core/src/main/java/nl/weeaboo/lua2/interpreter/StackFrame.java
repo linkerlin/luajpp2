@@ -72,10 +72,20 @@ public final class StackFrame implements Externalizable {
 		return frame;
 	}
 
+    /** Calls {@link #releaseFrame(StackFrame)} on every frame in the given callstack */
+    public static void releaseCallstack(StackFrame callstack) {
+        while (callstack != null) {
+            StackFrame parent = callstack.parent;
+            releaseFrame(callstack);
+            callstack = parent;
+        }
+    }
+
 	/**
 	 * Gives the stack frame back to the object pool.
 	 */
-	public static void release(StackFrame frame) {
+	public static void releaseFrame(StackFrame frame) {
+        frame.close();
 		allocator.get().giveFrame(frame);
 	}
 

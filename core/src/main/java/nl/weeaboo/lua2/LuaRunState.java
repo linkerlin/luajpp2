@@ -13,8 +13,8 @@ import org.luaj.vm2.lib.PackageLib;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.J2sePlatform;
+import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
-import nl.weeaboo.lua2.link.LuaLink;
 
 @LuaSerializable
 public final class LuaRunState implements Serializable, IDestructible {
@@ -31,7 +31,7 @@ public final class LuaRunState implements Serializable, IDestructible {
     private int instructionCountLimit = 1000000;
     private PackageLib packageLib;
 
-	private transient LuaLink current;
+    private transient ILuaLink current;
 	private transient LuaThread currentThread;
 	private transient int instructionCount;
 
@@ -135,7 +135,8 @@ public final class LuaRunState implements Serializable, IDestructible {
     public boolean isDestroyed() {
 		return destroyed;
 	}
-	public LuaLink getCurrentLink() {
+
+    public ILuaLink getCurrentLink() {
 		return current;
 	}
 	public LuaThreadGroup getDefaultThreadGroup() {
@@ -158,7 +159,7 @@ public final class LuaRunState implements Serializable, IDestructible {
 		instructionCountLimit = lim;
 	}
 
-	public void setCurrentLink(LuaLink cur) {
+    public void setCurrentLink(ILuaLink cur) {
 		current = cur;
 	}
 

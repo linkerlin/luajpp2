@@ -1,8 +1,11 @@
 package nl.weeaboo.lua2.link;
 
+import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.Varargs;
+
 import nl.weeaboo.lua2.LuaException;
 
-public class LuaLinkStub implements ILuaLink {
+public class LuaLinkStub extends AbstractLuaLink {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,6 +51,12 @@ public class LuaLinkStub implements ILuaLink {
     @Override
     public boolean isDestroyed() {
         return destroyed;
+    }
+
+    @Override
+    public void jump(LuaClosure func, Varargs args) {
+        instructionsLeft = 1;
+        callCount = 0;
     }
 
 }

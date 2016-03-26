@@ -471,7 +471,7 @@ public class LuaInterpreter {
 				}
 			}
 
-			//Yield
+            // Yield
 			if (thread.isDead() || thread.isEndCall()) {
 				sf.status = Status.DEAD;
 			} else {
@@ -495,8 +495,6 @@ public class LuaInterpreter {
 	}
 
 	private static void finishCall(LuaThread thread, StackFrame sf, Varargs retval) {
-		//if (sf.parent != null) System.out.println("F " + sf.c + " " + retval + " -> " + sf.parent.c + " " + sf.parent.v);
-
 		//Pushes return values on parent's stack
 		StackFrame parent = sf.parent;
 		if (parent != null) {
@@ -520,7 +518,7 @@ public class LuaInterpreter {
 			thread.callstack = thread.callstack.parent;
 			thread.postReturn(sf, (thread.callstack != null ? thread.callstack.size() : 0));
 		}
-		StackFrame.release(sf);
+		StackFrame.releaseFrame(sf);
 	}
 
 	// Getters

@@ -116,6 +116,27 @@ public final class LuaUtil {
         return Collections.unmodifiableList(result);
     }
 
+    public static Varargs concatArgs(Varargs firstArgs, Varargs secondArgs) {
+        if (firstArgs == null || firstArgs.narg() == 0) {
+            return secondArgs;
+        }
+        if (secondArgs == null || secondArgs.narg() == 0) {
+            return firstArgs;
+        }
+
+        int firstCount = firstArgs.narg();
+        int secondCount = secondArgs.narg();
+
+        LuaValue[] merged = new LuaValue[firstCount + secondCount];
+        for (int n = 0; n < firstCount; n++) {
+            merged[n] = firstArgs.arg(1 + n);
+        }
+        for (int n = 0; n < secondCount; n++) {
+            merged[firstCount + n] = secondArgs.arg(1 + n);
+        }
+        return LuaValue.varargsOf(merged);
+    }
+
 	public static Varargs copyArgs(LuaValue[] stack, int offset, int length) {
 		if (length <= 0) return NONE;
 

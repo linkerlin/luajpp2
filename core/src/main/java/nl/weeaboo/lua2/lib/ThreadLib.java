@@ -8,6 +8,7 @@ import org.luaj.vm2.lib.BaseLib;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaLink;
 
 @LuaSerializable
@@ -72,7 +73,7 @@ public class ThreadLib extends LuaLibrary {
      */
 	protected Varargs yield(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
-		LuaLink link = lrs.getCurrentLink();
+        ILuaLink link = lrs.getCurrentLink();
 
 		if (link != null && args.arg1() != NIL) {
 			int w = args.arg1().toint();
@@ -88,7 +89,7 @@ public class ThreadLib extends LuaLibrary {
      */
 	protected Varargs endCall(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
-		LuaLink link = lrs.getCurrentLink();
+        ILuaLink link = lrs.getCurrentLink();
 
 		if (link != null && args.arg1() != NIL) {
 			int w = args.arg1().toint();
@@ -111,11 +112,11 @@ public class ThreadLib extends LuaLibrary {
 
 		if (v instanceof LuaClosure) {
 			LuaRunState lrs = LuaRunState.getCurrent();
-			final LuaLink link = lrs.getCurrentLink();
+            ILuaLink link = lrs.getCurrentLink();
 			link.jump((LuaClosure)v, NONE);
 			return NONE;
 		} else {
-			return error("Error running non-closure Lua function: " + v);
+            return error("Attempt to jump to non-closure Lua function: " + v);
 		}
 	}
 

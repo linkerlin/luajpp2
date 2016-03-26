@@ -12,7 +12,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public class LuaMethodLink extends LuaFunctionLink {
 
-	private static final long serialVersionUID = -4961885811090442757L;
+    private static final long serialVersionUID = 1L;
 
 	public final LuaUserdata self;
 
@@ -28,20 +28,15 @@ public class LuaMethodLink extends LuaFunctionLink {
 		this.self = self;
 	}
 
-	//Functions
 	@Override
 	protected Varargs getImplicitArgs() {
 		return self;
 	}
 
 	@Override
-	protected LuaClosure getFunction(String methodName) {
+    protected LuaClosure findFunction(String methodName) {
 		LuaValue val = self.get(LuaString.valueOf(methodName));
 		return (val instanceof LuaClosure ? (LuaClosure)val : null);
 	}
-
-	//Getters
-
-	//Setters
 
 }

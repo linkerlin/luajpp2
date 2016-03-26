@@ -85,6 +85,15 @@ public final class LuaThread extends LuaValue implements Serializable {
 		return thread;
 	}
 
+    public void reset() {
+        StackFrame.releaseCallstack(callstack);
+
+        status = STATUS_SUSPENDED;
+        callstackMin = 0;
+        callstack = null;
+        debugState = null;
+    }
+
 	@Override
 	public String toString() {
 		return (isMainThread ? "main" : "") + super.toString();

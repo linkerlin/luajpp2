@@ -10,6 +10,7 @@ import org.luaj.vm2.LuaDouble;
 import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 public class CoerceJavaToLua {
 
@@ -80,6 +81,14 @@ public class CoerceJavaToLua {
         COERCIONS.put(Double.TYPE, doubleCoercion);
 		COERCIONS.put(String.class, stringCoercion);
 	}
+
+    public static Varargs coerceArgs(Object[] args) {
+        LuaValue[] luaArgs = new LuaValue[args.length];
+        for (int n = 0; n < luaArgs.length; n++) {
+            luaArgs[n] = coerce(args[n]);
+        }
+        return LuaValue.varargsOf(luaArgs);
+    }
 
     public static LuaValue coerce(Object obj) {
         if (obj == null) {
