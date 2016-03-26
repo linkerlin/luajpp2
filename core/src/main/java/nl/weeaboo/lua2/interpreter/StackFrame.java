@@ -54,7 +54,6 @@ public final class StackFrame implements Externalizable {
 	public StackFrame() {
 	}
 
-	//Functions
 	/**
 	 * Returns a stack frame object, possibly a re-used one from an object pool.
 	 */
@@ -173,7 +172,6 @@ public final class StackFrame implements Externalizable {
 		return parentCount + 1; //(parent != null ? parentCount + 1 : 1);
 	}
 
-	//Getters
 	public LuaFunction getCallstackFunction(int level) {
 		StackFrame sf = this;
 		while (--level >= 1) {
@@ -185,7 +183,6 @@ public final class StackFrame implements Externalizable {
 		return sf.c;
 	}
 
-	//Setters
 	public final void prepareCall(LuaClosure c, Varargs args,
 			StackFrame parent, int returnBase, int returnCount)
 	{

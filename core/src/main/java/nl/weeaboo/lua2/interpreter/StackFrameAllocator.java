@@ -8,12 +8,6 @@ import org.luaj.vm2.LuaValue;
 
 final class StackFrameAllocator {
 
-	/*
-	private static long time0 = System.nanoTime();
-	private static int stackCreated = 0;
-	private static int stackReused = 0;
-	*/
-	
 	private static final int DEFAULT_FRAME_CACHE_SIZE = 4;
 	private static final int DEFAULT_ARRAY_CACHE_SIZE = 4;
 	
@@ -24,20 +18,6 @@ final class StackFrameAllocator {
 		cachedFrames = new StackFrame[DEFAULT_FRAME_CACHE_SIZE];
 		cachedArrays = new LuaValue[DEFAULT_ARRAY_CACHE_SIZE][];
 	}
-	
-	/*
-	private static void logCreateStack(int len) {
-		stackCreated += len;
-		long dt = System.nanoTime() - time0;
-		System.out.printf("create stack: %d (total %d, avg=%.2f/s)\n", len, stackCreated, stackCreated / (dt / 1000000000.0));
-	}
-	
-	private static void logReuseStack(int len) {
-		stackReused += len;
-		long dt = System.nanoTime() - time0;
-		System.out.printf("reuse stack: %d (total %d, avg=%.2f/s)\n", len, stackReused, stackReused / (dt / 1000000000.0));
-	}
-	*/
 	
 	static void clearFrame(StackFrame frame) {
 		frame.close();
