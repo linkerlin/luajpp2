@@ -21,6 +21,12 @@
  ******************************************************************************/
 package org.luaj.vm2.compiler;
 
+import static org.luaj.vm2.LuaConstants.TBOOLEAN;
+import static org.luaj.vm2.LuaConstants.TINT;
+import static org.luaj.vm2.LuaConstants.TNIL;
+import static org.luaj.vm2.LuaConstants.TNUMBER;
+import static org.luaj.vm2.LuaConstants.TSTRING;
+
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -135,17 +141,17 @@ public final class DumpState {
         for (i = 0; i < n; i++) {
             final LuaValue o = k[i];
             switch (o.type()) {
-            case LuaValue.TNIL:
-                writer.write(LuaValue.TNIL);
+            case TNIL:
+                writer.write(TNIL);
                 break;
-            case LuaValue.TBOOLEAN:
-                writer.write(LuaValue.TBOOLEAN);
+            case TBOOLEAN:
+                writer.write(TBOOLEAN);
                 dumpChar(o.toboolean() ? 1 : 0);
                 break;
-            case LuaValue.TNUMBER:
+            case TNUMBER:
                 switch (numberFormat) {
                 case NUMBER_FORMAT_FLOATS_OR_DOUBLES:
-                    writer.write(LuaValue.TNUMBER);
+                    writer.write(TNUMBER);
                     dumpDouble(o.todouble());
                     break;
                 case NUMBER_FORMAT_INTS_ONLY:
@@ -153,15 +159,15 @@ public final class DumpState {
                         throw new java.lang.IllegalArgumentException("not an integer: " + o);
                     }
 
-                    writer.write(LuaValue.TNUMBER);
+                    writer.write(TNUMBER);
                     dumpInt(o.toint());
                     break;
                 case NUMBER_FORMAT_NUM_PATCH_INT32:
                     if (o.isint()) {
-                        writer.write(LuaValue.TINT);
+                        writer.write(TINT);
                         dumpInt(o.toint());
                     } else {
-                        writer.write(LuaValue.TNUMBER);
+                        writer.write(TNUMBER);
                         dumpDouble(o.todouble());
                     }
                     break;
@@ -169,8 +175,8 @@ public final class DumpState {
                     throw new IllegalArgumentException("number format not supported: " + numberFormat);
                 }
                 break;
-            case LuaValue.TSTRING:
-                writer.write(LuaValue.TSTRING);
+            case TSTRING:
+                writer.write(TSTRING);
                 dumpString((LuaString)o);
                 break;
             default:

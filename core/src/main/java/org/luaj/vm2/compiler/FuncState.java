@@ -71,11 +71,14 @@ import static org.luaj.vm2.Lua.iABC;
 import static org.luaj.vm2.Lua.iABx;
 import static org.luaj.vm2.Lua.iAsBx;
 import static org.luaj.vm2.Lua.testTMode;
+import static org.luaj.vm2.LuaBoolean.FALSE;
+import static org.luaj.vm2.LuaBoolean.TRUE;
+import static org.luaj.vm2.LuaConstants.MAXSTACK;
+import static org.luaj.vm2.LuaNil.NIL;
 import static org.luaj.vm2.compiler.LuaC.CREATE_ABC;
 import static org.luaj.vm2.compiler.LuaC.CREATE_ABx;
 import static org.luaj.vm2.compiler.LuaC.LUAI_MAXUPVALUES;
 import static org.luaj.vm2.compiler.LuaC.LUAI_MAXVARS;
-import static org.luaj.vm2.compiler.LuaC.MAXSTACK;
 import static org.luaj.vm2.compiler.LuaC.SETARG_A;
 import static org.luaj.vm2.compiler.LuaC.SETARG_B;
 import static org.luaj.vm2.compiler.LuaC.SETARG_C;
@@ -421,7 +424,9 @@ final class FuncState {
     void checkstack(int n) {
         int newstack = this.freereg + n;
         if (newstack > this.f.maxstacksize) {
-            if (newstack >= MAXSTACK) ls.syntaxerror("function or expression too complex");
+            if (newstack >= MAXSTACK) {
+                ls.syntaxerror("function or expression too complex");
+            }
             this.f.maxstacksize = newstack;
         }
     }
@@ -470,11 +475,11 @@ final class FuncState {
     }
 
     int boolK(boolean b) {
-        return this.addk((b ? LuaValue.TRUE : LuaValue.FALSE));
+        return this.addk(b ? TRUE : FALSE);
     }
 
     int nilK() {
-        return this.addk(LuaValue.NIL);
+        return this.addk(NIL);
     }
 
     void setreturns(expdesc e, int nresults) {

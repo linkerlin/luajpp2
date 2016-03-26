@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.luaj.vm2.Lua;
+import org.luaj.vm2.LuaConstants;
 import org.luaj.vm2.Print;
 import org.luaj.vm2.Prototype;
 import org.luaj.vm2.compiler.DumpState;
@@ -22,7 +22,7 @@ import org.luaj.vm2.compiler.LuaC;
  */
 public class LC {
 
-	private static final String version = Lua._VERSION + "Copyright (C) 2009 luaj.org";
+    private static final String version = LuaConstants.ENGINE_VERSION;
 
 	private static final String usage = "usage: java -cp luajpp2.jar luac [options] [filenames].\n"
 			+ "Available options are:\n"

@@ -21,6 +21,10 @@
  ******************************************************************************/
 package org.luaj.vm2;
 
+import static org.luaj.vm2.LuaBoolean.FALSE;
+import static org.luaj.vm2.LuaBoolean.TRUE;
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.io.Serializable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -53,7 +57,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
 	@Override
 	public int type() {
-		return LuaValue.TUSERDATA;
+        return LuaConstants.TUSERDATA;
 	}
 
 	@Override
@@ -130,7 +134,9 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
 	@Override
 	public void set(LuaValue key, LuaValue value) {
-		if (m_metatable == null || !settable(this, key, value)) error("cannot set " + key + " for userdata");
+        if (m_metatable == null || !settable(this, key, value)) {
+            error("cannot set " + key + " for userdata");
+        }
 	}
 
 	@Override
@@ -163,12 +169,6 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
 	@Override
 	public boolean raweq(LuaUserdata val) {
-//		System.out.printf("== %s %s\n  %d\n  %d %s %s\n  %d\n",
-//				this, val,
-//				(this==val)?1:0,
-//				m_metatable==val.m_metatable?1:0, m_metatable, val.m_metatable,
-//				m_instance==val.m_instance?1:0);
-
 		return this == val || (m_metatable == val.m_metatable && m_instance.equals(val.m_instance));
 	}
 

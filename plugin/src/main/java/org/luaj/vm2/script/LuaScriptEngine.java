@@ -21,6 +21,14 @@
  ******************************************************************************/
 package org.luaj.vm2.script;
 
+import static org.luaj.vm2.LuaConstants.INDEX;
+import static org.luaj.vm2.LuaConstants.NONE;
+import static org.luaj.vm2.LuaConstants.TNIL;
+import static org.luaj.vm2.LuaConstants.TNUMBER;
+import static org.luaj.vm2.LuaConstants.TSTRING;
+import static org.luaj.vm2.LuaConstants.TUSERDATA;
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -38,8 +46,8 @@ import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
 import org.luaj.vm2.LoadState;
-import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.LuaConstants;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
@@ -57,7 +65,7 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  */
 public class LuaScriptEngine implements ScriptEngine, Compilable {
 
-	private static final String __ENGINE_VERSION__ = Lua._VERSION;
+    private static final String __ENGINE_VERSION__ = LuaConstants.ENGINE_VERSION;
 	private static final String __NAME__ = "Luaj";
 	private static final String __SHORT_NAME__ = "Luaj";
 	private static final String __LANGUAGE__ = "lua";
@@ -226,7 +234,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 			LuaFunction f = newFunctionInstance();
 			ClientBindings cb = new ClientBindings(b);
 			f.setfenv(cb.env);
-			Varargs result = f.invoke(LuaValue.NONE);
+            Varargs result = f.invoke(NONE);
 			cb.copyGlobalsToBindings();
 			return result;
 		}
@@ -239,7 +247,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 		public ClientBindings(Bindings b) {
 			this.b = b;
 			this.env = new LuaTable();
-			env.setmetatable(LuaValue.tableOf(new LuaValue[] { LuaValue.INDEX, _G }));
+            env.setmetatable(LuaValue.tableOf(new LuaValue[] { INDEX, _G }));
 			this.copyBindingsToGlobals();
 		}
 
@@ -255,8 +263,13 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 		}
 
 		private LuaValue toLua(Object javaValue) {
-			return javaValue == null ? LuaValue.NIL : javaValue instanceof LuaValue ? (LuaValue) javaValue
-					: CoerceJavaToLua.coerce(javaValue);
+            if (javaValue == null) {
+                return NIL;
+            } else if (javaValue instanceof LuaValue) {
+                return (LuaValue)javaValue;
+            } else {
+                return CoerceJavaToLua.coerce(javaValue);
+            }
 		}
 
 		public void copyGlobalsToBindings() {
@@ -272,13 +285,13 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 
 		private Object toJava(LuaValue v) {
 			switch (v.type()) {
-			case LuaValue.TNIL:
+            case TNIL:
 				return null;
-			case LuaValue.TSTRING:
+            case TSTRING:
 				return v.tojstring();
-			case LuaValue.TUSERDATA:
+            case TUSERDATA:
 				return v.checkuserdata(Object.class);
-			case LuaValue.TNUMBER:
+            case TNUMBER:
 				return v.isinttype() ? (Object) new Integer(v.toint()) : (Object) new Double(v.todouble());
 			default:
 				return v;

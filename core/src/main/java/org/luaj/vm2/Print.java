@@ -90,7 +90,7 @@ public class Print extends Lua {
 
 	static void printValue(PrintStream ps, LuaValue v) {
 		switch (v.type()) {
-		case LuaValue.TSTRING:
+        case LuaConstants.TSTRING:
 			printString(ps, (LuaString) v);
 			break;
 		default:
@@ -328,30 +328,42 @@ public class Print extends Lua {
 		ps.print('[');
 		for (int i = 0; i < stack.length; i++) {
 			LuaValue v = stack[i];
-			if (v == null) ps.print(STRING_FOR_NULL);
-			else switch (v.type()) {
-			case LuaValue.TSTRING:
-				LuaString s = v.checkstring();
-				ps.print(s.length() < 48 ? s.tojstring() : s.substring(0, 32).tojstring() + "...+"
-						+ (s.length() - 32) + "b");
-				break;
-			case LuaValue.TFUNCTION:
-				ps.print((v instanceof LuaClosure) ? ((LuaClosure) v).getPrototype().toString() : v.tojstring());
-				break;
-			case LuaValue.TUSERDATA:
-				Object o = v.touserdata();
-				if (o != null) {
-					String n = o.getClass().getName();
-					n = n.substring(n.lastIndexOf('.') + 1);
-					ps.print(n + ": " + Integer.toHexString(o.hashCode()));
-				} else {
-					ps.print(v.toString());
-				}
-				break;
-			default:
-				ps.print(v.tojstring());
+            if (v == null) {
+                ps.print(STRING_FOR_NULL);
+            } else {
+                switch (v.type()) {
+                case LuaConstants.TSTRING:
+                    LuaString s = v.checkstring();
+                    if (s.length() < 48) {
+                        ps.print(s.tojstring());
+                    } else {
+                        ps.print(s.substring(0, 32).tojstring() + "...+" + (s.length() - 32) + "b");
+                    }
+                    break;
+                case LuaConstants.TFUNCTION:
+                    if (v instanceof LuaClosure) {
+                        ps.print(((LuaClosure)v).getPrototype().toString());
+                    } else {
+                        ps.print(v.tojstring());
+                    }
+                    break;
+                case LuaConstants.TUSERDATA:
+                    Object o = v.touserdata();
+                    if (o != null) {
+                        String n = o.getClass().getName();
+                        n = n.substring(n.lastIndexOf('.') + 1);
+                        ps.print(n + ": " + Integer.toHexString(o.hashCode()));
+                    } else {
+                        ps.print(v.toString());
+                    }
+                    break;
+                default:
+                    ps.print(v.tojstring());
+                }
 			}
-			if (i + 1 == top) ps.print(']');
+            if (i + 1 == top) {
+                ps.print(']');
+            }
 			ps.print(" | ");
 		}
 		ps.print(varargs);

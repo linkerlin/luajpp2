@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,28 +21,26 @@
  ******************************************************************************/
 package org.luaj.vm2.lib;
 
-import nl.weeaboo.lua2.io.LuaSerializable;
+import static org.luaj.vm2.LuaNil.NIL;
 
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
+import nl.weeaboo.lua2.io.LuaSerializable;
+
 /**
- * Abstract base class for Java function implementations that take one argument
- * and return one value.
+ * Abstract base class for Java function implementations that take one argument and return one value.
  * <p>
- * Subclasses need only implement {@link LuaValue#call(LuaValue)} to complete
- * this class, simplifying development. All other uses of {@link #call()},
- * {@link #invoke(Varargs)},etc, are routed through this method by this class,
- * dropping or extending arguments with {@code nil} values as required.
+ * Subclasses need only implement {@link LuaValue#call(LuaValue)} to complete this class, simplifying
+ * development. All other uses of {@link #call()}, {@link #invoke(Varargs)},etc, are routed through this
+ * method by this class, dropping or extending arguments with {@code nil} values as required.
  * <p>
- * If more than one argument are required, or no arguments are required, or
- * variable argument or variable return values, then use one of the related
- * function {@link ZeroArgFunction}, {@link TwoArgFunction},
+ * If more than one argument are required, or no arguments are required, or variable argument or variable
+ * return values, then use one of the related function {@link ZeroArgFunction}, {@link TwoArgFunction},
  * {@link ThreeArgFunction}, or {@link VarArgFunction}.
  * <p>
- * See {@link LibFunction} for more information on implementation libraries and
- * library functions.
- * 
+ * See {@link LibFunction} for more information on implementation libraries and library functions.
+ *
  * @see #call(LuaValue)
  * @see LibFunction
  * @see ZeroArgFunction
@@ -53,41 +51,41 @@ import org.luaj.vm2.Varargs;
 @LuaSerializable
 abstract public class OneArgFunction extends LibFunction {
 
-	private static final long serialVersionUID = -1409066200120011275L;
+    private static final long serialVersionUID = -1409066200120011275L;
 
-	@Override
-	abstract public LuaValue call(LuaValue arg);
+    @Override
+    abstract public LuaValue call(LuaValue arg);
 
-	/** Default constructor */
-	public OneArgFunction() {
-	}
+    /** Default constructor */
+    public OneArgFunction() {
+    }
 
-	/**
-	 * Constructor with specific environment
-	 * 
-	 * @param env The environment to apply during constructon.
-	 */
-	public OneArgFunction(LuaValue env) {
-		this.env = env;
-	}
+    /**
+     * Constructor with specific environment
+     *
+     * @param env The environment to apply during constructon.
+     */
+    public OneArgFunction(LuaValue env) {
+        this.env = env;
+    }
 
-	@Override
-	public final LuaValue call() {
-		return call(NIL);
-	}
+    @Override
+    public final LuaValue call() {
+        return call(NIL);
+    }
 
-	@Override
-	public final LuaValue call(LuaValue arg1, LuaValue arg2) {
-		return call(arg1);
-	}
+    @Override
+    public final LuaValue call(LuaValue arg1, LuaValue arg2) {
+        return call(arg1);
+    }
 
-	@Override
-	public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-		return call(arg1);
-	}
+    @Override
+    public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
+        return call(arg1);
+    }
 
-	@Override
-	public Varargs invoke(Varargs varargs) {
-		return call(varargs.arg1());
-	}
+    @Override
+    public Varargs invoke(Varargs varargs) {
+        return call(varargs.arg1());
+    }
 }

@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.luaj.vm2;
 
+import static org.luaj.vm2.LuaConstants.NONE;
+
 import java.io.Serializable;
 
 import org.luaj.vm2.lib.DebugLib;
@@ -101,7 +103,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
 	@Override
 	public int type() {
-		return LuaValue.TTHREAD;
+        return LuaConstants.TTHREAD;
 	}
 
 	@Override

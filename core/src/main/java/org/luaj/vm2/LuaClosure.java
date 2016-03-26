@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.luaj.vm2;
 
+import static org.luaj.vm2.LuaConstants.NONE;
+
 import org.luaj.vm2.LoadState.LuaCompiler;
 import org.luaj.vm2.compiler.LuaC;
 
@@ -29,20 +31,18 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 /**
  * Extension of {@link LuaFunction} which executes lua bytecode.
  * <p>
- * A {@link LuaClosure} is a combination of a {@link Prototype} and a
- * {@link LuaValue} to use as an environment for execution.
+ * A {@link LuaClosure} is a combination of a {@link Prototype} and a {@link LuaValue} to use as an
+ * environment for execution.
  * <p>
  * There are three main ways {@link LuaClosure} instances are created:
  * <ul>
  * <li>Construct an instance using {@link #LuaClosure(Prototype, LuaValue)}</li>
  * <li>Construct it indirectly by loading a chunk via
  * {@link LuaCompiler#load(java.io.InputStream, String, LuaValue)}
- * <li>Execute the lua bytecode {@link Lua#OP_CLOSURE} as part of bytecode
- * processing
+ * <li>Execute the lua bytecode {@link Lua#OP_CLOSURE} as part of bytecode processing
  * </ul>
  * <p>
- * To construct it directly, the {@link Prototype} is typically created via a
- * compiler such as {@link LuaC}:
+ * To construct it directly, the {@link Prototype} is typically created via a compiler such as {@link LuaC}:
  *
  * <pre>
  * {@code
@@ -53,18 +53,18 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * }
  * </pre>
  * <p>
- * To construct it indirectly, the {@link LuaC} compiler may be used, which
- * implements the {@link LuaCompiler} interface:
+ * To construct it indirectly, the {@link LuaC} compiler may be used, which implements the {@link LuaCompiler}
+ * interface:
  *
  * <pre>
  * {
- * 	&#064;code
- * 	LuaFunction f = LuaC.instance.load(is, &quot;script&quot;, _G);
+ *     &#064;code
+ *     LuaFunction f = LuaC.instance.load(is, &quot;script&quot;, _G);
  * }
  * </pre>
  * <p>
- * Typically, a closure that has just been loaded needs to be initialized by
- * executing it, and its return value can be saved if needed:
+ * Typically, a closure that has just been loaded needs to be initialized by executing it, and its return
+ * value can be saved if needed:
  *
  * <pre>
  * {@code
@@ -73,13 +73,12 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * }
  * </pre>
  * <p>
- * In the preceding, the loaded value is typed as {@link LuaFunction} to allow
- * for the possibility of other compilers such as LuaJC producing
- * {@link LuaFunction} directly without creating a {@link Prototype} or
+ * In the preceding, the loaded value is typed as {@link LuaFunction} to allow for the possibility of other
+ * compilers such as LuaJC producing {@link LuaFunction} directly without creating a {@link Prototype} or
  * {@link LuaClosure}.
  * <p>
- * Since a {@link LuaClosure} is a {@link LuaFunction} which is a
- * {@link LuaValue}, all the value operations can be used directly such as:
+ * Since a {@link LuaClosure} is a {@link LuaFunction} which is a {@link LuaValue}, all the value operations
+ * can be used directly such as:
  * <ul>
  * <li>{@link LuaValue#setfenv(LuaValue)}</li>
  * <li>{@link LuaValue#call()}</li>
@@ -104,89 +103,91 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public final class LuaClosure extends LuaFunction {
 
-	private static final long serialVersionUID = 1884693136872518784L;
+    private static final long serialVersionUID = 1L;
 
-	private static final UpValue[] NOUPVALUES = new UpValue[0];
+    private static final UpValue[] NOUPVALUES = new UpValue[0];
 
-	private Prototype p;
-	private UpValue[] upValues;
+    private final Prototype p;
+    private final UpValue[] upValues;
 
-	/** Supply the initial environment */
-	public LuaClosure(Prototype p, LuaValue env) {
-		super(env);
+    /** Supply the initial environment */
+    public LuaClosure(Prototype p, LuaValue env) {
+        super(env);
 
-		this.p = p;
-		this.upValues = (p.nups > 0 ? new UpValue[p.nups] : NOUPVALUES);
-	}
+        this.p = p;
+        this.upValues = (p.nups > 0 ? new UpValue[p.nups] : NOUPVALUES);
+    }
 
-	protected LuaClosure(int nupvalues, LuaValue env) {
-		super(env);
+    protected LuaClosure(int nupvalues, LuaValue env) {
+        super(env);
 
-		this.p = null;
-		this.upValues = (nupvalues > 0 ? new UpValue[nupvalues] : NOUPVALUES);
-	}
+        this.p = null;
+        this.upValues = (nupvalues > 0 ? new UpValue[nupvalues] : NOUPVALUES);
+    }
 
-	@Override
-	public boolean isclosure() {
-		return true;
-	}
+    @Override
+    public boolean isclosure() {
+        return true;
+    }
 
-	@Override
-	public LuaClosure optclosure(LuaClosure defval) {
-		return this;
-	}
+    @Override
+    public LuaClosure optclosure(LuaClosure defval) {
+        return this;
+    }
 
-	@Override
-	public LuaClosure checkclosure() {
-		return this;
-	}
+    @Override
+    public LuaClosure checkclosure() {
+        return this;
+    }
 
-	@Override
-	public final LuaValue call() {
-		return invoke(NONE).arg1();
-	}
+    @Override
+    public final LuaValue call() {
+        return invoke(NONE).arg1();
+    }
 
-	@Override
-	public final LuaValue call(LuaValue arg) {
-		return invoke(arg).arg1();
-	}
+    @Override
+    public final LuaValue call(LuaValue arg) {
+        return invoke(arg).arg1();
+    }
 
-	@Override
-	public final LuaValue call(LuaValue arg1, LuaValue arg2) {
-		return invoke(varargsOf(arg1, arg2)).arg1();
-	}
+    @Override
+    public final LuaValue call(LuaValue arg1, LuaValue arg2) {
+        return invoke(varargsOf(arg1, arg2)).arg1();
+    }
 
-	@Override
-	public final LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-		return invoke(varargsOf(arg1, arg2, arg3)).arg1();
-	}
+    @Override
+    public final LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
+        return invoke(varargsOf(arg1, arg2, arg3)).arg1();
+    }
 
-	@Override
-	public final Varargs invoke(Varargs varargs) {
-		return LuaThread.execute(this, varargs);
-	}
+    @Override
+    public final Varargs invoke(Varargs varargs) {
+        return LuaThread.execute(this, varargs);
+    }
 
-	public Prototype getPrototype() {
-		return p;
-	}
-	public UpValue[] getUpValues() {
-		return upValues;
-	}
+    public Prototype getPrototype() {
+        return p;
+    }
 
-	public LuaValue getUpvalue(int i) {
-		return upValues[i].getValue();
-	}
-	public int getUpValueCount() {
-		return upValues.length;
-	}
+    public UpValue[] getUpValues() {
+        return upValues;
+    }
 
-	public void setUpvalue(int i, LuaValue v) {
-		upValues[i].setValue(v);
-	}
+    public LuaValue getUpvalue(int i) {
+        return upValues[i].getValue();
+    }
 
-	@Override
-	public String tojstring() {
-		return type() + " " + p.source+":"+p.linedefined+"-"+p.lastlinedefined;
-	}
+    public int getUpValueCount() {
+        return upValues.length;
+    }
+
+    public void setUpvalue(int i, LuaValue v) {
+        upValues[i].setValue(v);
+    }
+
+    @Override
+    public String tojstring() {
+        return type() + " " + p.source + ":" + p.linedefined + "-" + p.lastlinedefined;
+    }
 
 }

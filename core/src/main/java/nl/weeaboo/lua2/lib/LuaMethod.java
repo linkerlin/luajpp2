@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.lib;
 
+import static org.luaj.vm2.LuaConstants.NONE;
+
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

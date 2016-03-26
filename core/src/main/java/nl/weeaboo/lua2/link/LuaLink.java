@@ -1,6 +1,6 @@
 package nl.weeaboo.lua2.link;
 
-import static org.luaj.vm2.LuaValue.NONE;
+import static org.luaj.vm2.LuaConstants.NONE;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -114,7 +114,7 @@ public class LuaLink extends AbstractLuaLink {
     }
 
 	protected Varargs getImplicitArgs() {
-		return LuaValue.NONE;
+        return NONE;
 	}
 
 	public void pushCall(String funcName, Object... args) throws LuaException {

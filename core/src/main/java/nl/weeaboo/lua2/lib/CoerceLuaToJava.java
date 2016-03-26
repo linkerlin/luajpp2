@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.lib;
 
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
@@ -223,7 +225,7 @@ public class CoerceLuaToJava {
 				out[jlast] = coerceArg(luaArgs.arg(1+jlast), javaParams[jlast]);
 			}
 			for (int n = minlen; n < jlen; n++) {
-				out[n] = CoerceLuaToJava.coerceArg(LuaValue.NIL, javaParams[n]);
+                out[n] = CoerceLuaToJava.coerceArg(NIL, javaParams[n]);
 			}
 		}
 	}

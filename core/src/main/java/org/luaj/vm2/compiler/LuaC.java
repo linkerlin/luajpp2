@@ -71,7 +71,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  */
 public final class LuaC extends Lua implements LuaCompiler {
 
-    static final int MAXSTACK = 250;
     static final int LUAI_MAXUPVALUES = 60;
     static final int LUAI_MAXVARS = 200;
 

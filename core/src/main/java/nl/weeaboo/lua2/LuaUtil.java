@@ -1,7 +1,7 @@
 package nl.weeaboo.lua2;
 
-import static org.luaj.vm2.LuaValue.NIL;
-import static org.luaj.vm2.LuaValue.NONE;
+import static org.luaj.vm2.LuaConstants.NONE;
+import static org.luaj.vm2.LuaNil.NIL;
 import static org.luaj.vm2.LuaValue.valueOf;
 import static org.luaj.vm2.LuaValue.varargsOf;
 

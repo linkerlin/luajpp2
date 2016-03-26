@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,16 +28,14 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 /**
  * Extension of {@link LuaValue} which can hold a Java boolean as its value.
  * <p>
- * These instance are not instantiated directly by clients. Instead, there are
- * exactly two instances of this class, {@link LuaValue#TRUE} and
- * {@link LuaValue#FALSE} representing the lua values {@code true} and {@code
- * false}. The function {@link LuaValue#valueOf(boolean)} will always return one
- * of these two values.
+ * These instance are not instantiated directly by clients. Instead, there are exactly two instances of this
+ * class, {@link LuaValue#TRUE} and {@link LuaValue#FALSE} representing the lua values {@code true} and {@code
+ * false}. The function {@link LuaValue#valueOf(boolean)} will always return one of these two values.
  * <p>
- * Any {@link LuaValue} can be converted to its equivalent boolean
- * representation using {@link LuaValue#toboolean()}
+ * Any {@link LuaValue} can be converted to its equivalent boolean representation using
+ * {@link LuaValue#toboolean()}
  * <p>
- * 
+ *
  * @see LuaValue
  * @see LuaValue#valueOf(boolean)
  * @see LuaValue#TRUE
@@ -46,80 +44,72 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public final class LuaBoolean extends LuaValue implements Serializable {
 
-	private static final long serialVersionUID = 5721031677999015979L;
+    private static final long serialVersionUID = 1L;
 
-	/** The singleton instance representing lua {@code true} */
-	static final LuaBoolean _TRUE = new LuaBoolean(true);
+    /** The singleton instance representing lua {@code true} */
+    public static final LuaBoolean TRUE = new LuaBoolean(true);
 
-	/** The singleton instance representing lua {@code false} */
-	static final LuaBoolean _FALSE = new LuaBoolean(false);
+    /** The singleton instance representing lua {@code false} */
+    public static final LuaBoolean FALSE = new LuaBoolean(false);
 
-	/** Shared static metatable for boolean values represented in lua. */
-	public static LuaValue s_metatable;
+    /** Shared static metatable for boolean values represented in lua. */
+    public static LuaValue s_metatable;
 
-	/** The value of the boolean */
-	public final boolean v;
+    /** The value of the boolean */
+    public final boolean bool;
 
-	LuaBoolean(boolean b) {
-		this.v = b;
-	}
+    private LuaBoolean(boolean b) {
+        this.bool = b;
+    }
 
-	protected Object readResolve() {
-		// Special serialization returning the cached values
-		return valueOf(v);
-	}
-	
-	@Override
-	public int type() {
-		return LuaValue.TBOOLEAN;
-	}
+    protected Object readResolve() {
+        // Special serialization returning the cached values
+        return valueOf(bool);
+    }
 
-	@Override
-	public String typename() {
-		return "boolean";
-	}
+    @Override
+    public int type() {
+        return LuaConstants.TBOOLEAN;
+    }
 
-	@Override
-	public boolean isboolean() {
-		return true;
-	}
+    @Override
+    public String typename() {
+        return "boolean";
+    }
 
-	@Override
-	public LuaValue not() {
-		return v ? FALSE : LuaValue.TRUE;
-	}
+    @Override
+    public boolean isboolean() {
+        return true;
+    }
 
-	/**
-	 * Return the boolean value for this boolean
-	 * 
-	 * @return value as a Java boolean
-	 */
-	public boolean booleanValue() {
-		return v;
-	}
+    @Override
+    public LuaValue not() {
+        return bool ? FALSE : TRUE;
+    }
 
-	@Override
-	public boolean toboolean() {
-		return v;
-	}
+    @Override
+    public boolean toboolean() {
+        return bool;
+    }
 
-	@Override
-	public String tojstring() {
-		return v ? "true" : "false";
-	}
+    @Override
+    public String tojstring() {
+        return bool ? "true" : "false";
+    }
 
-	@Override
-	public boolean optboolean(boolean defval) {
-		return this.v;
-	}
+    @Override
+    public boolean optboolean(boolean defval) {
+        return bool;
+    }
 
-	@Override
-	public boolean checkboolean() {
-		return v;
-	}
+    @Override
+    public boolean checkboolean() {
+        return bool;
+    }
 
-	@Override
-	public LuaValue getmetatable() {
-		return s_metatable;
-	}
+    @Override
+    public LuaValue getmetatable() {
+        return s_metatable;
+    }
+
 }

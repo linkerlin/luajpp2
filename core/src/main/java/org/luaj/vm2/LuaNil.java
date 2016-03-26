@@ -43,24 +43,24 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public class LuaNil extends LuaValue implements IReadResolveSerializable {
 
-	private static final long serialVersionUID = -8161724017076586446L;
+    private static final long serialVersionUID = 1L;
 
-	static final LuaNil _NIL = new LuaNil();
+    public static final LuaNil NIL = new LuaNil();
 
 	public static LuaValue s_metatable;
 
-	LuaNil() {
+    LuaNil() {
 	}
 
     @Override
     public Object readResolve() {
 		// Special serialization returning the singleton
-		return _NIL;
+        return NIL;
 	}
 
 	@Override
 	public int type() {
-		return LuaValue.TNIL;
+        return LuaConstants.TNIL;
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
 
 	@Override
 	public LuaValue not() {
-		return LuaValue.TRUE;
+        return LuaBoolean.TRUE;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
 		return typerror("table index");
 	}
 
-	// optional argument conversions - nil alwas falls badk to default value
+    // optional argument conversions - nil always falls back to default value
 	@Override
 	public boolean optboolean(boolean defval) {
 		return defval;

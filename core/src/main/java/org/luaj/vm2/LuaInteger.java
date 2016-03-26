@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,14 +21,17 @@
  ******************************************************************************/
 package org.luaj.vm2;
 
+import static org.luaj.vm2.LuaBoolean.FALSE;
+import static org.luaj.vm2.LuaBoolean.TRUE;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import nl.weeaboo.lua2.io.LuaSerializable;
-
 import org.luaj.vm2.lib.MathLib;
+
+import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
  * Extension of {@link LuaNumber} which can hold a Java int as its value.
@@ -40,7 +43,7 @@ import org.luaj.vm2.lib.MathLib;
  * <p>
  * There are no API's specific to LuaInteger that are useful beyond what is
  * already exposed in {@link LuaValue}.
- * 
+ *
  * @see LuaValue
  * @see LuaNumber
  * @see LuaDouble
@@ -63,10 +66,10 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
 		}
 		return new LuaInteger(i);
 	}
-	
+
 	/**
 	 * Return a LuaNumber that represents the value provided
-	 * 
+	 *
 	 * @param l long value to represent.
 	 * @return LuaNumber that is eithe LuaInteger or LuaDouble representing l
 	 * @see LuaValue#valueOf(int)
@@ -85,15 +88,15 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
 	private int v;
 
 	/**
-	 * Do not use. Required for efficient serialization. 
+	 * Do not use. Required for efficient serialization.
 	 */
 	@Deprecated
-	public LuaInteger() {		
+	public LuaInteger() {
 	}
-	
+
 	/**
 	 * Package protected constructor.
-	 * 
+	 *
 	 * @see LuaValue#valueOf(int)
 	 **/
 	LuaInteger(int i) {
@@ -104,7 +107,7 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
 		// Special serialization returning the cached values
 		return valueOf(v);
 	}
-	
+
 	@Override
 	public boolean isint() {
 		return true;

@@ -1,6 +1,6 @@
 package nl.weeaboo.lua2.lib;
 
-import static org.luaj.vm2.LuaValue.NIL;
+import static org.luaj.vm2.LuaNil.NIL;
 
 import java.util.HashMap;
 import java.util.Map;

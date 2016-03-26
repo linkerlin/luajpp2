@@ -21,6 +21,8 @@
  ******************************************************************************/
 package nl.weeaboo.lua2.lib;
 
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

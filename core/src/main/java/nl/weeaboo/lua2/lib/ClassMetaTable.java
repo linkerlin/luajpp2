@@ -1,5 +1,10 @@
 package nl.weeaboo.lua2.lib;
 
+import static org.luaj.vm2.LuaConstants.INDEX;
+import static org.luaj.vm2.LuaConstants.LEN;
+import static org.luaj.vm2.LuaConstants.NEWINDEX;
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.io.ObjectStreamException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

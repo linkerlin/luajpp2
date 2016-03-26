@@ -21,6 +21,16 @@
  ******************************************************************************/
 package org.luaj.vm2;
 
+import static org.luaj.vm2.LuaBoolean.FALSE;
+import static org.luaj.vm2.LuaBoolean.TRUE;
+import static org.luaj.vm2.LuaConstants.ADD;
+import static org.luaj.vm2.LuaConstants.DIV;
+import static org.luaj.vm2.LuaConstants.MOD;
+import static org.luaj.vm2.LuaConstants.MUL;
+import static org.luaj.vm2.LuaConstants.POW;
+import static org.luaj.vm2.LuaConstants.SUB;
+import static org.luaj.vm2.LuaNil.NIL;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataOutput;
 import java.io.Externalizable;
@@ -69,7 +79,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public final class LuaString extends LuaValue implements Externalizable {
 
-	private static final long serialVersionUID = 8575848878142191194L;
+    private static final long serialVersionUID = 1L;
 
 	private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
 
@@ -195,7 +205,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
 	@Override
 	public int type() {
-		return LuaValue.TSTRING;
+        return LuaConstants.TSTRING;
 	}
 
 	@Override
@@ -349,7 +359,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 	// relational operators, these only work with other strings
 	@Override
 	public LuaValue lt(LuaValue rhs) {
-		return rhs.strcmp(this) > 0 ? LuaValue.TRUE : FALSE;
+        return rhs.strcmp(this) > 0 ? TRUE : FALSE;
 	}
 
 	@Override
@@ -371,7 +381,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
 	@Override
 	public LuaValue lteq(LuaValue rhs) {
-		return rhs.strcmp(this) >= 0 ? LuaValue.TRUE : FALSE;
+        return rhs.strcmp(this) >= 0 ? TRUE : FALSE;
 	}
 
 	@Override
@@ -393,7 +403,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
 	@Override
 	public LuaValue gt(LuaValue rhs) {
-		return rhs.strcmp(this) < 0 ? LuaValue.TRUE : FALSE;
+        return rhs.strcmp(this) < 0 ? TRUE : FALSE;
 	}
 
 	@Override
@@ -415,7 +425,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
 	@Override
 	public LuaValue gteq(LuaValue rhs) {
-		return rhs.strcmp(this) <= 0 ? LuaValue.TRUE : FALSE;
+        return rhs.strcmp(this) <= 0 ? TRUE : FALSE;
 	}
 
 	@Override

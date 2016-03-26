@@ -1,5 +1,8 @@
 package nl.weeaboo.lua2.lib;
 
+import static org.luaj.vm2.LuaConstants.NONE;
+import static org.luaj.vm2.LuaNil.NIL;
+
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.Varargs;

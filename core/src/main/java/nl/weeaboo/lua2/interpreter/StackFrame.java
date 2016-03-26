@@ -1,6 +1,6 @@
 package nl.weeaboo.lua2.interpreter;
 
-import static org.luaj.vm2.LuaValue.NONE;
+import static org.luaj.vm2.LuaConstants.NONE;
 
 import java.io.Externalizable;
 import java.io.IOException;

@@ -1,8 +1,9 @@
 package nl.weeaboo.lua2.interpreter;
 
-import static org.luaj.vm2.LuaValue.NIL;
-import static org.luaj.vm2.LuaValue.NILS;
-import static org.luaj.vm2.LuaValue.NONE;
+import static org.luaj.vm2.LuaConstants.NONE;
+import static org.luaj.vm2.LuaNil.NIL;
+
+import java.util.Arrays;
 
 import org.luaj.vm2.LuaValue;
 
@@ -10,29 +11,29 @@ final class StackFrameAllocator {
 
 	private static final int DEFAULT_FRAME_CACHE_SIZE = 4;
 	private static final int DEFAULT_ARRAY_CACHE_SIZE = 4;
-	
+
 	private StackFrame[] cachedFrames;
 	private LuaValue[][] cachedArrays;
-	
+
 	public StackFrameAllocator() {
 		cachedFrames = new StackFrame[DEFAULT_FRAME_CACHE_SIZE];
 		cachedArrays = new LuaValue[DEFAULT_ARRAY_CACHE_SIZE][];
 	}
-	
+
 	static void clearFrame(StackFrame frame) {
 		frame.close();
-		
+
 		//Clear any remaining references
 		frame.c = null;
 		frame.args = NONE;
 		frame.varargs = NONE;
 		frame.parent = null;
-		frame.v = NONE;		
+		frame.v = NONE;
 	}
-	
+
 	int reuse = 0;
 	int alloc = 0;
-	
+
 	@SuppressWarnings("deprecation")
 	public StackFrame takeFrame() {
 		for (int n = 0; n < cachedFrames.length; n++) {
@@ -46,7 +47,7 @@ final class StackFrameAllocator {
 		alloc++;
 		return new StackFrame();
 	}
-	
+
 	public void giveFrame(StackFrame frame) {
 		for (int n = 0; n < cachedFrames.length; n++) {
 			if (cachedFrames[n] == null) {
@@ -55,22 +56,14 @@ final class StackFrameAllocator {
 				return;
 			}
 		}
-		
+
 		//Cache full
 	}
-	
+
 	static void clearArray(LuaValue[] stack) {
-		if (stack.length < 32) {
-			for (int n = 0; n < stack.length; n++) {
-				stack[n] = NIL;
-			}
-		} else {
-			for (int n = 0; n < stack.length; n += NILS.length) {
-				System.arraycopy(NILS, 0, stack, n, Math.min(stack.length-n, NILS.length));
-			}
-		}		
+        Arrays.fill(stack, NIL);
 	}
-	
+
 	public LuaValue[] takeArray(int size) {
 		//Find best cached array (if any)
 		int bestIndex = -1;
@@ -82,7 +75,7 @@ final class StackFrameAllocator {
 				bestLength = c.length;
 			}
 		}
-		
+
 		//Return result, or allocate a new stack if necessary
 		if (bestIndex >= 0) {
 			//logReuseStack(size);
@@ -96,7 +89,7 @@ final class StackFrameAllocator {
 			return result;
 		}
 	}
-	
+
 	public void giveArray(LuaValue[] v) {
 		int worstIndex = -1;
 		int worstLength = Integer.MAX_VALUE;
@@ -110,12 +103,12 @@ final class StackFrameAllocator {
 				worstLength = c.length;
 			}
 		}
-		
+
 		if (worstIndex >= 0) {
 			//We want to store the array in our reuse-cache
 			clearArray(v);
 			cachedArrays[worstIndex] = v;
 		}
 	}
-	
+
 }

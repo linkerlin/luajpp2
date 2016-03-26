@@ -1,7 +1,10 @@
 package nl.weeaboo.lua2.interpreter;
 
 import static nl.weeaboo.lua2.LuaUtil.copyArgs;
-import static org.luaj.vm2.LuaValue.NONE;
+import static org.luaj.vm2.LuaBoolean.FALSE;
+import static org.luaj.vm2.LuaBoolean.TRUE;
+import static org.luaj.vm2.LuaConstants.NONE;
+import static org.luaj.vm2.LuaNil.NIL;
 import static org.luaj.vm2.LuaValue.varargsOf;
 
 import org.luaj.vm2.Buffer;
@@ -96,7 +99,7 @@ public class LuaInterpreter {
 					continue;
 
 				case Lua.OP_LOADBOOL:/* A B C R(A):= (Bool)B: if (C) pc++ */
-					stack[a] = (i >>> 23 != 0) ? LuaValue.TRUE : LuaValue.FALSE;
+                    stack[a] = (i >>> 23 != 0) ? TRUE : FALSE;
 					if ((i & (0x1ff << 14)) != 0) pc++; /*
 														 * skip next instruction (if
 														 * C)
@@ -105,7 +108,7 @@ public class LuaInterpreter {
 
 				case Lua.OP_LOADNIL: /* A B R(A):= ...:= R(B):= nil */
 					for (b = i >>> 23; a <= b;)
-						stack[a++] = LuaValue.NIL;
+                        stack[a++] = NIL;
 					continue;
 
 				case Lua.OP_GETUPVAL: /* A B R(A):= UpValue[B] */
