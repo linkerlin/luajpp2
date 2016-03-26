@@ -3,7 +3,6 @@ package nl.weeaboo.lua2.link;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 
 import org.luaj.vm2.LuaClosure;
@@ -21,9 +20,9 @@ import nl.weeaboo.lua2.io.LuaSerializer;
 import nl.weeaboo.lua2.lib.CoerceJavaToLua;
 
 @LuaSerializable
-public class LuaLink implements Serializable {
+public class LuaLink implements ILuaLink {
 
-	private static final long serialVersionUID = -6946289878490242267L;
+    private static final long serialVersionUID = 1L;
 
 	protected LuaRunState luaRunState;
 	protected transient LuaThread thread;
@@ -38,7 +37,6 @@ public class LuaLink implements Serializable {
 		thread = new LuaThread(luaRunState, luaRunState.getGlobalEnvironment());
 	}
 
-	//Functions
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 
@@ -66,7 +64,13 @@ public class LuaLink implements Serializable {
 		}
 	}
 
-	public void destroy() {
+    @Override
+    public boolean isDestroyed() {
+        return thread.isDead();
+    }
+
+	@Override
+    public void destroy() {
 		persistent = false;
 		thread.destroy();
 	}
@@ -183,10 +187,10 @@ public class LuaLink implements Serializable {
 			if (ignoreMissing && e.getCause() instanceof NoSuchMethodException) {
 				//Ignore methods that don't exist
 			} else {
-				throw new LuaException(e.getMessage(), e.getCause() != null ? e.getCause() : e);
+                throw LuaException.wrap("Error calling function: " + func, e);
 			}
 		} catch (RuntimeException e) {
-			throw new LuaException(e);
+            throw LuaException.wrap("Error calling function: " + func, e);
 		} finally {
 			luaRunState.setCurrentLink(oldLink);
 		}
@@ -200,7 +204,8 @@ public class LuaLink implements Serializable {
 	protected void init() throws LuaException {
 	}
 
-	public boolean update() throws LuaException {
+	@Override
+    public boolean update() throws LuaException {
 		boolean changed = false;
 
 		if (!inited) {
@@ -227,7 +232,7 @@ public class LuaLink implements Serializable {
 			if (e.getCause() instanceof NoSuchMethodException) {
 				throw new LuaException(e.getCause().getMessage());
 			} else {
-				LuaException le = new LuaException(e.getMessage(), e);
+                LuaException le = LuaException.wrap("Error running thread", e);
 				le.setStackTrace(e.getStackTrace());
 				throw le;
 			}
@@ -246,26 +251,27 @@ public class LuaLink implements Serializable {
 		thread.pushPending(c, args);
 	}
 
-	//Getters
 	public boolean isRunnable() {
 	    if (!inited) return true;
 	    if (thread == null) return false;
 	    return !thread.isFinished();
 	}
 
-	public final boolean isFinished() {
+    @Override
+    public final boolean isFinished() {
 		if (!inited) return false;
 		if (thread == null) return true;
 		return (persistent ? thread.isDead() : thread.isFinished());
 	}
+
+    public LuaThread getThread() {
+        return thread;
+    }
+
 	public int getWait() {
 		return wait;
 	}
-	public LuaThread getThread() {
-		return thread;
-	}
 
-	//Setters
 	public void setWait(int w) {
 		wait = w;
 	}

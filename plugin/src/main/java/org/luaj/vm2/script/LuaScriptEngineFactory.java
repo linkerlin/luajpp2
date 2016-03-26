@@ -10,7 +10,7 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,80 +27,82 @@ import java.util.List;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
+import nl.weeaboo.lua2.LuaRunState;
+
 /**
  * Jsr 223 scripting engine factory
  */
 public class LuaScriptEngineFactory implements ScriptEngineFactory {
-    
+
  	private static final String [] EXTENSIONS = {
  		"lua",
  		".lua",
  	};
-    
+
     private static final String [] MIMETYPES = {
         "text/plain",
         "text/lua",
         "application/lua"
     };
-    
+
     private static final String [] NAMES = {
-        "lua", 
+        "lua",
         "luaj",
     };
-    
-    private static final ThreadLocal<ScriptEngine> engines 
+
+    private static final ThreadLocal<ScriptEngine> engines
 		= new ThreadLocal<ScriptEngine>();
     private List<String> extensions;
     private List<String> mimeTypes;
     private List<String> names;
 
-    
+
     public LuaScriptEngineFactory() {
         extensions = Arrays.asList(EXTENSIONS);
         mimeTypes = Arrays.asList(MIMETYPES);
         names = Arrays.asList(NAMES);
     }
-    
+
     @Override
 	public String getEngineName() {
         return getScriptEngine().get(ScriptEngine.ENGINE).toString();
     }
-    
+
     @Override
 	public String getEngineVersion() {
         return getScriptEngine().get(ScriptEngine.ENGINE_VERSION).toString();
     }
-    
+
     @Override
 	public List<String> getExtensions() {
         return extensions;
     }
-    
+
     @Override
 	public List<String> getMimeTypes() {
         return mimeTypes;
     }
-    
+
     @Override
 	public List<String> getNames() {
         return names;
     }
-    
+
     @Override
 	public String getLanguageName() {
         return getScriptEngine().get(ScriptEngine.LANGUAGE).toString();
     }
-    
+
     @Override
 	public String getLanguageVersion() {
         return getScriptEngine().get(ScriptEngine.LANGUAGE_VERSION).toString();
     }
-    
+
     @Override
 	public Object getParameter(String key) {
         return getScriptEngine().get(key).toString();
     }
-    
+
     @Override
 	public String getMethodCallSyntax(String obj, String m, String... args)  {
         StringBuffer sb = new StringBuffer();
@@ -115,12 +117,12 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Override
 	public String getOutputStatement(String toDisplay) {
         return "print(" + toDisplay + ")";
     }
-    
+
     @Override
 	public String getProgram(String ... statements) {
         StringBuffer sb = new StringBuffer();
@@ -133,12 +135,12 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
         }
         return sb.toString();
     }
-    
+
     @Override
 	public ScriptEngine getScriptEngine() {
     	ScriptEngine eng = engines.get();
     	if ( eng == null ) {
-    		eng = new LuaScriptEngine();
+            eng = new LuaScriptEngine(new LuaRunState());
 	        engines.set(eng);
     	}
 		return eng;

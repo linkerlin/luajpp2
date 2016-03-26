@@ -21,19 +21,16 @@
  ******************************************************************************/
 package org.luaj.vm2.lib;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
-import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.J2sePlatform;
-
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
+
+import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib.J2sePlatform;
 
 /**
  * Subclass of {@link LibFunction} which implements the lua standard package and
@@ -117,22 +114,11 @@ public class PackageLib extends OneArgFunction {
 	private static final int OP_JAVA_LOADER = 6;
 
 	public PackageLib() {
-		LuaRunState lrs = LuaRunState.getCurrent();
-		if (lrs == null) throw new IllegalStateException("No LuaRunState registered on current thread: "
-				+ Thread.currentThread());
-		lrs.setPackageLib(this);
 	}
 
 	public static PackageLib getCurrent() {
 		LuaRunState lrs = LuaRunState.getCurrent();
 		return (lrs != null ? lrs.getPackageLib() : null);
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-
-		LuaRunState lrs = LuaRunState.getCurrent();
-		lrs.setPackageLib(this);
 	}
 
 	@Override

@@ -2,17 +2,13 @@ package nl.weeaboo.lua2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.DebugLib;
 import org.luaj.vm2.lib.PackageLib;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -21,21 +17,19 @@ import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.link.LuaLink;
 
 @LuaSerializable
-public final class LuaRunState implements Serializable {
+public final class LuaRunState implements Serializable, IDestructible {
 
-	private static final long serialVersionUID = 6685783138764897120L;
+    private static final long serialVersionUID = 1L;
 
 	private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
-	//--- Uses manual serialization, don't add variables ---
-	private boolean destroyed;
-	private PackageLib packageLib;
-	private LuaThread mainThread;
-	private LuaThreadGroup[] threadGroups; //Uses an array to reduce garbage from iterators (it makes a little sense when trying to run at 60 fps on a smartphone).
-	private int threadGroupsCount;
-	private LuaTable globalEnvironment;
-	private int instructionCountLimit = 1000000;
-	//--- Uses manual serialization, don't add variables ---
+    private LuaTable globalEnvironment;
+    private LuaThread mainThread;
+    private DestructibleElemList<LuaThreadGroup> threadGroups;
+
+    private boolean destroyed;
+    private int instructionCountLimit = 1000000;
+    private PackageLib packageLib;
 
 	private transient LuaLink current;
 	private transient LuaThread currentThread;
@@ -44,32 +38,27 @@ public final class LuaRunState implements Serializable {
 	public LuaRunState() {
 		registerOnThread();
 
-		globalEnvironment = J2sePlatform.debugGlobals();
+        globalEnvironment = J2sePlatform.registerStandardLibs(this);
 		mainThread = LuaThread.createMainThread(this, globalEnvironment);
-		threadGroups = new LuaThreadGroup[4];
+        threadGroups = new DestructibleElemList<LuaThreadGroup>();
 
 		newThreadGroup();
 	}
 
-	//Functions
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		registerOnThread();
 
 		in.defaultReadObject();
 	}
 
-	public void destroy() {
+	@Override
+    public void destroy() {
 		if (destroyed) {
 			return;
 		}
 
 		destroyed = true;
-
-		for (LuaThreadGroup tg : threadGroups) {
-			if (tg != null) tg.destroy();
-		}
-		threadGroups = null;
-		threadGroupsCount = 0;
+        threadGroups.destroyAll();
 
 		current = null;
 		currentThread = null;
@@ -84,11 +73,10 @@ public final class LuaRunState implements Serializable {
 	}
 
 	private LuaThreadGroup findFirstThreadGroup() {
-		for (int n = 0; n < threadGroupsCount; n++) {
-			LuaThreadGroup g = threadGroups[n];
-			if (!g.isDestroyed()) {
-				return g;
-			}
+        for (LuaThreadGroup group : threadGroups) {
+            if (!group.isDestroyed()) {
+                return group;
+            }
 		}
 		return null;
 	}
@@ -110,65 +98,23 @@ public final class LuaRunState implements Serializable {
 	}
 
 	public LuaThreadGroup newThreadGroup() {
-		LuaThreadGroup result = new LuaThreadGroup(this);
-		if (threadGroupsCount >= threadGroups.length) {
-			LuaThreadGroup[] newGroups = new LuaThreadGroup[threadGroups.length << 1];
-			System.arraycopy(threadGroups, 0, newGroups, 0, threadGroupsCount);
-			threadGroups = newGroups;
-		}
-		threadGroups[threadGroupsCount++] = result;
-		return result;
+        LuaThreadGroup tg = new LuaThreadGroup(this);
+        threadGroups.add(tg);
+        return tg;
 	}
 
 	public boolean update() throws LuaException {
-		registerOnThread();
+        if (destroyed) {
+            return false;
+        }
+
+        registerOnThread();
 
 		boolean changed = false;
-		if (destroyed) {
-			return changed;
+        for (LuaThreadGroup tg : threadGroups) {
+            changed |= tg.update();
 		}
-
-		//Update
-		int d = 0;
-		for (int s = 0; s < threadGroupsCount; s++) {
-			LuaThreadGroup tg = threadGroups[s];
-			if (!tg.isDestroyed()) {
-				threadGroups[d++] = tg;
-				changed |= tg.update();
-
-				if (destroyed) {
-					return changed;
-				}
-			}
-		}
-		for (int n = d; n < threadGroupsCount; n++) {
-			threadGroups[n] = null; //Clear leftover references
-		}
-		threadGroupsCount = d;
-
 		return changed;
-	}
-
-	public void printStackTrace(PrintStream pout) {
-		List<LuaLink> temp = new ArrayList<LuaLink>();
-
-		pout.println("=== Printing stack traces ===");
-		for (int n = 0; n < threadGroupsCount; n++) {
-			LuaThreadGroup group = threadGroups[n];
-			pout.println("+ Threadgroup " + group);
-
-			temp.clear();
-			group.getThreads(temp);
-			for (LuaLink link : temp) {
-				LuaThread thread = link.getThread();
-				if (thread != null) {
-					pout.println(" - Thread " + link);
-					for (StackTraceElement ste : DebugLib.stackTrace(thread, 0, 32)) {
-						pout.println("    at " + ste);
-					}
-				}
-			}
-		}
 	}
 
     /**
@@ -181,12 +127,12 @@ public final class LuaRunState implements Serializable {
 		}
 	}
 
-	//Getters
 	public static LuaRunState getCurrent() {
 		return threadInstance.get();
 	}
 
-	public boolean isDestroyed() {
+	@Override
+    public boolean isDestroyed() {
 		return destroyed;
 	}
 	public LuaLink getCurrentLink() {
@@ -208,7 +154,6 @@ public final class LuaRunState implements Serializable {
 		return instructionCountLimit;
 	}
 
-	//Setters
 	public void setInstructionCountLimit(int lim) {
 		instructionCountLimit = lim;
 	}
@@ -226,7 +171,7 @@ public final class LuaRunState implements Serializable {
 		instructionCount = 0;
 	}
 
-	public void setPackageLib(PackageLib plib) {
+    public void setPackageLib(PackageLib plib) {
 		packageLib = plib;
 	}
 

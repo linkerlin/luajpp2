@@ -76,7 +76,6 @@ public final class LocVars implements Externalizable {
 		int len = varname.length();
 		out.writeInt(len);
 		varname.write(out, 0, len);
-		//out.writeObject(varname);
 		
 		out.writeInt(startpc);
 		out.writeInt(endpc);
@@ -88,7 +87,6 @@ public final class LocVars implements Externalizable {
 		byte[] bytes = new byte[len];
 		in.readFully(bytes);
 		varname = LuaString.valueOf(bytes);
-		//varname = (LuaString)in.readObject();
 		
 		startpc = in.readInt();
 		endpc = in.readInt();

@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,9 +37,6 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import nl.weeaboo.lua2.lib.CoerceJavaToLua;
-import nl.weeaboo.lua2.lib.J2sePlatform;
-
 import org.luaj.vm2.LoadState;
 import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaClosure;
@@ -50,8 +47,12 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
 import org.luaj.vm2.Varargs;
 
+import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.lib.CoerceJavaToLua;
+import nl.weeaboo.lua2.lib.J2sePlatform;
+
 /**
- * 
+ *
  * @author jim_roseborough
  */
 public class LuaScriptEngine implements ScriptEngine, Compilable {
@@ -70,10 +71,9 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 
 	private final LuaValue _G;
 
-	public LuaScriptEngine() {
-
+    public LuaScriptEngine(LuaRunState lrs) {
 		// create globals
-		_G = J2sePlatform.standardGlobals();
+        _G = J2sePlatform.registerStandardLibs(lrs);
 
 		// set up context
 		ScriptContext ctx = new SimpleScriptContext();

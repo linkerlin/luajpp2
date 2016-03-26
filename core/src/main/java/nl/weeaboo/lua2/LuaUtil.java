@@ -7,17 +7,21 @@ import static org.luaj.vm2.LuaValue.varargsOf;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.luaj.vm2.LoadState;
+import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.BaseLib;
+import org.luaj.vm2.lib.DebugLib;
 
 import nl.weeaboo.lua2.lib.LuajavaLib;
 import nl.weeaboo.lua2.link.LuaLink;
@@ -25,67 +29,92 @@ import nl.weeaboo.lua2.link.LuaLink;
 public final class LuaUtil {
 
 	private static final LuaString NEW = valueOf("new");
+    private static final int DEFAULT_STACK_LIMIT = 8;
 
 	private LuaUtil() {
 	}
 
-	public static void registerClass(LuaValue globals, Class<?> c) {
-		registerClass(globals, c, c.getSimpleName());
+	/**
+	 * @see #registerClass(LuaValue, Class, String)
+	 */
+    public static void registerClass(LuaValue globals, Class<?> clazz) {
+        registerClass(globals, clazz, clazz.getSimpleName());
 	}
-	public static <T> void registerClass(LuaValue globals, Class<T> c, String tableName) {
+
+	/**
+     * Makes the given class available to Lua by registering a global table.
+     *
+     * @param globals The global table to register the class table in.
+     * @param clazz Java type to register.
+     * @param tableName Name of the class table.
+     */
+    public static void registerClass(LuaValue globals, Class<?> clazz, String tableName) {
 		LuaTable table = new LuaTable();
-		if (c.isEnum()) {
-			for (T val : c.getEnumConstants()) {
+        if (clazz.isEnum()) {
+            for (Object val : clazz.getEnumConstants()) {
 				Enum<?> e = (Enum<?>)val;
-				table.rawset(e.name(), LuajavaLib.toUserdata(e, c));
+                table.rawset(e.name(), LuajavaLib.toUserdata(e, clazz));
 			}
 		} else {
-			table.rawset(NEW, new LuajavaLib.ConstrFunction(c));
+            table.rawset(NEW, new LuajavaLib.ConstrFunction(clazz));
 		}
 		globals.rawset(tableName, table);
 	}
 
-	public static Varargs initModule(InputStream in, String filename) throws LuaException {
-		try {
-			Varargs result = BaseLib.loadStream(in, filename);
-			if (!result.arg1().isfunction()) {
-				throw new LuaException(result.arg(2).tojstring());
-			}
-			return result.arg1().invoke();
-		} catch (LuaError le) {
-			throw new LuaException(le);
-		}
-	}
-
+    /** Compiles and runs a piece of Lua code in the given thread */
     public static Varargs eval(LuaLink thread, String code) throws LuaException {
-		final String chunkName = "(eval)";
-		final LuaValue env = thread.getThread().getfenv();
+        return thread.call(compileForEval(thread.getThread(), code));
+    }
 
-		try {
-			ByteArrayInputStream bin = new ByteArrayInputStream(("return " + code).getBytes("UTF-8"));
+    public static LuaClosure compileForEval(LuaThread thread, String code) throws LuaException {
+        final String chunkName = "(eval)";
+        final LuaValue env = thread.getCallEnv();
+        try {
+            ByteArrayInputStream bin = new ByteArrayInputStream(("return " + code).getBytes("UTF-8"));
 
-			Varargs result = NONE;
-			try {
-				//Try to evaluate as an expression
-				result = LoadState.load(bin, chunkName, env);
-			} catch (LuaError err) {
-				//Try to evaluate as a statement, no value to return
-				bin.reset();
-				bin.skip(7); //Skip "return "
-				result = LoadState.load(bin, chunkName, env);
-			}
+            Varargs result = NONE;
+            try {
+                // Try to evaluate as an expression
+                result = LoadState.load(bin, chunkName, env);
+            } catch (LuaError err) {
+                // Try to evaluate as a statement, no value to return
+                bin.reset();
+                bin.skip(7); // Skip "return "
+                result = LoadState.load(bin, chunkName, env);
+            }
 
-			LuaValue f = result.arg1();
-			if (!f.isclosure()) {
-				throw new LuaException(result.arg(2).tojstring());
-			}
-			return thread.call(f.checkclosure());
-		} catch (RuntimeException e) {
-			throw new LuaException(e);
-		} catch (IOException e) {
-			throw new LuaException(e);
-		}
-	}
+            LuaValue f = result.arg1();
+            if (!f.isclosure()) {
+                throw new LuaException(result.arg(2).tojstring());
+            }
+            return f.checkclosure();
+        } catch (RuntimeException e) {
+            throw LuaException.wrap("Error compiling code", e);
+        } catch (IOException e) {
+            throw LuaException.wrap("Error compiling code", e);
+        }
+    }
+
+    /** @return The current call stack of the active Lua thread, or an empty list if no thread is active. */
+    public static List<String> getLuaStack() {
+        return getLuaStack(LuaThread.getRunning());
+    }
+
+    static List<String> getLuaStack(LuaThread thread) {
+        if (thread == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> result = new ArrayList<String>();
+        for (int level = 0; level < DEFAULT_STACK_LIMIT; level++) {
+            String line = DebugLib.fileline(thread, level);
+            if (line == null) {
+                break;
+            }
+            result.add(line);
+        }
+        return Collections.unmodifiableList(result);
+    }
 
 	public static Varargs copyArgs(LuaValue[] stack, int offset, int length) {
 		if (length <= 0) return NONE;

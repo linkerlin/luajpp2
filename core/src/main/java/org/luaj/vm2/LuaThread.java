@@ -255,4 +255,11 @@ public final class LuaThread extends LuaValue implements Serializable {
 		return running.resume(1);
 	}
 
+    public LuaValue getCallEnv() {
+        if (callstack != null) {
+            return callstack.getCallstackFunction(1).getfenv();
+        }
+        return getfenv();
+    }
+
 }
