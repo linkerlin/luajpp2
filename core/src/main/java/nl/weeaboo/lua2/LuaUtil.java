@@ -93,7 +93,7 @@ public final class LuaUtil {
         return getLuaStack(LuaThread.getRunning());
     }
 
-    static List<String> getLuaStack(LuaThread thread) {
+    public static List<String> getLuaStack(LuaThread thread) {
         if (thread == null) {
             return Collections.emptyList();
         }

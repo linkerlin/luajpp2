@@ -51,4 +51,9 @@ public interface ILuaLink extends Serializable, IDestructible {
      */
     void jump(LuaClosure func, Varargs args);
 
+    /** @see #call(LuaClosure, Object...) */
+    Varargs call(String funcName, Object... args) throws LuaException;
+
+    Varargs call(LuaClosure func, Object... args) throws LuaException;
+
 }

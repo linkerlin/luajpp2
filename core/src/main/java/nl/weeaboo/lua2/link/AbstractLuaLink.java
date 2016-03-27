@@ -1,11 +1,15 @@
 package nl.weeaboo.lua2.link;
 
+import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.Varargs;
+
 abstract class AbstractLuaLink implements ILuaLink {
 
     private static final long serialVersionUID = 1L;
 
     private int wait;
-    
+
     public int getWait() {
         return wait;
     }
@@ -48,6 +52,25 @@ abstract class AbstractLuaLink implements ILuaLink {
         if (wait >= 0 && (w < 0 || w > wait)) {
             setWait(w);
         }
+    }
+
+    protected final LuaClosure getFunction(String funcName) throws LuaException {
+        LuaClosure function = findFunction(funcName);
+        if (function != null) {
+            return function;
+        }
+        throw new LuaException(String.format("function \"%s\" not found", funcName));
+    }
+
+    public final boolean hasFunction(String funcName) {
+        return findFunction(funcName) != null;
+    }
+
+    protected abstract LuaClosure findFunction(String funcName);
+
+    @Override
+    public Varargs call(String funcName, Object... args) throws LuaException {
+        return call(getFunction(funcName), args);
     }
 
 }

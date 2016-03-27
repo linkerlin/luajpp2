@@ -76,18 +76,7 @@ public class LuaLink extends AbstractLuaLink {
 		thread.destroy();
 	}
 
-    protected final LuaClosure getFunction(String funcName) throws LuaException {
-        LuaClosure function = findFunction(funcName);
-        if (function != null) {
-            return function;
-        }
-        throw new LuaException(String.format("function \"%s\" not found", funcName));
-	}
-
-    public final boolean hasFunction(String funcName) {
-        return findFunction(funcName) != null;
-    }
-
+    @Override
     protected LuaClosure findFunction(String funcName) {
         LuaValue table = thread.getfenv();
 
@@ -129,14 +118,10 @@ public class LuaLink extends AbstractLuaLink {
         thread.pushPending(func, args);
 	}
 
-    /** @see #call(LuaClosure, Object...) */
-    public Varargs call(String funcName, Object... args) throws LuaException {
-        return call(getFunction(funcName), args);
-    }
-
     /**
      * Calls a Lua function and returns its result.
      */
+    @Override
 	public Varargs call(LuaClosure func, Object... args) throws LuaException {
         Varargs mergedArgs = LuaUtil.concatArgs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
         return doCall(func, mergedArgs);
