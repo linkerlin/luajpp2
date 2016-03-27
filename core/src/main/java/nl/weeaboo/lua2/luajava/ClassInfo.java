@@ -50,24 +50,22 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 		isArray = c.isArray();
 	}
 
-	//Functions
     @Override
     public Object writeReplace() throws ObjectStreamException {
 		return new ClassInfoRef(clazz);
 	}
 
-	public Object newInstance(Varargs luaArgs)
-		throws IllegalArgumentException, InstantiationException,
-				IllegalAccessException, InvocationTargetException
-	{
+    public Object newInstance(Varargs luaArgs) throws IllegalArgumentException, InstantiationException,
+            IllegalAccessException, InvocationTargetException {
+
 		ConstructorInfo constr = findConstructor(luaArgs);
 		if (constr == null) {
-			throw new LuaError(String.format("No suitable constructor found for: %s\n", clazz.getName()));
+            throw new LuaError("No suitable constructor found for: " + clazz.getName());
 		}
 
-		Class<?>[] params = constr.getParams();
-		Object[] javaArgs = new Object[params.length];
-		CoerceLuaToJava.coerceArgs(javaArgs, luaArgs, params);
+        Class<?>[] paramTypes = constr.getParams();
+        Object[] javaArgs = new Object[paramTypes.length];
+        CoerceLuaToJava.coerceArgs(javaArgs, luaArgs, paramTypes);
 		return constr.getConstructor().newInstance(javaArgs);
 	}
 
@@ -85,7 +83,6 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 		return false;
 	}
 
-	//Getters
 	public Class<?> getWrappedClass() {
 		return clazz;
 	}
@@ -98,14 +95,13 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 		ConstructorInfo bestMatch = null;
 		int bestScore = Integer.MAX_VALUE;
 
-		ConstructorInfo constrs[] = getConstructors();
-		for (int n = 0; n < constrs.length; n++) {
-			int score = CoerceLuaToJava.scoreParamTypes(luaArgs, constrs[n].getParams());
+        for (ConstructorInfo constr : getConstructors()) {
+            int score = CoerceLuaToJava.scoreParamTypes(luaArgs, constr.getParams());
 			if (score == 0) {
-				return constrs[n]; //Perfect match, return at once
+                return constr; // Perfect match, return at once
 			} else if (score < bestScore) {
 				bestScore = score;
-				bestMatch = constrs[n];
+                bestMatch = constr;
 			}
 		}
 
@@ -172,7 +168,6 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 		return getMethods(name) != null;
 	}
 
-	//Inner Classes
 	@LuaSerializable
     private static class ClassInfoRef implements IReadResolveSerializable {
 

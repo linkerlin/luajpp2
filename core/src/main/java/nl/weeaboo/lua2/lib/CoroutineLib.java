@@ -23,6 +23,7 @@ package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -79,7 +80,7 @@ public class CoroutineLib extends VarArgFunction {
         bind(t, CoroutineLib.class, new String[] { "create", "resume", "running", "status", "yield", "wrap" },
                 CREATE);
         env.set("coroutine", t);
-        PackageLib.getCurrent().LOADED.set("coroutine", t);
+        LuaRunState.getCurrent().setIsLoaded("coroutine", t);
         return t;
     }
 

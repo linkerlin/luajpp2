@@ -110,11 +110,6 @@ public class PackageLib extends OneArgFunction {
     public PackageLib() {
     }
 
-    public static PackageLib getCurrent() {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        return (lrs != null ? lrs.getPackageLib() : null);
-    }
-
     @Override
     public LuaValue call(LuaValue arg) {
         env.set("require", new PkgLib1(env, "require", OP_REQUIRE, this));

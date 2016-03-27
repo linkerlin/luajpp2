@@ -40,6 +40,7 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LuaCompiler;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Lua;
@@ -152,7 +153,7 @@ public class DebugLib extends VarArgFunction {
         LuaTable t = new LuaTable();
         bind(t, DebugLib.class, NAMES, DEBUG);
         env.set("debug", t);
-        PackageLib.getCurrent().LOADED.set("debug", t);
+        LuaRunState.getCurrent().setIsLoaded("debug", t);
         return t;
     }
 

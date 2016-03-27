@@ -25,6 +25,7 @@ import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -72,7 +73,7 @@ public class TableLib extends OneArgFunction {
         bind(t, TableLibV.class,
                 new String[] { "remove", "concat", "insert", "sort", "foreach", "foreachi", });
         env.set("table", t);
-        PackageLib.getCurrent().LOADED.set("table", t);
+        LuaRunState.getCurrent().setIsLoaded("table", t);
         return t;
     }
 

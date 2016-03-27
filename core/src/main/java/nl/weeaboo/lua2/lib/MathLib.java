@@ -26,6 +26,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.util.Random;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
@@ -117,7 +118,7 @@ public class MathLib extends OneArgFunction {
             bind(t, MathLibV.class, new String[] { "frexp", "max", "min", "modf", "randomseed", "random" });
 
             env.set("math", t);
-            PackageLib.getCurrent().LOADED.set("math", t);
+            LuaRunState.getCurrent().setIsLoaded("math", t);
         }
         return t;
     }

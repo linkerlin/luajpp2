@@ -32,6 +32,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaString;
@@ -248,7 +249,7 @@ abstract public class IoLib extends OneArgFunction {
 
         // return the table
         env.set("io", t);
-        PackageLib.getCurrent().LOADED.set("io", t);
+        LuaRunState.getCurrent().setIsLoaded("io", t);
         return t;
     }
 

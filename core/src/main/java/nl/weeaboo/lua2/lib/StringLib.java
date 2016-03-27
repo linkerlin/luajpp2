@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Buffer;
@@ -85,7 +86,7 @@ public class StringLib extends OneArgFunction {
                 new String[] { "byte", "char", "find", "format", "gmatch", "gsub", "match", "rep", "sub" });
         env.set("string", t);
         LuaString.s_metatable = tableOf(new LuaValue[] { INDEX, t });
-        PackageLib.getCurrent().LOADED.set("string", t);
+        LuaRunState.getCurrent().setIsLoaded("string", t);
         return t;
     }
 

@@ -31,13 +31,13 @@ public final class LuaRunState implements Serializable, IDestructible {
 
 	private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
-    private LuaTable globalEnvironment;
-    private LuaThread mainThread;
-    private DestructibleElemList<LuaThreadGroup> threadGroups;
+    private final PackageLib packageLib;
+    private final LuaTable globals;
+    private final LuaThread mainThread;
+    private final DestructibleElemList<LuaThreadGroup> threadGroups;
 
     private boolean destroyed;
     private int instructionCountLimit = 1000000;
-    private PackageLib packageLib;
 
     private transient ILuaLink current;
 	private transient LuaThread currentThread;
@@ -46,8 +46,22 @@ public final class LuaRunState implements Serializable, IDestructible {
 	public LuaRunState() {
 		registerOnThread();
 
-        globalEnvironment = registerStandardLibs(this);
-		mainThread = LuaThread.createMainThread(this, globalEnvironment);
+        packageLib = new PackageLib();
+
+        globals = new LuaTable();
+        globals.load(new BaseLib());
+        globals.load(packageLib);
+        globals.load(new TableLib());
+        globals.load(new StringLib());
+        globals.load(new CoroutineLib());
+        globals.load(MathLib.getInstance());
+        globals.load(new SerializableIoLib());
+        globals.load(new OsLib());
+        globals.load(new LuajavaLib());
+        globals.load(new ThreadLib());
+        globals.load(new DebugLib());
+
+        mainThread = LuaThread.createMainThread(this, globals);
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
 
 		newThreadGroup();
@@ -58,25 +72,6 @@ public final class LuaRunState implements Serializable, IDestructible {
 
 		in.defaultReadObject();
 	}
-
-    private static LuaTable registerStandardLibs(LuaRunState lrs) {
-        PackageLib packageLib = new PackageLib();
-        lrs.setPackageLib(packageLib);
-
-        LuaTable _G = new LuaTable();
-        _G.load(new BaseLib());
-        _G.load(packageLib);
-        _G.load(new TableLib());
-        _G.load(new StringLib());
-        _G.load(new CoroutineLib());
-        _G.load(MathLib.getInstance());
-        _G.load(new SerializableIoLib());
-        _G.load(new OsLib());
-        _G.load(new LuajavaLib());
-        _G.load(new ThreadLib());
-        _G.load(new DebugLib());
-        return _G;
-    }
 
 	@Override
     public void destroy() {
@@ -166,18 +161,23 @@ public final class LuaRunState implements Serializable, IDestructible {
     public ILuaLink getCurrentLink() {
 		return current;
 	}
-	public LuaThreadGroup getDefaultThreadGroup() {
+
+    public LuaThreadGroup getDefaultThreadGroup() {
 		return findFirstThreadGroup();
 	}
+
 	public LuaThread getRunningThread() {
 		return (currentThread != null ? currentThread : mainThread);
 	}
+
 	public PackageLib getPackageLib() {
 		return packageLib;
 	}
+
 	public LuaTable getGlobalEnvironment() {
-		return globalEnvironment;
+        return globals;
 	}
+
 	public int getInstructionCountLimit() {
 		return instructionCountLimit;
 	}
@@ -199,9 +199,14 @@ public final class LuaRunState implements Serializable, IDestructible {
 		instructionCount = 0;
 	}
 
-    public void setPackageLib(PackageLib plib) {
-		packageLib = plib;
-	}
+    /**
+     * Allow packages to mark themselves as loaded
+     *
+     * @see PackageLib#setIsLoaded(String, LuaTable)
+     */
+    public void setIsLoaded(String name, LuaTable value) {
+        packageLib.setIsLoaded(name, value);
+    }
 
     /**
      * @return {@code true} if there are still running threads.

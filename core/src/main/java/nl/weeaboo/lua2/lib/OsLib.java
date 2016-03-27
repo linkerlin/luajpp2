@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -116,7 +117,7 @@ public class OsLib extends VarArgFunction {
         LuaTable t = new LuaTable();
         bind(t, this.getClass(), NAMES, CLOCK);
         env.set("os", t);
-        PackageLib.getCurrent().LOADED.set("os", t);
+        LuaRunState.getCurrent().setIsLoaded("os", t);
         return t;
     }
 
