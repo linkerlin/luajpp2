@@ -2111,7 +2111,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue add(double rhs) {
-        return aritherror("add");
+        return arithmtwith(ADD, rhs);
     }
 
     @Override
@@ -2131,12 +2131,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue sub(int rhs) {
-        return aritherror("sub");
+        return sub((double)rhs);
     }
 
     @Override
     public LuaValue subFrom(double lhs) {
-        return aritherror("sub");
+        return arithmtwith(SUB, lhs);
     }
 
     @Override
@@ -2151,7 +2151,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue mul(double rhs) {
-        return aritherror("mul");
+        return arithmtwith(MUL, rhs);
     }
 
     @Override
@@ -2171,12 +2171,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue pow(int rhs) {
-        return aritherror("pow");
+        return pow((double)rhs);
     }
 
     @Override
     public LuaValue powWith(double lhs) {
-        return aritherror("mul");
+        return arithmtwith(POW, lhs);
     }
 
     @Override
@@ -2196,12 +2196,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue div(int rhs) {
-        return aritherror("div");
+        return div((double)rhs);
     }
 
     @Override
     public LuaValue divInto(double lhs) {
-        return aritherror("divInto");
+        return arithmtwith(DIV, lhs);
     }
 
     @Override
@@ -2216,12 +2216,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue mod(int rhs) {
-        return aritherror("mod");
+        return mod((double)rhs);
     }
 
     @Override
     public LuaValue modFrom(double lhs) {
-        return aritherror("modFrom");
+        return arithmtwith(MOD, lhs);
     }
 
     /**
@@ -2240,12 +2240,6 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #pow(LuaValue)
      * @see #div(LuaValue)
      * @see #mod(LuaValue)
-     * @see #ADD
-     * @see #SUB
-     * @see #MUL
-     * @see #POW
-     * @see #DIV
-     * @see #MOD
      */
     protected LuaValue arithmt(LuaValue tag, LuaValue op2) {
         LuaValue h = this.metatag(tag);
@@ -2257,6 +2251,31 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
             }
         }
         return h.call(this, op2);
+    }
+
+    /**
+     * Perform metatag processing for arithmetic operations when the left-hand-side is a number.
+     * <p>
+     * Finds the supplied metatag value for {@code this} and invokes it, or throws {@link LuaError} if neither
+     * is defined.
+     *
+     * @param tag The metatag to look up
+     * @param op1 The value of the left-hand-side to perform the operation with
+     * @return {@link LuaValue} resulting from metatag processing
+     * @throws LuaError if metatag was not defined for either operand
+     * @see #add(LuaValue)
+     * @see #sub(LuaValue)
+     * @see #mul(LuaValue)
+     * @see #pow(LuaValue)
+     * @see #div(LuaValue)
+     * @see #mod(LuaValue)
+     */
+    protected LuaValue arithmtwith(LuaValue tag, double op1) {
+        LuaValue h = metatag(tag);
+        if (h.isnil()) {
+            error("attempt to perform arithmetic " + tag + " on number and " + typename());
+        }
+        return h.call(LuaValue.valueOf(op1), this);
     }
 
     @Override
