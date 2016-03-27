@@ -744,7 +744,7 @@ public abstract class Varargs {
         case 0:
             return arg(start);
         case 1:
-            return new LuaValue.PairVarargs(arg(start), arg(end));
+            return new PairVarargs(arg(start), arg(end));
         default:
             if (end < start) {
                 return NONE;
