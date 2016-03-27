@@ -41,9 +41,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * similar to the "Coco" yield-from-anywhere patch available for C-based lua. However, coroutines that are
  * yielded but never resumed to complete their execution may not be collected by the garbage collector.
  * <p>
- * Typically, this library is included as part of a call to either {@link J2sePlatform#standardGlobals()} or
- * {@code JmePlatform.standardGlobals()}
- * <p>
  * To instantiate and use it directly, link it into your globals table via {@link LuaValue#load(LuaValue)}
  * using code such as:
  *

@@ -68,9 +68,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * Especially when lua-to-java bytecode compiling is being used via a {@link LuaCompiler} such as
  * {@code LuaJC}, this cannot be done in all cases.
  * <p>
- * Typically, this library is included as part of a call to either {@link J2sePlatform#debugGlobals()} or
- * {@code JmePlatform.debugGlobals()}
- * <p>
  * To instantiate and use it directly, link it into your globals table via {@link LuaValue#load(LuaValue)}
  * using code such as:
  *

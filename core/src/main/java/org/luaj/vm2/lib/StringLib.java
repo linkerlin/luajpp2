@@ -47,10 +47,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
 
 /**
  * Subclass of {@link LibFunction} which implements the lua standard {@code string} library.
- *
- * <p>
- * Typically, this library is included as part of a call to either {@link J2sePlatform#standardGlobals()} or
- * {@code JmePlatform.standardGlobals()}
  * <p>
  * To instantiate and use it directly, link it into your globals table via {@link LuaValue#load(LuaValue)}
  * using code such as:

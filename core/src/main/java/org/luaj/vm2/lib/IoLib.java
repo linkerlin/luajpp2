@@ -52,9 +52,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * The JSE implementation conforms almost completely to the C-based lua library, while the JME implementation
  * follows closely except in the area of random-access files, which are difficult to support properly on JME.
  * <p>
- * Typically, this library is included as part of a call to either {@link J2sePlatform#standardGlobals()} or
- * JmePlatform#standardGlobals()
- * <p>
  * To instantiate and use it directly, link it into your globals table via {@link LuaValue#load(LuaValue)}
  * using code such as:
  *

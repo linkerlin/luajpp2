@@ -85,10 +85,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * <li>{@link LuaValue#call(LuaValue)}</li>
  * <li>{@link LuaValue#invoke()}</li>
  * <li>{@link LuaValue#invoke(Varargs)}</li>
- * <li>{@link LuaValue#method(String)}</li>
- * <li>{@link LuaValue#method(String,LuaValue)}</li>
- * <li>{@link LuaValue#invokemethod(String)}</li>
- * <li>{@link LuaValue#invokemethod(String,Varargs)}</li>
  * <li>...</li>
  * </ul>
  *

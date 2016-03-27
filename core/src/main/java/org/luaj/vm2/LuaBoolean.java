@@ -29,17 +29,11 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * Extension of {@link LuaValue} which can hold a Java boolean as its value.
  * <p>
  * These instance are not instantiated directly by clients. Instead, there are exactly two instances of this
- * class, {@link LuaValue#TRUE} and {@link LuaValue#FALSE} representing the lua values {@code true} and {@code
+ * class, {@link #TRUE} and {@link #FALSE} representing the lua values {@code true} and {@code
  * false}. The function {@link LuaValue#valueOf(boolean)} will always return one of these two values.
  * <p>
  * Any {@link LuaValue} can be converted to its equivalent boolean representation using
  * {@link LuaValue#toboolean()}
- * <p>
- *
- * @see LuaValue
- * @see LuaValue#valueOf(boolean)
- * @see LuaValue#TRUE
- * @see LuaValue#FALSE
  */
 @LuaSerializable
 public final class LuaBoolean extends LuaValue implements Serializable {

@@ -5,10 +5,8 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 /**
  * Varargs implemenation with no values.
  * <p>
- * This is an internal class not intended to be used directly. Instead use
- * the predefined constant {@link LuaValue#NONE}
- *
- * @see LuaValue#NONE
+ * This is an internal class not intended to be used directly. Instead use the predefined constant
+ * {@link #NONE}
  */
 @LuaSerializable
 final class None extends LuaNil {

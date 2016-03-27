@@ -67,7 +67,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * To iterate over key-value pairs from Java, use
  *
  * <pre>
- *  {@code
  * LuaValue k = LuaValue.NIL;
  * while ( true ) {
  *    Varargs n = table.next(k);
@@ -75,7 +74,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  *       break;
  *    LuaValue v = n.arg(2)
  *    process( k, v )
- * }}
+ * }
  * </pre>
  *
  * <p>

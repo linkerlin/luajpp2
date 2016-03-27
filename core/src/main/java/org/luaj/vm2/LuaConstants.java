@@ -51,15 +51,6 @@ public class LuaConstants {
      */
     public static final int TVALUE = 9;
 
-    /**
-     * String array constant containing names of each of the lua value types
-     *
-     * @see #type()
-     * @see #typename()
-     */
-    public static final String[] TYPE_NAMES = { "nil", "boolean", "lightuserdata", "number", "string",
-            "table", "function", "userdata", "thread", "value", };
-
     /** LuaValue constant corresponding to a {@link Varargs} list of no values */
     public static final LuaValue NONE = None.NONE;
 
