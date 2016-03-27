@@ -62,12 +62,6 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 	}
 
 	@Override
-	protected void hashClearSlot(int i) {
-		checkSeal();
-		super.hashClearSlot(i);
-	}
-
-	@Override
 	public void hashset(LuaValue key, LuaValue value) {
 		checkSeal();
 		super.hashset(key, value);
@@ -78,11 +72,18 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 		checkSeal();
 		super.rawset(key, value);
 	}
+
 	@Override
 	public void rawset(LuaValue key, LuaValue value) {
 		checkSeal();
 		super.rawset(key, value);
 	}
+
+    @Override
+    public void sort(LuaValue comparator) {
+        checkSeal();
+        super.sort(comparator);
+    }
 
 	protected void checkSeal() {
 		if (seal) {

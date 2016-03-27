@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.luaj.vm2.compiler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -32,7 +33,6 @@ import org.luaj.vm2.LocVars;
 import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
@@ -84,16 +84,23 @@ public final class LuaC extends Lua implements LuaCompiler {
      * Load into a Closure or LuaFunction, with the supplied initial environment
      */
     @Override
-    public LuaFunction load(InputStream stream, String name, LuaValue env) throws IOException {
+    public LuaClosure load(InputStream stream, String name, LuaValue env) throws IOException {
         Prototype p = compile(stream, name);
         return new LuaClosure(p, env);
+    }
+
+    public static Prototype compile(String source, String name) throws IOException {
+        return compile(new ByteArrayInputStream(source.getBytes("UTF-8")), name);
     }
 
     /** Compile a prototype or load as a binary chunk */
     public static Prototype compile(InputStream stream, String name) throws IOException {
         int firstByte = stream.read();
-        return (firstByte == '\033') ? LoadState.loadBinaryChunk(firstByte, stream, name)
-                : (new LuaC()).luaY_parser(firstByte, stream, name);
+        if (firstByte == '\033') {
+            return LoadState.loadBinaryChunk(firstByte, stream, name);
+        } else {
+            return new LuaC().luaY_parser(firstByte, stream, name);
+        }
     }
 
     /** Parse the input */

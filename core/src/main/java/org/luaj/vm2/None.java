@@ -21,7 +21,7 @@ final class None extends LuaNil {
     }
 
 	@Override
-	public LuaValue arg(int i) {
+    public LuaValue arg(int i) {
 		return NIL;
 	}
 

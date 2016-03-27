@@ -66,61 +66,24 @@ public class LuaConstants {
     /** LuaValue array constant with no values */
     public static final LuaValue[] NOVALS = {};
 
-    /** LuaString constant with value "__index" for use as metatag */
     public static final LuaString INDEX = valueOf("__index");
-
-    /** LuaString constant with value "__newindex" for use as metatag */
     public static final LuaString NEWINDEX = valueOf("__newindex");
-
-    /** LuaString constant with value "__call" for use as metatag */
     public static final LuaString CALL = valueOf("__call");
-
-    /** LuaString constant with value "__mode" for use as metatag */
     public static final LuaString MODE = valueOf("__mode");
-
-    /** LuaString constant with value "__metatable" for use as metatag */
     public static final LuaString METATABLE = valueOf("__metatable");
-
-    /** LuaString constant with value "__add" for use as metatag */
     public static final LuaString ADD = valueOf("__add");
-
-    /** LuaString constant with value "__sub" for use as metatag */
     public static final LuaString SUB = valueOf("__sub");
-
-    /** LuaString constant with value "__div" for use as metatag */
     public static final LuaString DIV = valueOf("__div");
-
-    /** LuaString constant with value "__mul" for use as metatag */
     public static final LuaString MUL = valueOf("__mul");
-
-    /** LuaString constant with value "__pow" for use as metatag */
     public static final LuaString POW = valueOf("__pow");
-
-    /** LuaString constant with value "__mod" for use as metatag */
     public static final LuaString MOD = valueOf("__mod");
-
-    /** LuaString constant with value "__unm" for use as metatag */
     public static final LuaString UNM = valueOf("__unm");
-
-    /** LuaString constant with value "__len" for use as metatag */
     public static final LuaString LEN = valueOf("__len");
-
-    /** LuaString constant with value "__eq" for use as metatag */
     public static final LuaString EQ = valueOf("__eq");
-
-    /** LuaString constant with value "__lt" for use as metatag */
     public static final LuaString LT = valueOf("__lt");
-
-    /** LuaString constant with value "__le" for use as metatag */
     public static final LuaString LE = valueOf("__le");
-
-    /** LuaString constant with value "__tostring" for use as metatag */
     public static final LuaString TOSTRING = valueOf("__tostring");
-
-    /** LuaString constant with value "__concat" for use as metatag */
     public static final LuaString CONCAT = valueOf("__concat");
-
-    /** LuaString constant with value "" */
     public static final LuaString EMPTYSTRING = valueOf("");
 
     /** Limit on lua stack size */

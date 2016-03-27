@@ -62,6 +62,10 @@ public final class LuaBoolean extends LuaValue implements Serializable {
         this.bool = b;
     }
 
+    public static LuaBoolean valueOf(boolean b) {
+        return b ? TRUE : FALSE;
+    }
+
     protected Object readResolve() {
         // Special serialization returning the cached values
         return valueOf(bool);

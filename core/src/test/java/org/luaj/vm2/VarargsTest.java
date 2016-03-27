@@ -89,27 +89,6 @@ public class VarargsTest {
 		expectEquals(NIL, NIL);
 	}
 
-    @Test
-    public void testNegativeIndices() {
-		expectNegSubargsError(A_G);
-		expectNegSubargsError(A_G_alt);
-		expectNegSubargsError(B_E);
-		expectNegSubargsError(B_E_alt);
-		expectNegSubargsError(C_G);
-		expectNegSubargsError(C_G_alt);
-		expectNegSubargsError(C_E);
-		expectNegSubargsError(C_E_alt);
-		expectNegSubargsError(C_E_alt2);
-		expectNegSubargsError(DE);
-		expectNegSubargsError(DE_alt);
-		expectNegSubargsError(DE_alt2);
-		expectNegSubargsError(E_G);
-		expectNegSubargsError(FG);
-		expectNegSubargsError(A);
-		expectNegSubargsError(NONE);
-		expectNegSubargsError(NIL);
-	}
-
 	static void standardTestsA_G(Varargs a_g) {
 		expectEquals(A_G, a_g);
 		expectEquals(A_G, a_g.subargs(1));

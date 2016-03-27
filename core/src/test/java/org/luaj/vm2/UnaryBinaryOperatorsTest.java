@@ -147,12 +147,6 @@ public class UnaryBinaryOperatorsTest {
         LuaString sa = LuaString.valueOf("345"), sb = LuaString.valueOf("345"),
                 sc = LuaString.valueOf("-345");
 
-        // objects should be different
-        Assert.assertNotSame(ia, ib);
-        Assert.assertSame(sa, sb);
-        Assert.assertNotSame(ia, ic);
-        Assert.assertNotSame(sa, sc);
-
         // assert equals for same type
         Assert.assertEquals(ia, ib);
         Assert.assertEquals(sa, sb);

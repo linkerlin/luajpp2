@@ -5,7 +5,6 @@ import static org.luaj.vm2.LuaNil.NIL;
 import static org.luaj.vm2.LuaValue.valueOf;
 import static org.luaj.vm2.LuaValue.varargsOf;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,24 +62,19 @@ public final class LuaUtil {
 
     /** Compiles and runs a piece of Lua code in the given thread */
     public static Varargs eval(LuaLink thread, String code) throws LuaException {
-        return thread.call(compileForEval(thread.getThread(), code));
+        return thread.call(compileForEval(code, thread.getThread().getCallEnv()));
     }
 
-    public static LuaClosure compileForEval(LuaThread thread, String code) throws LuaException {
+    public static LuaClosure compileForEval(String code, LuaValue env) throws LuaException {
         final String chunkName = "(eval)";
-        final LuaValue env = thread.getCallEnv();
         try {
-            ByteArrayInputStream bin = new ByteArrayInputStream(("return " + code).getBytes("UTF-8"));
-
             Varargs result = NONE;
             try {
                 // Try to evaluate as an expression
-                result = LoadState.load(bin, chunkName, env);
+                result = LoadState.load("return " + code, chunkName, env);
             } catch (LuaError err) {
                 // Try to evaluate as a statement, no value to return
-                bin.reset();
-                bin.skip(7); // Skip "return "
-                result = LoadState.load(bin, chunkName, env);
+                result = LoadState.load(code, chunkName, env);
             }
 
             LuaValue f = result.arg1();

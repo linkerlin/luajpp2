@@ -25,6 +25,7 @@ import static org.luaj.vm2.LuaBoolean.FALSE;
 import static org.luaj.vm2.LuaBoolean.TRUE;
 import static org.luaj.vm2.LuaNil.NIL;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +122,7 @@ public class LoadState {
          *
          * @throws IOException
          */
-        public LuaFunction load(InputStream stream, String filename, LuaValue env) throws IOException;
+        public LuaClosure load(InputStream stream, String filename, LuaValue env) throws IOException;
     }
 
     /** Compiler instance, if installed */
@@ -393,6 +394,10 @@ public class LoadState {
         luacNumberFormat = is.readByte();
     }
 
+    public static LuaFunction load(String source, String name, LuaValue env) throws IOException {
+        return load(new ByteArrayInputStream(source.getBytes("UTF-8")), name, env);
+    }
+
     /**
      * Load lua in either binary or text form from an input stream.
      *
@@ -403,8 +408,9 @@ public class LoadState {
      * @throws IOException if an IOException occurs
      */
     public static LuaFunction load(InputStream stream, String name, LuaValue env) throws IOException {
-        if (compiler != null) return compiler.load(stream, name, env);
-        else {
+        if (compiler != null) {
+            return compiler.load(stream, name, env);
+        } else {
             int firstByte = stream.read();
             if (firstByte != LUA_SIGNATURE[0]) throw new LuaError("no compiler");
             Prototype p = loadBinaryChunk(firstByte, stream, name);

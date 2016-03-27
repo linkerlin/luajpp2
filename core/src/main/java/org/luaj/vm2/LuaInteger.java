@@ -215,8 +215,12 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
 
 	@Override
 	public int hashCode() {
-		return v;
+        return hashCode(v);
 	}
+
+    static int hashCode(int x) {
+        return x;
+    }
 
 	// unary operators
 	@Override

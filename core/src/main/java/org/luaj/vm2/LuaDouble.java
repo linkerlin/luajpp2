@@ -617,6 +617,11 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
 		return this;
 	}
 
+    @Override
+    public boolean isvalidkey() {
+        return !Double.isNaN(value);
+    }
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
         out.writeDouble(value);

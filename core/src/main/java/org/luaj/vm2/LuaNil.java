@@ -88,6 +88,11 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
 		return true;
 	}
 
+    @Override
+    public boolean isvalidkey() {
+        return false;
+    }
+
 	@Override
 	public LuaValue getmetatable() {
 		return s_metatable;

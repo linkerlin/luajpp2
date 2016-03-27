@@ -717,6 +717,11 @@ public final class LuaString extends LuaValue implements Externalizable {
 		return m_length;
 	}
 
+    @Override
+    public int rawlen() {
+        return m_length;
+    }
+
 	public int luaByte(int index) {
 		return m_bytes[m_offset + index] & 0x0FF;
 	}
