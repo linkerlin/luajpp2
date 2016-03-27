@@ -40,6 +40,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -1082,7 +1083,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     /**
      * Represents a slot in the hash table.
      */
-    interface Slot {
+    interface Slot extends Serializable {
 
         /** Return hash{pow2,mod}( first().key().hashCode(), sizeMask ) */
         int keyindex(int hashMask);
@@ -1143,7 +1144,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         Varargs toVarargs();
     }
 
+    @LuaSerializable
     private static class LinkSlot implements StrongSlot {
+
+        private static final long serialVersionUID = 1L;
+
         private Entry entry;
         private Slot next;
 
@@ -1246,11 +1251,13 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     /**
      * Base class for regular entries.
-     *
      * <p>
      * If the key may be an integer, the {@link #arraykey(int)} method must be overridden to handle that case.
      */
-    static abstract class Entry extends Varargs implements StrongSlot {
+    private static abstract class Entry extends Varargs implements StrongSlot {
+
+        private static final long serialVersionUID = 1L;
+
         @Override
         public abstract LuaValue key();
 
@@ -1346,7 +1353,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
+    @LuaSerializable
     static class NormalEntry extends Entry {
+
+        private static final long serialVersionUID = 1L;
+
         private final LuaValue key;
         private LuaValue value;
 
@@ -1387,7 +1398,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
+    @LuaSerializable
     private static class IntKeyEntry extends Entry {
+
+        private static final long serialVersionUID = 1L;
+
         private final int key;
         private LuaValue value;
 
@@ -1431,7 +1446,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     /**
      * Entry class used with numeric values, but only when the key is not an integer.
      */
+    @LuaSerializable
     private static class NumberValueEntry extends Entry {
+
+        private static final long serialVersionUID = 1L;
+
         private double value;
         private final LuaValue key;
 
@@ -1476,7 +1495,10 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
      * A Slot whose value has been set to nil. The key is kept in a weak reference so that it can be found by
      * next().
      */
+    @LuaSerializable
     private static class DeadSlot implements Slot {
+
+        private static final long serialVersionUID = 1L;
 
         private final Object key;
         private Slot next;

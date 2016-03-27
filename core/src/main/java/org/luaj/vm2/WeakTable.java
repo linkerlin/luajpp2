@@ -118,7 +118,9 @@ final class WeakTable implements Metatable, Serializable {
         return LuaTable.defaultEntry(key, value);
     }
 
-    public static abstract class WeakSlot implements Slot {
+    private static abstract class WeakSlot implements Slot {
+
+        private static final long serialVersionUID = 1L;
 
         protected Object key;
         protected Object value;
@@ -234,7 +236,10 @@ final class WeakTable implements Metatable, Serializable {
         protected abstract WeakSlot copy(Slot next);
     }
 
-    static class WeakKeySlot extends WeakSlot {
+    @LuaSerializable
+    private static class WeakKeySlot extends WeakSlot {
+
+        private static final long serialVersionUID = 1L;
 
         private final int keyhash;
 
@@ -270,7 +275,10 @@ final class WeakTable implements Metatable, Serializable {
         }
     }
 
-    static class WeakValueSlot extends WeakSlot {
+    @LuaSerializable
+    private static class WeakValueSlot extends WeakSlot {
+
+        private static final long serialVersionUID = 1L;
 
         protected WeakValueSlot(LuaValue key, LuaValue value, Slot next) {
             super(key, weaken(value), next);
@@ -302,7 +310,10 @@ final class WeakTable implements Metatable, Serializable {
         }
     }
 
-    static class WeakKeyAndValueSlot extends WeakSlot {
+    @LuaSerializable
+    private static class WeakKeyAndValueSlot extends WeakSlot {
+
+        private static final long serialVersionUID = 1L;
 
         private final int keyhash;
 
@@ -384,6 +395,7 @@ final class WeakTable implements Metatable, Serializable {
      *
      * @see WeakTable
      */
+    @LuaSerializable
     private static class WeakValue extends LuaValue implements Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -429,6 +441,7 @@ final class WeakTable implements Metatable, Serializable {
      *
      * @see WeakTable
      */
+    @LuaSerializable
     private static final class WeakUserdata extends WeakValue {
 
         private static final long serialVersionUID = 1L;
