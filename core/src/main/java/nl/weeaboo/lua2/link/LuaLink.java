@@ -161,7 +161,7 @@ public class LuaLink extends AbstractLuaLink {
 	}
 
     /**
-     * @throws LuaException
+     * @throws LuaException If initialization fails.
      */
 	protected void init() throws LuaException {
 	}

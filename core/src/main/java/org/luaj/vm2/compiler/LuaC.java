@@ -34,7 +34,6 @@ import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
-import org.luaj.vm2.compiler.LoadState.LuaCompiler;
 import org.luaj.vm2.lib.BaseLib;
 
 import nl.weeaboo.lua2.SharedByteAlloc;

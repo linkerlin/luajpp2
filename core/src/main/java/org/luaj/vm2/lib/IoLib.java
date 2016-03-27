@@ -143,7 +143,6 @@ abstract public class IoLib extends OneArgFunction {
      * Wrap the standard input.
      *
      * @return File
-     * @throws IOException
      */
     abstract protected File wrapStdin() throws IOException;
 
@@ -151,14 +150,12 @@ abstract public class IoLib extends OneArgFunction {
      * Wrap the standard output.
      *
      * @return File
-     * @throws IOException
      */
     abstract protected File wrapStdout() throws IOException;
 
     /**
      * Open a file in a particular mode.
      *
-     * @param filename
      * @param readMode true if opening in read mode
      * @param appendMode true if opening in append mode
      * @param updateMode true if opening in update mode

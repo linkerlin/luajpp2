@@ -1641,7 +1641,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     /**
      * Call the supplied function once for each key-value pair in the contiguous array part
      *
-     * @param func
+     * @param func function to call
      */
     public LuaValue foreachi(LuaValue func) {
         LuaValue v, r;

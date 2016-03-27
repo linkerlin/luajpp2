@@ -243,7 +243,6 @@ public final class DumpState {
      * @param numberFormat one of NUMBER_FORMAT_FLOATS_OR_DOUBLES, NUMBER_FORMAT_INTS_ONLY,
      *        NUMBER_FORMAT_NUM_PATCH_INT32
      * @param littleendian true to use little endian for numbers, false for big endian
-     * @throws IOException
      * @throws IllegalArgumentException if the number format it not supported
      */
     public static void dump(Prototype f, OutputStream w, boolean stripDebug, int numberFormat,

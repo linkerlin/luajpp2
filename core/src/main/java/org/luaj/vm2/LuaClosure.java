@@ -24,7 +24,7 @@ package org.luaj.vm2;
 import static org.luaj.vm2.LuaConstants.NONE;
 
 import org.luaj.vm2.compiler.LuaC;
-import org.luaj.vm2.compiler.LoadState.LuaCompiler;
+import org.luaj.vm2.compiler.LuaCompiler;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 

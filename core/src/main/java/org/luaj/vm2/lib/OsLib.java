@@ -179,9 +179,7 @@ public class OsLib extends VarArgFunction {
      * Returns the number of seconds from time t1 to time t2. In POSIX, Windows, and some other systems, this
      * value is exactly t2-t1.
      *
-     * @param t2
-     * @param t1
-     * @return diffeence in time values, in seconds
+     * @return time difference in seconds
      */
     protected double difftime(double t2, double t1) {
         return t2 - t1;
@@ -202,7 +200,6 @@ public class OsLib extends VarArgFunction {
      * When called without arguments, date returns a reasonable date and time representation that depends on
      * the host system and on the current locale (that is, os.date() is equivalent to os.date("%c")).
      *
-     * @param format
      * @param time time since epoch, or -1 if not supplied
      * @return a LString or a LTable containing date and time, formatted according to the given string format.
      */
@@ -246,7 +243,7 @@ public class OsLib extends VarArgFunction {
     /**
      * Calls the C function exit, with an optional code, to terminate the host program.
      *
-     * @param code
+     * @param code Exit code.
      */
     protected void exit(int code) {
         // System.exit(code);
@@ -256,7 +253,6 @@ public class OsLib extends VarArgFunction {
     /**
      * Returns the value of the process environment variable varname, or null if the variable is not defined.
      *
-     * @param varname
      * @return String value, or null if not defined
      */
     protected String getenv(String varname) {
@@ -271,7 +267,7 @@ public class OsLib extends VarArgFunction {
      * Deletes the file or directory with the given name. Directories must be empty to be removed. If this
      * function fails, it throws and IOException
      *
-     * @param filename
+     * @param filename Name of the file or directory to delete.
      * @throws IOException if it fails
      */
     protected void remove(String filename) throws IOException {
@@ -300,8 +296,8 @@ public class OsLib extends VarArgFunction {
      * When called with null as the first argument, this function only returns the name of the current locale
      * for the given category.
      *
-     * @param locale
-     * @param category
+     * @param locale Locale to set.
+     * @param category Category to set the locale for.
      * @return the name of the new locale, or null if the request cannot be honored.
      */
     protected String setlocale(String locale, String category) {
@@ -313,7 +309,7 @@ public class OsLib extends VarArgFunction {
      * specified by the given table. This table must have fields year, month, and day, and may have fields
      * hour, min, sec, and isdst (for a description of these fields, see the os.date function).
      *
-     * @param table
+     * @param table settings
      * @return long value for the time
      */
     protected long time(LuaTable table) {

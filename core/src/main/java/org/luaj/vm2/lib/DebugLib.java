@@ -55,7 +55,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Print;
 import org.luaj.vm2.Prototype;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.compiler.LoadState.LuaCompiler;
+import org.luaj.vm2.compiler.LuaCompiler;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.J2sePlatform;
@@ -165,7 +165,7 @@ public class DebugLib extends VarArgFunction {
         case INIT:
             return init();
         case DEBUG:
-            return _debug(args);
+            return _debug();
         case GETFENV:
             return _getfenv(args);
         case GETHOOK:
@@ -177,7 +177,7 @@ public class DebugLib extends VarArgFunction {
         case GETMETATABLE:
             return _getmetatable(args);
         case GETREGISTRY:
-            return _getregistry(args);
+            return _getregistry();
         case GETUPVALUE:
             return _getupvalue(args);
         case SETFENV:
@@ -539,12 +539,7 @@ public class DebugLib extends VarArgFunction {
 
     // ------------------- library function implementations -----------------
 
-    // j2se subclass may wish to override and provide actual console here.
-    // j2me platform has not System.in to provide console.
-    /**
-     * @param args
-     */
-    static Varargs _debug(Varargs args) {
+    static Varargs _debug() {
         return NONE;
     }
 
@@ -748,10 +743,7 @@ public class DebugLib extends VarArgFunction {
         }
     }
 
-    /**
-     * @param args
-     */
-    static Varargs _getregistry(Varargs args) {
+    static Varargs _getregistry() {
         return new LuaTable();
     }
 

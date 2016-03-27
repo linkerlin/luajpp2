@@ -96,24 +96,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  */
 public class LoadState {
 
-    /**
-     * Interface for the compiler, if it is installed.
-     * <p>
-     * See the {@link LuaClosure} documentation for examples of how to use the compiler.
-     *
-     * @see LuaClosure
-     * @see #load(InputStream, String, LuaValue)
-     */
-    public interface LuaCompiler {
-
-        /**
-         * Load into a Closure or LuaFunction from a Stream and initializes the environment
-         *
-         * @throws IOException
-         */
-        public LuaClosure load(InputStream stream, String filename, LuaValue env) throws IOException;
-    }
-
     /** Compiler instance, if installed */
     private static final LuaCompiler compiler = new LuaC();
 
@@ -344,7 +326,6 @@ public class LoadState {
      *
      * @param p name of the source
      * @return {@link Prototype} instance that was loaded
-     * @throws IOException
      */
     public Prototype loadFunction(LuaString p) throws IOException {
         Prototype f = new Prototype();
