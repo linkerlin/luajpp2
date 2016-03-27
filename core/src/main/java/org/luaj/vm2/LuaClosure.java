@@ -187,7 +187,7 @@ public final class LuaClosure extends LuaFunction {
 
     @Override
     public String tojstring() {
-        return type() + " " + p.source + ":" + p.linedefined + "-" + p.lastlinedefined;
+        return typename() + ": " + p.source + ":" + p.linedefined + "-" + p.lastlinedefined;
     }
 
 }

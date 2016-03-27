@@ -788,7 +788,9 @@ public final class LuaString extends LuaValue implements Externalizable {
 	 */
 	public int indexOf(byte b, int start) {
 		for (int i = 0, j = m_offset + start; i < m_length; ++i) {
-			if (m_bytes[j++] == b) return i;
+            if (m_bytes[j++] == b) {
+                return i + start;
+            }
 		}
 		return -1;
 	}
