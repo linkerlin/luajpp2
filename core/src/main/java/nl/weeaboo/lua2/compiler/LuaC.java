@@ -27,9 +27,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.SharedByteAlloc;
-import nl.weeaboo.lua2.lib.BaseLib;
-import nl.weeaboo.lua2.lib.J2sePlatform;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -48,8 +47,8 @@ import nl.weeaboo.lua2.vm.Prototype;
  * Implements the {@link LuaCompiler} interface for loading initialized chunks, which is an interface common
  * to lua bytecode compiling and java bytecode compiling.
  * <p>
- * Teh {@link LuaC} compiler is installed by default by both the {@link J2sePlatform} and JmePlatform classes,
- * so in the following example, the default {@link LuaC} compiler will be used:
+ * The {@link LuaC} compiler is installed by default by {@link LuaRunState}, so in the following example, the
+ * default {@link LuaC} compiler will be used:
  *
  * <pre>
  * {
@@ -58,13 +57,6 @@ import nl.weeaboo.lua2.vm.Prototype;
  *     LoadState.load(new ByteArrayInputStream(&quot;print 'hello'&quot;.getBytes()), &quot;main.lua&quot;, _G).call();
  * }
  * </pre>
- *
- * @see LuaCompiler
- * @see J2sePlatform
- * @see BaseLib
- * @see LuaValue
- * @see LuaCompiler
- * @see Prototype
  */
 public final class LuaC extends Lua implements LuaCompiler {
 

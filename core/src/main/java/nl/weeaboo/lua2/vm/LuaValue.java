@@ -42,8 +42,8 @@ import static nl.weeaboo.lua2.vm.LuaConstants.SUB;
 import static nl.weeaboo.lua2.vm.LuaConstants.UNM;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
-import nl.weeaboo.lua2.lib.J2sePlatform;
 
 /**
  * Base class for all concrete lua type values.
@@ -113,8 +113,8 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * }
  * </pre>
  *
- * For this to work the file must be in the current directory, or in the class path, dependening on the
- * platform. See {@link J2sePlatform} and JmePlatform for details.
+ * For this to work the file must be in the current directory, or in the class path, depending on the
+ * platform.
  * <p>
  * In general a {@link LuaError} may be thrown on any operation when the types supplied to any operation are
  * illegal from a lua perspective. Examples could be attempting to concatenate a NIL value, or attempting
@@ -138,7 +138,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
  * {@link #MUL}, {@link #POW}, {@link #MOD}, {@link #UNM}, {@link #LEN}, {@link #EQ}, {@link #LT}, {@link #LE}
  * , {@link LuaConstants#TOSTRING}, and {@link #CONCAT}.
  *
- * @see J2sePlatform
  * @see LoadState
  * @see Varargs
  */
@@ -1390,12 +1389,10 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Set the environment on an object.
      * <p>
      * Typically the environment is created once per application via a platform helper method such as
-     * {@link nl.weeaboo.lua2.lib.J2sePlatform#registerStandardLibs(nl.weeaboo.lua2.LuaRunState)}. However,
-     * any object can serve as an environment if it contains suitable metatag values to implement
-     * {@link #get(LuaValue)} to provide the environment values.
+     * {@link LuaRunState}. However, any object can serve as an environment if it contains suitable metatag
+     * values to implement {@link #get(LuaValue)} to provide the environment values.
      *
      * @param env {@link LuaValue} (typically a {@link LuaTable}) containing the environment.
-     * @see nl.weeaboo.lua2.lib.J2sePlatform
      */
     public void setfenv(LuaValue env) {
         typerror("function or thread");

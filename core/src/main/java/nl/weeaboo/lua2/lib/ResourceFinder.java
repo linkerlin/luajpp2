@@ -40,7 +40,6 @@ import java.io.InputStream;
  *
  * @see BaseLib
  * @see BaseLib#FINDER
- * @see J2sePlatform
  */
 public interface ResourceFinder {
 

@@ -66,7 +66,6 @@ import nl.weeaboo.lua2.vm.Varargs;
  * This is a direct port of the corresponding library in C.
  *
  * @see LibFunction
- * @see J2sePlatform
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.4">http://www.lua.org/manual/5.1/manual.html#5.4
  *      </a>
  */

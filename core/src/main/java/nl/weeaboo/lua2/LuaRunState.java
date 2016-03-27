@@ -5,10 +5,19 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.J2sePlatform;
+import nl.weeaboo.lua2.lib.BaseLib;
+import nl.weeaboo.lua2.lib.CoroutineLib;
+import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.lib.MathLib;
+import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
+import nl.weeaboo.lua2.lib.SerializableIoLib;
+import nl.weeaboo.lua2.lib.StringLib;
+import nl.weeaboo.lua2.lib.TableLib;
+import nl.weeaboo.lua2.lib.ThreadLib;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
+import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -37,7 +46,7 @@ public final class LuaRunState implements Serializable, IDestructible {
 	public LuaRunState() {
 		registerOnThread();
 
-        globalEnvironment = J2sePlatform.registerStandardLibs(this);
+        globalEnvironment = registerStandardLibs(this);
 		mainThread = LuaThread.createMainThread(this, globalEnvironment);
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
 
@@ -49,6 +58,25 @@ public final class LuaRunState implements Serializable, IDestructible {
 
 		in.defaultReadObject();
 	}
+
+    private static LuaTable registerStandardLibs(LuaRunState lrs) {
+        PackageLib packageLib = new PackageLib();
+        lrs.setPackageLib(packageLib);
+
+        LuaTable _G = new LuaTable();
+        _G.load(new BaseLib());
+        _G.load(packageLib);
+        _G.load(new TableLib());
+        _G.load(new StringLib());
+        _G.load(new CoroutineLib());
+        _G.load(MathLib.getInstance());
+        _G.load(new SerializableIoLib());
+        _G.load(new OsLib());
+        _G.load(new LuajavaLib());
+        _G.load(new ThreadLib());
+        _G.load(new DebugLib());
+        return _G;
+    }
 
 	@Override
     public void destroy() {

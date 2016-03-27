@@ -47,7 +47,6 @@ import javax.script.SimpleScriptContext;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
-import nl.weeaboo.lua2.lib.J2sePlatform;
 import nl.weeaboo.lua2.luajava.CoerceJavaToLua;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
@@ -80,7 +79,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 
     public LuaScriptEngine(LuaRunState lrs) {
 		// create globals
-        _G = J2sePlatform.registerStandardLibs(lrs);
+        _G = lrs.getGlobalEnvironment();
 
 		// set up context
 		ScriptContext ctx = new SimpleScriptContext();

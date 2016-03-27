@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.weeaboo.lua2.SharedByteAlloc;
-import nl.weeaboo.lua2.lib.J2sePlatform;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaDouble;
@@ -70,9 +69,6 @@ import nl.weeaboo.lua2.vm.Prototype;
  * <p>
  *
  * Prior to loading code, a compiler should be installed.
- * <p>
- * By default, when using {@link J2sePlatform} or {@JmePlatform} to construct globals, the {@link LuaC}
- * compiler is installed.
  * <p>
  * To override the default compiler with, say, the LuaJC lua-to-java bytecode compiler, install it before
  * loading, for example:

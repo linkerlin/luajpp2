@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.lib.J2sePlatform;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 
@@ -15,8 +14,7 @@ public class StringLibTest {
 
     @Before
     public void before() {
-        LuaRunState lrs = new LuaRunState();
-        J2sePlatform.registerStandardLibs(lrs);
+        new LuaRunState().registerOnThread();
     }
 
     @Test

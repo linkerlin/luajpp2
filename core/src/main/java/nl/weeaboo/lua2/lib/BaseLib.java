@@ -79,7 +79,6 @@ import nl.weeaboo.lua2.vm.Varargs;
  * @see ResourceFinder
  * @see #FINDER
  * @see LibFunction
- * @see J2sePlatform
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.1">http://www.lua.org/manual/5.1/manual.html#5.1
  *      </a>
  */

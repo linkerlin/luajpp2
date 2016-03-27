@@ -71,7 +71,6 @@ import nl.weeaboo.lua2.vm.Varargs;
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  *
  * @see LibFunction
- * @see J2sePlatform
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.7">http://www.lua.org/manual/5.1/manual.html#5.7
  *      </a>
  */

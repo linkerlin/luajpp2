@@ -54,16 +54,15 @@ import nl.weeaboo.lua2.vm.Varargs;
  * </pre>
  *
  * In practice, the first 4 lines of the above are minimal requirements to get and initialize a globals table
- * capable of basic reqire, print, and other functions, so it is much more convenient to use the
- * {@link J2sePlatform} and {code JmePlatform} utility classes instead.
+ * capable of basic require, print, and other functions, so it is much more convenient to use
+ * {@link LuaRunState} instead.
  * <p>
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * However, the default filesystem search semantics are different and delegated to the bas library as outlined
- * in the {@link BaseLib} and {@code JseBaseLib} documetnation.
+ * in the {@link BaseLib} and {@code JseBaseLib} documentation.
  *
  * @see LibFunction
  * @see BaseLib
- * @see J2sePlatform
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.3">http://www.lua.org/manual/5.1/manual.html#5.3
  *      </a>
  */
