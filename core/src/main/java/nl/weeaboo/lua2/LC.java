@@ -11,11 +11,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.luaj.vm2.LuaConstants;
-import org.luaj.vm2.Print;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.compiler.DumpState;
-import org.luaj.vm2.compiler.LuaC;
+import nl.weeaboo.lua2.compiler.DumpState;
+import nl.weeaboo.lua2.compiler.LuaC;
+import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.Print;
+import nl.weeaboo.lua2.vm.Prototype;
 
 /**
  * Compiler for lua files to lua bytecode.

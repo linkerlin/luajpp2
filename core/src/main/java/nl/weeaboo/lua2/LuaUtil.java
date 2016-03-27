@@ -1,9 +1,9 @@
 package nl.weeaboo.lua2;
 
-import static org.luaj.vm2.LuaConstants.NONE;
-import static org.luaj.vm2.LuaNil.NIL;
-import static org.luaj.vm2.LuaValue.valueOf;
-import static org.luaj.vm2.LuaValue.varargsOf;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
+import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
+import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,18 +12,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaThread;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
-import org.luaj.vm2.compiler.LoadState;
-import org.luaj.vm2.lib.DebugLib;
-
-import nl.weeaboo.lua2.lib.LuajavaLib;
+import nl.weeaboo.lua2.compiler.LoadState;
+import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.link.LuaLink;
+import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 public final class LuaUtil {
 

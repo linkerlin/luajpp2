@@ -1,22 +1,21 @@
 package nl.weeaboo.lua2.interpreter;
 
-import static org.luaj.vm2.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.luaj.vm2.Lua;
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.UpValue;
-import org.luaj.vm2.Varargs;
-
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.Lua;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaFunction;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Prototype;
+import nl.weeaboo.lua2.vm.UpValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public final class StackFrame implements Externalizable {

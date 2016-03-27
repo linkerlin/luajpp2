@@ -2,13 +2,12 @@ package nl.weeaboo.lua2.link;
 
 import java.lang.reflect.Array;
 
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.Varargs;
-
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public class LuaFunctionLink extends LuaLink {

@@ -1,12 +1,10 @@
 package nl.weeaboo.lua2.lib;
 
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.VarArgFunction;
-
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public abstract class LuaLibrary extends VarArgFunction {
@@ -16,7 +14,6 @@ public abstract class LuaLibrary extends VarArgFunction {
 	public LuaLibrary() {
 	}
 
-	//Functions
 	@Override
 	public Varargs invoke(Varargs args) {
 		throw new LuaError("Invalid function id: " + opcode);
@@ -44,9 +41,5 @@ public abstract class LuaLibrary extends VarArgFunction {
 		env.set(tableName, t);
 		return t;
 	}
-
-	//Getters
-
-	//Setters
 
 }

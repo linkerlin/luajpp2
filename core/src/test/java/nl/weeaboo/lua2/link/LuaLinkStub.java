@@ -1,9 +1,8 @@
 package nl.weeaboo.lua2.link;
 
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.Varargs;
-
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.Varargs;
 
 public class LuaLinkStub extends AbstractLuaLink {
 

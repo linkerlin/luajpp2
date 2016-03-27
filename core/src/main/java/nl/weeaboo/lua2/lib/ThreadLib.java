@@ -1,18 +1,17 @@
 package nl.weeaboo.lua2.lib;
 
-import static org.luaj.vm2.LuaConstants.NONE;
-import static org.luaj.vm2.LuaNil.NIL;
-
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaThread;
-import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.BaseLib;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaLink;
+import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public class ThreadLib extends LuaLibrary {

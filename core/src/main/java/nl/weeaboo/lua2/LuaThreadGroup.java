@@ -3,12 +3,11 @@ package nl.weeaboo.lua2;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.Varargs;
-
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public final class LuaThreadGroup implements Serializable, IDestructible {

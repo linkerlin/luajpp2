@@ -1,16 +1,10 @@
 package nl.weeaboo.lua2.link;
 
-import static org.luaj.vm2.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaThread;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -18,7 +12,12 @@ import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.io.DelayedReader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.io.LuaSerializer;
-import nl.weeaboo.lua2.lib.CoerceJavaToLua;
+import nl.weeaboo.lua2.luajava.CoerceJavaToLua;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public class LuaLink extends AbstractLuaLink {

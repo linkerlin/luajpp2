@@ -1,13 +1,12 @@
 package nl.weeaboo.lua2.link;
 
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaUserdata;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
-
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaUserdata;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public class LuaMethodLink extends LuaFunctionLink {

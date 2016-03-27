@@ -1,26 +1,25 @@
 package nl.weeaboo.lua2.interpreter;
 
 import static nl.weeaboo.lua2.LuaUtil.copyArgs;
-import static org.luaj.vm2.LuaBoolean.FALSE;
-import static org.luaj.vm2.LuaBoolean.TRUE;
-import static org.luaj.vm2.LuaConstants.NONE;
-import static org.luaj.vm2.LuaNil.NIL;
-import static org.luaj.vm2.LuaValue.varargsOf;
-
-import org.luaj.vm2.Buffer;
-import org.luaj.vm2.Lua;
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaThread;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.UpValue;
-import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.DebugLib;
+import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
+import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
+import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.interpreter.StackFrame.Status;
+import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.vm.Buffer;
+import nl.weeaboo.lua2.vm.Lua;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Prototype;
+import nl.weeaboo.lua2.vm.UpValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 public class LuaInterpreter {
 

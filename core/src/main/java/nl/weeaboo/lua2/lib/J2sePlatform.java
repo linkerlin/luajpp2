@@ -21,17 +21,9 @@
  ******************************************************************************/
 package nl.weeaboo.lua2.lib;
 
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.lib.BaseLib;
-import org.luaj.vm2.lib.CoroutineLib;
-import org.luaj.vm2.lib.DebugLib;
-import org.luaj.vm2.lib.MathLib;
-import org.luaj.vm2.lib.OsLib;
-import org.luaj.vm2.lib.PackageLib;
-import org.luaj.vm2.lib.StringLib;
-import org.luaj.vm2.lib.TableLib;
-
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.vm.LuaTable;
 
 public final class J2sePlatform {
 

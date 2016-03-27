@@ -1,11 +1,11 @@
 package nl.weeaboo.lua2.interpreter;
 
-import static org.luaj.vm2.LuaConstants.NONE;
-import static org.luaj.vm2.LuaNil.NIL;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.util.Arrays;
 
-import org.luaj.vm2.LuaValue;
+import nl.weeaboo.lua2.vm.LuaValue;
 
 final class StackFrameAllocator {
 

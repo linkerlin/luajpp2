@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 
-import org.luaj.vm2.lib.IoLib;
-
 @LuaSerializable
 public class SerializableIoLib extends IoLib {
 
