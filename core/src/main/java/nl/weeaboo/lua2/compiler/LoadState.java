@@ -372,7 +372,9 @@ public class LoadState {
             return compiler.load(stream, name, env);
         } else {
             int firstByte = stream.read();
-            if (firstByte != LUA_SIGNATURE[0]) throw new LuaError("no compiler");
+            if (firstByte != LUA_SIGNATURE[0]) {
+                throw new LuaError("no compiler");
+            }
             Prototype p = loadBinaryChunk(firstByte, stream, name);
             return new LuaClosure(p, env);
         }

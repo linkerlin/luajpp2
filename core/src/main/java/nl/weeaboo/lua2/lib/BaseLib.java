@@ -425,7 +425,9 @@ public class BaseLib extends OneArgFunction {
             return LoadState.load(is, chunkname, running.getfenv());
         } catch (Exception e) {
             String message = e.getMessage();
-            if (message == null) message = "";
+            if (message == null) {
+                message = "";
+            }
             return varargsOf(NIL, valueOf(message));
         }
     }

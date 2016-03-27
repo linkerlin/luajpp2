@@ -203,4 +203,16 @@ public final class LuaRunState implements Serializable, IDestructible {
 		packageLib = plib;
 	}
 
+    /**
+     * @return {@code true} if there are still running threads.
+     */
+    public boolean isFinished() {
+        for (LuaThreadGroup group : threadGroups) {
+            if (!group.getThreads().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

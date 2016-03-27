@@ -1,7 +1,6 @@
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
-import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
@@ -52,7 +51,13 @@ public class ThreadLib extends LuaLibrary {
 	}
 
     /**
-     * @param args Lua arguments
+     * Creates a new thread in the default thread group.
+     *
+     * @param args
+     *        <ol>
+     *        <li>Lua closure to call in a new thread
+     *        <li>Vararg of arguments to pass to the closure
+     *        </ol>
      */
 	protected Varargs newThread(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
@@ -62,7 +67,9 @@ public class ThreadLib extends LuaLibrary {
 	}
 
     /**
-     * @param args Lua arguments
+     * Creates a new thread group
+     *
+     * @param args (not used)
      */
 	protected Varargs newThreadGroup(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
@@ -71,14 +78,19 @@ public class ThreadLib extends LuaLibrary {
 	}
 
     /**
-     * @param args Lua arguments
+     * Stops executing the current thread.
+     *
+     * @param args
+     *        <ol>
+     *        <li>Number of frames to yield. If negative, the wait is infinite.
+     *        </ol>
      */
 	protected Varargs yield(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
         ILuaLink link = lrs.getCurrentLink();
 
-		if (link != null && args.arg1() != NIL) {
-			int w = args.arg1().toint();
+        if (link != null && !args.isnil(1)) {
+            int w = args.toint(1);
 			link.setWait(w <= 0 ? w : w - 1);
 		}
 
@@ -87,14 +99,20 @@ public class ThreadLib extends LuaLibrary {
 	}
 
     /**
-     * @param args Lua arguments
+     * Ends the current call stack frame, then yields the current thread. This is effectively a return,
+     * immediately followed by a {@link #yield(Varargs)}.
+     *
+     * @param args
+     *        <ol>
+     *        <li>Number of frames to yield. If negative, the wait is infinite.
+     *        </ol>
      */
 	protected Varargs endCall(Varargs args) {
 		LuaRunState lrs = LuaRunState.getCurrent();
         ILuaLink link = lrs.getCurrentLink();
 
-		if (link != null && args.arg1() != NIL) {
-			int w = args.arg1().toint();
+        if (link != null && !args.isnil(1)) {
+            int w = args.toint(1);
 			link.setWait(w <= 0 ? w : w - 1);
 		}
 
@@ -103,23 +121,26 @@ public class ThreadLib extends LuaLibrary {
 	}
 
     /**
-     * @param args Lua arguments
+     * Goto a different script file
+     *
+     * @param args
+     *        <ol>
+     *        <li>Filename of the script to jump to.
+     *        </ol>
      */
 	protected Varargs jump(Varargs args) {
 		Varargs v = BaseLib.loadFile(args.checkjstring(1));
 		if (v.isnil(1)) {
 			return error(v.tojstring(2));
 		}
-		v = v.arg1();
 
-		if (v instanceof LuaClosure) {
-			LuaRunState lrs = LuaRunState.getCurrent();
-            ILuaLink link = lrs.getCurrentLink();
-			link.jump((LuaClosure)v, NONE);
-			return NONE;
-		} else {
-            return error("Attempt to jump to non-closure Lua function: " + v);
-		}
+        // We can only jump to closures
+        LuaClosure closure = v.checkclosure(1);
+
+	    LuaRunState lrs = LuaRunState.getCurrent();
+        ILuaLink link = lrs.getCurrentLink();
+		link.jump(closure, NONE);
+		return NONE;
 	}
 
 }
