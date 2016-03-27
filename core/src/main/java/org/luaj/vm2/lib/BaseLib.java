@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 
-import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaConstants;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaInteger;
@@ -42,6 +41,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaThread;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
+import org.luaj.vm2.compiler.LoadState;
 import org.luaj.vm2.lib.ResourceFinder.Resource;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -421,7 +421,9 @@ public class BaseLib extends OneArgFunction {
 
     public static Varargs loadStream(InputStream is, String chunkname) {
         try {
-            if (is == null) return varargsOf(NIL, valueOf("not found: " + chunkname));
+            if (is == null) {
+                return varargsOf(NIL, valueOf("not found: " + chunkname));
+            }
             LuaThread running = LuaThread.getRunning();
             return LoadState.load(is, chunkname, running.getfenv());
         } catch (Exception e) {

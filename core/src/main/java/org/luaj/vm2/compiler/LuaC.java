@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.luaj.vm2.LoadState;
-import org.luaj.vm2.LoadState.LuaCompiler;
 import org.luaj.vm2.LocVars;
 import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaClosure;
@@ -36,6 +34,7 @@ import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
+import org.luaj.vm2.compiler.LoadState.LuaCompiler;
 import org.luaj.vm2.lib.BaseLib;
 
 import nl.weeaboo.lua2.SharedByteAlloc;

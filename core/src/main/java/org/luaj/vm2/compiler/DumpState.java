@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.luaj.vm2.compiler;
 
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_FLOATS_OR_DOUBLES;
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_INTS_ONLY;
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_NUM_PATCH_INT32;
 import static org.luaj.vm2.LuaConstants.TBOOLEAN;
 import static org.luaj.vm2.LuaConstants.TINT;
 import static org.luaj.vm2.LuaConstants.TNIL;
@@ -33,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.luaj.vm2.LocVars;
+import org.luaj.vm2.LuaConstants;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
@@ -54,21 +58,8 @@ public final class DumpState {
     /** expected lua header bytes */
     private static final byte[] LUAC_HEADER_SIGNATURE = { '\033', 'L', 'u', 'a' };
 
-    /**
-     * format corresponding to non-number-patched lua, all numbers are floats or doubles
-     */
-    public static final int NUMBER_FORMAT_FLOATS_OR_DOUBLES = 0;
-
-    /** format corresponding to non-number-patched lua, all numbers are ints */
-    public static final int NUMBER_FORMAT_INTS_ONLY = 1;
-
-    /**
-     * format corresponding to number-patched lua, all numbers are 32-bit (4 byte) ints
-     */
-    public static final int NUMBER_FORMAT_NUM_PATCH_INT32 = 4;
-
     /** default number format */
-    public static final int NUMBER_FORMAT_DEFAULT = NUMBER_FORMAT_FLOATS_OR_DOUBLES;
+    public static final int NUMBER_FORMAT_DEFAULT = LuaConstants.NUMBER_FORMAT_FLOATS_OR_DOUBLES;
 
     /** set true to allow integer compilation */
     private static boolean ALLOW_INTEGER_CASTING = false;

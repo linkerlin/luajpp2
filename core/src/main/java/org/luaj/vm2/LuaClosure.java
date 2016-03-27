@@ -23,8 +23,8 @@ package org.luaj.vm2;
 
 import static org.luaj.vm2.LuaConstants.NONE;
 
-import org.luaj.vm2.LoadState.LuaCompiler;
 import org.luaj.vm2.compiler.LuaC;
+import org.luaj.vm2.compiler.LoadState.LuaCompiler;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -87,14 +87,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * <li>{@link LuaValue#invoke(Varargs)}</li>
  * <li>...</li>
  * </ul>
- *
- * @see LuaValue
- * @see LuaFunction
- * @see LuaValue#isclosure()
- * @see LuaValue#checkclosure()
- * @see LuaValue#optclosure(LuaClosure)
- * @see LoadState
- * @see LoadState#compiler
  */
 @LuaSerializable
 public final class LuaClosure extends LuaFunction {

@@ -51,6 +51,19 @@ public class LuaConstants {
      */
     public static final int TVALUE = 9;
 
+    /**
+     * format corresponding to non-number-patched lua, all numbers are floats or doubles
+     */
+    public static final int NUMBER_FORMAT_FLOATS_OR_DOUBLES = 0;
+
+    /** format corresponding to non-number-patched lua, all numbers are ints */
+    public static final int NUMBER_FORMAT_INTS_ONLY = 1;
+
+    /**
+     * format corresponding to number-patched lua, all numbers are 32-bit (4 byte) ints
+     */
+    public static final int NUMBER_FORMAT_NUM_PATCH_INT32 = 4;
+
     /** LuaValue constant corresponding to a {@link Varargs} list of no values */
     public static final LuaValue NONE = None.NONE;
 

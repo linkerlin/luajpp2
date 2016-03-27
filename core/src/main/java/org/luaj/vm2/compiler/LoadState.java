@@ -19,10 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
-package org.luaj.vm2;
+package org.luaj.vm2.compiler;
 
 import static org.luaj.vm2.LuaBoolean.FALSE;
 import static org.luaj.vm2.LuaBoolean.TRUE;
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_FLOATS_OR_DOUBLES;
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_INTS_ONLY;
+import static org.luaj.vm2.LuaConstants.NUMBER_FORMAT_NUM_PATCH_INT32;
+import static org.luaj.vm2.LuaConstants.TBOOLEAN;
+import static org.luaj.vm2.LuaConstants.TINT;
+import static org.luaj.vm2.LuaConstants.TNIL;
+import static org.luaj.vm2.LuaConstants.TNUMBER;
+import static org.luaj.vm2.LuaConstants.TSTRING;
 import static org.luaj.vm2.LuaNil.NIL;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +38,15 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.luaj.vm2.compiler.LuaC;
+import org.luaj.vm2.LocVars;
+import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.LuaDouble;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaInteger;
+import org.luaj.vm2.LuaString;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Prototype;
 
 import nl.weeaboo.lua2.SharedByteAlloc;
 import nl.weeaboo.lua2.lib.J2sePlatform;
@@ -81,33 +97,6 @@ import nl.weeaboo.lua2.lib.J2sePlatform;
 public class LoadState {
 
     /**
-     * format corresponding to non-number-patched lua, all numbers are floats or doubles
-     */
-    public static final int NUMBER_FORMAT_FLOATS_OR_DOUBLES = 0;
-
-    /** format corresponding to non-number-patched lua, all numbers are ints */
-    public static final int NUMBER_FORMAT_INTS_ONLY = 1;
-
-    /**
-     * format corresponding to number-patched lua, all numbers are 32-bit (4 byte) ints
-     */
-    public static final int NUMBER_FORMAT_NUM_PATCH_INT32 = 4;
-
-    // type constants
-    public static final int LUA_TINT = (-2);
-    public static final int LUA_TNONE = (-1);
-    public static final int LUA_TNIL = 0;
-    public static final int LUA_TBOOLEAN = 1;
-    public static final int LUA_TLIGHTUSERDATA = 2;
-    public static final int LUA_TNUMBER = 3;
-    public static final int LUA_TSTRING = 4;
-    public static final int LUA_TTABLE = 5;
-    public static final int LUA_TFUNCTION = 6;
-    public static final int LUA_TUSERDATA = 7;
-    public static final int LUA_TTHREAD = 8;
-    public static final int LUA_TVALUE = 9;
-
-    /**
      * Interface for the compiler, if it is installed.
      * <p>
      * See the {@link LuaClosure} documentation for examples of how to use the compiler.
@@ -143,6 +132,20 @@ public class LoadState {
     /** size of header of binary files */
     public static final int LUAC_HEADERSIZE = 12;
 
+    private static final LuaValue[] NOVALUES = {};
+    private static final Prototype[] NOPROTOS = {};
+    private static final LocVars[] NOLOCVARS = {};
+    private static final LuaString[] NOSTRVALUES = {};
+    private static final int[] NOINTS = {};
+
+    private final SharedByteAlloc alloc = SharedByteAlloc.getInstance();
+
+    /** input stream from which we are loading */
+    private final DataInputStream is;
+
+    /** Read buffer */
+    private byte[] buf = new byte[512];
+
     // values read from the header
     @SuppressWarnings("unused")
     private int luacVersion;
@@ -159,28 +162,9 @@ public class LoadState {
     private int luacSizeofLuaNumber;
     private int luacNumberFormat;
 
-    private final SharedByteAlloc alloc;
-
-    /** input stream from which we are loading */
-    public final DataInputStream is;
-
-    /** Name of what is being loaded? */
-    String name;
-
-    private static final LuaValue[] NOVALUES = {};
-    private static final Prototype[] NOPROTOS = {};
-    private static final LocVars[] NOLOCVARS = {};
-    private static final LuaString[] NOSTRVALUES = {};
-    private static final int[] NOINTS = {};
-
-    /** Read buffer */
-    private byte[] buf = new byte[512];
-
     /** Private constructor for create a load state */
-    private LoadState(InputStream stream, String name) {
-        this.name = name;
+    private LoadState(InputStream stream) {
         this.is = new DataInputStream(stream);
-        this.alloc = SharedByteAlloc.getInstance();
     }
 
     /**
@@ -302,19 +286,19 @@ public class LoadState {
         LuaValue[] values = (n > 0 ? new LuaValue[n] : NOVALUES);
         for (int i = 0; i < n; i++) {
             switch (is.readByte()) {
-            case LUA_TNIL:
+            case TNIL:
                 values[i] = NIL;
                 break;
-            case LUA_TBOOLEAN:
+            case TBOOLEAN:
                 values[i] = (0 != is.readUnsignedByte() ? TRUE : FALSE);
                 break;
-            case LUA_TINT:
+            case TINT:
                 values[i] = LuaInteger.valueOf(loadInt());
                 break;
-            case LUA_TNUMBER:
+            case TNUMBER:
                 values[i] = loadNumber();
                 break;
-            case LUA_TSTRING:
+            case TSTRING:
                 values[i] = loadString();
                 break;
             default:
@@ -438,7 +422,7 @@ public class LoadState {
 
         // load file as a compiled chunk
         String sname = getSourceName(name);
-        LoadState s = new LoadState(stream, sname);
+        LoadState s = new LoadState(stream);
         s.loadHeader();
 
         // check format

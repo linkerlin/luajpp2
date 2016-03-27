@@ -45,7 +45,6 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaConstants;
 import org.luaj.vm2.LuaError;
@@ -54,6 +53,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
 import org.luaj.vm2.Varargs;
+import org.luaj.vm2.compiler.LoadState;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.CoerceJavaToLua;

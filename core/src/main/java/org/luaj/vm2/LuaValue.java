@@ -42,6 +42,8 @@ import static org.luaj.vm2.LuaConstants.SUB;
 import static org.luaj.vm2.LuaConstants.UNM;
 import static org.luaj.vm2.LuaNil.NIL;
 
+import org.luaj.vm2.compiler.LoadState;
+
 import nl.weeaboo.lua2.lib.J2sePlatform;
 
 /**
