@@ -36,7 +36,6 @@ import java.io.Serializable;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.ResourceFinder.Resource;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaInteger;
@@ -50,12 +49,12 @@ import nl.weeaboo.lua2.vm.Varargs;
  * Subclass of {@link LibFunction} which implements the lua basic library functions.
  * <p>
  * This contains all library functions listed as "basic functions" in the lua documentation for JME. The
- * functions dofile and loadfile use the {@link ResourceFinder} instance to find resource files. Since JME has
- * no file system by default, {@link BaseLib} implements {@link ResourceFinder} using
+ * functions dofile and loadfile use the {@link LuaResourceFinder} instance to find resource files. Since JME has
+ * no file system by default, {@link BaseLib} implements {@link LuaResourceFinder} using
  * {@link Class#getResource(String)}, which is the closest equivalent on JME. The default loader chain in
  * {@link PackageLib} will use these as well.
  * <p>
- * To use basic library functions that include a {@link ResourceFinder} based on directory lookup, use
+ * To use basic library functions that include a {@link LuaResourceFinder} based on directory lookup, use
  * {@code JseBaseLib} instead.
  * <p>
  * Typically, this library is included as part of a call to either JmePlatform.standardGlobals()
@@ -77,7 +76,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  * <p>
  * This is a direct port of the corresponding library in C.
  *
- * @see ResourceFinder
+ * @see LuaResourceFinder
  * @see LibFunction
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.1">http://www.lua.org/manual/5.1/manual.html#5.1
  *      </a>
@@ -391,19 +390,21 @@ public class BaseLib extends OneArgFunction {
      */
     public static Varargs loadFile(String filename) {
         LuaRunState lrs = LuaRunState.getCurrent();
-        Resource r = lrs.findResource(filename);
+        LuaResource r = lrs.findResource(filename);
         if (r == null) {
             return varargsOf(NIL, valueOf("cannot open " + filename));
         }
 
         try {
-            return loadStream(r.in, "@" + r.canonicalName);
-        } finally {
+            final InputStream in = r.open();
             try {
-                r.close();
-            } catch (IOException e) {
-                // Ignore
+                return loadStream(in, "@" + r.getCanonicalName());
+            } finally {
+                in.close();
             }
+        } catch (IOException e) {
+            // Ignore
+            return varargsOf(NIL, valueOf("cannot open " + filename));
         }
     }
 

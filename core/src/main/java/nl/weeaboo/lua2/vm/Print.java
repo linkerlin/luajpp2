@@ -298,7 +298,7 @@ public class Print extends Lua {
 	}
 
     /**
-     * @param f
+     * @param f The prototype to get the identifier of.
      */
 	private static String id(Prototype f) {
 		return "Proto";

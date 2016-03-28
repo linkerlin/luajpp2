@@ -12,7 +12,8 @@ import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
-import nl.weeaboo.lua2.lib.ResourceFinder;
+import nl.weeaboo.lua2.lib.LuaResource;
+import nl.weeaboo.lua2.lib.LuaResourceFinder;
 import nl.weeaboo.lua2.lib.SerializableIoLib;
 import nl.weeaboo.lua2.lib.StringLib;
 import nl.weeaboo.lua2.lib.TableLib;
@@ -27,7 +28,7 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class LuaRunState implements Serializable, IDestructible, ResourceFinder {
+public final class LuaRunState implements Serializable, IDestructible, LuaResourceFinder {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +47,7 @@ public final class LuaRunState implements Serializable, IDestructible, ResourceF
      *
      * Unless set or changed elsewhere, will be set by the BaseLib that is created.
      */
-    private ResourceFinder resourceFinder = new ClassLoaderResourceFinder();
+    private LuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
     private transient ILuaLink current;
 	private transient LuaThread currentThread;
@@ -218,7 +219,7 @@ public final class LuaRunState implements Serializable, IDestructible, ResourceF
     }
 
     @Override
-    public Resource findResource(String filename) {
+    public LuaResource findResource(String filename) {
         return resourceFinder.findResource(filename);
     }
 

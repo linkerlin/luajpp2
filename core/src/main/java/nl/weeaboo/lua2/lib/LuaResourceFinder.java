@@ -21,10 +21,6 @@
  ******************************************************************************/
 package nl.weeaboo.lua2.lib;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-
 /**
  * Interface for opening application resource files such as scripts sources.
  * <p>
@@ -36,30 +32,11 @@ import java.io.InputStream;
  *
  * @see BaseLib
  */
-public interface ResourceFinder {
+public interface LuaResourceFinder {
 
 	/**
 	 * Try to open a file, or return null if not found.
 	 */
-	public Resource findResource(String filename);
-
-    public static class Resource implements Closeable {
-
-		public final String canonicalName;
-		public final InputStream in;
-
-		public Resource(String canonicalName, InputStream in) {
-			this.canonicalName = canonicalName;
-			this.in = in;
-
-			if (canonicalName == null || in == null) throw new NullPointerException();
-		}
-
-        @Override
-        public void close() throws IOException {
-            in.close();
-        }
-
-	}
+    LuaResource findResource(String filename);
 
 }
