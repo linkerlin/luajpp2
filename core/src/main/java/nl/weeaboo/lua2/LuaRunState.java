@@ -6,11 +6,13 @@ import java.io.Serializable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.BaseLib;
+import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.CoroutineLib;
 import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
+import nl.weeaboo.lua2.lib.ResourceFinder;
 import nl.weeaboo.lua2.lib.SerializableIoLib;
 import nl.weeaboo.lua2.lib.StringLib;
 import nl.weeaboo.lua2.lib.TableLib;
@@ -25,7 +27,7 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class LuaRunState implements Serializable, IDestructible {
+public final class LuaRunState implements Serializable, IDestructible, ResourceFinder {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +40,13 @@ public final class LuaRunState implements Serializable, IDestructible {
 
     private boolean destroyed;
     private int instructionCountLimit = 1000000;
+
+    /**
+     * Singleton file opener for this Java ClassLoader realm.
+     *
+     * Unless set or changed elsewhere, will be set by the BaseLib that is created.
+     */
+    private ResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
     private transient ILuaLink current;
 	private transient LuaThread currentThread;
@@ -54,7 +63,7 @@ public final class LuaRunState implements Serializable, IDestructible {
         globals.load(new TableLib());
         globals.load(new StringLib());
         globals.load(new CoroutineLib());
-        globals.load(MathLib.getInstance());
+        globals.load(new MathLib());
         globals.load(new SerializableIoLib());
         globals.load(new OsLib());
         globals.load(new LuajavaLib());
@@ -206,6 +215,11 @@ public final class LuaRunState implements Serializable, IDestructible {
      */
     public void setIsLoaded(String name, LuaTable value) {
         packageLib.setIsLoaded(name, value);
+    }
+
+    @Override
+    public Resource findResource(String filename) {
+        return resourceFinder.findResource(filename);
     }
 
     /**

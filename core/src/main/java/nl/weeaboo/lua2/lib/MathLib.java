@@ -26,7 +26,6 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.util.Random;
 
-import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
@@ -81,46 +80,155 @@ import nl.weeaboo.lua2.vm.Varargs;
  *      </a>
  */
 @LuaSerializable
-public class MathLib extends OneArgFunction {
+public class MathLib extends LuaLibrary {
 
-    private static final long serialVersionUID = 5004300498656383998L;
+    private static final long serialVersionUID = 1L;
 
-    private static MathLib INSTANCE;
+    private static final String[] NAMES = {
+        "abs", "ceil", "cos", "deg", "exp", "floor", "rad", "sin", "sqrt", "tan",
+        "acos", "asin", "atan", "cosh", "log", "log10", "sinh", "tanh",
+        "fmod", "ldexp", "pow", "atan2",
+        "frexp", "max", "min", "modf", "randomseed", "random",
+        "fastSin", "fastCos", "fastTan", "fastArcSin", "fastArcCos", "fastArcTan", "fastArcTan2"
+    };
+
+    private static final int INIT = 0;
+    private static final int ABS = 1;
+    private static final int CEIL = 2;
+    private static final int COS = 3;
+    private static final int DEG = 4;
+    private static final int EXP = 5;
+    private static final int FLOOR = 6;
+    private static final int RAD = 7;
+    private static final int SIN = 8;
+    private static final int SQRT = 9;
+    private static final int TAN = 10;
+    private static final int ACOS = 11;
+    private static final int ASIN = 12;
+    private static final int ATAN = 13;
+    private static final int COSH = 14;
+    private static final int LOG = 15;
+    private static final int LOG10 = 16;
+    private static final int SINH = 17;
+    private static final int TANH = 18;
+    private static final int FMOD = 19;
+    private static final int LDEXP = 20;
+    private static final int POW = 21;
+    private static final int ATAN2 = 22;
+    private static final int FREXP = 23;
+    private static final int MAX = 24;
+    private static final int MIN = 25;
+    private static final int MODF = 26;
+    private static final int RANDOMSEED = 27;
+    private static final int RANDOM = 28;
+    private static final int FAST_SIN = 29;
+    private static final int FAST_COS = 30;
+    private static final int FAST_TAN = 31;
+    private static final int FAST_ASIN = 32;
+    private static final int FAST_ACOS = 33;
+    private static final int FAST_ATAN = 34;
+    private static final int FAST_ATAN2 = 35;
 
     private Random random;
 
-    MathLib() {
-        random = new Random(1);
+    public MathLib() {
+        this(new Random(1));
     }
-
-    public static synchronized MathLib getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new MathLib();
-        }
-        return INSTANCE;
-    }
-
-    public static synchronized void setInstance(MathLib mlib) {
-        INSTANCE = mlib;
+    protected MathLib(Random random) {
+        this.random = random;
     }
 
     @Override
-    public LuaValue call(LuaValue arg) {
-        LuaTable t = new LuaTable(0, 30);
-        synchronized (MathLib.class) {
-            t.set("pi", Math.PI);
-            t.set("huge", LuaDouble.POSINF);
-            bind(t, MathLib1.class,
-                    new String[] { "abs", "ceil", "cos", "deg", "exp", "floor", "rad", "sin", "sqrt", "tan",
-                            "acos", "asin", "atan", "cosh", "exp", "log", "log10", "sinh", "tanh", "fastSin",
-                            "fastCos", "fastTan", "fastArcSin", "fastArcCos", "fastArcTan" });
-            bind(t, MathLib2.class, new String[] { "fmod", "ldexp", "pow", "atan2", "fastArcTan2" });
-            bind(t, MathLibV.class, new String[] { "frexp", "max", "min", "modf", "randomseed", "random" });
+    protected LuaLibrary newInstance() {
+        return new MathLib(random);
+    }
 
-            env.set("math", t);
-            LuaRunState.getCurrent().setIsLoaded("math", t);
+    @Override
+    protected void initLibrary(LuaTable t, String[] names, int opcodeOffset) {
+        super.initLibrary(t, names, opcodeOffset);
+
+        t.set("pi", Math.PI);
+        t.set("huge", LuaDouble.POSINF);
+    }
+
+    @Override
+    public Varargs invoke(Varargs args) {
+        switch (opcode) {
+        case INIT:
+            return initLibrary("math", NAMES, 1);
+        case ABS:
+            return abs(args.arg1());
+        case CEIL:
+            return ceil(args.arg1());
+        case COS:
+            return cos(args.arg1());
+        case DEG:
+            return toDegrees(args.arg1());
+        case EXP:
+            return exp(args.arg1());
+        case FLOOR:
+            return floor(args.arg1());
+        case RAD:
+            return toRadians(args.arg1());
+        case SIN:
+            return sin(args.arg1());
+        case SQRT:
+            return sqrt(args.arg1());
+        case TAN:
+            return tan(args.arg1());
+        case ACOS:
+            return acos(args.arg1());
+        case ASIN:
+            return asin(args.arg1());
+        case ATAN:
+            return atan(args.arg1());
+        case COSH:
+            return cosh(args.arg1());
+        case LOG:
+            return log(args.arg1());
+        case LOG10:
+            return log10(args.arg1());
+        case SINH:
+            return sinh(args.arg1());
+        case TANH:
+            return tanh(args.arg1());
+        case FMOD:
+            return fmod(args.arg(1), args.arg(2));
+        case LDEXP:
+            return ldexp(args.arg(1), args.arg(2));
+        case POW:
+            return pow(args.arg(1), args.arg(2));
+        case ATAN2:
+            return atan2(args.arg(1), args.arg(2));
+        case FREXP:
+            return frexp(args);
+        case MAX:
+            return max(args);
+        case MIN:
+            return min(args);
+        case MODF:
+            return modf(args);
+        case RANDOMSEED:
+            return randomseed(args);
+        case RANDOM:
+            return random(args);
+        case FAST_SIN:
+            return valueOf(FastMath.fastSin(args.tofloat(1)));
+        case FAST_COS:
+            return valueOf(FastMath.fastCos(args.tofloat(1)));
+        case FAST_TAN:
+            return valueOf(Math.tan(FastMath.fastAngleScale * args.tofloat(1)));
+        case FAST_ASIN:
+            return valueOf(FastMath.fastArcSin(args.tofloat(1)));
+        case FAST_ACOS:
+            return valueOf(FastMath.fastArcCos(args.tofloat(1)));
+        case FAST_ATAN:
+            return valueOf(Math.tan(args.tofloat(1)) * FastMath.fastAngleScale);
+        case FAST_ATAN2:
+            return valueOf(FastMath.fastArcTan2(args.tofloat(1), args.tofloat(2)));
+        default:
+            return super.invoke(args);
         }
-        return t;
     }
 
     public LuaValue abs(LuaValue arg) {
@@ -143,7 +251,7 @@ public class MathLib extends OneArgFunction {
         return valueOf(dpow(arg1.checkdouble(), arg2.checkdouble()));
     }
 
-    public double dpow(double arg1, double arg2) {
+    public static double dpow(double arg1, double arg2) {
         return Math.pow(arg1, arg2);
     }
 
@@ -282,15 +390,11 @@ public class MathLib extends OneArgFunction {
     }
 
     @LuaSerializable
-    static final class MathLib1 extends OneArgFunction {
+    final class MathLib1 extends OneArgFunction {
 
-        private static final long serialVersionUID = -2789992800038544965L;
+        private static final long serialVersionUID = 1L;
 
-        private final MathLib mathlib;
-
-        MathLib1() {
-            mathlib = MathLib.getInstance();
-        }
+        private final MathLib mathlib = MathLib.this;
 
         @Override
         public LuaValue call(LuaValue arg) {
@@ -351,15 +455,11 @@ public class MathLib extends OneArgFunction {
     }
 
     @LuaSerializable
-    static final class MathLib2 extends TwoArgFunction {
+    final class MathLib2 extends TwoArgFunction {
 
-        private static final long serialVersionUID = -4481205185242316883L;
+        private static final long serialVersionUID = 1L;
 
-        private final MathLib mathlib;
-
-        MathLib2() {
-            mathlib = MathLib.getInstance();
-        }
+        private final MathLib mathlib = MathLib.this;
 
         @Override
         public LuaValue call(LuaValue arg1, LuaValue arg2) {
@@ -380,15 +480,11 @@ public class MathLib extends OneArgFunction {
     }
 
     @LuaSerializable
-    static final class MathLibV extends VarArgFunction {
+    final class MathLibV extends VarArgFunction {
 
-        private static final long serialVersionUID = 3014320826113116555L;
+        private static final long serialVersionUID = 1L;
 
-        private final MathLib mathlib;
-
-        MathLibV() {
-            mathlib = MathLib.getInstance();
-        }
+        private final MathLib mathlib = MathLib.this;
 
         @Override
         public Varargs invoke(Varargs args) {

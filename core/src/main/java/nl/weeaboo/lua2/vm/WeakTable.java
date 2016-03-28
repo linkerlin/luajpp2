@@ -23,6 +23,7 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.MODE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
+import static nl.weeaboo.lua2.vm.LuaConstants.TSTRING;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTABLE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTHREAD;
 import static nl.weeaboo.lua2.vm.LuaConstants.TUSERDATA;
@@ -364,6 +365,7 @@ final class WeakTable implements Metatable, Serializable {
         case TFUNCTION:
         case TTHREAD:
         case TTABLE:
+        case TSTRING:
             return new WeakValue(value);
         case TUSERDATA:
             return new WeakUserdata(value);

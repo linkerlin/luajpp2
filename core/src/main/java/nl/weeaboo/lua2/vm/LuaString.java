@@ -295,22 +295,22 @@ public final class LuaString extends LuaValue implements Externalizable {
 
 	@Override
 	public LuaValue pow(double rhs) {
-		return valueOf(MathLib.getInstance().dpow(checkarith(), rhs));
+        return valueOf(MathLib.dpow(checkarith(), rhs));
 	}
 
 	@Override
 	public LuaValue pow(int rhs) {
-		return valueOf(MathLib.getInstance().dpow(checkarith(), rhs));
+        return valueOf(MathLib.dpow(checkarith(), rhs));
 	}
 
 	@Override
 	public LuaValue powWith(double lhs) {
-		return valueOf(MathLib.getInstance().dpow(lhs, checkarith()));
+        return valueOf(MathLib.dpow(lhs, checkarith()));
 	}
 
 	@Override
 	public LuaValue powWith(int lhs) {
-		return valueOf(MathLib.getInstance().dpow(lhs, checkarith()));
+        return valueOf(MathLib.dpow(lhs, checkarith()));
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package nl.weeaboo.lua2;
 
 import org.junit.Assert;
 
+import nl.weeaboo.lua2.luajava.CoerceLuaToJava;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
@@ -15,13 +16,7 @@ public final class LuaTestUtil {
     }
 
     public static void assertGlobal(String name, Object val) {
-        LuaValue global = getGlobal(name);
-
-        if (val instanceof Boolean) {
-            Assert.assertEquals(val, global.toboolean());
-        } else {
-            Assert.assertEquals(val, global.optuserdata(null));
-        }
+        assertEquals(val, getGlobal(name));
     }
 
     public static LuaValue getGlobal(String name) {
@@ -31,6 +26,15 @@ public final class LuaTestUtil {
 
     public static <T> T getGlobal(String name, Class<T> type) {
         return getGlobal(name).optuserdata(type, null);
+    }
+
+    public static void assertEquals(Object expected, LuaValue luaValue) {
+        if (expected == null) {
+            Assert.assertTrue(luaValue.isnil());
+        } else {
+            Object javaValue = CoerceLuaToJava.coerceArg(luaValue, expected.getClass());
+            Assert.assertEquals(expected, javaValue);
+        }
     }
 
 }

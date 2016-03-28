@@ -323,22 +323,22 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
 
 	@Override
 	public LuaValue pow(double rhs) {
-		return valueOf(MathLib.getInstance().dpow(v, rhs));
+        return valueOf(MathLib.dpow(v, rhs));
 	}
 
 	@Override
 	public LuaValue pow(int rhs) {
-		return valueOf(MathLib.getInstance().dpow(v, rhs));
+        return valueOf(MathLib.dpow(v, rhs));
 	}
 
 	@Override
 	public LuaValue powWith(double lhs) {
-		return valueOf(MathLib.getInstance().dpow(lhs, v));
+        return valueOf(MathLib.dpow(lhs, v));
 	}
 
 	@Override
 	public LuaValue powWith(int lhs) {
-		return valueOf(MathLib.getInstance().dpow(lhs, v));
+        return valueOf(MathLib.dpow(lhs, v));
 	}
 
 	@Override

@@ -31,15 +31,10 @@ import java.io.InputStream;
  * This is used by required to load files that are part of the application, and
  * implemented by BaseLib for both the Jme and Jse platforms.
  * <p>
- * The Jme version of base lib {@link BaseLib} implements {@link BaseLib#FINDER}
- * via {@link Class#getResourceAsStream(String)}, while the Jse version
- * {@code JseBaseLib} implements it using {@link java.io.File#File(String)}.
- * <p>
  * The io library does not use this API for file manipulation.
  * <p>
  *
  * @see BaseLib
- * @see BaseLib#FINDER
  */
 public interface ResourceFinder {
 

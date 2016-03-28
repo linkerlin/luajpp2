@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ResourceFinder.Resource;
@@ -49,8 +50,8 @@ import nl.weeaboo.lua2.vm.Varargs;
  * Subclass of {@link LibFunction} which implements the lua basic library functions.
  * <p>
  * This contains all library functions listed as "basic functions" in the lua documentation for JME. The
- * functions dofile and loadfile use the {@link #FINDER} instance to find resource files. Since JME has no
- * file system by default, {@link BaseLib} implements {@link ResourceFinder} using
+ * functions dofile and loadfile use the {@link ResourceFinder} instance to find resource files. Since JME has
+ * no file system by default, {@link BaseLib} implements {@link ResourceFinder} using
  * {@link Class#getResource(String)}, which is the closest equivalent on JME. The default loader chain in
  * {@link PackageLib} will use these as well.
  * <p>
@@ -77,7 +78,6 @@ import nl.weeaboo.lua2.vm.Varargs;
  * This is a direct port of the corresponding library in C.
  *
  * @see ResourceFinder
- * @see #FINDER
  * @see LibFunction
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.1">http://www.lua.org/manual/5.1/manual.html#5.1
  *      </a>
@@ -89,13 +89,6 @@ public class BaseLib extends OneArgFunction {
 
     private static InputStream STDIN = null;
     private static PrintStream STDOUT = System.out;
-
-    /**
-     * Singleton file opener for this Java ClassLoader realm.
-     *
-     * Unless set or changed elsewhere, will be set by the BaseLib that is created.
-     */
-    public static ResourceFinder FINDER;
 
     private static final String[] LIB2_KEYS = { "collectgarbage", // ( opt
                                                                   // [,arg] )
@@ -142,9 +135,6 @@ public class BaseLib extends OneArgFunction {
         env.set("_VERSION", LuaConstants.ENGINE_VERSION);
         bind(env, BaseLib2.class, LIB2_KEYS);
         bind(env, BaseLibV.class, LIBV_KEYS);
-        if (FINDER == null) {
-            FINDER = new ClassLoaderResourceFinder();
-        }
         return env;
     }
 
@@ -400,7 +390,8 @@ public class BaseLib extends OneArgFunction {
      * @return Varargs containing chunk, or NIL,error-text on error
      */
     public static Varargs loadFile(String filename) {
-        Resource r = FINDER.findResource(filename);
+        LuaRunState lrs = LuaRunState.getCurrent();
+        Resource r = lrs.findResource(filename);
         if (r == null) {
             return varargsOf(NIL, valueOf("cannot open " + filename));
         }
