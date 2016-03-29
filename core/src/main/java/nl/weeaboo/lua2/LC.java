@@ -22,8 +22,6 @@ import nl.weeaboo.lua2.vm.Prototype;
  */
 public class LC {
 
-    private static final String version = LuaConstants.ENGINE_VERSION;
-
 	private static final String usage = "usage: java -cp luajpp2.jar luac [options] [filenames].\n"
 			+ "Available options are:\n"
 			+ "  -        process stdin\n"
@@ -132,7 +130,9 @@ public class LC {
 			}
 
 			// echo version
-			if (versioninfo) System.out.println(version);
+            if (versioninfo) {
+                System.out.println(LuaConstants.getEngineVersion());
+            }
 
 			processing = true;
 

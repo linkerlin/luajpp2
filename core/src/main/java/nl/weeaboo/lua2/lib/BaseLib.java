@@ -131,7 +131,7 @@ public class BaseLib extends OneArgFunction {
     @Override
     public LuaValue call(LuaValue arg) {
         env.set("_G", env);
-        env.set("_VERSION", LuaConstants.ENGINE_VERSION);
+        env.set("_VERSION", LuaConstants.getEngineVersion());
         bind(env, BaseLib2.class, LIB2_KEYS);
         bind(env, BaseLibV.class, LIBV_KEYS);
         return env;

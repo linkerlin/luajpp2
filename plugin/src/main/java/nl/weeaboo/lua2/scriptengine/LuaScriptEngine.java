@@ -63,9 +63,8 @@ import nl.weeaboo.lua2.vm.Varargs;
  */
 public class LuaScriptEngine implements ScriptEngine, Compilable {
 
-    private static final String __ENGINE_VERSION__ = LuaConstants.ENGINE_VERSION;
-	private static final String __NAME__ = "Luaj";
-	private static final String __SHORT_NAME__ = "Luaj";
+    private static final String __NAME__ = "Luajpp2";
+    private static final String __SHORT_NAME__ = "Luajpp2";
 	private static final String __LANGUAGE__ = "lua";
 	private static final String __LANGUAGE_VERSION__ = "5.1";
 	private static final String __ARGV__ = "arg";
@@ -90,7 +89,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 		put(LANGUAGE_VERSION, __LANGUAGE_VERSION__);
 		put(LANGUAGE, __LANGUAGE__);
 		put(ENGINE, __NAME__);
-		put(ENGINE_VERSION, __ENGINE_VERSION__);
+        put(ENGINE_VERSION, LuaConstants.getEngineVersion());
 		put(ARGV, __ARGV__);
 		put(FILENAME, __FILENAME__);
 		put(NAME, __SHORT_NAME__);

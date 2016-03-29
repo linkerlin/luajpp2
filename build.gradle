@@ -38,6 +38,15 @@ project(':core') {
     eclipse.project {
         name = "luajpp2-core"
     }
+    
+    processResources {
+        filesMatching('**/*.properties') {
+            filter {
+                // Engine version number
+                it.replace('@VERSION@', version)
+            }
+        }
+    }
 }
 
 
