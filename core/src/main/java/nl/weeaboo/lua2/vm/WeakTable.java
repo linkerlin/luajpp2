@@ -401,10 +401,10 @@ final class WeakTable implements Metatable, Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        protected WeakReference<?> ref;
+        private transient WeakReference<LuaValue> ref;
 
-        protected WeakValue(LuaValue value) {
-            ref = new WeakReference<LuaValue>(value);
+        protected WeakValue(LuaValue val) {
+            setWeakValue(val);
         }
 
         @Override
@@ -421,19 +421,26 @@ final class WeakTable implements Metatable, Serializable {
 
         @Override
         public String toString() {
-            return "weak<" + ref.get() + ">";
+            return "weak<" + getWeakValue() + ">";
         }
 
         @Override
         public LuaValue strongvalue() {
-            Object o = ref.get();
-            return (LuaValue)o;
+            return getWeakValue();
         }
 
         @Override
         public boolean raweq(LuaValue rhs) {
-            Object o = ref.get();
-            return o != null && rhs.raweq((LuaValue)o);
+            LuaValue val = getWeakValue();
+            return val != null && rhs.raweq(val);
+        }
+
+        protected final LuaValue getWeakValue() {
+            return (ref != null ? ref.get() : null);
+        }
+
+        protected final void setWeakValue(LuaValue val) {
+            ref = new WeakReference<LuaValue>(val);
         }
     }
 
@@ -459,14 +466,15 @@ final class WeakTable implements Metatable, Serializable {
 
         @Override
         public LuaValue strongvalue() {
-            Object u = ref.get();
+            LuaValue u = getWeakValue();
             if (u != null) {
-                return (LuaValue)u;
+                return u;
             }
+
             Object o = ob.get();
             if (o != null) {
                 LuaValue ud = LuaValue.userdataOf(o, mt);
-                ref = new WeakReference<LuaValue>(ud);
+                setWeakValue(ud);
                 return ud;
             } else {
                 return null;
