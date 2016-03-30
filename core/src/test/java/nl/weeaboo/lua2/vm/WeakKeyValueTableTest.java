@@ -6,10 +6,6 @@ import java.lang.ref.WeakReference;
 
 import org.junit.Assert;
 
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.WeakTable;
-
 public class WeakKeyValueTableTest extends WeakTableTest {
 
     @Override

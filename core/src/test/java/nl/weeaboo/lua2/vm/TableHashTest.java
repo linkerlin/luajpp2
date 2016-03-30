@@ -31,10 +31,6 @@ import org.junit.Test;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
-import nl.weeaboo.lua2.vm.LuaString;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Varargs;
 
 /**
  * Tests for tables used as lists.

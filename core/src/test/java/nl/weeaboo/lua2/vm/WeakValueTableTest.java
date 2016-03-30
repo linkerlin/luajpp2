@@ -4,11 +4,6 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import org.junit.Assert;
 
-import nl.weeaboo.lua2.vm.LuaString;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.WeakTable;
-
 public class WeakValueTableTest extends WeakTableTest {
 
     @Override

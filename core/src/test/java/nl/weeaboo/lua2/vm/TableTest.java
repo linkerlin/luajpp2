@@ -29,12 +29,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaString;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Varargs;
-
 public class TableTest {
 
     protected LuaTable newTable() {

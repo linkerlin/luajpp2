@@ -31,17 +31,6 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ThreeArgFunction;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
-import nl.weeaboo.lua2.vm.LuaBoolean;
-import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaFunction;
-import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaNil;
-import nl.weeaboo.lua2.vm.LuaNumber;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaThread;
-import nl.weeaboo.lua2.vm.LuaUserdata;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Prototype;
 import nl.weeaboo.lua2.vm.TypeTest.MyData;
 
 public class MetatableTest extends TestCase {

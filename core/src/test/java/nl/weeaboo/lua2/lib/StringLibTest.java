@@ -20,7 +20,7 @@ public class StringLibTest {
     @Test
     public void testMatchShortPatterns() {
         LuaValue[] args = { LuaString.valueOf("%bxy") };
-        LuaString _ = LuaString.valueOf("");
+        LuaString empty = LuaString.valueOf("");
 
         LuaString a = LuaString.valueOf("a");
         LuaString ax = LuaString.valueOf("ax");
@@ -31,7 +31,7 @@ public class StringLibTest {
         LuaString xby = LuaString.valueOf("xby");
         LuaString axbya = LuaString.valueOf("axbya");
 
-        Assert.assertEquals(NIL, _.invokemethod("match", args));
+        Assert.assertEquals(NIL, empty.invokemethod("match", args));
         Assert.assertEquals(NIL, a.invokemethod("match", args));
         Assert.assertEquals(NIL, ax.invokemethod("match", args));
         Assert.assertEquals(NIL, axb.invokemethod("match", args));

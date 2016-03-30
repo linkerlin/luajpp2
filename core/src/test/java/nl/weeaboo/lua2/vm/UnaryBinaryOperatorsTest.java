@@ -43,16 +43,6 @@ import org.junit.Test;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
-import nl.weeaboo.lua2.vm.Buffer;
-import nl.weeaboo.lua2.vm.LuaBoolean;
-import nl.weeaboo.lua2.vm.LuaDouble;
-import nl.weeaboo.lua2.vm.LuaError;
-import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaNumber;
-import nl.weeaboo.lua2.vm.LuaString;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaUserdata;
-import nl.weeaboo.lua2.vm.LuaValue;
 
 /**
  * Tests of basic unary and binary operators on main value types.

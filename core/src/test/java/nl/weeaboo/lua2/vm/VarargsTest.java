@@ -27,12 +27,6 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import org.junit.Assert;
 import org.junit.Test;
 
-import nl.weeaboo.lua2.vm.ArrayPartVarargs;
-import nl.weeaboo.lua2.vm.LuaError;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.PairVarargs;
-import nl.weeaboo.lua2.vm.Varargs;
-
 /**
  * Tests of basic unary and binary operators on main value types.
  */

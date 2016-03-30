@@ -7,8 +7,6 @@ import java.io.UnsupportedEncodingException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import nl.weeaboo.lua2.vm.LuaString;
-
 public class StringTest {
 
     @Test
