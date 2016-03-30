@@ -188,8 +188,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 		this.m_offset = offset;
 		this.m_length = length;
 
-		if (m_offset < 0) throw new IllegalArgumentException("Invalid offset: " + m_offset);
-		if (m_length < 0 || m_offset + m_length > bytes.length) throw new IllegalArgumentException("Invalid length: " + m_length + " (offset=" + m_offset + ", array.length=" + m_bytes.length + ")");
+        if (m_offset < 0) {
+            throw new IllegalArgumentException("Invalid offset: " + m_offset);
+        }
+        if (m_length < 0 || m_offset + m_length > bytes.length) {
+            throw new IllegalArgumentException("Invalid length: " + m_length + " (offset=" + m_offset
+                    + ", array.length=" + m_bytes.length + ")");
+        }
 	}
 
 	@Override
@@ -722,11 +727,13 @@ public final class LuaString extends LuaValue implements Externalizable {
     }
 
 	public int luaByte(int index) {
+        if (index < 0 || index >= m_length) {
+            throw new IndexOutOfBoundsException("index=" + index + ", length=" + m_length);
+        }
 		return m_bytes[m_offset + index] & 0x0FF;
 	}
 
 	public int charAt(int index) {
-		if (index < 0 || index >= m_length) throw new IndexOutOfBoundsException();
 		return luaByte(index);
 	}
 

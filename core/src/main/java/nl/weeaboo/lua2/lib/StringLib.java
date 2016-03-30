@@ -1171,8 +1171,9 @@ public class StringLib extends OneArgFunction {
             if (poff == plen || poff + 1 == plen) {
                 error("unbalanced pattern");
             }
-            if (s.luaByte(soff) != p.luaByte(poff)) return -1;
-            else {
+            if (soff >= s.length() || s.luaByte(soff) != p.luaByte(poff)) {
+                return -1;
+            } else {
                 int b = p.luaByte(poff);
                 int e = p.luaByte(poff + 1);
                 int cont = 1;
