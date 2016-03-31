@@ -9,11 +9,11 @@ import nl.weeaboo.lua2.lib.BaseLib;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.CoroutineLib;
 import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.lib.LuaResource;
+import nl.weeaboo.lua2.lib.LuaResourceFinder;
 import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
-import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.lib.LuaResourceFinder;
 import nl.weeaboo.lua2.lib.SerializableIoLib;
 import nl.weeaboo.lua2.lib.StringLib;
 import nl.weeaboo.lua2.lib.TableLib;
@@ -42,11 +42,6 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     private boolean destroyed;
     private int instructionCountLimit = 1000000;
 
-    /**
-     * Singleton file opener for this Java ClassLoader realm.
-     *
-     * Unless set or changed elsewhere, will be set by the BaseLib that is created.
-     */
     private LuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
     private transient ILuaLink current;
@@ -221,6 +216,10 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     @Override
     public LuaResource findResource(String filename) {
         return resourceFinder.findResource(filename);
+    }
+
+    public void setResourceFinder(LuaResourceFinder resourceFinder) {
+        this.resourceFinder = resourceFinder;
     }
 
     /**
