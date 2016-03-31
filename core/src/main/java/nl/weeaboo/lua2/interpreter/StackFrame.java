@@ -84,7 +84,7 @@ public final class StackFrame implements Externalizable {
 	 */
 	public static void releaseFrame(StackFrame frame) {
         frame.close();
-		allocator.get().giveFrame(frame);
+        allocator.get().giveFrame(frame);
 	}
 
 	@Override

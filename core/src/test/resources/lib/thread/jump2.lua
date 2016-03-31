@@ -1,4 +1,4 @@
 
-Thread.yield()
+yield()
 
 jump2Finished = true

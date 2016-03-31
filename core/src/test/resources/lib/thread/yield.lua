@@ -1,2 +1,2 @@
 
-Thread.yield(10)
+yield(10)

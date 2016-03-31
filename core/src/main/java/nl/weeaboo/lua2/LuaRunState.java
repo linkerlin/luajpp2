@@ -66,6 +66,9 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
         globals.load(new ThreadLib());
         globals.load(new DebugLib());
 
+        // Set Thread.yield() as a global yield function
+        globals.rawset("yield", globals.rawget("Thread").rawget("yield"));
+
         mainThread = LuaThread.createMainThread(this, globals);
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
 
