@@ -115,16 +115,24 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 
 		MethodInfo bestMatch = null;
 		int bestScore = Integer.MAX_VALUE;
-        for (MethodInfo method : methods) {
-            Class<?>[] params = method.getParams();
+        for (MethodInfo curMethod : methods) {
+            Class<?>[] params = curMethod.getParams();
 			int score = CoerceLuaToJava.scoreParamTypes(args, params);
-			if (score == 0) {
-                return method; // Perfect match, return at once
-			} else {
-				if (score < bestScore) {
-					bestScore = score;
-                    bestMatch = method;
-				}
+			if (score <= bestScore) {
+			    if (bestMatch != null && score == bestScore) {
+                    Class<?> curDeclaring = curMethod.getMethod().getDeclaringClass();
+			        if (bestMatch.getMethod().getDeclaringClass().isAssignableFrom(curDeclaring)) {
+                        /*
+                         * Methods score the same, but current is declared in a subclass of the best match, so
+                         * we consider it to be more specific. This solves an issue where a subclass overrides
+                         * a method to have a more specific return type -- we'd prefer to call that method.
+                         */
+                        bestMatch = curMethod;
+			        }
+                } else {
+                    bestMatch = curMethod;
+			    }
+				bestScore = score;
 			}
 		}
 

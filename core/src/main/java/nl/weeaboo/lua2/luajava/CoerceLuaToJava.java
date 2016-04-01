@@ -230,20 +230,24 @@ public class CoerceLuaToJava {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T coerceArg(LuaValue a, Class<T> c) {
-		//The lua arg is a Java object
+        // The java arg is a Lua type
+        if (c.isAssignableFrom(a.getClass())) {
+            return c.cast(a);
+        }
+
+        // The lua arg is a Java object
 		if (a instanceof LuaUserdata) {
 			Object o = ((LuaUserdata) a).m_instance;
 			if (c.isAssignableFrom(o.getClass())) {
-				return (T)o; //Known to be safe
+                return c.cast(o);
 			}
 		}
 
 		//Try to use a specialized coercion function if one is available
 		Coercion co = COERCIONS.get(c);
 		if (co != null) {
-			return (T)co.coerce(a); //Known to be safe
+            return c.cast(co.coerce(a));
 		}
 
 		//Special coercion for arrays
@@ -260,18 +264,13 @@ public class CoerceLuaToJava {
 						Array.set(result, n, coerceArg(val, inner));
 					}
 				}
-				return (T)result; //Known to be safe
+                return c.cast(result);
 			} else {
 				//Single element -> Array
 				Object result = Array.newInstance(inner, 1);
 				Array.set(result, 0, coerceArg(a, inner));
-				return (T)result; //Known to be safe
+                return c.cast(result);
 			}
-		}
-
-		//The java arg is a Lua type
-		if (c.isAssignableFrom(a.getClass())) {
-			return (T)a; //Known to be safe
 		}
 
 		//Special case for nil
@@ -281,9 +280,9 @@ public class CoerceLuaToJava {
 
 		//String -> Enum
 		if (c.isEnum() && a.isstring()) {
-			@SuppressWarnings("rawtypes")
-			Class<Enum> cz = (Class<Enum>)c;
-			return c.cast(Enum.valueOf(cz, a.tojstring()));
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Enum enumVal = Enum.valueOf((Class<Enum>)c, a.tojstring());
+            return c.cast(enumVal);
 		}
 
 		throw new LuaError("Invalid coercion: " + a.getClass() + " -> " + c);
