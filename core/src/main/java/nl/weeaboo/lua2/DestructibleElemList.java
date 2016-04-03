@@ -7,7 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import nl.weeaboo.lua2.io.LuaSerializable;
+
 /** List implementation that automatically removes destroyed elements */
+@LuaSerializable
 final class DestructibleElemList<T extends IDestructible> implements Iterable<T>, Serializable {
 
     private static final long serialVersionUID = 1L;

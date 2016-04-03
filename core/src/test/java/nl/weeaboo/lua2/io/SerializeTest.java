@@ -1,7 +1,5 @@
 package nl.weeaboo.lua2.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.junit.Assert;
@@ -22,7 +20,7 @@ public class SerializeTest extends AbstractLuaTest {
 
         assertSerialize1(luaRunState);
 
-        LuaRunState lrs2 = serialize();
+        LuaRunState lrs2 = LuaTestUtil.serialize(luaRunState);
         assertSerialize1(lrs2);
     }
 
@@ -64,28 +62,6 @@ public class SerializeTest extends AbstractLuaTest {
         Assert.assertEquals(1, sub1.keyCount());
         // Contains a reference to table3
         Assert.assertSame(table3, sub1.get(1));
-    }
-
-    private LuaRunState serialize() throws IOException {
-        LuaSerializer ls = new LuaSerializer();
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectSerializer out = ls.openSerializer(bout);
-        try {
-            out.writeObject(luaRunState);
-        } finally {
-            out.close();
-        }
-
-        LuaRunState lrs;
-        ObjectDeserializer in = ls.openDeserializer(new ByteArrayInputStream(bout.toByteArray()));
-        try {
-            lrs = (LuaRunState)in.readObject();
-        } catch (ClassNotFoundException e) {
-            throw new IOException(e);
-        } finally {
-            in.close();
-        }
-        return lrs;
     }
 
 }

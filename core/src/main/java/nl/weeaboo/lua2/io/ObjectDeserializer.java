@@ -20,7 +20,6 @@ public class ObjectDeserializer extends ObjectInputStream {
 		updateEnableReplace();
 	}
 
-	//Functions
 	private void updateEnableReplace() {
 		boolean replace = (env != null || COLLECT_STATS);
 
@@ -89,9 +88,5 @@ public class ObjectDeserializer extends ObjectInputStream {
 
 		return obj;
 	}
-
-	//Getters
-
-	//Setters
 
 }

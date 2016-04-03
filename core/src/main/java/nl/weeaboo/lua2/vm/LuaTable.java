@@ -1354,7 +1354,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     @LuaSerializable
-    static class NormalEntry extends Entry {
+    static final class NormalEntry extends Entry {
 
         private static final long serialVersionUID = 1L;
 

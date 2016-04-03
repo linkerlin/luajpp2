@@ -22,7 +22,6 @@ final class MethodInfo implements Serializable {
 		method = m;
 	}
 	
-	//Functions
 	private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
 		Class<?> clazz = (Class<?>)in.readObject();
 		String methodName = in.readUTF();
@@ -61,7 +60,6 @@ final class MethodInfo implements Serializable {
 		return false;
 	}
 	
-	//Getters
 	public Method getMethod() {
 		return method;
 	}
@@ -71,7 +69,5 @@ final class MethodInfo implements Serializable {
 		}
 		return params;
 	}
-	
-	//Setters
 	
 }

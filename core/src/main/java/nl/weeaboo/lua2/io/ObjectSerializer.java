@@ -73,11 +73,11 @@ public class ObjectSerializer extends ObjectOutputStream {
 	/**
 	 * @return An array containing all warnings encountered during serialization.
 	 */
-	public String[] checkErrors() {
+    public List<String> checkErrors() throws IOException {
 		if (errors.size() > 0) {
 			String errorString = toErrorString(errors);
 			errors.clear();
-			throw new RuntimeException(errorString);
+            throw new IOException(errorString);
 		}
 
 		if (COLLECT_STATS) {
@@ -93,7 +93,7 @@ public class ObjectSerializer extends ObjectOutputStream {
 			}
 		}
 
-		String warn[] = warnings.toArray(new String[warnings.size()]);
+        List<String> warn = new ArrayList<String>(warnings);
 		warnings.clear();
 		return warn;
 	}

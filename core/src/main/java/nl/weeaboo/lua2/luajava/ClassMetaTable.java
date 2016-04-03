@@ -17,6 +17,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.OneArgFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -169,6 +170,10 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 		}
 
 		protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+            if (instance == null) {
+                return LuaNil.NIL.call();
+            }
+
 			//Fields & Methods
 			if (isGet) {
 				LuaMethod method = meta.getMethod(key);
