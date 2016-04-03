@@ -35,6 +35,11 @@ public final class LuaTestUtil {
         return getGlobal(name).optuserdata(type, null);
     }
 
+    public static void setGlobal(String name, LuaValue val) {
+        LuaTable globals = LuaRunState.getCurrent().getGlobalEnvironment();
+        globals.set(name, val);
+    }
+
     public static void assertEquals(Object expected, LuaValue luaValue) {
         if (expected == null) {
             Assert.assertTrue(luaValue.isnil());

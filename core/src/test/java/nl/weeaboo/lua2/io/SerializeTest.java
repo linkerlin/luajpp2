@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.io;
 
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
+
 import java.io.IOException;
 
 import org.junit.Assert;
@@ -10,18 +12,56 @@ import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
 
 public class SerializeTest extends AbstractLuaTest {
 
     @Test
     public void serialize1() throws IOException, LuaException {
-        loadScript("serialize/serialize1.lua");
+        loadScript("io/serialize1.lua");
         runToCompletion();
 
         assertSerialize1(luaRunState);
 
         LuaRunState lrs2 = LuaTestUtil.serialize(luaRunState);
         assertSerialize1(lrs2);
+    }
+
+    /**
+     * Test serialization of weak tables
+     */
+    @Test
+    public void testWeakTable() throws IOException, LuaException {
+        loadScript("io/serialize1.lua");
+        runToCompletion();
+
+        luaRunState = LuaTestUtil.serialize(luaRunState);
+        luaRunState.registerOnThread();
+
+        // Collect globals
+        LuaTable weakKeys1 = LuaTestUtil.getGlobal("weakKeys1").checktable();
+        LuaTable weakValues1 = LuaTestUtil.getGlobal("weakValues1").checktable();
+        LuaTable weakDouble1 = LuaTestUtil.getGlobal("weakDouble1").checktable();
+
+        // Check weak tables when all references exist
+        collectGarbage();
+        assertWeakTable(weakKeys1, getWeakRef(0), getWeakRef(1));
+        assertWeakTable(weakValues1, getWeakRef(2), getWeakRef(3));
+        assertWeakTable(weakDouble1, getWeakRef(4), getWeakRef(5));
+
+        // Removing the weak key causes removal of the weaktable entry
+        setWeakRef(0, NIL);
+        setWeakRef(2, NIL);
+        setWeakRef(4, NIL);
+        collectGarbage();
+        Assert.assertEquals(0, weakKeys1.keyCount());
+        Assert.assertEquals(1, weakValues1.keyCount()); // Weak value is still referenced
+        Assert.assertEquals(0, weakDouble1.keyCount());
+
+        // Removing the weak value causes the weakvalue entry to be removed
+        setWeakRef(3, NIL);
+        collectGarbage();
+        Assert.assertEquals(0, weakValues1.keyCount());
     }
 
     private static void assertSerialize1(LuaRunState lrs) {
@@ -62,6 +102,30 @@ public class SerializeTest extends AbstractLuaTest {
         Assert.assertEquals(1, sub1.keyCount());
         // Contains a reference to table3
         Assert.assertSame(table3, sub1.get(1));
+    }
+
+    private LuaValue getWeakRef(int index) {
+        return LuaTestUtil.getGlobal("weakRef" + index);
+    }
+
+    private void setWeakRef(int index, LuaValue val) {
+        LuaTestUtil.setGlobal("weakRef" + index, val);
+    }
+
+    private static void assertWeakTable(LuaTable table, LuaValue key, LuaValue expectedVal) {
+        LuaValue actualVal = table.get(key);
+        Assert.assertEquals(expectedVal, actualVal);
+    }
+
+    private static void collectGarbage() {
+        Runtime rt = Runtime.getRuntime();
+        rt.gc();
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            Assert.fail(e.toString());
+        }
+        rt.gc();
     }
 
 }
