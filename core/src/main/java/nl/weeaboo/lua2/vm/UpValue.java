@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,27 +31,29 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 /**
  * Upvalue used with Closure formulation
  * <p>
- * 
+ *
  * @see LuaClosure
  * @see Prototype
  */
 @LuaSerializable
 public final class UpValue implements Externalizable {
 
+    public static final UpValue[] NOUPVALUES = new UpValue[0];
+
 	private LuaValue sealed; //Gets set when closed
 	private LuaValue[] array;
 	private int index;
 
 	/**
-	 * Do not use. Required for efficient serialization. 
+	 * Do not use. Required for efficient serialization.
 	 */
 	@Deprecated
-	public UpValue() {		
+	public UpValue() {
 	}
-	
+
 	/**
 	 * Create an upvalue relative to a stack
-	 * 
+	 *
 	 * @param stack the stack
 	 * @param index the index on the stack for the upvalue
 	 */
@@ -80,10 +82,10 @@ public final class UpValue implements Externalizable {
 			array = (LuaValue[])in.readObject();
 		}
 	}
-	
+
 	/**
 	 * Convert this upvalue to a Java String
-	 * 
+	 *
 	 * @return the Java String for this upvalue.
 	 * @see LuaValue#tojstring()
 	 */
@@ -93,7 +95,7 @@ public final class UpValue implements Externalizable {
 
 	/**
 	 * Get the value of the upvalue
-	 * 
+	 *
 	 * @return the {@link LuaValue} for this upvalue
 	 */
 	public final LuaValue getValue() {
@@ -102,7 +104,7 @@ public final class UpValue implements Externalizable {
 
 	/**
 	 * Set the value of the upvalue
-	 * 
+	 *
 	 * @param value the {@link LuaValue} to set it to
 	 */
 	public final void setValue(LuaValue value) {

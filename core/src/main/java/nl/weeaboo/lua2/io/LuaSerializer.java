@@ -5,33 +5,34 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class LuaSerializer {
 
-	private static ThreadLocal<LuaSerializer> serializers = new ThreadLocal<LuaSerializer>();
+    private static final ThreadLocal<LuaSerializer> CURRENT = new ThreadLocal<LuaSerializer>();
+    private final Environment env;
 
-	private Environment env;
-
-	private List<Object> writeDelayed = new ArrayList<Object>();
-	private List<DelayedReader> readDelayed = new ArrayList<DelayedReader>();
+    private final List<Object> writeDelayed = new ArrayList<Object>();
+    private final List<DelayedReader> readDelayed = new ArrayList<DelayedReader>();
 
 	public LuaSerializer() {
 		env = new Environment();
 	}
 
-	//Functions
-	protected void serializerInitAsync() {
-		serializers.set(LuaSerializer.this);
+    protected void makeCurrent() {
+        CURRENT.set(this);
 	}
 
-	public int writeDelayed(Object obj) {
+    public static LuaSerializer getCurrent() {
+        return CURRENT.get();
+    }
+
+    public void writeDelayed(Object obj) {
 		writeDelayed.add(obj);
-		return writeDelayed.size();
 	}
 
-	public int readDelayed(DelayedReader reader) {
+    public void readDelayed(DelayedReader reader) {
 		readDelayed.add(reader);
-		return readDelayed.size();
 	}
 
 	public ObjectSerializer openSerializer(OutputStream out) throws IOException {
@@ -46,20 +47,18 @@ public class LuaSerializer {
 			}
 
 			@Override
-            protected Thread createThread(ThreadGroup g, final Runnable r, String name, int stackSizeHint) {
-				Runnable r2 = new Runnable() {
-					@Override
-					public void run() {
-						serializerInitAsync();
-						r.run();
-						try {
-							writeDelayed();
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				};
-				return super.createThread(g, r2, name, stackSizeHint);
+            protected Callable<Void> createAsyncWriteTask(Object obj) {
+                final Callable<Void> inner = super.createAsyncWriteTask(obj);
+
+                return new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        makeCurrent();
+                        inner.call();
+                        writeDelayed();
+                        return null;
+                    }
+                };
 			}
 
 			@Override
@@ -71,12 +70,12 @@ public class LuaSerializer {
 						super.close();
 					} finally {
 						writeDelayed.clear();
-						serializers.set(null);
+                        CURRENT.set(null);
 					}
 				}
 			}
 		};
-		serializerInitAsync();
+        makeCurrent();
 		return oout;
 	}
 
@@ -96,22 +95,20 @@ public class LuaSerializer {
 				}
 			}
 
-			@Override
-            protected Thread createThread(ThreadGroup g, final Runnable r, String name, int stackSizeHint) {
-				Runnable r2 = new Runnable() {
-					@Override
-					public void run() {
-						serializerInitAsync();
-						r.run();
-						try {
-							readDelayed();
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				};
-				return super.createThread(g, r2, name, stackSizeHint);
-			}
+            @Override
+            protected Callable<Object> createAsyncReadTask() {
+                final Callable<Object> inner = super.createAsyncReadTask();
+
+                return new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        makeCurrent();
+                        Object result = inner.call();
+                        readDelayed();
+                        return result;
+                    }
+                };
+            }
 
 			@Override
 			public void close() throws IOException {
@@ -122,24 +119,17 @@ public class LuaSerializer {
 						super.close();
 					} finally {
 						readDelayed.clear();
-						serializers.set(null);
+                        CURRENT.set(null);
 					}
 				}
 			}
 		};
-		serializerInitAsync();
+        makeCurrent();
 		return oin;
-	}
-
-	//Getters
-	public static LuaSerializer getThreadLocal() {
-		return serializers.get();
 	}
 
 	public Environment getEnvironment() {
 		return env;
 	}
-
-	//Setters
 
 }

@@ -33,7 +33,7 @@ public class LuaError extends RuntimeException {
 		this.cause = c;
 		
 		if (level >= 0) {
-			StackTraceElement[] stack = DebugLib.stackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
+			StackTraceElement[] stack = DebugLib.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
 			if (c != null) {
 				stack = prefixLuaStackTrace(c, stack);
 			} else {

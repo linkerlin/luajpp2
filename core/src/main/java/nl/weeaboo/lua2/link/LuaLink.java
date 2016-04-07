@@ -41,7 +41,7 @@ public class LuaLink extends AbstractLuaLink {
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 
-		LuaSerializer ls = LuaSerializer.getThreadLocal();
+		LuaSerializer ls = LuaSerializer.getCurrent();
 		if (ls == null) {
 			out.writeObject(thread);
 		} else {
@@ -52,7 +52,7 @@ public class LuaLink extends AbstractLuaLink {
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 
-		LuaSerializer ls = LuaSerializer.getThreadLocal();
+		LuaSerializer ls = LuaSerializer.getCurrent();
 		if (ls == null) {
 			thread = (LuaThread)in.readObject();
 		} else {

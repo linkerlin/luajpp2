@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.BaseLib;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
@@ -31,6 +34,7 @@ import nl.weeaboo.lua2.vm.Varargs;
 public final class LuaRunState implements Serializable, IDestructible, LuaResourceFinder {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
 
 	private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
@@ -87,6 +91,8 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 			return;
 		}
 
+        LOG.debug("Destroying LuaRunState: {}", this);
+
 		destroyed = true;
         threadGroups.destroyAll();
 
@@ -99,7 +105,10 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 	}
 
 	public void registerOnThread() {
-		threadInstance.set(this);
+        if (threadInstance.get() != this) {
+            threadInstance.set(this);
+            LOG.debug("Registered LuaRunState \"{}\" on thread \"{}\"", this, Thread.currentThread());
+        }
 	}
 
 	private LuaThreadGroup findFirstThreadGroup() {
@@ -135,6 +144,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 
 	public boolean update() throws LuaException {
         if (destroyed) {
+            LOG.debug("Attempted to update a destroyed LuaRunState");
             return false;
         }
 
@@ -195,7 +205,12 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 	}
 
     public void setCurrentLink(ILuaLink cur) {
+        if (current == cur) {
+            return;
+        }
+
 		current = cur;
+        LOG.trace("Set current link: {}", cur);
 	}
 
 	public void setRunningThread(LuaThread t) {
@@ -205,6 +220,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 
 		currentThread = t;
 		instructionCount = 0;
+        LOG.trace("Set running thread: {}", t);
 	}
 
     /**

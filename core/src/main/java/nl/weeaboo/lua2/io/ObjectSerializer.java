@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -15,262 +16,271 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectSerializer extends ObjectOutputStream {
 
-	public enum PackageLimit {
-		NONE, WARNING, ERROR;
-	}
+    public enum ErrorLevel {
+        NONE, WARNING, ERROR;
+    }
 
-	private static final boolean COLLECT_STATS = false;
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectSerializer.class);
 
-	private final Environment env;
-	private final Set<String> validPackages;
-	private final Set<Class<?>> validClasses;
+    private final Environment env; // Null if empty or not used
+    private final Set<String> validPackages = new HashSet<String>();
+    private final Set<Class<?>> validClasses = new HashSet<Class<?>>();
+    private final ExecutorService executor;
 
-	private PackageLimit packageLimit = PackageLimit.ERROR;
-	private boolean checkTypes;
+    private final List<String> errors = new ArrayList<String>();
+    private final List<String> warnings = new ArrayList<String>();
+    private final Map<Class<?>, Stats> classCounter = new IdentityHashMap<Class<?>, Stats>();
 
-	private List<String> errors;
-	private List<String> warnings;
-	private final Map<Class<?>, Stats> classCounter;
-	//private int maxStackDepth = 0;
+    private ErrorLevel packageErrorLevel = ErrorLevel.ERROR;
+    private boolean collectStats = true;
+    private boolean checkTypes;
 
-	protected ObjectSerializer(OutputStream out, Environment e) throws IOException {
-		super(out);
+    protected ObjectSerializer(OutputStream out, Environment e) throws IOException {
+        super(out);
 
-		env = (e.size() != 0 ? e : null);
+        env = (e.size() != 0 ? e : null);
+        executor = new DelayedIoExecutor("LuaObjectSerializer");
 
-		validPackages = new HashSet<String>();
-		validClasses = new HashSet<Class<?>>();
-		resetValidClasses();
+        resetValidClasses();
 
-		errors = new ArrayList<String>();
-		warnings = new ArrayList<String>();
+        onPackageLimitChanged();
+    }
 
-		if (COLLECT_STATS) {
-			classCounter = new IdentityHashMap<Class<?>, Stats>();
-		} else {
-			classCounter = null;
-		}
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            executor.shutdown();
+        }
+    }
 
-		onPackageLimitChanged();
-	}
+    private static String toErrorString(String[] errors) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(errors.length).append(" error(s) occurred while writing objects:");
 
-	//Functions
-	public static String toErrorString(Collection<String> errors) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(errors.size() + " error(s) occurred while writing objects:");
+        int t = 1;
+        for (String err : errors) {
+            sb.append('\n');
+            sb.append(t);
+            sb.append(": ");
+            sb.append(err);
+            t++;
+        }
+        return sb.toString();
+    }
 
-		int t = 1;
-		for (String err : errors) {
-			sb.append(String.format("\n%d: %s", t, err));
-			t++;
-		}
-		return sb.toString();
-	}
+    /**
+     * Clears the list and returns its former contents.
+     */
+    private static String[] consume(Collection<String> list) {
+        String[] result = list.toArray(new String[list.size()]);
+        list.clear();
+        return result;
+    }
 
-	/**
-	 * @return An array containing all warnings encountered during serialization.
-	 */
-	public String[] checkErrors() {
-		if (errors.size() > 0) {
-			String errorString = toErrorString(errors);
-			errors.clear();
-			throw new RuntimeException(errorString);
-		}
+    /**
+     * @return An array containing all warnings encountered during serialization.
+     * @throws IOException if any fatal errors were encountered.
+     */
+    public String[] checkErrors() throws IOException {
+        String[] errors = consume(this.errors);
+        String[] warnings = consume(this.warnings);
 
-		if (COLLECT_STATS) {
-			Entry<Class<?>, Stats> entries[] = classCounter.entrySet().toArray(new Entry[classCounter.size()]);
-			Arrays.sort(entries, new Comparator<Entry<Class<?>, Stats>>() {
-				@Override
-				public int compare(Entry<Class<?>, Stats> e1, Entry<Class<?>, Stats> e2) {
-					return -e1.getValue().compareTo(e2.getValue());
-				}
-			});
-			for (Entry<Class<?>, Stats> entry : entries) {
-				System.out.printf("%s :: %s\n", entry.getKey().getName(), entry.getValue());
-			}
-		}
+        if (errors.length > 0) {
+            throw new RuntimeException(toErrorString(errors));
+        }
 
-		String warn[] = warnings.toArray(new String[warnings.size()]);
-		warnings.clear();
-		return warn;
-	}
+        if (collectStats) {
+            Entry<Class<?>, Stats> entries[] = classCounter.entrySet().toArray(new Entry[0]);
+            Arrays.sort(entries, new Comparator<Entry<Class<?>, Stats>>() {
+                @Override
+                public int compare(Entry<Class<?>, Stats> e1, Entry<Class<?>, Stats> e2) {
+                    return -e1.getValue().compareTo(e2.getValue());
+                }
+            });
+            for (Entry<Class<?>, Stats> entry : entries) {
+                LOG.debug("[stats] {}: {}", entry.getKey().getName(), entry.getValue());
+            }
+        }
 
-	@Override
-	protected Object replaceObject(Object obj) {
-		Class<?> clazz = obj.getClass();
+        return warnings;
+    }
 
-		//System.out.print(Thread.currentThread().getStackTrace().length + " " + clazz);
+    @Override
+    protected Object replaceObject(Object obj) {
+        Class<?> clazz = obj.getClass();
 
-		//Updating stats
-		if (COLLECT_STATS) {
-			Stats stats = classCounter.get(clazz);
-			if (stats == null) {
-				stats = new Stats();
-			}
-			stats.count++;
-			classCounter.put(clazz, stats);
-		}
+        // Updating stats
+        if (collectStats) {
+            Stats stats = classCounter.get(clazz);
+            if (stats == null) {
+                stats = new Stats();
+                classCounter.put(clazz, stats);
+            }
+            stats.count++;
+        }
 
-		//Environment
-		if (env != null) {
-			Long id = env.getId(obj);
-			if (id != null) {
-				return new RefEnvironment(id);
-			}
-		}
+        // Environment
+        if (env != null) {
+            String id = env.getId(obj);
+            if (id != null) {
+                return new RefEnvironment(id);
+            }
+        }
 
-		if (checkTypes) {
-			//Whitelisted types
-			if (clazz.getAnnotation(LuaSerializable.class) != null) {
-				return obj; //Whitelist types with the LuaSerializable annotation
-			} else if (clazz.isArray()) {
-				return obj; //Whitelist array types
-			} else if (clazz.isEnum()) {
-				return obj; //Whitelist enum types
-			}
+        if (checkTypes) {
+            // Whitelisted types
+            if (clazz.getAnnotation(LuaSerializable.class) != null) {
+                return obj; // Whitelist types with the LuaSerializable annotation
+            } else if (clazz.isArray()) {
+                return obj; // Whitelist array types
+            } else if (clazz.isEnum()) {
+                return obj; // Whitelist enum types
+            }
 
-			String className = clazz.getName();
-			if (className.startsWith("java.util") &&
-				(Collection.class.isAssignableFrom(clazz)) || Map.class.isAssignableFrom(clazz))
-			{
-				//Whitelist collections from java.util
-				return obj;
-			}
+            if (packageErrorLevel != ErrorLevel.NONE) {
+                if (!isValidClass(clazz)) {
 
-			String packageName = className;
-			for (int n = packageName.length()-1; n >= 0; n--) {
-				if (packageName.charAt(n) == '.') {
-					packageName = packageName.substring(0, n);
-					break;
-				}
-			}
+                    String message = "Class outside valid packages: " + clazz.getName() + " :: " + obj;
+                    if (packageErrorLevel == ErrorLevel.ERROR) {
+                        errors.add(message);
+                        return null; // Don't serialize object in case of error
+                    } else if (packageErrorLevel == ErrorLevel.WARNING) {
+                        warnings.add(message);
+                    }
+                }
+            }
+        }
 
-            if (packageLimit != PackageLimit.NONE && !validClasses.contains(clazz)
-                    && !validPackages.contains(packageName)) {
+        return obj;
+    }
 
-				String message = "Class outside valid packages: " + clazz.getName() + " :: " + obj;
-				if (packageLimit == PackageLimit.ERROR) {
-					errors.add(message);
-					return null; //Don't serialize object in case of error
-				} else if (packageLimit == PackageLimit.WARNING) {
-					warnings.add(message);
-				}
-			}
-		}
+    private boolean isValidClass(Class<?> clazz) {
+        if (validClasses.contains(clazz)) {
+            return true;
+        }
 
-		return obj;
-	}
+        // Check if this package is a valid package (or a sub-package of a valid package)
+        String packageName = clazz.getPackage().getName();
+        if (validPackages.contains(packageName)) {
+            return true;
+        }
 
-    protected Thread createThread(ThreadGroup g, Runnable r, String name, int stackSizeHint) {
-		return new Thread(g, r, name, stackSizeHint);
-	}
-	public void writeObjectOnNewThread(final Object obj, int stackSizeHint) throws IOException {
-		final Throwable errs[] = new Throwable[1];
-		Thread t = createThread(null, new Runnable() {
-			@Override
-			public void run() {
-				try {
-					writeObject(obj);
-				} catch (Throwable t) {
-					errs[0] = t;
-				}
-			}
-		}, getClass() + "-WriterThread", stackSizeHint);
-		t.start();
-		try {
-			t.join();
-		} catch (InterruptedException e) {
-			throw new IOException(e.toString());
-		}
+        return false;
+    }
 
-		if (errs[0] instanceof IOException) {
-			throw (IOException)errs[0];
-		} else if (errs[0] instanceof RuntimeException) {
-			throw (RuntimeException)errs[0];
-		} else if (errs[0] instanceof Error) {
-			throw (Error)errs[0];
-		}
-	}
+    public void writeObjectOnNewThread(final Object obj) throws IOException {
+        Future<?> future = executor.submit(createAsyncWriteTask(obj));
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            throw new IOException("Async write interrupted: " + e);
+        } catch (ExecutionException e) {
+            throw new IOException("Error during async write", e.getCause());
+        }
+    }
 
-	private void resetValidPackages() {
-		validPackages.clear();
-	}
+    protected Callable<Void> createAsyncWriteTask(final Object obj) {
+        return new Callable<Void>() {
+            @Override
+            public Void call() throws IOException {
+                writeObject(obj);
+                return null;
+            }
+        };
+    }
 
-	private void resetValidClasses() {
-		validClasses.clear();
+    private void resetValidPackages() {
+        validPackages.clear();
 
-		final Class<?> prims[] = {Boolean.class, Byte.class, Short.class, Integer.class,
-				Long.class, Float.class, Double.class, String.class};
+        validPackages.add("java.util");
+    }
 
-		validClasses.addAll(Arrays.asList(prims));
-		validClasses.add(Class.class);
-		validClasses.add(Random.class);
-		validClasses.add(BitSet.class);
-	}
+    private void resetValidClasses() {
+        validClasses.clear();
 
-	private void onPackageLimitChanged() {
-		checkTypes = (packageLimit == PackageLimit.WARNING || packageLimit == PackageLimit.ERROR);
+        Collections.<Class<?>> addAll(validClasses,
+            Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
+            String.class, Class.class, Random.class, BitSet.class
+        );
+    }
 
-		updateEnableReplace();
-	}
+    private void onPackageLimitChanged() {
+        checkTypes = (packageErrorLevel != ErrorLevel.NONE);
 
-	private void updateEnableReplace() {
-		boolean replace = (env != null || checkTypes || COLLECT_STATS);
-		try {
-			enableReplaceObject(replace);
-		} catch (SecurityException se) {
-			//Ignore
-		}
-	}
+        updateEnableReplace();
+    }
 
-	//Getters
-	public PackageLimit getPackageLimit() {
-		return packageLimit;
-	}
-	public String[] getAllowedPackages() {
-		return validPackages.toArray(new String[validPackages.size()]);
-	}
-	public Class<?>[] getAllowedClasses() {
-		return validClasses.toArray(new Class<?>[validClasses.size()]);
-	}
+    private void updateEnableReplace() {
+        boolean replace = (env != null || checkTypes || collectStats);
+        try {
+            enableReplaceObject(replace);
+        } catch (SecurityException se) {
+            LOG.error("Error calling 'enableReplaceObject'", se);
+        }
+    }
 
-	//Setters
-	public void setPackageLimit(PackageLimit pl) {
-		if (packageLimit != pl) {
-			packageLimit = pl;
+    public ErrorLevel getPackageErrorLevel() {
+        return packageErrorLevel;
+    }
 
-			onPackageLimitChanged();
-		}
-	}
-	public void setAllowedPackages(String... packages) {
-		resetValidPackages();
-		for (String pkgString : packages) {
-			validPackages.add(pkgString);
-		}
-	}
-	public void setAllowedClasses(Class<?>... classes) {
-		resetValidClasses();
-		validClasses.addAll(Arrays.asList(classes));
-	}
+    public void setPackageErrorLevel(ErrorLevel el) {
+        if (packageErrorLevel != el) {
+            packageErrorLevel = el;
 
-	//Inner Classes
-	private static class Stats implements Comparable<Stats> {
+            onPackageLimitChanged();
+        }
+    }
 
-		public int count;
+    public void setAllowedPackages(Collection<String> packages) {
+        resetValidPackages();
 
-		@Override
-		public int compareTo(Stats s) {
-			return count - s.count;
-		}
+        validPackages.addAll(packages);
+    }
 
-		@Override
-		public String toString() {
-			return String.format("%d", count);
-		}
+    public void setAllowedClasses(Collection<Class<?>> classes) {
+        resetValidClasses();
 
-	}
+        validClasses.addAll(classes);
+    }
+
+    public boolean getCollectStats() {
+        return collectStats;
+    }
+
+    public void setCollectStats(boolean enable) {
+        if (collectStats != enable) {
+            collectStats = enable;
+            updateEnableReplace();
+        }
+    }
+
+    // Inner Classes
+    private static class Stats implements Comparable<Stats> {
+
+        public int count;
+
+        @Override
+        public int compareTo(Stats s) {
+            return (count < s.count ? -1 : (count == s.count ? 0 : 1));
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%d", count);
+        }
+
+    }
 
 }

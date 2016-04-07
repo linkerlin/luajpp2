@@ -70,6 +70,7 @@ public class SerializeTest extends AbstractLuaTest {
         LuaSerializer ls = new LuaSerializer();
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectSerializer out = ls.openSerializer(bout);
+        out.setCollectStats(true);
         try {
             out.writeObject(luaRunState);
         } finally {
@@ -78,6 +79,7 @@ public class SerializeTest extends AbstractLuaTest {
 
         LuaRunState lrs;
         ObjectDeserializer in = ls.openDeserializer(new ByteArrayInputStream(bout.toByteArray()));
+        in.setCollectStats(true);
         try {
             lrs = (LuaRunState)in.readObject();
         } catch (ClassNotFoundException e) {

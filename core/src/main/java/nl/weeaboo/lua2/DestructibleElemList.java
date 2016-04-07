@@ -7,10 +7,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** List implementation that automatically removes destroyed elements */
 final class DestructibleElemList<T extends IDestructible> implements Iterable<T>, Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
 
     private final List<T> elements = new CopyOnWriteArrayList<T>();
 
@@ -72,6 +76,7 @@ final class DestructibleElemList<T extends IDestructible> implements Iterable<T>
 
         // Remove destroyed elements
         if (removed != null) {
+            LOG.trace("Removing destroyed elements: {}", removed);
             elements.removeAll(removed);
         }
     }

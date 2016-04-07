@@ -8,9 +8,7 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import nl.weeaboo.lua2.compiler.LoadState;
 import nl.weeaboo.lua2.lib.DebugLib;
@@ -172,21 +170,6 @@ public final class LuaUtil {
 		return LuaValue.varargsOf(array);
 	}
 
-	public static void printGlobals(LuaTable table) {
-		printGlobals0(new HashSet<LuaTable>(), table, "");
-	}
-	private static void printGlobals0(Set<LuaTable> printedTables, LuaTable t, String prefix) {
-		Varargs n;
-		LuaValue k = NIL;
-		while (!(k = ((n = t.next(k)).arg1())).isnil()) {
-			LuaValue v = n.arg(2);
-			System.out.println(prefix + k + "=" + v);
-			if (v.istable() && printedTables.add(v.checktable())) {
-				printGlobals0(printedTables, v.checktable(), prefix + "  ");
-			}
-		}
-	}
-
 	/**
 	 * Turns the given string containing Lua source code declaring a simple
 	 * constant of type boolean, number or string into the proper LuaValue
@@ -216,7 +199,7 @@ public final class LuaUtil {
 		return NIL;
 	}
 
-	static final char escapeList[] = new char[] {
+    private static final char escapeList[] = {
 		'\"', '\"',
 		'\'', '\'',
 		'\\', '\\',
@@ -235,10 +218,6 @@ public final class LuaUtil {
 		return sb.toString();
 	}
 	public static void escape(StringBuilder out, String s) {
-		if (s == null || s.length() == 0) {
-			return;
-		}
-
 		for (int n = 0; n < s.length(); n++) {
 			char c = s.charAt(n);
 

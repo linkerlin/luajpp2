@@ -32,8 +32,6 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.vm.LuaTable.Slot;
-import nl.weeaboo.lua2.vm.LuaTable.StrongSlot;
 
 /**
  * Helper class that provides weak key and weak value semantics for tables.
@@ -142,7 +140,7 @@ final class WeakTable implements Metatable, Serializable {
             LuaValue key = strongkey();
             LuaValue value = strongvalue();
             if (key != null && value != null) {
-                return new LuaTable.NormalEntry(key, value);
+                return new NormalEntry(key, value);
             } else {
                 this.key = null;
                 this.value = null;

@@ -21,8 +21,6 @@
  ******************************************************************************/
 package nl.weeaboo.lua2.vm;
 
-import nl.weeaboo.lua2.vm.LuaTable.Slot;
-
 /**
  * Provides operations that depend on the __mode key of the metatable.
  */

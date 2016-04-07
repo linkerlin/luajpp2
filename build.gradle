@@ -21,6 +21,7 @@ subprojects {
     apply plugin: "java"
 
     ext {
+        slf4jVersion = '1.7.20'
         junitVersion = '4.12'
     }
     
@@ -40,6 +41,12 @@ subprojects {
 }
 
 project(':core') {
+    dependencies {
+        compile "org.slf4j:slf4j-api:$slf4jVersion"
+
+        testRuntime "org.slf4j:slf4j-jdk14:$slf4jVersion"
+    }
+
     eclipse.project {
         name = "luajpp2-core"
     }

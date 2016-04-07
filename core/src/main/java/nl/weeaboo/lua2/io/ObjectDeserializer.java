@@ -3,95 +3,106 @@ package nl.weeaboo.lua2.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectDeserializer extends ObjectInputStream {
 
-	private static final boolean COLLECT_STATS = false;
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectDeserializer.class);
+    private static final int STACK_DEPTH_WARN_LIMIT = 100;
 
 	private final Environment env;
+    private final ExecutorService executor;
 
+    private boolean collectStats = true;
 	private int maxDepth = 0;
 
-	public ObjectDeserializer(InputStream in, Environment e) throws IOException {
+    protected ObjectDeserializer(InputStream in, Environment e) throws IOException {
 		super(in);
 
 		env = (e.size() > 0 ? e : null);
+        executor = new DelayedIoExecutor("LuaObjectDeserializer");
 
 		updateEnableReplace();
 	}
 
-	//Functions
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            executor.shutdown();
+        }
+    }
+
 	private void updateEnableReplace() {
-		boolean replace = (env != null || COLLECT_STATS);
+        boolean replace = (env != null || collectStats);
 
 		try {
 			enableResolveObject(replace);
 		} catch (SecurityException se) {
-			//Ignore
+            LOG.error("Error calling 'enableReplaceObject'", se);
 		}
 	}
 
-    protected Thread createThread(ThreadGroup g, Runnable r, String name, int stackSizeHint) {
-		return new Thread(g, r, name, stackSizeHint);
-	}
-	public Object readObjectOnNewThread(int stackSizeHint) throws IOException {
-		final Throwable errs[] = new Throwable[1];
-		final Object res[] = new Object[1];
-
-		Thread t = createThread(null, new Runnable() {
-			@Override
-			public void run() {
-				try {
-					res[0] = readObject();
-				} catch (Throwable t) {
-					errs[0] = t;
-				}
-			}
-		}, getClass() + "-ReaderThread", stackSizeHint);
-		t.start();
-		try {
-			t.join();
-		} catch (InterruptedException e) {
-			throw new IOException(e.toString());
-		}
-
-		if (errs[0] instanceof IOException) {
-			throw (IOException)errs[0];
-		} else if (errs[0] instanceof RuntimeException) {
-			throw (RuntimeException)errs[0];
-		} else if (errs[0] instanceof Error) {
-			throw (Error)errs[0];
-		}
-
-		return res[0];
+    public Object readObjectOnNewThread() throws IOException {
+        Future<Object> future = executor.submit(createAsyncReadTask());
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            throw new IOException("Async read interrupted: " + e);
+        } catch (ExecutionException e) {
+            throw new IOException("Error during async read", e.getCause());
+        }
 	}
 
-	@Override
+    protected Callable<Object> createAsyncReadTask() {
+        return new Callable<Object>() {
+            @Override
+            public Object call() throws IOException, ClassNotFoundException {
+                return readObject();
+            }
+        };
+    }
+
+    @Override
 	protected Object resolveObject(Object obj) throws IOException {
-		if (COLLECT_STATS) {
-			int depth = Thread.currentThread().getStackTrace().length;
-			if (depth > maxDepth) {
-				maxDepth = depth;
-				if (depth >= 100) {
-					System.out.println("--------------------");
-					for (StackTraceElement se : Thread.currentThread().getStackTrace()) {
-						System.out.println(se);
-					}
-				}
-			}
-			System.out.println(depth + " " + maxDepth + " " + (obj != null ? obj.getClass() : null));
+        Class<?> clazz = obj.getClass();
+
+        if (collectStats) {
+            RuntimeException dummy = new RuntimeException();
+            StackTraceElement[] stackTrace = dummy.getStackTrace();
+
+            int depth = stackTrace.length;
+            maxDepth = Math.max(maxDepth, depth);
+            if (depth >= STACK_DEPTH_WARN_LIMIT) {
+                LOG.warn("Max stack depth exceeded ({}) while reading {}", depth, clazz.getName(), dummy);
+            } else {
+                LOG.trace("Stack depth ({}) while reading {}", depth, clazz);
+            }
 		}
 
-		Class<?> clazz = obj.getClass();
 		if (clazz == RefEnvironment.class) {
-			return env.get(((RefEnvironment)obj).id);
+            return ((RefEnvironment)obj).resolve(env);
 		}
 
 		return obj;
 	}
 
-	//Getters
+    public boolean getCollectStats() {
+        return collectStats;
+    }
 
-	//Setters
+    public void setCollectStats(boolean enable) {
+        if (collectStats != enable) {
+            collectStats = enable;
+            updateEnableReplace();
+        }
+    }
 
 }

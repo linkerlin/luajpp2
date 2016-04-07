@@ -28,7 +28,8 @@ import nl.weeaboo.lua2.vm.Varargs;
 public final class ClassInfo implements IWriteReplaceSerializable {
 
 	private static final Comparator<Method> methodSorter = new Comparator<Method>() {
-		Collator c = Collator.getInstance(Locale.US);
+
+        private final Collator c = Collator.getInstance(Locale.US);
 
         @Override
         public int compare(Method m1, Method m2) {

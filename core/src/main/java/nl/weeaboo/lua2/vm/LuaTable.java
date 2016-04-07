@@ -40,12 +40,12 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.weeaboo.lua2.io.DelayedReader;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.io.LuaSerializer;
 
 /**
  * Subclass of {@link LuaValue} for representing lua tables.
@@ -206,6 +206,10 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         checkOverridden();
 
+        LuaSerializer ls = LuaSerializer.getCurrent();
+
+        out.writeObject(m_metatable);
+
         out.writeInt(array.length);
         int lastNonNil = array.length - 1;
         while (lastNonNil >= 0 && array[lastNonNil] == null) {
@@ -216,21 +220,17 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             out.writeObject(array[n]);
         }
 
-        out.writeInt(hash.length);
         out.writeInt(hashEntries);
-        for (int n = 0; n < hash.length; n++) {
-            if (hash[n] != null) {
-                out.writeInt(n);
-                out.writeObject(hash[n]);
-            }
-        }
-        out.writeInt(-1);
-
-        out.writeObject(m_metatable);
+        // Use writeDelayed to reduce recursion depth
+        ls.writeDelayed(hash);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        LuaSerializer ls = LuaSerializer.getCurrent();
+
+        m_metatable = (Metatable)in.readObject();
+
         int arrayLength = in.readInt();
         int arrayUsed = in.readInt();
         array = new LuaValue[arrayLength];
@@ -238,19 +238,14 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             array[n] = (LuaValue)in.readObject();
         }
 
-        int slotCount = in.readInt();
         hashEntries = in.readInt();
-        hash = new Slot[slotCount];
-        while (true) {
-            int slot = in.readInt();
-            if (slot < 0) {
-                break;
+
+        ls.readDelayed(new DelayedReader() {
+            @Override
+            public void onRead(Object obj) {
+                hash = (Slot[])obj;
             }
-
-            hash[slot] = (Slot)in.readObject();
-        }
-
-        m_metatable = (Metatable)in.readObject();
+        });
     }
 
     @Override
@@ -1080,524 +1075,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
-    /**
-     * Represents a slot in the hash table.
-     */
-    interface Slot extends Serializable {
 
-        /** Return hash{pow2,mod}( first().key().hashCode(), sizeMask ) */
-        int keyindex(int hashMask);
 
-        /** Return first Entry, if still present, or null. */
-        StrongSlot first();
 
-        /** Compare given key with first()'s key; return first() if equal. */
-        StrongSlot find(LuaValue key);
-
-        /**
-         * Compare given key with first()'s key; return true if equal. May return true for keys no longer
-         * present in the table.
-         */
-        boolean keyeq(LuaValue key);
-
-        /** Return rest of elements */
-        Slot rest();
-
-        /**
-         * Return first entry's key, iff it is an integer between 1 and max, inclusive, or zero otherwise.
-         */
-        int arraykey(int max);
-
-        /**
-         * Set the value of this Slot's first Entry, if possible, or return a new Slot whose first entry has
-         * the given value.
-         */
-        Slot set(StrongSlot target, LuaValue value);
-
-        /**
-         * Link the given new entry to this slot.
-         */
-        Slot add(Slot newEntry);
-
-        /**
-         * Return a Slot with the given value set to nil; must not return null for next() to behave correctly.
-         */
-        Slot remove(StrongSlot target);
-
-        /**
-         * Return a Slot with the same first key and value (if still present) and rest() equal to rest.
-         */
-        Slot relink(Slot rest);
-    }
-
-    /**
-     * Subclass of Slot guaranteed to have a strongly-referenced key and value, to support weak tables.
-     */
-    interface StrongSlot extends Slot {
-        /** Return first entry's key */
-        LuaValue key();
-
-        /** Return first entry's value */
-        LuaValue value();
-
-        /** Return varargsOf(key(), value()) or equivalent */
-        Varargs toVarargs();
-    }
-
-    @LuaSerializable
-    private static class LinkSlot implements StrongSlot {
-
-        private static final long serialVersionUID = 1L;
-
-        private Entry entry;
-        private Slot next;
-
-        LinkSlot(Entry entry, Slot next) {
-            this.entry = entry;
-            this.next = next;
-        }
-
-        @Override
-        public LuaValue key() {
-            return entry.key();
-        }
-
-        @Override
-        public int keyindex(int hashMask) {
-            return entry.keyindex(hashMask);
-        }
-
-        @Override
-        public LuaValue value() {
-            return entry.value();
-        }
-
-        @Override
-        public Varargs toVarargs() {
-            return entry.toVarargs();
-        }
-
-        @Override
-        public StrongSlot first() {
-            return entry;
-        }
-
-        @Override
-        public StrongSlot find(LuaValue key) {
-            return entry.keyeq(key) ? this : null;
-        }
-
-        @Override
-        public boolean keyeq(LuaValue key) {
-            return entry.keyeq(key);
-        }
-
-        @Override
-        public Slot rest() {
-            return next;
-        }
-
-        @Override
-        public int arraykey(int max) {
-            return entry.arraykey(max);
-        }
-
-        @Override
-        public Slot set(StrongSlot target, LuaValue value) {
-            if (target == this) {
-                entry = entry.set(value);
-                return this;
-            } else {
-                return setnext(next.set(target, value));
-            }
-        }
-
-        @Override
-        public Slot add(Slot entry) {
-            return setnext(next.add(entry));
-        }
-
-        @Override
-        public Slot remove(StrongSlot target) {
-            if (this == target) {
-                return new DeadSlot(key(), next);
-            } else {
-                this.next = next.remove(target);
-            }
-            return this;
-        }
-
-        @Override
-        public Slot relink(Slot rest) {
-            // This method is (only) called during rehash, so it must not change this.next.
-            return (rest != null) ? new LinkSlot(entry, rest) : (Slot)entry;
-        }
-
-        // this method ensures that this.next is never set to null.
-        private Slot setnext(Slot next) {
-            if (next != null) {
-                this.next = next;
-                return this;
-            } else {
-                return entry;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return entry + "; " + next;
-        }
-    }
-
-    /**
-     * Base class for regular entries.
-     * <p>
-     * If the key may be an integer, the {@link #arraykey(int)} method must be overridden to handle that case.
-     */
-    private static abstract class Entry extends Varargs implements StrongSlot {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public abstract LuaValue key();
-
-        @Override
-        public abstract LuaValue value();
-
-        abstract Entry set(LuaValue value);
-
-        @Override
-        public abstract boolean keyeq(LuaValue key);
-
-        @Override
-        public abstract int keyindex(int hashMask);
-
-        @Override
-        public int arraykey(int max) {
-            return 0;
-        }
-
-        @Override
-        public LuaValue arg(int i) {
-            switch (i) {
-            case 1:
-                return key();
-            case 2:
-                return value();
-            }
-            return NIL;
-        }
-
-        @Override
-        public int narg() {
-            return 2;
-        }
-
-        /**
-         * Subclasses should redefine as "return this;" whenever possible.
-         */
-        @Override
-        public Varargs toVarargs() {
-            return varargsOf(key(), value());
-        }
-
-        @Override
-        public LuaValue arg1() {
-            return key();
-        }
-
-        @Override
-        public Varargs subargs(int start) {
-            switch (start) {
-            case 1:
-                return this;
-            case 2:
-                return value();
-            }
-            return NONE;
-        }
-
-        @Override
-        public StrongSlot first() {
-            return this;
-        }
-
-        @Override
-        public Slot rest() {
-            return null;
-        }
-
-        @Override
-        public StrongSlot find(LuaValue key) {
-            return keyeq(key) ? this : null;
-        }
-
-        @Override
-        public Slot set(StrongSlot target, LuaValue value) {
-            return set(value);
-        }
-
-        @Override
-        public Slot add(Slot entry) {
-            return new LinkSlot(this, entry);
-        }
-
-        @Override
-        public Slot remove(StrongSlot target) {
-            return new DeadSlot(key(), null);
-        }
-
-        @Override
-        public Slot relink(Slot rest) {
-            return (rest != null) ? new LinkSlot(this, rest) : (Slot)this;
-        }
-    }
-
-    @LuaSerializable
-    static class NormalEntry extends Entry {
-
-        private static final long serialVersionUID = 1L;
-
-        private final LuaValue key;
-        private LuaValue value;
-
-        NormalEntry(LuaValue key, LuaValue value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public LuaValue key() {
-            return key;
-        }
-
-        @Override
-        public LuaValue value() {
-            return value;
-        }
-
-        @Override
-        public Entry set(LuaValue value) {
-            this.value = value;
-            return this;
-        }
-
-        @Override
-        public Varargs toVarargs() {
-            return this;
-        }
-
-        @Override
-        public int keyindex(int hashMask) {
-            return hashSlot(key, hashMask);
-        }
-
-        @Override
-        public boolean keyeq(LuaValue key) {
-            return key.raweq(this.key);
-        }
-    }
-
-    @LuaSerializable
-    private static class IntKeyEntry extends Entry {
-
-        private static final long serialVersionUID = 1L;
-
-        private final int key;
-        private LuaValue value;
-
-        IntKeyEntry(int key, LuaValue value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public LuaValue key() {
-            return valueOf(key);
-        }
-
-        @Override
-        public int arraykey(int max) {
-            return (key >= 1 && key <= max) ? key : 0;
-        }
-
-        @Override
-        public LuaValue value() {
-            return value;
-        }
-
-        @Override
-        public Entry set(LuaValue value) {
-            this.value = value;
-            return this;
-        }
-
-        @Override
-        public int keyindex(int mask) {
-            return hashmod(LuaInteger.hashCode(key), mask);
-        }
-
-        @Override
-        public boolean keyeq(LuaValue key) {
-            return key.raweq(this.key);
-        }
-    }
-
-    /**
-     * Entry class used with numeric values, but only when the key is not an integer.
-     */
-    @LuaSerializable
-    private static class NumberValueEntry extends Entry {
-
-        private static final long serialVersionUID = 1L;
-
-        private double value;
-        private final LuaValue key;
-
-        NumberValueEntry(LuaValue key, double value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public LuaValue key() {
-            return key;
-        }
-
-        @Override
-        public LuaValue value() {
-            return valueOf(value);
-        }
-
-        @Override
-        public Entry set(LuaValue value) {
-            LuaValue n = value.tonumber();
-            if (!n.isnil()) {
-                this.value = n.todouble();
-                return this;
-            } else {
-                return new NormalEntry(this.key, value);
-            }
-        }
-
-        @Override
-        public int keyindex(int mask) {
-            return hashSlot(key, mask);
-        }
-
-        @Override
-        public boolean keyeq(LuaValue key) {
-            return key.raweq(this.key);
-        }
-    }
-
-    /**
-     * A Slot whose value has been set to nil. The key is kept in a weak reference so that it can be found by
-     * next().
-     */
-    @LuaSerializable
-    private static class DeadSlot implements Slot {
-
-        private static final long serialVersionUID = 1L;
-
-        private final Object key;
-        private Slot next;
-
-        private DeadSlot(LuaValue key, Slot next) {
-            this.key = isLargeKey(key) ? new WeakReference<LuaValue>(key) : (Object)key;
-            this.next = next;
-        }
-
-        private LuaValue key() {
-            if (key instanceof WeakReference<?>) {
-                return (LuaValue)((WeakReference<?>)key).get();
-            } else {
-                return (LuaValue)key;
-            }
-        }
-
-        @Override
-        public int keyindex(int hashMask) {
-            // Not needed: this entry will be dropped during rehash.
-            return 0;
-        }
-
-        @Override
-        public StrongSlot first() {
-            return null;
-        }
-
-        @Override
-        public StrongSlot find(LuaValue key) {
-            return null;
-        }
-
-        @Override
-        public boolean keyeq(LuaValue key) {
-            LuaValue k = key();
-            return k != null && key.raweq(k);
-        }
-
-        @Override
-        public Slot rest() {
-            return next;
-        }
-
-        @Override
-        public int arraykey(int max) {
-            return -1;
-        }
-
-        @Override
-        public Slot set(StrongSlot target, LuaValue value) {
-            Slot next = (this.next != null) ? this.next.set(target, value) : null;
-            if (key() != null) {
-                // if key hasn't been garbage collected, it is still potentially a valid argument
-                // to next(), so we can't drop this entry yet.
-                this.next = next;
-                return this;
-            } else {
-                return next;
-            }
-        }
-
-        @Override
-        public Slot add(Slot newEntry) {
-            return (next != null) ? next.add(newEntry) : newEntry;
-        }
-
-        @Override
-        public Slot remove(StrongSlot target) {
-            if (key() != null) {
-                next = next.remove(target);
-                return this;
-            } else {
-                return next;
-            }
-        }
-
-        @Override
-        public Slot relink(Slot rest) {
-            return rest;
-        }
-
-        @Override
-        public String toString() {
-            StringBuffer buf = new StringBuffer();
-            buf.append("<dead");
-            LuaValue k = key();
-            if (k != null) {
-                buf.append(": ");
-                buf.append(k.toString());
-            }
-            buf.append('>');
-            if (next != null) {
-                buf.append("; ");
-                buf.append(next.toString());
-            }
-            return buf.toString();
-        }
-    }
 
     // Metatable operations
 

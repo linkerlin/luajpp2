@@ -1,11 +1,13 @@
 package nl.weeaboo.lua2.interpreter;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Lua;
@@ -23,13 +25,6 @@ public final class StackFrame implements Externalizable {
 	enum Status {
 		FRESH, RUNNING, PAUSED, DEAD
 	}
-
-	private static final ThreadLocal<StackFrameAllocator> allocator = new ThreadLocal<StackFrameAllocator>() {
-        @Override
-        protected StackFrameAllocator initialValue() {
-			return new StackFrameAllocator();
-		}
-	};
 
 	// --- Uses manual serialization, don't add variables ---
 	Status status;
@@ -53,39 +48,22 @@ public final class StackFrame implements Externalizable {
 	public StackFrame() {
 	}
 
-	/**
-	 * Returns a stack frame object, possibly a re-used one from an object pool.
-	 */
-	public static StackFrame newInstance() {
-		return allocator.get().takeFrame();
-	}
-	/**
-	 * @see #newInstance()
-	 */
-	public static StackFrame newInstance(LuaClosure c, Varargs args,
-			StackFrame parent, int returnBase, int returnCount)
-	{
-		StackFrame frame = newInstance();
+    public static StackFrame newInstance(LuaClosure c, Varargs args, StackFrame parent, int returnBase,
+            int returnCount) {
+
+        StackFrame frame = new StackFrame();
 		frame.prepareCall(c, args, parent, returnBase, returnCount);
 		return frame;
 	}
 
-    /** Calls {@link #releaseFrame(StackFrame)} on every frame in the given callstack */
-    public static void releaseCallstack(StackFrame callstack) {
-        while (callstack != null) {
-            StackFrame parent = callstack.parent;
-            releaseFrame(callstack);
-            callstack = parent;
+    /** Closes every frame in the callstack */
+    public static void releaseCallstack(StackFrame frame) {
+        while (frame != null) {
+            StackFrame parent = frame.parent;
+            frame.close();
+            frame = parent;
         }
     }
-
-	/**
-	 * Gives the stack frame back to the object pool.
-	 */
-	public static void releaseFrame(StackFrame frame) {
-        frame.close();
-        allocator.get().giveFrame(frame);
-	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -93,8 +71,6 @@ public final class StackFrame implements Externalizable {
 		out.writeObject(c);
 		out.writeObject(args);
 		out.writeObject(varargs);
-
-		//System.out.println("stack("+top+")=" + Arrays.toString(stack));
 
 		out.writeObject(stack);
 		out.writeObject(openups);
@@ -132,32 +108,26 @@ public final class StackFrame implements Externalizable {
 
 		closeUpValues();
 
-		if (stack != null) {
-			allocator.get().giveArray(stack);
-			stack = null;
-		}
+        stack = null;
 	}
 
 	public void closeUpValues() {
-		if (openups != null) {
-			for (int u = openups.length; --u >= 0;) {
-				if (openups[u] != null) {
-					openups[u].close();
-					openups[u] = null;
-				}
+        for (int u = openups.length; --u >= 0;) {
+            if (openups[u] != null) {
+                openups[u].close();
+                openups[u] = null;
 			}
 		}
 	}
 
 	private void resetExecutionState(int minStackSize, int subFunctionCount) {
-		if (stack == null || stack.length < minStackSize) {
-			stack = allocator.get().takeArray(minStackSize);
-		} else {
-			StackFrameAllocator.clearArray(stack);
+        if (stack == null || stack.length != minStackSize) {
+            stack = new LuaValue[minStackSize];
 		}
+        Arrays.fill(stack, NIL);
 
 		if (subFunctionCount == 0) {
-			openups = null;
+            openups = UpValue.NOUPVALUES;
 		} else {
 			openups = new UpValue[minStackSize];
 		}
@@ -214,6 +184,7 @@ public final class StackFrame implements Externalizable {
 		final Prototype p = c.getPrototype();
 
 		//Don't change status
+
 		this.c = c;
 		this.args = args;
 		this.varargs = (p.is_vararg != 0 ? args.subargs(p.numparams + 1) : NONE);

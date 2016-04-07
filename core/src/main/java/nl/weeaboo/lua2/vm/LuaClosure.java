@@ -92,8 +92,6 @@ public final class LuaClosure extends LuaFunction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final UpValue[] NOUPVALUES = new UpValue[0];
-
     private final Prototype p;
     private final UpValue[] upValues;
 
@@ -102,14 +100,14 @@ public final class LuaClosure extends LuaFunction {
         super(env);
 
         this.p = p;
-        this.upValues = (p.nups > 0 ? new UpValue[p.nups] : NOUPVALUES);
+        this.upValues = (p.nups > 0 ? new UpValue[p.nups] : UpValue.NOUPVALUES);
     }
 
     protected LuaClosure(int nupvalues, LuaValue env) {
         super(env);
 
         this.p = null;
-        this.upValues = (nupvalues > 0 ? new UpValue[nupvalues] : NOUPVALUES);
+        this.upValues = (nupvalues > 0 ? new UpValue[nupvalues] : UpValue.NOUPVALUES);
     }
 
     @Override

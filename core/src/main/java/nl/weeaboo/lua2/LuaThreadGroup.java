@@ -3,6 +3,9 @@ package nl.weeaboo.lua2;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
@@ -13,6 +16,7 @@ import nl.weeaboo.lua2.vm.Varargs;
 public final class LuaThreadGroup implements Serializable, IDestructible {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
 
     private LuaRunState luaRunState;
 	private boolean destroyed;
@@ -97,6 +101,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
     public Collection<ILuaLink> getThreads() {
         for (ILuaLink thread : threads) {
             if (thread.isFinished()) {
+                LOG.debug("Removing finished thread: {}", thread);
                 threads.remove(thread);
             }
         }

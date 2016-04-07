@@ -78,8 +78,6 @@ import nl.weeaboo.lua2.lib.MathLib;
 @LuaSerializable
 public final class LuaString extends LuaValue implements Externalizable {
 
-    private static final long serialVersionUID = 1L;
-
 	private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
 
 	/** The singleton instance representing lua {@code true} */

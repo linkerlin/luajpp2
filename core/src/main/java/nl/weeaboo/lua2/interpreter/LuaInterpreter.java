@@ -66,8 +66,6 @@ public class LuaInterpreter {
         int pc = sf.pc;
         Varargs v = sf.v;
 
-        // System.out.println("> " + sf.c + " " + v);
-
         LuaRunState lrs = LuaRunState.getCurrent();
         sf.status = Status.RUNNING;
         try {
@@ -186,7 +184,7 @@ public class LuaInterpreter {
 
                 case Lua.OP_CONCAT: /* A B C R(A):= R(B).. ... ..R(C) */
                     b = i >>> 23;
-                    c = (i >> 14) & 0x1ff; {
+                    c = (i >> 14) & 0x1ff;
                     if (c > b + 1) {
                         Buffer sb = stack[c].buffer();
                         while (--c >= b)
@@ -195,7 +193,6 @@ public class LuaInterpreter {
                     } else {
                         stack[a] = stack[c - 1].concat(stack[c]);
                     }
-                }
                     continue;
 
                 case Lua.OP_JMP: /* sBx pc+=sBx */
@@ -417,11 +414,12 @@ public class LuaInterpreter {
                 case Lua.OP_CLOSE: /*
                                     * A close all variables in the stack up to (>=) R(A)
                                     */
-                    for (b = openups.length; --b >= a;)
+                    for (b = openups.length; --b >= a;) {
                         if (openups[b] != null) {
                             openups[b].close();
                             openups[b] = null;
                         }
+                    }
                     continue;
 
                 case Lua.OP_CLOSURE: /*
@@ -447,8 +445,9 @@ public class LuaInterpreter {
                         top = a + (b = varargs.narg());
                         v = varargs;
                     } else {
-                        for (int j = 1; j < b; ++j)
+                        for (int j = 1; j < b; ++j) {
                             stack[a + j - 1] = varargs.arg(j);
+                        }
                     }
                     continue;
                 }
@@ -465,8 +464,6 @@ public class LuaInterpreter {
             sf.top = top;
             sf.pc = pc;
             sf.v = v;
-
-            // System.out.println("< " + sf.c + " " + v);
         }
     }
 
@@ -501,7 +498,6 @@ public class LuaInterpreter {
             thread.callstack = thread.callstack.parent;
             thread.postReturn(sf, (thread.callstack != null ? thread.callstack.size() : 0));
         }
-        StackFrame.releaseFrame(sf);
     }
 
 }

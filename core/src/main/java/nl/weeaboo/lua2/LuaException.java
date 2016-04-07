@@ -16,7 +16,11 @@ public class LuaException extends Exception {
      * excessively long caused-by chains.
      */
     public static LuaException wrap(String message, Exception ex) {
-        LuaException le = new LuaException(message + ": " + ex.getMessage());
+        if (ex.getMessage() != null) {
+            message += ": " + ex.getMessage();
+        }
+
+        LuaException le = new LuaException(message);
         le.setStackTrace(ex.getStackTrace());
         le.initCause(ex.getCause());
         return le;

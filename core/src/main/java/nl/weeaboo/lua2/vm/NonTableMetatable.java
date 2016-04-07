@@ -1,7 +1,5 @@
 package nl.weeaboo.lua2.vm;
 
-import nl.weeaboo.lua2.vm.LuaTable.Slot;
-
 final class NonTableMetatable implements Metatable {
 
 	private final LuaValue value;
