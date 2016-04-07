@@ -19,19 +19,20 @@ table3 = {a = 11, b = 12, c = 13}
 -- Weak tables
 function weakTable(mode, key, value)
     local t = {}
+    setmetatable(t, {__mode = mode})
     t[key] = value
     return t
 end
 
-weakRef1 = "a"
-weakRef2 = "b"
-weakRef3 = "c"
-weakRef4 = "d"
-weakRef5 = "e"
-weakRef6 = "f"
-weakKeys1 = weakTable("k", weakRef1, weakRef2)
-weakValues1 = weakTable("v", weakRef3, weakRef4)
-weakDouble1 = weakTable("kv", weakRef5, weakRef6)
+weakRef0 = {"a"}
+weakRef1 = {"b"}
+weakRef2 = {"c"}
+weakRef3 = {"d"}
+weakRef4 = {"e"}
+weakRef5 = {"f"}
+weakKeys1 = weakTable("k", weakRef0, weakRef1)
+weakValues1 = weakTable("v", weakRef2, weakRef3)
+weakDouble1 = weakTable("kv", weakRef4, weakRef5)
 
 -- Multiple references to the same variable
 complexTable1 = {

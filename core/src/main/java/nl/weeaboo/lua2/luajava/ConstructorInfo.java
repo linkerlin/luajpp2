@@ -23,7 +23,6 @@ final class ConstructorInfo implements Serializable {
 		constr = c;
 	}
 	
-	//Functions
 	private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
 		Class<?> clazz = (Class<?>)in.readObject();
 		constrIndex = in.readInt();
@@ -55,7 +54,6 @@ final class ConstructorInfo implements Serializable {
 		return false;
 	}
 	
-	//Getters
 	public Constructor<?> getConstructor() {
 		return constr;
 	}
@@ -65,7 +63,5 @@ final class ConstructorInfo implements Serializable {
 		}
 		return params;
 	}
-	
-	//Setters
 	
 }

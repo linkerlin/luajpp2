@@ -23,11 +23,13 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.MODE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
-import static nl.weeaboo.lua2.vm.LuaConstants.TSTRING;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTABLE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTHREAD;
 import static nl.weeaboo.lua2.vm.LuaConstants.TUSERDATA;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
@@ -363,7 +365,6 @@ final class WeakTable implements Metatable, Serializable {
         case TFUNCTION:
         case TTHREAD:
         case TTABLE:
-        case TSTRING:
             return new WeakValue(value);
         case TUSERDATA:
             return new WeakUserdata(value);
@@ -405,6 +406,18 @@ final class WeakTable implements Metatable, Serializable {
             setWeakValue(val);
         }
 
+        private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+            in.defaultReadObject();
+
+            setWeakValue((LuaValue)in.readObject());
+        }
+
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+
+            out.writeObject(getWeakValue());
+        }
+
         @Override
         public int type() {
             illegal("type", "weak value");
@@ -434,7 +447,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         protected final LuaValue getWeakValue() {
-            return (ref != null ? ref.get() : null);
+            return ref.get();
         }
 
         protected final void setWeakValue(LuaValue val) {
@@ -452,7 +465,7 @@ final class WeakTable implements Metatable, Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        private final WeakReference<Object> ob;
+        private transient WeakReference<Object> ob;
         private final LuaValue mt;
 
         private WeakUserdata(LuaValue value) {
@@ -460,6 +473,18 @@ final class WeakTable implements Metatable, Serializable {
 
             ob = new WeakReference<Object>(value.touserdata());
             mt = value.getmetatable();
+        }
+
+        private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+            in.defaultReadObject();
+
+            ob = new WeakReference<Object>(in.readObject());
+        }
+
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.defaultWriteObject();
+
+            out.writeObject(ob.get());
         }
 
         @Override

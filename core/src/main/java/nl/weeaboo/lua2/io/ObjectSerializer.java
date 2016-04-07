@@ -51,6 +51,7 @@ public class ObjectSerializer extends ObjectOutputStream {
         env = (e.size() != 0 ? e : null);
         executor = new DelayedIoExecutor("LuaObjectSerializer");
 
+        resetValidPackages();
         resetValidClasses();
 
         onPackageLimitChanged();
@@ -205,6 +206,8 @@ public class ObjectSerializer extends ObjectOutputStream {
         validPackages.clear();
 
         validPackages.add("java.util");
+        validPackages.add("java.util.atomic");
+        validPackages.add("java.util.concurrent");
     }
 
     private void resetValidClasses() {

@@ -9,7 +9,8 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 /**
  * Entry class used with numeric values, but only when the key is not an integer.
  */
-@LuaSerializable class NumberValueEntry extends Entry {
+@LuaSerializable
+final class NumberValueEntry extends Entry {
 
     // --- Warning: uses manual serialization ---
     private LuaValue key;

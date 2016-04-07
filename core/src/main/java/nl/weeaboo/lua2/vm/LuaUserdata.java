@@ -25,6 +25,9 @@ import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -49,6 +52,14 @@ public class LuaUserdata extends LuaValue implements Serializable {
 		m_instance = obj;
 		m_metatable = metatable;
 	}
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
 
 	@Override
 	public String tojstring() {

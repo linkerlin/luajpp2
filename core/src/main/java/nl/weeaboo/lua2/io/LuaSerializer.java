@@ -73,6 +73,8 @@ public class LuaSerializer {
                         CURRENT.set(null);
 					}
 				}
+
+                checkErrors();
 			}
 		};
         makeCurrent();

@@ -247,7 +247,10 @@ public class CoerceLuaToJava {
 		//Try to use a specialized coercion function if one is available
 		Coercion co = COERCIONS.get(c);
 		if (co != null) {
-            return c.cast(co.coerce(a));
+            // Can't used checked cast, because Class.cast() doesn't work for primitive types
+            @SuppressWarnings("unchecked")
+            T coerced = (T)co.coerce(a);
+            return coerced;
 		}
 
 		//Special coercion for arrays

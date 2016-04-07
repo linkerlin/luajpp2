@@ -29,7 +29,6 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 		methodInfos = mis;
 	}
 
-	//Functions
 	@Override
     public Object writeReplace() throws ObjectStreamException {
 		return new LuaMethodRef(classInfo, methodName);
@@ -120,13 +119,9 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 			int score = CoerceLuaToJava.scoreParamTypes(args, params);
 			if (score <= bestScore) {
 			    if (bestMatch != null && score == bestScore) {
-                    Class<?> curDeclaring = curMethod.getMethod().getDeclaringClass();
-			        if (bestMatch.getMethod().getDeclaringClass().isAssignableFrom(curDeclaring)) {
-                        /*
-                         * Methods score the same, but current is declared in a subclass of the best match, so
-                         * we consider it to be more specific. This solves an issue where a subclass overrides
-                         * a method to have a more specific return type -- we'd prefer to call that method.
-                         */
+                    // Parameter score is equal, select the method with the more specific return type
+                    Class<?> curReturnType = curMethod.getMethod().getReturnType();
+                    if (bestMatch.getMethod().getReturnType().isAssignableFrom(curReturnType)) {
                         bestMatch = curMethod;
 			        }
                 } else {
@@ -139,15 +134,12 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 		return bestMatch;
 	}
 
-	//Getters
 	protected MethodInfo[] getMethodInfos() {
 		if (methodInfos == null) {
 			methodInfos = classInfo.getMethods(methodName);
 		}
 		return methodInfos;
 	}
-
-	//Setters
 
 	//Inner Classes
 	@LuaSerializable

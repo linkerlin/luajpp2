@@ -1075,10 +1075,6 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
-
-
-
-
     // Metatable operations
 
     @Override
