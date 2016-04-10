@@ -222,7 +222,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         out.writeInt(hashEntries);
         // Use writeDelayed to reduce recursion depth
-        ls.writeDelayed(hash);
+        if (ls != null) {
+            ls.writeDelayed(hash);
+        } else {
+            out.writeObject(hash);
+        }
     }
 
     @Override
@@ -240,12 +244,16 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         hashEntries = in.readInt();
 
-        ls.readDelayed(new DelayedReader() {
-            @Override
-            public void onRead(Object obj) {
-                hash = (Slot[])obj;
-            }
-        });
+        if (ls != null) {
+            ls.readDelayed(new DelayedReader() {
+                @Override
+                public void onRead(Object obj) {
+                    hash = (Slot[])obj;
+                }
+            });
+        } else {
+            hash = (Slot[])in.readObject();
+        }
     }
 
     @Override
