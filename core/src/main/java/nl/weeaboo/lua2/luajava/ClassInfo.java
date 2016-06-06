@@ -148,6 +148,9 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 			String curName = null;
 			List<MethodInfo> list = new ArrayList<MethodInfo>();
 			for (Method m : marr) {
+                // Workaround for https://bugs.openjdk.java.net/browse/JDK-4283544
+                m.setAccessible(true);
+
 				if (!m.getName().equals(curName)) {
 					if (curName != null) {
 						methods.put(valueOf(curName), list.toArray(new MethodInfo[list.size()]));

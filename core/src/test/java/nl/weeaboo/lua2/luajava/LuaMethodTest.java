@@ -10,6 +10,7 @@ import nl.weeaboo.lua2.AbstractLuaTest;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaTestUtil;
+import nl.weeaboo.lua2.luajava.test.PublicClass;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
@@ -26,7 +27,7 @@ public class LuaMethodTest extends AbstractLuaTest {
     }
 
     /**
-     * Call an method that's overridden in a subclass.
+     * Call a method that's overridden in a subclass.
      */
     @Test
     public void callOverridden() throws LuaException {
@@ -38,6 +39,24 @@ public class LuaMethodTest extends AbstractLuaTest {
         // Returned object is of the overridden type
         TestB javaResult = luaResult.checkuserdata(TestB.class);
         Assert.assertEquals(2, javaResult.getId());
+    }
+
+    /**
+     * Call a method that a public class inherited from a class we can't access.
+     * <p>
+     * https://bugs.openjdk.java.net/browse/JDK-4283544
+     */
+    @Test
+    public void callOverriddenPrivate() throws LuaException {
+        LuaTable globals = luaRunState.getGlobalEnvironment();
+        PublicClass object = new PublicClass();
+        globals.rawset("object", LuajavaLib.toUserdata(object, object.getClass()));
+
+        loadScript("luajava/overrideprivate.lua");
+        runToCompletion();
+
+        // Check that the method is callable
+        LuaTestUtil.assertGlobal("result", 42);
     }
 
     /**
