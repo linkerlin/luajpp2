@@ -6,7 +6,7 @@ plugins {
 allprojects {
     apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
-    version = '2.3.7'
+    version = '2.3.8'
 
     repositories {
         mavenCentral()
@@ -21,7 +21,7 @@ subprojects {
     apply plugin: "java"
 
     ext {
-        slf4jVersion = '1.7.20'
+        slf4jVersion = '1.7.21'
         junitVersion = '4.12'
     }
     
