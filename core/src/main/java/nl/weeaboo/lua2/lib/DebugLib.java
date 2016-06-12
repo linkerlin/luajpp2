@@ -271,7 +271,9 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static Varargs _gethook(Varargs args) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+
         DebugState ds = getDebugState(thread);
         return varargsOf(ds.hookfunc,
                 valueOf((ds.hookcall ? "c" : "") + (ds.hookline ? "l" : "") + (ds.hookrtrn ? "r" : "")),
@@ -279,13 +281,14 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static Varargs _sethook(Varargs args) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
-        LuaValue func = args.optfunction(2, null);
-        String str = args.optjstring(3, "");
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+        LuaValue func = args.optfunction(a++, null);
+        String str = args.optjstring(a++, "");
         boolean call = str.contains("c");
         boolean line = str.contains("l");
         boolean rtrn = str.contains("r");
-        int count = args.optint(4, 0);
+        int count = args.optint(a++, 0);
 
         DebugState ds = getDebugState(thread);
         ds.sethook(func, call, line, rtrn, count);
@@ -306,9 +309,10 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static Varargs _getinfo(Varargs args, LuaValue level0func) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
-        LuaValue func = args.arg(2);
-        String what = args.optjstring(3, "nSluf");
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+        LuaValue func = args.arg(a++);
+        String what = args.optjstring(a++, "nSluf");
 
         // find the stack info
         DebugState ds = getDebugState(thread);
@@ -392,9 +396,10 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static Varargs _getlocal(Varargs args) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
-        int level = args.checkint(2);
-        int local = args.checkint(3);
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+        int level = args.checkint(a++);
+        int local = args.checkint(a++);
 
         DebugState ds = getDebugState(thread);
         DebugInfo di = ds.getDebugInfo(level - 1);
@@ -408,10 +413,11 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static Varargs _setlocal(Varargs args) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
-        int level = args.checkint(2);
-        int local = args.checkint(3);
-        LuaValue value = args.arg(4);
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+        int level = args.checkint(a++);
+        int local = args.checkint(a++);
+        LuaValue value = args.arg(a++);
 
         DebugState ds = getDebugState(thread);
         DebugInfo di = ds.getDebugInfo(level - 1);
@@ -509,9 +515,10 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static LuaValue _traceback(Varargs args) {
-        LuaThread thread = args.optthread(1, LuaThread.getRunning());
-        String message = args.optjstring(2, null);
-        int level = args.optint(3, 1);
+        int a = 1;
+        LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
+        String message = args.optjstring(a++, null);
+        int level = args.optint(a++, 1);
         String tb = DebugLib.traceback(thread, level - 1);
         return valueOf(message != null ? message + "\n" + tb : tb);
     }
