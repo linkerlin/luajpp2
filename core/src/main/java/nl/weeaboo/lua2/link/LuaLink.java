@@ -33,9 +33,12 @@ public class LuaLink extends AbstractLuaLink {
 	private boolean persistent;
 
 	public LuaLink(LuaRunState lrs) {
+	    this(lrs, lrs.getGlobalEnvironment());
+	}
+	public LuaLink(LuaRunState lrs, LuaValue environment) {
 		luaRunState = lrs;
 
-		thread = new LuaThread(luaRunState, luaRunState.getGlobalEnvironment());
+		thread = new LuaThread(luaRunState, environment);
 	}
 
 	private void writeObject(ObjectOutputStream out) throws IOException {

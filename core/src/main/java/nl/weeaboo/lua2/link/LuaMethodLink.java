@@ -15,14 +15,24 @@ public class LuaMethodLink extends LuaFunctionLink {
 
 	public final LuaUserdata self;
 
-	public LuaMethodLink(LuaRunState lrs, LuaUserdata self, String methodName, Object... args) {
-		super(lrs, methodName, args);
+    public LuaMethodLink(LuaRunState lrs, LuaUserdata self, String methodName, Object... args) {
+        this(lrs, lrs.getGlobalEnvironment(), self, methodName, args);
+    }
+    public LuaMethodLink(LuaRunState lrs, LuaValue environment, LuaUserdata self, String methodName,
+            Object... args) {
+
+        super(lrs, environment, methodName, args);
 
 		this.self = self;
 	}
 
-	public LuaMethodLink(LuaRunState lrs, LuaUserdata self, LuaClosure func, Varargs args) {
-		super(lrs, func, args);
+    public LuaMethodLink(LuaRunState lrs, LuaUserdata self, LuaClosure func, Varargs args) {
+        this(lrs, lrs.getGlobalEnvironment(), self, func, args);
+    }
+    public LuaMethodLink(LuaRunState lrs, LuaValue environment, LuaUserdata self, LuaClosure func,
+            Varargs args) {
+
+        super(lrs, environment, func, args);
 
 		this.self = self;
 	}

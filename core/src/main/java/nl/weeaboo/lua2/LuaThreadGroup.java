@@ -10,6 +10,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
@@ -18,14 +19,20 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
 
-    private LuaRunState luaRunState;
+    private final LuaRunState luaRunState;
+    private final LuaValue environment;
 	private boolean destroyed;
 	private boolean suspended;
 
     private final DestructibleElemList<ILuaLink> threads;
 
-	public LuaThreadGroup(LuaRunState lrs) {
-		luaRunState = lrs;
+    public LuaThreadGroup(LuaRunState lrs) {
+        this(lrs, lrs.getGlobalEnvironment());
+    }
+    public LuaThreadGroup(LuaRunState lrs, LuaValue environment) {
+        this.luaRunState = lrs;
+        this.environment = environment;
+
         threads = new DestructibleElemList<ILuaLink>();
 	}
 
@@ -49,7 +56,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
 	public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
 		checkDestroyed();
 
-		LuaFunctionLink thread = new LuaFunctionLink(luaRunState, func, args);
+        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
 		add(thread);
 		return thread;
 	}
@@ -57,7 +64,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
 	public LuaFunctionLink newThread(String func, Object... args) {
 		checkDestroyed();
 
-		LuaFunctionLink thread = new LuaFunctionLink(luaRunState, func, args);
+        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
 		add(thread);
 		return thread;
 	}

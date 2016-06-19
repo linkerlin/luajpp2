@@ -7,6 +7,7 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
@@ -18,14 +19,21 @@ public class LuaFunctionLink extends LuaLink {
 	private String funcName;
 	private Object args;
 
-	public LuaFunctionLink(LuaRunState lrs, String funcName, Object... args) {
-		super(lrs);
+    public LuaFunctionLink(LuaRunState lrs, String funcName, Object... args) {
+        this(lrs, lrs.getGlobalEnvironment(), funcName, args);
+    }
+    public LuaFunctionLink(LuaRunState lrs, LuaValue environment, String funcName, Object... args) {
+        super(lrs, environment);
 
 		this.funcName = funcName;
 		this.args = args;
 	}
-	public LuaFunctionLink(LuaRunState lrs, LuaClosure func, Varargs args) {
-		super(lrs);
+
+    public LuaFunctionLink(LuaRunState lrs, LuaClosure func, Varargs args) {
+        this(lrs, lrs.getGlobalEnvironment(), func, args);
+    }
+    public LuaFunctionLink(LuaRunState lrs, LuaValue environment, LuaClosure func, Varargs args) {
+        super(lrs, environment);
 
 		this.func = func;
 		this.args = LuaUtil.copyArgs(args);
