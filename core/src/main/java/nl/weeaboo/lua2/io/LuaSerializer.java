@@ -19,8 +19,11 @@ public class LuaSerializer {
 		env = new Environment();
 	}
 
-    protected void makeCurrent() {
+	/** @return The previously active {@link LuaSerializer} */
+    protected LuaSerializer makeCurrent() {
+        LuaSerializer previous = CURRENT.get();
         CURRENT.set(this);
+        return previous;
 	}
 
     public static LuaSerializer getCurrent() {
@@ -36,6 +39,8 @@ public class LuaSerializer {
 	}
 
 	public ObjectSerializer openSerializer(OutputStream out) throws IOException {
+        final LuaSerializer previous = makeCurrent();
+
 		ObjectSerializer oout = new ObjectSerializer(out, env) {
 
 			int delayedWritten = 0;
@@ -70,18 +75,19 @@ public class LuaSerializer {
 						super.close();
 					} finally {
 						writeDelayed.clear();
-                        CURRENT.set(null);
+                        CURRENT.set(previous);
 					}
 				}
 
                 checkErrors();
 			}
 		};
-        makeCurrent();
 		return oout;
 	}
 
 	public ObjectDeserializer openDeserializer(InputStream in) throws IOException {
+	    final LuaSerializer previous = makeCurrent();
+
 		ObjectDeserializer oin = new ObjectDeserializer(in, env) {
 
 			int delayedRead = 0;
@@ -121,12 +127,11 @@ public class LuaSerializer {
 						super.close();
 					} finally {
 						readDelayed.clear();
-                        CURRENT.set(null);
+                        CURRENT.set(previous);
 					}
 				}
 			}
 		};
-        makeCurrent();
 		return oin;
 	}
 
