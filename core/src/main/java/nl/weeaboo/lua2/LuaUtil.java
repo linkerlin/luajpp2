@@ -107,7 +107,7 @@ public final class LuaUtil {
         return Collections.unmodifiableList(result);
     }
 
-    public static Varargs concatArgs(Varargs firstArgs, Varargs secondArgs) {
+    public static Varargs concatVarargs(Varargs firstArgs, Varargs secondArgs) {
         if (firstArgs == null || firstArgs.narg() == 0) {
             return secondArgs;
         }
@@ -129,7 +129,9 @@ public final class LuaUtil {
     }
 
 	public static Varargs copyArgs(LuaValue[] stack, int offset, int length) {
-		if (length <= 0) return NONE;
+        if (length <= 0) {
+            return NONE;
+        }
 
 		LuaValue[] array = new LuaValue[length];
 		for (int n = 0; n < length; n++) {

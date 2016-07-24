@@ -109,12 +109,12 @@ public class LuaLink extends AbstractLuaLink {
 	}
 
 	public void pushCall(String funcName, Object... args) throws LuaException {
-        Varargs mergedArgs = LuaUtil.concatArgs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
+        Varargs mergedArgs = LuaUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
         doPushCall(getFunction(funcName), mergedArgs);
 	}
 
     public void pushCall(LuaClosure func, Varargs args) {
-        doPushCall(func, LuaUtil.concatArgs(getImplicitArgs(), args));
+        doPushCall(func, LuaUtil.concatVarargs(getImplicitArgs(), args));
     }
 
     private void doPushCall(LuaClosure func, Varargs args) {
@@ -126,7 +126,7 @@ public class LuaLink extends AbstractLuaLink {
      */
     @Override
 	public Varargs call(LuaClosure func, Object... args) throws LuaException {
-        Varargs mergedArgs = LuaUtil.concatArgs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
+        Varargs mergedArgs = LuaUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
         return doCall(func, mergedArgs);
 	}
 

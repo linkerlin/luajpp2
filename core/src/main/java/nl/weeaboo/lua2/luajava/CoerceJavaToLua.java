@@ -9,6 +9,7 @@ import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -82,10 +83,21 @@ public class CoerceJavaToLua {
 		COERCIONS.put(String.class, stringCoercion);
 	}
 
-    public static Varargs coerceArgs(Object[] args) {
-        LuaValue[] luaArgs = new LuaValue[args.length];
+    /** Converts a sequence of values to an equivalent LuaTable */
+    public static <T> LuaTable toTable(Iterable<? extends T> values, Class<T> type) {
+        LuaTable table = new LuaTable();
+        int i = 1;
+        for (T value : values) {
+            table.rawset(i, coerce(value, type));
+            i++;
+        }
+        return table;
+    }
+
+    public static Varargs coerceArgs(Object[] values) {
+        LuaValue[] luaArgs = new LuaValue[values.length];
         for (int n = 0; n < luaArgs.length; n++) {
-            luaArgs[n] = coerce(args[n]);
+            luaArgs[n] = coerce(values[n]);
         }
         return LuaValue.varargsOf(luaArgs);
     }
