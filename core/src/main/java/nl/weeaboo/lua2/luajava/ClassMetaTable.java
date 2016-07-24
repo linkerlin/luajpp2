@@ -184,8 +184,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 				Field field = classInfo.getField(key);
 				if (field != null) {
 					try {
+                        /*
+                         * Only allow access to the declared type. This prevents Lua from accessing non-public
+                         * implementation details.
+                         */
 						Object o = field.get(instance);
-						return CoerceJavaToLua.coerce(o);
+                        return CoerceJavaToLua.coerce(o, field.getType());
 					} catch (Exception e) {
 						throw new LuaError("Error coercing field (" + key + ")", e);
 					}
@@ -227,10 +231,15 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 					throw new LuaError(new ArrayIndexOutOfBoundsException(index));
 				}
 
+                Class<?> clazz = classInfo.getWrappedClass();
 				if (isGet) {
-					return CoerceJavaToLua.coerce(Array.get(instance, index));
+                    /*
+                     * Only allow access to the declared component type. This prevents Lua from accessing
+                     * non-public implementation details.
+                     */
+                    Object javaValue = Array.get(instance, index);
+                    return CoerceJavaToLua.coerce(javaValue, clazz.getComponentType());
 				} else {
-					Class<?> clazz = classInfo.getWrappedClass();
 					Object v = CoerceLuaToJava.coerceArg(val, clazz.getComponentType());
 					Array.set(instance, key.checkint() - 1, v);
 					return NIL;
