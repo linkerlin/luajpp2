@@ -231,8 +231,11 @@ public class CoerceLuaToJava {
 	}
 
 	public static <T> T coerceArg(LuaValue a, Class<T> c) {
-        // The java arg is a Lua type
-        if (c.isAssignableFrom(a.getClass())) {
+        /*
+         * The java arg is a Lua type. Check that c is a subclass of LuaValue to prevent using this case for
+         * Object params.
+         */
+        if (LuaValue.class.isAssignableFrom(c) && c.isAssignableFrom(a.getClass())) {
             return c.cast(a);
         }
 
