@@ -487,7 +487,6 @@ public class StringLib extends OneArgFunction {
         }
 
         public void format(Buffer buf, double x) {
-            // TODO
             buf.append(String.valueOf(x));
         }
 

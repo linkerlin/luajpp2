@@ -351,30 +351,6 @@ final class LexState {
 		return true;
 	}
 
-	//
-	// TODO: reexamine this source and see if it should be ported differently
-	//
-	// static void trydecpoint (LexState *ls, SemInfo *seminfo) {
-	// /* format error: try to update decimal point separator */
-	// struct lconv *cv = localeconv();
-	// char old = this.decpoint;
-	// this.decpoint = (cv ? cv->decimal_point[0] : '.');
-	// buffreplace(ls, old, this.decpoint); /* try updated decimal separator */
-	// if (!luaO_str2d(luaZ_buffer(this.buff), &seminfo->r)) {
-	// /* format error with correct decimal point: no more options */
-	// buffreplace(ls, this.decpoint, '.'); /* undo change (for error message)
-	// */
-	// luaX_lexerror(ls, "malformed number", TK_NUMBER);
-	// }
-	// }
-	//
-	/*
-	 * void trydecpoint(String str, SemInfo seminfo) { NumberFormat nf =
-	 * NumberFormat.getInstance(); try { Number n = nf.parse(str); double d =
-	 * n.doubleValue(); seminfo.r = new LDouble(d); } catch (ParseException e) {
-	 * lexerror("malformed number", TK_NUMBER); } }
-	 */
-
 	void read_numeral(SemInfo seminfo) {
 		LuaC._assert(isdigit(current));
 		do {
