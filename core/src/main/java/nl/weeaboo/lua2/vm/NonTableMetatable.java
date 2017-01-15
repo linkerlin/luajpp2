@@ -2,39 +2,39 @@ package nl.weeaboo.lua2.vm;
 
 final class NonTableMetatable implements Metatable {
 
-	private final LuaValue value;
+    private final LuaValue value;
 
-	public NonTableMetatable(LuaValue value) {
-		this.value = value;
-	}
+    public NonTableMetatable(LuaValue value) {
+        this.value = value;
+    }
 
-	@Override
+    @Override
     public boolean useWeakKeys() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
+    @Override
     public boolean useWeakValues() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
+    @Override
     public LuaValue toLuaValue() {
-		return value;
-	}
+        return value;
+    }
 
-	@Override
+    @Override
     public Slot entry(LuaValue key, LuaValue value) {
-		return LuaTable.defaultEntry(key, value);
-	}
+        return LuaTable.defaultEntry(key, value);
+    }
 
-	@Override
+    @Override
     public LuaValue wrap(LuaValue value) {
-		return value;
-	}
+        return value;
+    }
 
-	@Override
+    @Override
     public LuaValue arrayget(LuaValue[] array, int index) {
-		return array[index];
-	}
+        return array[index];
+    }
 }

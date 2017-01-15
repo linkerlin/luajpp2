@@ -13,8 +13,8 @@ final class RefEnvironment implements Serializable {
             throw new IllegalArgumentException("Id may not be null");
         }
 
-		this.id = id;
-	}
+        this.id = id;
+    }
 
     public Object resolve(Environment env) {
         return env.getObject(id);

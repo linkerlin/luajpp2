@@ -21,8 +21,8 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
 
     private final LuaRunState luaRunState;
     private final LuaValue environment;
-	private boolean destroyed;
-	private boolean suspended;
+    private boolean destroyed;
+    private boolean suspended;
 
     private final DestructibleElemList<ILuaLink> threads;
 
@@ -34,40 +34,40 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         this.environment = environment;
 
         threads = new DestructibleElemList<ILuaLink>();
-	}
+    }
 
-	private void checkDestroyed() {
-		if (isDestroyed()) {
-			throw new IllegalStateException("Attempted to change a disposed thread group");
-		}
-	}
+    private void checkDestroyed() {
+        if (isDestroyed()) {
+            throw new IllegalStateException("Attempted to change a disposed thread group");
+        }
+    }
 
-	@Override
+    @Override
     public void destroy() {
         if (destroyed) {
             return;
         }
 
-		destroyed = true;
+        destroyed = true;
 
         threads.destroyAll();
-	}
+    }
 
-	public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
-		checkDestroyed();
-
-        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
-		add(thread);
-		return thread;
-	}
-
-	public LuaFunctionLink newThread(String func, Object... args) {
-		checkDestroyed();
+    public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
+        checkDestroyed();
 
         LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
-		add(thread);
-		return thread;
-	}
+        add(thread);
+        return thread;
+    }
+
+    public LuaFunctionLink newThread(String func, Object... args) {
+        checkDestroyed();
+
+        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
+        add(thread);
+        return thread;
+    }
 
     public void addAll(LuaThreadGroup tg) {
         for (ILuaLink thread : tg.getThreads()) {
@@ -79,12 +79,12 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         checkDestroyed();
 
         threads.add(link);
-	}
+    }
 
-	public boolean update() throws LuaException {
-		checkDestroyed();
+    public boolean update() throws LuaException {
+        checkDestroyed();
 
-		boolean changed = false;
+        boolean changed = false;
         for (ILuaLink thread : getThreads()) {
             if (!suspended) {
                 changed |= thread.update();
@@ -92,18 +92,18 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
             if (isDestroyed()) {
                 break;
             }
-		}
-		return changed;
-	}
+        }
+        return changed;
+    }
 
-	public boolean isSuspended() {
-		return suspended;
-	}
+    public boolean isSuspended() {
+        return suspended;
+    }
 
-	@Override
+    @Override
     public boolean isDestroyed() {
-		return destroyed;
-	}
+        return destroyed;
+    }
 
     public Collection<ILuaLink> getThreads() {
         for (ILuaLink thread : threads) {
@@ -113,7 +113,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
             }
         }
         return threads.getSnapshot();
-	}
+    }
 
     public void suspend() {
         setSuspended(true);
@@ -123,10 +123,10 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         setSuspended(false);
     }
 
-	public void setSuspended(boolean s) {
-		checkDestroyed();
+    public void setSuspended(boolean s) {
+        checkDestroyed();
 
-		suspended = s;
-	}
+        suspended = s;
+    }
 
 }

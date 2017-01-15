@@ -26,58 +26,58 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable {
 
-	private static final LuaString LENGTH = valueOf("length");
-	private static final LuaValue ARRAY_LENGTH_FUNCTION = new ArrayLengthFunction();
+    private static final LuaString LENGTH = valueOf("length");
+    private static final LuaValue ARRAY_LENGTH_FUNCTION = new ArrayLengthFunction();
 
-	//--- Uses manual serialization, don't add variables ---
-	private ClassInfo classInfo;
-	private boolean seal;
-	private transient Map<LuaValue, LuaMethod> methods;
-	//--- Uses manual serialization, don't add variables ---
+    //--- Uses manual serialization, don't add variables ---
+    private ClassInfo classInfo;
+    private boolean seal;
+    private transient Map<LuaValue, LuaMethod> methods;
+    //--- Uses manual serialization, don't add variables ---
 
-	ClassMetaTable(ClassInfo ci) {
-		classInfo = ci;
+    ClassMetaTable(ClassInfo ci) {
+        classInfo = ci;
 
-		rawset(INDEX, newMetaFunction(classInfo, this, true));
-		rawset(NEWINDEX, newMetaFunction(classInfo, this, false));
-		if (ci.isArray()) {
-			rawset(LEN, ARRAY_LENGTH_FUNCTION);
-		}
+        rawset(INDEX, newMetaFunction(classInfo, this, true));
+        rawset(NEWINDEX, newMetaFunction(classInfo, this, false));
+        if (ci.isArray()) {
+            rawset(LEN, ARRAY_LENGTH_FUNCTION);
+        }
 
-		seal = true;
+        seal = true;
 
-		methods = new HashMap<LuaValue, LuaMethod>();
-	}
+        methods = new HashMap<LuaValue, LuaMethod>();
+    }
 
     @Override
     public Object writeReplace() throws ObjectStreamException {
-		return new ClassMetaTableRef(classInfo);
-	}
+        return new ClassMetaTableRef(classInfo);
+    }
 
-	private static MetaFunction newMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean isGet) {
-		if (ci.isArray()) {
-			return new ArrayMetaFunction(ci, mt, isGet);
-		}
-		return new MetaFunction(ci, mt, isGet);
-	}
+    private static MetaFunction newMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean isGet) {
+        if (ci.isArray()) {
+            return new ArrayMetaFunction(ci, mt, isGet);
+        }
+        return new MetaFunction(ci, mt, isGet);
+    }
 
-	@Override
-	public void hashset(LuaValue key, LuaValue value) {
-		checkSeal();
-		super.hashset(key, value);
-	}
+    @Override
+    public void hashset(LuaValue key, LuaValue value) {
+        checkSeal();
+        super.hashset(key, value);
+    }
 
-	@Override
-	public void rawset(int key, LuaValue value) {
-		checkSeal();
-		super.rawset(key, value);
-	}
+    @Override
+    public void rawset(int key, LuaValue value) {
+        checkSeal();
+        super.rawset(key, value);
+    }
 
-	@Override
-	public void rawset(LuaValue key, LuaValue value) {
-		checkSeal();
-		super.rawset(key, value);
-	}
+    @Override
+    public void rawset(LuaValue key, LuaValue value) {
+        checkSeal();
+        super.rawset(key, value);
+    }
 
     @Override
     public void sort(LuaValue comparator) {
@@ -85,187 +85,187 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         super.sort(comparator);
     }
 
-	protected void checkSeal() {
-		if (seal) {
-			throw new LuaError("Can't write to a shared Java class metatable");
-		}
-	}
+    protected void checkSeal() {
+        if (seal) {
+            throw new LuaError("Can't write to a shared Java class metatable");
+        }
+    }
 
-	@Override
-	public String tojstring() {
-		return "ClassMetaTable(" + classInfo.getWrappedClass().getSimpleName() + ")@" + hashCode();
-	}
+    @Override
+    public String tojstring() {
+        return "ClassMetaTable(" + classInfo.getWrappedClass().getSimpleName() + ")@" + hashCode();
+    }
 
     LuaMethod getMethod(LuaValue name) {
-		LuaMethod method = methods.get(name);
-		if (method != null) {
-			return method;
-		} else {
-			MethodInfo[] ms = classInfo.getMethods(name);
+        LuaMethod method = methods.get(name);
+        if (method != null) {
+            return method;
+        } else {
+            MethodInfo[] ms = classInfo.getMethods(name);
             if (ms != null && ms.length > 0) {
-				method = new LuaMethod(classInfo, name, ms);
-				methods.put(name, method);
-				return method;
-			}
-		}
-		return null;
-	}
+                method = new LuaMethod(classInfo, name, ms);
+                methods.put(name, method);
+                return method;
+            }
+        }
+        return null;
+    }
 
-	//Inner Classes
-	@LuaSerializable
+    //Inner Classes
+    @LuaSerializable
     private static class ClassMetaTableRef implements IReadResolveSerializable {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		private final ClassInfo classInfo;
+        private final ClassInfo classInfo;
 
-		public ClassMetaTableRef(ClassInfo classInfo) {
-			this.classInfo = classInfo;
-		}
+        public ClassMetaTableRef(ClassInfo classInfo) {
+            this.classInfo = classInfo;
+        }
 
         @Override
         public Object readResolve() throws ObjectStreamException {
-			return classInfo.getMetatable();
-		}
-	}
+            return classInfo.getMetatable();
+        }
+    }
 
-	@LuaSerializable
+    @LuaSerializable
     private static class MetaFunction extends VarArgFunction {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		protected final ClassInfo classInfo;
-		protected final ClassMetaTable meta;
-		protected final boolean isGet;
+        protected final ClassInfo classInfo;
+        protected final ClassMetaTable meta;
+        protected final boolean isGet;
 
-		public MetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
-			classInfo = ci;
-			meta = mt;
-			isGet = get;
-		}
+        public MetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
+            classInfo = ci;
+            meta = mt;
+            isGet = get;
+        }
 
-		@Override
-		public LuaValue call() {
-			return error("Method cannot be called without instance");
-		}
+        @Override
+        public LuaValue call() {
+            return error("Method cannot be called without instance");
+        }
 
-		@Override
-		public LuaValue call(LuaValue arg) {
-			return invokeMethod(arg.checkuserdata(), NIL, NIL);
-		}
+        @Override
+        public LuaValue call(LuaValue arg) {
+            return invokeMethod(arg.checkuserdata(), NIL, NIL);
+        }
 
-		@Override
-		public LuaValue call(LuaValue arg1, LuaValue arg2) {
-			return invokeMethod(arg1.checkuserdata(), arg2, NIL);
-		}
+        @Override
+        public LuaValue call(LuaValue arg1, LuaValue arg2) {
+            return invokeMethod(arg1.checkuserdata(), arg2, NIL);
+        }
 
-		@Override
-		public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-			return invokeMethod(arg1.checkuserdata(), arg2, arg3);
-		}
+        @Override
+        public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
+            return invokeMethod(arg1.checkuserdata(), arg2, arg3);
+        }
 
-		@Override
-		public Varargs invoke(Varargs args) {
-			return invokeMethod(args.arg1().checkuserdata(), args.arg(2), args.arg(3));
-		}
+        @Override
+        public Varargs invoke(Varargs args) {
+            return invokeMethod(args.arg1().checkuserdata(), args.arg(2), args.arg(3));
+        }
 
-		protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+        protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
             if (instance == null) {
                 return LuaNil.NIL.call();
             }
 
-			//Fields & Methods
-			if (isGet) {
-				LuaMethod method = meta.getMethod(key);
-				if (method != null) {
-					return method;
-				}
+            //Fields & Methods
+            if (isGet) {
+                LuaMethod method = meta.getMethod(key);
+                if (method != null) {
+                    return method;
+                }
 
-				Field field = classInfo.getField(key);
-				if (field != null) {
-					try {
+                Field field = classInfo.getField(key);
+                if (field != null) {
+                    try {
                         /*
                          * Only allow access to the declared type. This prevents Lua from accessing non-public
                          * implementation details.
                          */
-						Object o = field.get(instance);
+                        Object o = field.get(instance);
                         return CoerceJavaToLua.coerce(o, field.getType());
-					} catch (Exception e) {
-						throw new LuaError("Error coercing field (" + key + ")", e);
-					}
-				}
+                    } catch (Exception e) {
+                        throw new LuaError("Error coercing field (" + key + ")", e);
+                    }
+                }
 
-				return NIL; //Invalid get returns nil
-			} else {
-				Field field = classInfo.getField(key);
-				if (field != null) {
-					Object v = CoerceLuaToJava.coerceArg(val, field.getType());
-					try {
-						field.set(instance, v);
-					} catch (Exception e) {
-						throw new LuaError("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
-					}
-					return NIL;
-				} else {
-					throw new LuaError("Invalid assignment, field does not exist in Java class: " + key);
-				}
-			}
-		}
+                return NIL; //Invalid get returns nil
+            } else {
+                Field field = classInfo.getField(key);
+                if (field != null) {
+                    Object v = CoerceLuaToJava.coerceArg(val, field.getType());
+                    try {
+                        field.set(instance, v);
+                    } catch (Exception e) {
+                        throw new LuaError("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
+                    }
+                    return NIL;
+                } else {
+                    throw new LuaError("Invalid assignment, field does not exist in Java class: " + key);
+                }
+            }
+        }
 
-	}
+    }
 
-	@LuaSerializable
-	private static class ArrayMetaFunction extends MetaFunction {
+    @LuaSerializable
+    private static class ArrayMetaFunction extends MetaFunction {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public ArrayMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
-			super(ci, mt, get);
-		}
+        public ArrayMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
+            super(ci, mt, get);
+        }
 
-		@Override
-		protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
-			if (key.isinttype()) {
-				int index = key.checkint() - 1;
-				if (index < 0 || index >= Array.getLength(instance)) {
-					throw new LuaError(new ArrayIndexOutOfBoundsException(index));
-				}
+        @Override
+        protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+            if (key.isinttype()) {
+                int index = key.checkint() - 1;
+                if (index < 0 || index >= Array.getLength(instance)) {
+                    throw new LuaError(new ArrayIndexOutOfBoundsException(index));
+                }
 
                 Class<?> clazz = classInfo.getWrappedClass();
-				if (isGet) {
+                if (isGet) {
                     /*
                      * Only allow access to the declared component type. This prevents Lua from accessing
                      * non-public implementation details.
                      */
                     Object javaValue = Array.get(instance, index);
                     return CoerceJavaToLua.coerce(javaValue, clazz.getComponentType());
-				} else {
-					Object v = CoerceLuaToJava.coerceArg(val, clazz.getComponentType());
-					Array.set(instance, key.checkint() - 1, v);
-					return NIL;
-				}
-			} else if (key.equals(LENGTH)) {
-				if (isGet) {
-					return valueOf(Array.getLength(instance));
-				}
-			}
+                } else {
+                    Object v = CoerceLuaToJava.coerceArg(val, clazz.getComponentType());
+                    Array.set(instance, key.checkint() - 1, v);
+                    return NIL;
+                }
+            } else if (key.equals(LENGTH)) {
+                if (isGet) {
+                    return valueOf(Array.getLength(instance));
+                }
+            }
 
-			return super.invokeMethod(instance, key, val);
-		}
+            return super.invokeMethod(instance, key, val);
+        }
 
-	}
+    }
 
-	@LuaSerializable
-	private static class ArrayLengthFunction extends OneArgFunction {
+    @LuaSerializable
+    private static class ArrayLengthFunction extends OneArgFunction {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		@Override
-		public LuaValue call(LuaValue arg) {
-			Object instance = arg.checkuserdata();
-			return valueOf(Array.getLength(instance));
-		}
+        @Override
+        public LuaValue call(LuaValue arg) {
+            Object instance = arg.checkuserdata();
+            return valueOf(Array.getLength(instance));
+        }
 
-	}
+    }
 
 }

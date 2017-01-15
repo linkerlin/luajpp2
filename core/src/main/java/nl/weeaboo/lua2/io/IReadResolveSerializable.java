@@ -5,6 +5,6 @@ import java.io.Serializable;
 
 public interface IReadResolveSerializable extends Serializable {
 
-	Object readResolve() throws ObjectStreamException;
+    Object readResolve() throws ObjectStreamException;
 
 }

@@ -5,6 +5,6 @@ import java.io.Serializable;
 
 public interface IWriteReplaceSerializable extends Serializable {
 
-	Object writeReplace() throws ObjectStreamException;
-	
+    Object writeReplace() throws ObjectStreamException;
+    
 }

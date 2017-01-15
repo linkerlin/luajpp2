@@ -59,20 +59,20 @@ import nl.weeaboo.lua2.vm.LuaValue;
  * <code>
  * import org.luaj.vm2.LuaValue;
  * public class hyperbolic extends org.luaj.vm2.lib.OneArgFunction {
- * 	public hyperbolic() {}
- * 	public LuaValue call(LuaValue arg) {
- * 		switch ( opcode ) {
- * 		case 0: {
- * 			LuaValue t = tableOf();
- * 			this.bind(t, hyperbolic.class, new String[] { "sinh", "cosh" }, 1 );
- * 			env.set("hyperbolic", t);
- * 			return t;
- * 		}
- * 		case 1: return valueOf(Math.sinh(arg.todouble()));
- * 		case 2: return valueOf(Math.cosh(arg.todouble()));
- * 		default: return error("bad opcode: "+opcode);
- * 		}
- * 	}
+ *     public hyperbolic() {}
+ *     public LuaValue call(LuaValue arg) {
+ *         switch ( opcode ) {
+ *         case 0: {
+ *             LuaValue t = tableOf();
+ *             this.bind(t, hyperbolic.class, new String[] { "sinh", "cosh" }, 1 );
+ *             env.set("hyperbolic", t);
+ *             return t;
+ *         }
+ *         case 1: return valueOf(Math.sinh(arg.todouble()));
+ *         case 2: return valueOf(Math.cosh(arg.todouble()));
+ *         default: return error("bad opcode: "+opcode);
+ *         }
+ *     }
  * }
  * </code>
  * </pre>
@@ -95,7 +95,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
  * print( 't', t )
  * print( 'hyperbolic', hyperbolic )
  * for k,v in pairs(t) do
- * 	print( 'k,v', k,v )
+ *     print( 'k,v', k,v )
  * end
  * print( 'sinh(.5)', hyperbolic.sinh(.5) )
  * print( 'cosh(.5)', hyperbolic.cosh(.5) )
@@ -106,12 +106,12 @@ import nl.weeaboo.lua2.vm.LuaValue;
  *
  * <pre>
  * {@code
- * t	table: 3dbbd23f
- * hyperbolic	table: 3dbbd23f
- * k,v	cosh	cosh
- * k,v	sinh	sinh
- * sinh(.5)	0.5210953
- * cosh(.5)	1.127626
+ * t    table: 3dbbd23f
+ * hyperbolic    table: 3dbbd23f
+ * k,v    cosh    cosh
+ * k,v    sinh    sinh
+ * sinh(.5)    0.5210953
+ * cosh(.5)    1.127626
  * }
  * </pre>
  * <p>

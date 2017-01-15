@@ -41,81 +41,81 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  */
 @LuaSerializable
 public final class Prototype implements Externalizable {
-	
-	/* constants used by the function */
-	public LuaValue[] k;
-	public int[] code;
-	/* functions defined inside the function */
-	public Prototype[] p;
-	/* map from opcodes to source lines */
-	public int[] lineinfo;
-	/* information about local variables */
-	public LocVars[] locvars;
-	/* upvalue names */
-	public LuaString[] upvalues;
-	public LuaString source;
-	public int nups;
-	public int linedefined;
-	public int lastlinedefined;
-	public int numparams;
-	public int is_vararg;
-	public int maxstacksize;
+    
+    /* constants used by the function */
+    public LuaValue[] k;
+    public int[] code;
+    /* functions defined inside the function */
+    public Prototype[] p;
+    /* map from opcodes to source lines */
+    public int[] lineinfo;
+    /* information about local variables */
+    public LocVars[] locvars;
+    /* upvalue names */
+    public LuaString[] upvalues;
+    public LuaString source;
+    public int nups;
+    public int linedefined;
+    public int lastlinedefined;
+    public int numparams;
+    public int is_vararg;
+    public int maxstacksize;
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(k);
-		out.writeObject(code);
-		out.writeObject(p);
-		out.writeObject(lineinfo);
-		out.writeObject(locvars);
-		out.writeObject(upvalues);
-		out.writeObject(source);
-		out.writeInt(nups);
-		out.writeInt(linedefined);
-		out.writeInt(lastlinedefined);
-		out.writeInt(numparams);
-		out.writeInt(is_vararg);
-		out.writeInt(maxstacksize);
-	}
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(k);
+        out.writeObject(code);
+        out.writeObject(p);
+        out.writeObject(lineinfo);
+        out.writeObject(locvars);
+        out.writeObject(upvalues);
+        out.writeObject(source);
+        out.writeInt(nups);
+        out.writeInt(linedefined);
+        out.writeInt(lastlinedefined);
+        out.writeInt(numparams);
+        out.writeInt(is_vararg);
+        out.writeInt(maxstacksize);
+    }
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		k = (LuaValue[])in.readObject();
-		code = (int[])in.readObject();
-		p = (Prototype[])in.readObject();
-		lineinfo = (int[])in.readObject();
-		locvars = (LocVars[])in.readObject();
-		upvalues = (LuaString[])in.readObject();
-		source = (LuaString)in.readObject();
-		nups = in.readInt();
-		linedefined = in.readInt();
-		lastlinedefined = in.readInt();
-		numparams = in.readInt();
-		is_vararg = in.readInt();
-		maxstacksize = in.readInt();
-	}
-	
-	@Override
-	public String toString() {
-		return source + ":" + linedefined + "-" + lastlinedefined;
-	}
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        k = (LuaValue[])in.readObject();
+        code = (int[])in.readObject();
+        p = (Prototype[])in.readObject();
+        lineinfo = (int[])in.readObject();
+        locvars = (LocVars[])in.readObject();
+        upvalues = (LuaString[])in.readObject();
+        source = (LuaString)in.readObject();
+        nups = in.readInt();
+        linedefined = in.readInt();
+        lastlinedefined = in.readInt();
+        numparams = in.readInt();
+        is_vararg = in.readInt();
+        maxstacksize = in.readInt();
+    }
+    
+    @Override
+    public String toString() {
+        return source + ":" + linedefined + "-" + lastlinedefined;
+    }
 
-	/**
-	 * Get the name of a local variable.
-	 * 
-	 * @param number the local variable number to look up
-	 * @param pc the program counter
-	 * @return the name, or null if not found
-	 */
-	public LuaString getlocalname(int number, int pc) {
-		int i;
-		for (i = 0; i < locvars.length && locvars[i].startpc <= pc; i++) {
-			if (pc < locvars[i].endpc) { /* is variable active? */
-				number--;
-				if (number == 0) return locvars[i].varname;
-			}
-		}
-		return null; /* not found */
-	}
+    /**
+     * Get the name of a local variable.
+     * 
+     * @param number the local variable number to look up
+     * @param pc the program counter
+     * @return the name, or null if not found
+     */
+    public LuaString getlocalname(int number, int pc) {
+        int i;
+        for (i = 0; i < locvars.length && locvars[i].startpc <= pc; i++) {
+            if (pc < locvars[i].endpc) { /* is variable active? */
+                number--;
+                if (number == 0) return locvars[i].varname;
+            }
+        }
+        return null; /* not found */
+    }
 
 }

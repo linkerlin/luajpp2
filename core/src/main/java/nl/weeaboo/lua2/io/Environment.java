@@ -26,23 +26,23 @@ public final class Environment {
 
         idObjMap.put(id, object);
         objIdMap.put(object, id);
-	}
+    }
 
     public void remove(String id, Object obj) {
-		idObjMap.remove(id);
-		objIdMap.remove(obj);
-	}
+        idObjMap.remove(id);
+        objIdMap.remove(obj);
+    }
 
     public Object getObject(String id) {
-		return idObjMap.get(id);
-	}
+        return idObjMap.get(id);
+    }
 
     public String getId(Object obj) {
-		return objIdMap.get(obj);
-	}
+        return objIdMap.get(obj);
+    }
 
-	public int size() {
-		return objIdMap.size();
-	}
+    public int size() {
+        return objIdMap.size();
+    }
 
 }

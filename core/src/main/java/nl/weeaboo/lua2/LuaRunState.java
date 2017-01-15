@@ -36,7 +36,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
 
-	private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
+    private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
     private final PackageLib packageLib;
     private final LuaTable globals;
@@ -49,11 +49,11 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     private LuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
     private transient ILuaLink current;
-	private transient LuaThread currentThread;
-	private transient int instructionCount;
+    private transient LuaThread currentThread;
+    private transient int instructionCount;
 
-	public LuaRunState() {
-		registerOnThread();
+    public LuaRunState() {
+        registerOnThread();
 
         packageLib = new PackageLib();
 
@@ -76,73 +76,73 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
         mainThread = LuaThread.createMainThread(this, globals);
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
 
-		newThreadGroup();
-	}
+        newThreadGroup();
+    }
 
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		registerOnThread();
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        registerOnThread();
 
-		in.defaultReadObject();
-	}
+        in.defaultReadObject();
+    }
 
-	@Override
+    @Override
     public void destroy() {
-		if (destroyed) {
-			return;
-		}
+        if (destroyed) {
+            return;
+        }
 
         LOG.debug("Destroying LuaRunState: {}", this);
 
-		destroyed = true;
+        destroyed = true;
         threadGroups.destroyAll();
 
-		current = null;
-		currentThread = null;
+        current = null;
+        currentThread = null;
 
-		if (threadInstance.get() == this) {
-			threadInstance.set(null);
-		}
-	}
+        if (threadInstance.get() == this) {
+            threadInstance.set(null);
+        }
+    }
 
-	public void registerOnThread() {
+    public void registerOnThread() {
         if (threadInstance.get() != this) {
             threadInstance.set(this);
             LOG.debug("Registered LuaRunState \"{}\" on thread \"{}\"", this, Thread.currentThread());
         }
-	}
+    }
 
-	private LuaThreadGroup findFirstThreadGroup() {
+    private LuaThreadGroup findFirstThreadGroup() {
         for (LuaThreadGroup group : threadGroups) {
             if (!group.isDestroyed()) {
                 return group;
             }
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
-	public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
-		LuaThreadGroup group = getDefaultThreadGroup();
-		if (group == null) {
-			throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
-		}
-		return group.newThread(func, args);
-	}
+    public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
+        LuaThreadGroup group = getDefaultThreadGroup();
+        if (group == null) {
+            throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
+        }
+        return group.newThread(func, args);
+    }
 
-	public LuaFunctionLink newThread(String func, Object... args) {
-		LuaThreadGroup group = getDefaultThreadGroup();
-		if (group == null) {
-			throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
-		}
-		return group.newThread(func, args);
-	}
+    public LuaFunctionLink newThread(String func, Object... args) {
+        LuaThreadGroup group = getDefaultThreadGroup();
+        if (group == null) {
+            throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
+        }
+        return group.newThread(func, args);
+    }
 
-	public LuaThreadGroup newThreadGroup() {
+    public LuaThreadGroup newThreadGroup() {
         LuaThreadGroup tg = new LuaThreadGroup(this);
         threadGroups.add(tg);
         return tg;
-	}
+    }
 
-	public boolean update() throws LuaException {
+    public boolean update() throws LuaException {
         if (destroyed) {
             LOG.debug("Attempted to update a destroyed LuaRunState");
             return false;
@@ -150,78 +150,78 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 
         registerOnThread();
 
-		boolean changed = false;
+        boolean changed = false;
         for (LuaThreadGroup tg : threadGroups) {
             changed |= tg.update();
-		}
-		return changed;
-	}
+        }
+        return changed;
+    }
 
     /**
      * @param pc The current program counter
      */
-	public void onInstruction(int pc) throws LuaError {
-		instructionCount++;
-		if (currentThread != null && instructionCount > instructionCountLimit) {
-			throw new LuaError("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
-		}
-	}
+    public void onInstruction(int pc) throws LuaError {
+        instructionCount++;
+        if (currentThread != null && instructionCount > instructionCountLimit) {
+            throw new LuaError("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
+        }
+    }
 
-	public static LuaRunState getCurrent() {
-		return threadInstance.get();
-	}
+    public static LuaRunState getCurrent() {
+        return threadInstance.get();
+    }
 
-	@Override
+    @Override
     public boolean isDestroyed() {
-		return destroyed;
-	}
+        return destroyed;
+    }
 
     public ILuaLink getCurrentLink() {
-		return current;
-	}
+        return current;
+    }
 
     public LuaThreadGroup getDefaultThreadGroup() {
-		return findFirstThreadGroup();
-	}
+        return findFirstThreadGroup();
+    }
 
-	public LuaThread getRunningThread() {
-		return (currentThread != null ? currentThread : mainThread);
-	}
+    public LuaThread getRunningThread() {
+        return (currentThread != null ? currentThread : mainThread);
+    }
 
-	public PackageLib getPackageLib() {
-		return packageLib;
-	}
+    public PackageLib getPackageLib() {
+        return packageLib;
+    }
 
-	public LuaTable getGlobalEnvironment() {
+    public LuaTable getGlobalEnvironment() {
         return globals;
-	}
+    }
 
-	public int getInstructionCountLimit() {
-		return instructionCountLimit;
-	}
+    public int getInstructionCountLimit() {
+        return instructionCountLimit;
+    }
 
-	public void setInstructionCountLimit(int lim) {
-		instructionCountLimit = lim;
-	}
+    public void setInstructionCountLimit(int lim) {
+        instructionCountLimit = lim;
+    }
 
     public void setCurrentLink(ILuaLink cur) {
         if (current == cur) {
             return;
         }
 
-		current = cur;
+        current = cur;
         LOG.trace("Set current link: {}", cur);
-	}
+    }
 
-	public void setRunningThread(LuaThread t) {
-		if (currentThread == t) {
-			return;
-		}
+    public void setRunningThread(LuaThread t) {
+        if (currentThread == t) {
+            return;
+        }
 
-		currentThread = t;
-		instructionCount = 0;
+        currentThread = t;
+        instructionCount = 0;
         LOG.trace("Set running thread: {}", t);
-	}
+    }
 
     /**
      * Allow packages to mark themselves as loaded

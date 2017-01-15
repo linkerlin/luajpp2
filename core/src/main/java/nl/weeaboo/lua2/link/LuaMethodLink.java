@@ -13,7 +13,7 @@ public class LuaMethodLink extends LuaFunctionLink {
 
     private static final long serialVersionUID = 1L;
 
-	public final LuaUserdata self;
+    public final LuaUserdata self;
 
     public LuaMethodLink(LuaRunState lrs, LuaUserdata self, String methodName, Object... args) {
         this(lrs, lrs.getGlobalEnvironment(), self, methodName, args);
@@ -23,8 +23,8 @@ public class LuaMethodLink extends LuaFunctionLink {
 
         super(lrs, environment, methodName, args);
 
-		this.self = self;
-	}
+        this.self = self;
+    }
 
     public LuaMethodLink(LuaRunState lrs, LuaUserdata self, LuaClosure func, Varargs args) {
         this(lrs, lrs.getGlobalEnvironment(), self, func, args);
@@ -34,18 +34,18 @@ public class LuaMethodLink extends LuaFunctionLink {
 
         super(lrs, environment, func, args);
 
-		this.self = self;
-	}
+        this.self = self;
+    }
 
-	@Override
-	protected Varargs getImplicitArgs() {
-		return self;
-	}
+    @Override
+    protected Varargs getImplicitArgs() {
+        return self;
+    }
 
-	@Override
+    @Override
     protected LuaClosure findFunction(String methodName) {
-		LuaValue val = self.get(LuaString.valueOf(methodName));
-		return (val instanceof LuaClosure ? (LuaClosure)val : null);
-	}
+        LuaValue val = self.get(LuaString.valueOf(methodName));
+        return (val instanceof LuaClosure ? (LuaClosure)val : null);
+    }
 
 }

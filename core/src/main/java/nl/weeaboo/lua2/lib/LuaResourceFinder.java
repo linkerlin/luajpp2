@@ -34,9 +34,9 @@ package nl.weeaboo.lua2.lib;
  */
 public interface LuaResourceFinder {
 
-	/**
-	 * Try to open a file, or return null if not found.
-	 */
+    /**
+     * Try to open a file, or return null if not found.
+     */
     LuaResource findResource(String filename);
 
 }

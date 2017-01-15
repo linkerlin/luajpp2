@@ -18,30 +18,30 @@ final class None extends LuaNil {
     private None() {
     }
 
-	@Override
+    @Override
     public LuaValue arg(int i) {
-		return NIL;
-	}
+        return NIL;
+    }
 
-	@Override
+    @Override
     public Object readResolve() {
-		// Special serialization returning the singleton
+        // Special serialization returning the singleton
         return NONE;
-	}
+    }
 
-	@Override
-	public int narg() {
-		return 0;
-	}
+    @Override
+    public int narg() {
+        return 0;
+    }
 
-	@Override
-	public LuaValue arg1() {
-		return NIL;
-	}
+    @Override
+    public LuaValue arg1() {
+        return NIL;
+    }
 
-	@Override
-	public String tojstring() {
-		return "none";
-	}
+    @Override
+    public String tojstring() {
+        return "none";
+    }
 
 }

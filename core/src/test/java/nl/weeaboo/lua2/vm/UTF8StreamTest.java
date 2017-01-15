@@ -41,13 +41,13 @@ public class UTF8StreamTest {
 
     @Test
     public void testUtf8CharsInStream() throws LuaException {
-		String script = "x = \"98\u00b0: today's temp!\"\n"
-				+ "print('x = ', x)\n"
-				+ "return x";
+        String script = "x = \"98\u00b0: today's temp!\"\n"
+                + "print('x = ', x)\n"
+                + "return x";
 
         LuaLink link = new LuaLink(lrs);
         String str = LuaUtil.eval(link, script).tojstring(1);
         Assert.assertEquals("98\u00b0: today's temp!", str);
-	}
+    }
 
 }

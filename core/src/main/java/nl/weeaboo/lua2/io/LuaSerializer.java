@@ -15,43 +15,43 @@ public class LuaSerializer {
     private final List<Object> writeDelayed = new ArrayList<Object>();
     private final List<DelayedReader> readDelayed = new ArrayList<DelayedReader>();
 
-	public LuaSerializer() {
-		env = new Environment();
-	}
+    public LuaSerializer() {
+        env = new Environment();
+    }
 
-	/** @return The previously active {@link LuaSerializer} */
+    /** @return The previously active {@link LuaSerializer} */
     protected LuaSerializer makeCurrent() {
         LuaSerializer previous = CURRENT.get();
         CURRENT.set(this);
         return previous;
-	}
+    }
 
     public static LuaSerializer getCurrent() {
         return CURRENT.get();
     }
 
     public void writeDelayed(Object obj) {
-		writeDelayed.add(obj);
-	}
+        writeDelayed.add(obj);
+    }
 
     public void readDelayed(DelayedReader reader) {
-		readDelayed.add(reader);
-	}
+        readDelayed.add(reader);
+    }
 
-	public ObjectSerializer openSerializer(OutputStream out) throws IOException {
+    public ObjectSerializer openSerializer(OutputStream out) throws IOException {
         final LuaSerializer previous = makeCurrent();
 
-		ObjectSerializer oout = new ObjectSerializer(out, env) {
+        ObjectSerializer oout = new ObjectSerializer(out, env) {
 
-			int delayedWritten = 0;
+            int delayedWritten = 0;
 
-			private void writeDelayed() throws IOException {
-				while (delayedWritten < writeDelayed.size()) {
-					writeObject(writeDelayed.get(delayedWritten++));
-				}
-			}
+            private void writeDelayed() throws IOException {
+                while (delayedWritten < writeDelayed.size()) {
+                    writeObject(writeDelayed.get(delayedWritten++));
+                }
+            }
 
-			@Override
+            @Override
             protected Callable<Void> createAsyncWriteTask(Object obj) {
                 final Callable<Void> inner = super.createAsyncWriteTask(obj);
 
@@ -64,44 +64,44 @@ public class LuaSerializer {
                         return null;
                     }
                 };
-			}
+            }
 
-			@Override
-			public void close() throws IOException {
-				try {
-					writeDelayed();
-				} finally {
-					try {
-						super.close();
-					} finally {
-						writeDelayed.clear();
+            @Override
+            public void close() throws IOException {
+                try {
+                    writeDelayed();
+                } finally {
+                    try {
+                        super.close();
+                    } finally {
+                        writeDelayed.clear();
                         CURRENT.set(previous);
-					}
-				}
+                    }
+                }
 
                 checkErrors();
-			}
-		};
-		return oout;
-	}
+            }
+        };
+        return oout;
+    }
 
-	public ObjectDeserializer openDeserializer(InputStream in) throws IOException {
-	    final LuaSerializer previous = makeCurrent();
+    public ObjectDeserializer openDeserializer(InputStream in) throws IOException {
+        final LuaSerializer previous = makeCurrent();
 
-		ObjectDeserializer oin = new ObjectDeserializer(in, env) {
+        ObjectDeserializer oin = new ObjectDeserializer(in, env) {
 
-			int delayedRead = 0;
+            int delayedRead = 0;
 
-			private void readDelayed() throws IOException {
-				try {
-					while (delayedRead < readDelayed.size()) {
-						DelayedReader reader = readDelayed.get(delayedRead++);
-						reader.onRead(readObject());
-					}
-				} catch (ClassNotFoundException cnfe) {
-					throw new IOException(cnfe.toString());
-				}
-			}
+            private void readDelayed() throws IOException {
+                try {
+                    while (delayedRead < readDelayed.size()) {
+                        DelayedReader reader = readDelayed.get(delayedRead++);
+                        reader.onRead(readObject());
+                    }
+                } catch (ClassNotFoundException cnfe) {
+                    throw new IOException(cnfe.toString());
+                }
+            }
 
             @Override
             protected Callable<Object> createAsyncReadTask() {
@@ -118,25 +118,25 @@ public class LuaSerializer {
                 };
             }
 
-			@Override
-			public void close() throws IOException {
-				try {
-					readDelayed();
-				} finally {
-					try {
-						super.close();
-					} finally {
-						readDelayed.clear();
+            @Override
+            public void close() throws IOException {
+                try {
+                    readDelayed();
+                } finally {
+                    try {
+                        super.close();
+                    } finally {
+                        readDelayed.clear();
                         CURRENT.set(previous);
-					}
-				}
-			}
-		};
-		return oin;
-	}
+                    }
+                }
+            }
+        };
+        return oin;
+    }
 
-	public Environment getEnvironment() {
-		return env;
-	}
+    public Environment getEnvironment() {
+        return env;
+    }
 
 }

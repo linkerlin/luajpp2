@@ -7,9 +7,9 @@ public class LuaException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-	public LuaException(String message) {
-		super(message);
-	}
+    public LuaException(String message) {
+        super(message);
+    }
 
     /**
      * Converts an arbitrary exception to an equivalent {@link LuaException}. This is used to prevent
@@ -24,6 +24,6 @@ public class LuaException extends Exception {
         le.setStackTrace(ex.getStackTrace());
         le.initCause(ex.getCause());
         return le;
-	}
+    }
 
 }

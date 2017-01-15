@@ -35,61 +35,61 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 public final class LocVars implements Externalizable {
 
-	// --- Uses manual serialization, don't add variables ---
-	/** The local variable name */
-	public LuaString varname;
+    // --- Uses manual serialization, don't add variables ---
+    /** The local variable name */
+    public LuaString varname;
 
-	/** The instruction offset when the variable comes into scope */
-	public int startpc;
+    /** The instruction offset when the variable comes into scope */
+    public int startpc;
 
-	/** The instruction offset when the variable goes out of scope */
-	public int endpc;
-	// --- Uses manual serialization, don't add variables ---
+    /** The instruction offset when the variable goes out of scope */
+    public int endpc;
+    // --- Uses manual serialization, don't add variables ---
 
-	public LocVars() {		
-	}
-	
-	/**
-	 * Construct a LocVars instance.
-	 * 
-	 * @param varname The local variable name
-	 * @param startpc The instruction offset when the variable comes into scope
-	 * @param endpc The instruction offset when the variable goes out of scope
-	 */
-	public LocVars(LuaString varname, int startpc, int endpc) {
-		this.varname = varname;
-		this.startpc = startpc;
-		this.endpc = endpc;
-	}
+    public LocVars() {        
+    }
+    
+    /**
+     * Construct a LocVars instance.
+     * 
+     * @param varname The local variable name
+     * @param startpc The instruction offset when the variable comes into scope
+     * @param endpc The instruction offset when the variable goes out of scope
+     */
+    public LocVars(LuaString varname, int startpc, int endpc) {
+        this.varname = varname;
+        this.startpc = startpc;
+        this.endpc = endpc;
+    }
 
-	public String tojstring() {
-		return varname + " " + startpc + "-" + endpc;
-	}
-	
-	@Override
-	public String toString() {
-		return tojstring();
-	}
+    public String tojstring() {
+        return varname + " " + startpc + "-" + endpc;
+    }
+    
+    @Override
+    public String toString() {
+        return tojstring();
+    }
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		int len = varname.length();
-		out.writeInt(len);
-		varname.write(out, 0, len);
-		
-		out.writeInt(startpc);
-		out.writeInt(endpc);
-	}
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        int len = varname.length();
+        out.writeInt(len);
+        varname.write(out, 0, len);
+        
+        out.writeInt(startpc);
+        out.writeInt(endpc);
+    }
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		int len = in.readInt();
-		byte[] bytes = new byte[len];
-		in.readFully(bytes);
-		varname = LuaString.valueOf(bytes);
-		
-		startpc = in.readInt();
-		endpc = in.readInt();
-	}
-	
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        int len = in.readInt();
+        byte[] bytes = new byte[len];
+        in.readFully(bytes);
+        varname = LuaString.valueOf(bytes);
+        
+        startpc = in.readInt();
+        endpc = in.readInt();
+    }
+    
 }
