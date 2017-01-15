@@ -634,32 +634,32 @@ public class DebugLib extends VarArgFunction {
 
         int i = symbexec(p, pc, stackpos); /* try symbolic execution */
         lua_assert(pc != -1);
-        switch (Lua.GET_OPCODE(i)) {
+        switch (Lua.getOpcode(i)) {
         case Lua.OP_GETGLOBAL: {
-            int g = Lua.GETARG_Bx(i); /* global index */
+            int g = Lua.getArgBx(i); /* global index */
             // lua_assert(p.k[g].isString());
             return new LuaString[] { p.k[g].strvalue(), GLOBAL };
         }
         case Lua.OP_MOVE: {
-            int a = Lua.GETARG_A(i);
-            int b = Lua.GETARG_B(i); /* move from `b' to `a' */
+            int a = Lua.getArgA(i);
+            int b = Lua.getArgB(i); /* move from `b' to `a' */
             if (b < a) {
                 return getobjname(di, b); /* get name for `b' */
             }
             break;
         }
         case Lua.OP_GETTABLE: {
-            int k = Lua.GETARG_C(i); /* key index */
+            int k = Lua.getArgC(i); /* key index */
             name = kname(p, k);
             return new LuaString[] { name, FIELD };
         }
         case Lua.OP_GETUPVAL: {
-            int u = Lua.GETARG_B(i); /* upvalue index */
+            int u = Lua.getArgB(i); /* upvalue index */
             name = u < p.upvalues.length ? p.upvalues[u] : QMARK;
             return new LuaString[] { name, UPVALUE };
         }
         case Lua.OP_SELF: {
-            int k = Lua.GETARG_C(i); /* key index */
+            int k = Lua.getArgC(i); /* key index */
             name = kname(p, k);
             return new LuaString[] { name, METHOD };
         }
@@ -668,8 +668,8 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static LuaString kname(Prototype p, int c) {
-        if (Lua.ISK(c) && p.k[Lua.INDEXK(c)].isstring()) {
-            return p.k[Lua.INDEXK(c)].strvalue();
+        if (Lua.isK(c) && p.k[Lua.getIndexK(c)].isstring()) {
+            return p.k[Lua.getIndexK(c)].strvalue();
         } else {
             return QMARK;
         }
@@ -691,7 +691,7 @@ public class DebugLib extends VarArgFunction {
         if (!(pt.lineinfo.length == pt.code.length || pt.lineinfo.length == 0)) {
             return false;
         }
-        if (!(Lua.GET_OPCODE(pt.code[pt.code.length - 1]) == Lua.OP_RETURN)) {
+        if (!(Lua.getOpcode(pt.code[pt.code.length - 1]) == Lua.OP_RETURN)) {
             return false;
         }
         return true;
@@ -700,12 +700,12 @@ public class DebugLib extends VarArgFunction {
     private static boolean checkopenop(Prototype pt, int pc) {
         int i = pt.code[(pc) + 1];
 
-        switch (Lua.GET_OPCODE(i)) {
+        switch (Lua.getOpcode(i)) {
         case Lua.OP_CALL:
         case Lua.OP_TAILCALL:
         case Lua.OP_RETURN:
         case Lua.OP_SETLIST: {
-            return Lua.GETARG_B(i) == 0;
+            return Lua.getArgB(i) == 0;
         }
         default:
             return false; /* invalid instruction after an open call */
@@ -726,7 +726,7 @@ public class DebugLib extends VarArgFunction {
             checkreg(pt, r);
             break;
         case Lua.OpArgK:
-            if (!(Lua.ISK(r) ? Lua.INDEXK(r) < pt.k.length : r < pt.maxstacksize)) {
+            if (!(Lua.isK(r) ? Lua.getIndexK(r) < pt.k.length : r < pt.maxstacksize)) {
                 return false;
             }
             break;
@@ -745,8 +745,8 @@ public class DebugLib extends VarArgFunction {
         }
         for (int pc = 0; pc < lastpc; pc++) {
             int i = pt.code[pc];
-            int op = Lua.GET_OPCODE(i);
-            int a = Lua.GETARG_A(i);
+            int op = Lua.getOpcode(i);
+            int a = Lua.getArgA(i);
             int b = 0;
             int c = 0;
             if (!(op < Lua.NUM_OPCODES)) {
@@ -757,8 +757,8 @@ public class DebugLib extends VarArgFunction {
             }
             switch (Lua.getOpMode(op)) {
             case Lua.iABC: {
-                b = Lua.GETARG_B(i);
-                c = Lua.GETARG_C(i);
+                b = Lua.getArgB(i);
+                c = Lua.getArgC(i);
                 if (!checkArgMode(pt, b, Lua.getBMode(op))) {
                     return 0;
                 }
@@ -768,14 +768,14 @@ public class DebugLib extends VarArgFunction {
                 break;
             }
             case Lua.iABx: {
-                b = Lua.GETARG_Bx(i);
+                b = Lua.getArgBx(i);
                 if (Lua.getBMode(op) == Lua.OpArgK && !(b < pt.k.length)) {
                     return 0;
                 }
                 break;
             }
             case Lua.iAsBx: {
-                b = Lua.GETARG_sBx(i);
+                b = Lua.getArgSBx(i);
                 if (Lua.getBMode(op) == Lua.OpArgR) {
                     int dest = pc + 1 + b;
                     if (!(0 <= dest && dest < pt.code.length)) {
@@ -784,7 +784,7 @@ public class DebugLib extends VarArgFunction {
                     if (dest > 0) {
                         /* cannot jump to a setlist count */
                         int d = pt.code[dest - 1];
-                        if (Lua.GET_OPCODE(d) == Lua.OP_SETLIST && Lua.GETARG_C(d) == 0) {
+                        if (Lua.getOpcode(d) == Lua.OP_SETLIST && Lua.getArgC(d) == 0) {
                             return 0;
                         }
                     }
@@ -802,7 +802,7 @@ public class DebugLib extends VarArgFunction {
                 if (!(pc + 2 < pt.code.length)) {
                     return 0; /* check skip */
                 }
-                if (!(Lua.GET_OPCODE(pt.code[pc + 1]) == Lua.OP_JMP)) {
+                if (!(Lua.getOpcode(pt.code[pc + 1]) == Lua.OP_JMP)) {
                     return 0;
                 }
             }
@@ -934,7 +934,7 @@ public class DebugLib extends VarArgFunction {
                     return 0;
                 }
                 for (int j = 1; j <= nup; j++) {
-                    int op1 = Lua.GET_OPCODE(pt.code[pc + j]);
+                    int op1 = Lua.getOpcode(pt.code[pc + j]);
                     if (!(op1 == Lua.OP_GETUPVAL || op1 == Lua.OP_MOVE)) {
                         return 0;
                     }

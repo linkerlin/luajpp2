@@ -33,10 +33,10 @@ import java.io.PrintStream;
  */
 public class Print extends Lua {
 
-    /** opcode names */
     private static final String STRING_FOR_NULL = "null";
     public static PrintStream ps = System.out;
 
+    /** opcode names. */
     public static final String[] OPNAMES = { "MOVE", "LOADK", "LOADBOOL", "LOADNIL", "GETUPVAL", "GETGLOBAL",
             "GETTABLE", "SETGLOBAL", "SETUPVAL", "SETTABLE", "NEWTABLE", "SELF", "ADD", "SUB", "MUL", "DIV",
             "MOD", "POW", "UNM", "NOT", "LEN", "CONCAT", "JMP", "EQ", "LT", "LE", "TEST", "TESTSET", "CALL",
@@ -105,21 +105,21 @@ public class Print extends Lua {
     }
 
     /**
-     * Print the code in a prototype
+     * Print the code in a prototype.
      *
      * @param f the {@link Prototype}
      */
     public static void printCode(Prototype f) {
         int[] code = f.code;
-        int pc, n = code.length;
-        for (pc = 0; pc < n; pc++) {
+        int n = code.length;
+        for (int pc = 0; pc < n; pc++) {
             printOpCode(f, pc);
             ps.println();
         }
     }
 
     /**
-     * Print an opcode in a prototype
+     * Print an opcode in a prototype.
      *
      * @param f the {@link Prototype}
      * @param pc the program counter to look up and print
@@ -129,7 +129,7 @@ public class Print extends Lua {
     }
 
     /**
-     * Print an opcode in a prototype
+     * Print an opcode in a prototype.
      *
      * @param ps the {@link PrintStream} to print to
      * @param f the {@link Prototype}
@@ -138,12 +138,12 @@ public class Print extends Lua {
     public static void printOpCode(PrintStream ps, Prototype f, int pc) {
         int[] code = f.code;
         int i = code[pc];
-        int o = GET_OPCODE(i);
-        int a = GETARG_A(i);
-        int b = GETARG_B(i);
-        int c = GETARG_C(i);
-        int bx = GETARG_Bx(i);
-        int sbx = GETARG_sBx(i);
+        int o = getOpcode(i);
+        int a = getArgA(i);
+        int b = getArgB(i);
+        int c = getArgC(i);
+        int bx = getArgBx(i);
+        int sbx = getArgSBx(i);
         int line = getline(f, pc);
         ps.printf("%4d   ", pc + 1);
         if (line > 0) {
@@ -156,10 +156,10 @@ public class Print extends Lua {
         case iABC:
             ps.print(a);
             if (getBMode(o) != OpArgN) {
-                ps.print(" " + (ISK(b) ? (-1 - INDEXK(b)) : b));
+                ps.print(" " + (isK(b) ? (-1 - getIndexK(b)) : b));
             }
             if (getCMode(o) != OpArgN) {
-                ps.print(" " + (ISK(c) ? (-1 - INDEXK(c)) : c));
+                ps.print(" " + (isK(c) ? (-1 - getIndexK(c)) : c));
             }
             break;
         case iABx:
@@ -199,9 +199,9 @@ public class Print extends Lua {
             break;
         case OP_GETTABLE:
         case OP_SELF:
-            if (ISK(c)) {
+            if (isK(c)) {
                 ps.print("  ; ");
-                printConstant(ps, f, INDEXK(c));
+                printConstant(ps, f, getIndexK(c));
             }
             break;
         case OP_SETTABLE:
@@ -213,16 +213,16 @@ public class Print extends Lua {
         case OP_EQ:
         case OP_LT:
         case OP_LE:
-            if (ISK(b) || ISK(c)) {
+            if (isK(b) || isK(c)) {
                 ps.print("  ; ");
-                if (ISK(b)) {
-                    printConstant(ps, f, INDEXK(b));
+                if (isK(b)) {
+                    printConstant(ps, f, getIndexK(b));
                 } else {
                     ps.print("-");
                 }
                 ps.print(" ");
-                if (ISK(c)) {
-                    printConstant(ps, f, INDEXK(c));
+                if (isK(c)) {
+                    printConstant(ps, f, getIndexK(c));
                 } else {
                     ps.print("-");
                 }
@@ -272,9 +272,9 @@ public class Print extends Lua {
     }
 
     static void printConstants(Prototype f) {
-        int i, n = f.k.length;
+        int n = f.k.length;
         ps.print("constants (" + n + ") for " + id(f) + ":\n");
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             ps.print("  " + (i + 1) + "  ");
             printValue(ps, f.k[i]);
             ps.print("\n");
@@ -282,18 +282,18 @@ public class Print extends Lua {
     }
 
     static void printLocals(Prototype f) {
-        int i, n = f.locvars.length;
+        int n = f.locvars.length;
         ps.print("locals (" + n + ") for " + id(f) + ":\n");
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             ps.println("  " + i + "  " + f.locvars[i].varname + " " + (f.locvars[i].startpc + 1) + " "
                     + (f.locvars[i].endpc + 1));
         }
     }
 
     static void printUpValues(Prototype f) {
-        int i, n = f.upvalues.length;
+        int n = f.upvalues.length;
         ps.print("upvalues (" + n + ") for " + id(f) + ":\n");
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             ps.print("  " + i + "  " + f.upvalues[i] + "\n");
         }
     }
@@ -336,7 +336,7 @@ public class Print extends Lua {
     }
 
     /**
-     * Print the state of a {@link LuaClosure} that is being executed
+     * Print the state of a {@link LuaClosure} that is being executed.
      *
      * @param cl the {@link LuaClosure}
      * @param pc the program counter

@@ -31,10 +31,10 @@ package nl.weeaboo.lua2.vm;
  */
 public class Lua {
 
-    /** use return values from previous op */
+    /** use return values from previous op. */
     public static final int LUA_MULTRET = -1;
 
-    /** masks for new-style vararg */
+    // masks for new-style vararg
     public static final int     VARARG_HASARG        = 1;
     public static final int     VARARG_ISVARARG    = 2;
     public static final int     VARARG_NEEDSARG    = 4;
@@ -104,27 +104,27 @@ public class Lua {
     /*
     ** the following macros help to manipulate instructions
     */
-    public static int GET_OPCODE(int i) {
+    public static int getOpcode(int i) {
         return (i >> POS_OP) & MAX_OP;
     }
 
-    public static int GETARG_A(int i) {
+    public static int getArgA(int i) {
         return (i >> POS_A) & MAXARG_A;
     }
 
-    public static int GETARG_B(int i) {
+    public static int getArgB(int i) {
         return (i >> POS_B) & MAXARG_B;
     }
 
-    public static int GETARG_C(int i) {
+    public static int getArgC(int i) {
         return (i >> POS_C) & MAXARG_C;
     }
 
-    public static int GETARG_Bx(int i) {
+    public static int getArgBx(int i) {
         return (i >> POS_Bx) & MAXARG_Bx;
     }
 
-    public static int GETARG_sBx(int i) {
+    public static int getArgSBx(int i) {
         return ((i >> POS_Bx) & MAXARG_Bx) - MAXARG_sBx;
     }
 
@@ -137,19 +137,19 @@ public class Lua {
     public static final int BITRK        = (1 << (SIZE_B - 1));
 
     /** test whether value is a constant. */
-    public static boolean ISK(int x) {
+    public static boolean isK(int x) {
         return 0 != ((x) & BITRK);
     }
 
     /** gets the index of the constant. */
-    public static int INDEXK(int r) {
+    public static int getIndexK(int r) {
         return ((r) & ~BITRK);
     }
 
     public static final int MAXINDEXRK    = (BITRK - 1);
 
     /** code a constant index as a RK value. */
-    public static int RKASK(int x) {
+    public static int rkAsK(int x) {
         return ((x) | BITRK);
     }
 

@@ -19,6 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -50,7 +51,7 @@ public abstract class ZeroArgFunction extends LibFunction {
 
     private static final long serialVersionUID = -4675605076010039321L;
 
-    /** Default constructor */
+    /** Default constructor. */
     public ZeroArgFunction() {
     }
 

@@ -160,7 +160,6 @@ public class StringLib extends OneArgFunction {
         int l = s.length();
         int posi = posrelat(args.optint(2, 1), l);
         int pose = posrelat(args.optint(3, posi), l);
-        int n, i;
         if (posi <= 0) {
             posi = 1;
         }
@@ -170,12 +169,12 @@ public class StringLib extends OneArgFunction {
         if (posi > pose) {
             return NONE; /* empty interval; return no values */
         }
-        n = (pose - posi + 1);
+        int n = (pose - posi + 1);
         if (posi + n <= pose) {
             error("string slice too long");
         }
         LuaValue[] v = new LuaValue[n];
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             v[i] = valueOf(s.luaByte(posi + i - 1));
         }
         return varargsOf(v);
@@ -373,7 +372,8 @@ public class StringLib extends OneArgFunction {
         public final int length;
 
         public FormatDesc(LuaString strfrmt, final int start) {
-            int p = start, n = strfrmt.length();
+            int p = start;
+            int n = strfrmt.length();
             int c = 0;
 
             boolean moreFlags = true;
@@ -628,7 +628,7 @@ public class StringLib extends OneArgFunction {
         final int srclen = src.length();
         LuaString p = args.checkstring(2);
         LuaValue repl = args.arg(3);
-        int max_s = args.optint(4, srclen + 1);
+        int maxS = args.optint(4, srclen + 1);
         final boolean anchor = p.length() > 0 && p.charAt(0) == '^';
 
         Buffer lbuf = new Buffer(srclen);
@@ -636,7 +636,7 @@ public class StringLib extends OneArgFunction {
 
         int soffset = 0;
         int n = 0;
-        while (n < max_s) {
+        while (n < maxS) {
             ms.reset();
             int res = ms.match(soffset, anchor ? 1 : 0);
             if (res != -1) {
@@ -1217,7 +1217,6 @@ public class StringLib extends OneArgFunction {
         }
 
         int start_capture(int soff, int poff, int what) {
-            int res;
             int level = this.level;
             if (level >= MAX_CAPTURES) {
                 error("too many captures");
@@ -1225,7 +1224,8 @@ public class StringLib extends OneArgFunction {
             cinit[level] = soff;
             clen[level] = what;
             this.level = level + 1;
-            if ((res = match(soff, poff)) == -1) {
+            int res = match(soff, poff);
+            if (res == -1) {
                 this.level--;
             }
             return res;

@@ -103,19 +103,19 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     private static final Slot[] NOBUCKETS = {};
 
-    /** the array values */
+    /** the array values. */
     protected LuaValue[] array;
 
-    /** the hash part */
+    /** the hash part. */
     protected Slot[] hash;
 
-    /** the number of hash entries */
+    /** the number of hash entries. */
     protected int hashEntries;
 
-    /** metatable for this table, or null */
-    protected Metatable m_metatable;
+    /** metatable for this table, or null. */
+    protected Metatable metatable;
 
-    /** Construct empty table */
+    /** Construct empty table. */
     public LuaTable() {
         array = NOVALS;
         hash = NOBUCKETS;
@@ -183,7 +183,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
-    /** Check that subclasses override writeExternal */
+    /** Check that subclasses override writeExternal. */
     private boolean checkOverridden() {
         Class<?> c = getClass();
         if (c == LuaTable.class) {
@@ -207,9 +207,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         checkOverridden();
 
-        LuaSerializer ls = LuaSerializer.getCurrent();
-
-        out.writeObject(m_metatable);
+        out.writeObject(metatable);
 
         out.writeInt(array.length);
         int lastNonNil = array.length - 1;
@@ -223,6 +221,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         out.writeInt(hashEntries);
         // Use writeDelayed to reduce recursion depth
+        LuaSerializer ls = LuaSerializer.getCurrent();
         if (ls != null) {
             ls.writeDelayed(hash);
         } else {
@@ -232,9 +231,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        LuaSerializer ls = LuaSerializer.getCurrent();
-
-        m_metatable = (Metatable)in.readObject();
+        metatable = (Metatable)in.readObject();
 
         int arrayLength = in.readInt();
         int arrayUsed = in.readInt();
@@ -245,6 +242,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         hashEntries = in.readInt();
 
+        LuaSerializer ls = LuaSerializer.getCurrent();
         if (ls != null) {
             ls.readDelayed(new DelayedReader() {
                 @Override
@@ -299,7 +297,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         hashEntries = 0;
     }
 
-    /** Resize the table */
+    /** Resize the table. */
     private static LuaValue[] resize(LuaValue[] old, int n) {
         LuaValue[] v = new LuaValue[n];
         System.arraycopy(old, 0, v, 0, old.length);
@@ -326,18 +324,18 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public LuaValue getmetatable() {
-        return (m_metatable != null) ? m_metatable.toLuaValue() : null;
+        return (metatable != null) ? metatable.toLuaValue() : null;
     }
 
     @Override
-    public LuaValue setmetatable(LuaValue metatable) {
-        boolean oldWeakKeys = m_metatable != null && m_metatable.useWeakKeys();
-        boolean oldWeakValues = m_metatable != null && m_metatable.useWeakValues();
+    public LuaValue setmetatable(LuaValue mt) {
+        boolean oldWeakKeys = metatable != null && metatable.useWeakKeys();
+        boolean oldWeakValues = metatable != null && metatable.useWeakValues();
 
-        m_metatable = metatableOf(metatable);
+        metatable = metatableOf(mt);
 
-        boolean newWeakKeys = m_metatable != null && m_metatable.useWeakKeys();
-        boolean newWeakValues = m_metatable != null && m_metatable.useWeakValues();
+        boolean newWeakKeys = metatable != null && metatable.useWeakKeys();
+        boolean newWeakValues = metatable != null && metatable.useWeakValues();
 
         if (oldWeakKeys != newWeakKeys || oldWeakValues != newWeakValues) {
             // force a rehash
@@ -349,19 +347,19 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     @Override
     public LuaValue get(int key) {
         LuaValue v = rawget(key);
-        return v.isnil() && m_metatable != null ? gettable(this, valueOf(key)) : v;
+        return v.isnil() && metatable != null ? gettable(this, valueOf(key)) : v;
     }
 
     @Override
     public LuaValue get(LuaValue key) {
         LuaValue v = rawget(key);
-        return v.isnil() && m_metatable != null ? gettable(this, key) : v;
+        return v.isnil() && metatable != null ? gettable(this, key) : v;
     }
 
     @Override
     public LuaValue rawget(int key) {
         if (key > 0 && key <= array.length) {
-            LuaValue v = m_metatable == null ? array[key - 1] : m_metatable.arrayget(array, key - 1);
+            LuaValue v = metatable == null ? array[key - 1] : metatable.arrayget(array, key - 1);
             return v != null ? v : NIL;
         }
         return hashget(LuaInteger.valueOf(key));
@@ -372,7 +370,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         if (key.isinttype()) {
             int ikey = key.toint();
             if (ikey > 0 && ikey <= array.length) {
-                LuaValue v = m_metatable == null ? array[ikey - 1] : m_metatable.arrayget(array, ikey - 1);
+                LuaValue v = metatable == null ? array[ikey - 1] : metatable.arrayget(array, ikey - 1);
                 return v != null ? v : NIL;
             }
         }
@@ -393,18 +391,18 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public void set(int key, LuaValue value) {
-        if (m_metatable == null || !rawget(key).isnil() || !settable(this, LuaInteger.valueOf(key), value)) {
+        if (metatable == null || !rawget(key).isnil() || !settable(this, LuaInteger.valueOf(key), value)) {
             rawset(key, value);
         }
     }
 
-    /** caller must ensure key is not nil */
+    /** caller must ensure key is not nil. */
     @Override
     public void set(LuaValue key, LuaValue value) {
         if (!key.isvalidkey() && !metatag(NEWINDEX).isfunction()) {
             typerror("table index");
         }
-        if (m_metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
+        if (metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
             rawset(key, value);
         }
     }
@@ -416,7 +414,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
-    /** caller must ensure key is not nil */
+    /** caller must ensure key is not nil. */
     @Override
     public void rawset(LuaValue key, LuaValue value) {
         if (!key.isinttype() || !arrayset(key.toint(), value)) {
@@ -424,17 +422,17 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
     }
 
-    /** Set an array element */
+    /** Set an array element. */
     private boolean arrayset(int key, LuaValue value) {
         if (key > 0 && key <= array.length) {
-            array[key - 1] = value.isnil() ? null : (m_metatable != null ? m_metatable.wrap(value) : value);
+            array[key - 1] = value.isnil() ? null : (metatable != null ? metatable.wrap(value) : value);
             return true;
         }
         return false;
     }
 
     /**
-     * Remove the element at a position in a list-table
+     * Remove the element at a position in a list-table.
      *
      * @param pos the position to remove
      * @return The removed item, or {@link #NONE} if not removed
@@ -455,7 +453,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Insert an element at a position in a list-table
+     * Insert an element at a position in a list-table.
      *
      * @param pos the position to remove
      * @param value The value to insert
@@ -472,7 +470,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Concatenate the contents of a table efficiently, using {@link Buffer}
+     * Concatenate the contents of a table efficiently, using {@link Buffer}.
      *
      * @param sep {@link LuaString} separater to apply between elements
      * @param i the first element index
@@ -493,7 +491,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public int length() {
-        return m_metatable != null ? len().toint() : rawlen();
+        return metatable != null ? len().toint() : rawlen();
     }
 
     @Override
@@ -508,7 +506,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     @Override
     public int rawlen() {
         int a = getArrayLength();
-        int n = a + 1, m = 0;
+        int n = a + 1;
+        int m = 0;
         while (!rawget(n).isnil()) {
             m = n;
             n += a + getHashLength() + 1;
@@ -525,7 +524,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Get the next element after a particular key in the table
+     * Get the next element after a particular key in the table.
      *
      * @return key,value or nil
      */
@@ -566,7 +565,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         // check array part
         for (; i < array.length; ++i) {
             if (array[i] != null) {
-                LuaValue value = m_metatable == null ? array[i] : m_metatable.arrayget(array, i);
+                LuaValue value = metatable == null ? array[i] : metatable.arrayget(array, i);
                 if (value != null) {
                     return varargsOf(LuaInteger.valueOf(i + 1), value);
                 }
@@ -590,7 +589,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Get the next element after a particular key in the contiguous array part of a table
+     * Get the next element after a particular key in the contiguous array part of a table.
      *
      * @return key,value or none
      */
@@ -602,7 +601,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Set a hashtable value
+     * Set a hashtable value.
      *
      * @param key key to set
      * @param value value to set
@@ -634,7 +633,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                 }
                 index = hashSlot(key);
             }
-            Slot entry = (m_metatable != null) ? m_metatable.entry(key, value) : defaultEntry(key, value);
+            Slot entry = (metatable != null) ? metatable.entry(key, value) : defaultEntry(key, value);
             hash[index] = (hash[index] != null) ? hash[index].add(entry) : entry;
             ++hashEntries;
         }
@@ -669,7 +668,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Find the hashtable slot to use
+     * Find the hashtable slot to use.
      *
      * @param key key to look for
      * @return slot to use
@@ -712,7 +711,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     private void dropWeakArrayValues() {
         for (int i = 0; i < array.length; ++i) {
-            m_metatable.arrayget(array, i);
+            metatable.arrayget(array, i);
         }
     }
 
@@ -827,10 +826,10 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
      * < 0 next key will go in hash part
      */
     private void rehash(int newKey) {
-        if (m_metatable != null && (m_metatable.useWeakKeys() || m_metatable.useWeakValues())) {
+        if (metatable != null && (metatable.useWeakKeys() || metatable.useWeakValues())) {
             // If this table has weak entries, hashEntries is just an upper bound.
             hashEntries = countHashKeys();
-            if (m_metatable.useWeakValues()) {
+            if (metatable.useWeakValues()) {
                 dropWeakArrayValues();
             }
         }
@@ -919,8 +918,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             if ((v = oldArray[i++]) != null) {
                 int slot = hashmod(LuaInteger.hashCode(i), newHashMask);
                 Slot newEntry;
-                if (m_metatable != null) {
-                    newEntry = m_metatable.entry(valueOf(i), v);
+                if (metatable != null) {
+                    newEntry = metatable.entry(valueOf(i), v);
                     if (newEntry == null) {
                         continue;
                     }
@@ -975,7 +974,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
      * @param comparator {@link LuaValue} to be called to compare elements.
      */
     public void sort(LuaValue comparator) {
-        if (m_metatable != null && m_metatable.useWeakValues()) {
+        if (metatable != null && metatable.useWeakValues()) {
             dropWeakArrayValues();
         }
         int n = array.length;
@@ -1017,13 +1016,14 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     private boolean compare(int i, int j, LuaValue cmpfunc) {
-        LuaValue a, b;
-        if (m_metatable == null) {
+        LuaValue a;
+        LuaValue b;
+        if (metatable == null) {
             a = array[i];
             b = array[j];
         } else {
-            a = m_metatable.arrayget(array, i);
-            b = m_metatable.arrayget(array, j);
+            a = metatable.arrayget(array, i);
+            b = metatable.arrayget(array, j);
         }
         if (a == null || b == null) {
             return false;
@@ -1076,24 +1076,24 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         if (this == val) {
             return true;
         }
-        if (m_metatable == null || !val.istable()) {
+        if (metatable == null || !val.istable()) {
             return false;
         }
         LuaValue valmt = val.getmetatable();
-        return valmt != null && LuaValue.eqmtcall(this, m_metatable.toLuaValue(), val, valmt);
+        return valmt != null && LuaValue.eqmtcall(this, metatable.toLuaValue(), val, valmt);
     }
 
-    /** Unpack all the elements of this table */
+    /** Unpack all the elements of this table. */
     public Varargs unpack() {
         return unpack(1, this.rawlen());
     }
 
-    /** Unpack all the elements of this table from element i */
+    /** Unpack all the elements of this table from element i. */
     public Varargs unpack(int i) {
         return unpack(i, this.rawlen());
     }
 
-    /** Unpack the elements from i to j inclusive */
+    /** Unpack the elements from i to j inclusive. */
     public Varargs unpack(int i, int j) {
         int n = j + 1 - i;
         switch (n) {
@@ -1160,7 +1160,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Call the supplied function once for each key-value pair
+     * Call the supplied function once for each key-value pair.
      *
      * @param func function to call
      */
@@ -1177,14 +1177,15 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     /**
-     * Call the supplied function once for each key-value pair in the contiguous array part
+     * Call the supplied function once for each key-value pair in the contiguous array part.
      *
      * @param func function to call
      */
     public LuaValue foreachi(LuaValue func) {
-        LuaValue v, r;
+        LuaValue v;
         for (int k = 0; !(v = rawget(++k)).isnil();) {
-            if (!(r = func.call(valueOf(k), v)).isnil()) {
+            LuaValue r = func.call(valueOf(k), v);
+            if (!r.isnil()) {
                 return r;
             }
         }

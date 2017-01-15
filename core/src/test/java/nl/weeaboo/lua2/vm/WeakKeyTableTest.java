@@ -33,8 +33,8 @@ public class WeakKeyTableTest extends WeakTableTest {
         Assert.assertEquals(val, t.get(key));
 
         // drop key and value references, replace them with new ones
-        WeakReference<LuaValue> origkey = new WeakReference<LuaValue>(key);
-        WeakReference<LuaValue> origval = new WeakReference<LuaValue>(val);
+        final WeakReference<LuaValue> origkey = new WeakReference<LuaValue>(key);
+        final WeakReference<LuaValue> origval = new WeakReference<LuaValue>(val);
         key = LuaValue.userdataOf(new MyData(111));
         val = LuaValue.userdataOf(new MyData(222));
 

@@ -94,14 +94,13 @@ public class BaseLib extends OneArgFunction {
     private static InputStream STDIN = null;
     private static PrintStream STDOUT = System.out;
 
-    private static final String[] LIB2_KEYS = { "collectgarbage", // ( opt
-                                                                  // [,arg] )
-                                                                  // -> value
+    private static final String[] LIB2_KEYS = {
+            "collectgarbage", // ( opt [,arg] ) -> value
             "error", // ( message [,level] ) -> ERR
             "setfenv", // (f, table) -> void
     };
-    private static final String[] LIBV_KEYS = { "assert", // ( v [,message] ) ->
-                                                          // v, message | ERR
+    private static final String[] LIBV_KEYS = {
+            "assert", // ( v [,message] ) -> v, message | ERR
             "dofile", // ( filename ) -> result1, ...
             "getfenv", // ( [f] ) -> env
             "getmetatable", // ( object ) -> table
@@ -123,8 +122,7 @@ public class BaseLib extends OneArgFunction {
             "pairs", // "pairs" (t) -> iter-func, t, nil
             "ipairs", // "ipairs", // (t) -> iter-func, t, 0
             "next", // "next" ( table, [index] ) -> next-index, next-value
-            "__inext", // "inext" ( table, [int-index] ) -> next-index,
-                       // next-value
+            "__inext", // "inext" ( table, [int-index] ) -> next-index, next-value
     };
 
     /**
@@ -258,8 +256,7 @@ public class BaseLib extends OneArgFunction {
                 return args.isnil(1) ? BaseLib.loadStream(STDIN, "stdin")
                         : BaseLib.loadFile(args.checkjstring(1));
             }
-            case 6: // "loadstring", // ( string [,chunkname] ) -> chunk | nil,
-                    // msg
+            case 6: // "loadstring", // ( string [,chunkname] ) -> chunk | nil, msg
             {
                 LuaString script = args.checkstring(1);
                 String chunkname = args.optjstring(2, "string");

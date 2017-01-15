@@ -612,31 +612,37 @@ public class UnaryBinaryOperatorsTest {
                 tru.add(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.mul(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.div(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.pow(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.mod(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             // always use left argument
@@ -648,11 +654,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.add(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { SUB, RETURN_LHS, });
@@ -663,11 +671,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.sub(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.add(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MUL, RETURN_LHS, });
@@ -678,11 +688,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.mul(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { DIV, RETURN_LHS, });
@@ -693,11 +705,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.div(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { POW, RETURN_LHS, });
@@ -708,11 +722,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.pow(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MOD, RETURN_LHS, });
@@ -723,11 +739,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.mod(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             // always use right argument
@@ -739,11 +757,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.add(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { SUB, RETURN_RHS, });
@@ -754,11 +774,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.sub(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.add(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MUL, RETURN_RHS, });
@@ -769,11 +791,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.mul(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { DIV, RETURN_RHS, });
@@ -784,11 +808,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.div(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { POW, RETURN_RHS, });
@@ -799,11 +825,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.pow(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MOD, RETURN_RHS, });
@@ -814,11 +842,13 @@ public class UnaryBinaryOperatorsTest {
                 tbl.mod(tbl2);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tru.sub(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
         } finally {
             LuaBoolean.s_metatable = null;
@@ -835,11 +865,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.add(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.add(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { ADD, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.add(zero));
@@ -849,11 +881,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.sub(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.sub(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { SUB, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.sub(zero));
@@ -863,11 +897,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.mul(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.mul(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { MUL, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.mul(zero));
@@ -877,11 +913,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.div(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.div(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { DIV, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.div(zero));
@@ -891,11 +929,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.pow(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.pow(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { POW, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.pow(zero));
@@ -905,11 +945,13 @@ public class UnaryBinaryOperatorsTest {
             tbl.mod(zero);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         try {
             zero.mod(tbl);
             Assert.fail("did not throw error");
         } catch (LuaError le) {
+            // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { MOD, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.mod(zero));
@@ -1389,31 +1431,37 @@ public class UnaryBinaryOperatorsTest {
                 tbl.concat(def);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 def.concat(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tbl.concat(def.buffer()).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 def.concat(tbl.buffer()).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 uda.concat(def.concat(tbl.buffer())).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 ghi.concat(tbl.concat(def.buffer())).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
 
             // always use right argument
@@ -1428,31 +1476,37 @@ public class UnaryBinaryOperatorsTest {
                 tbl.concat(def);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 def.concat(tbl);
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 tbl.concat(def.buffer()).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 def.concat(tbl.buffer()).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 uda.concat(def.concat(tbl.buffer())).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
             try {
                 uda.concat(tbl.concat(def.buffer())).value();
                 Assert.fail("did not throw error");
             } catch (LuaError le) {
+                // Expected
             }
         } finally {
             LuaBoolean.s_metatable = null;

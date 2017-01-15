@@ -96,7 +96,7 @@ public final class LuaClosure extends LuaFunction {
     private final Prototype p;
     private final UpValue[] upValues;
 
-    /** Supply the initial environment */
+    /** Supply the initial environment. */
     public LuaClosure(Prototype p, LuaValue env) {
         super(env);
 

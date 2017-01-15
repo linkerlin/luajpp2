@@ -9,7 +9,7 @@ import nl.weeaboo.lua2.link.LuaLink;
 
 public class LuaUtilTest extends AbstractLuaTest {
 
-    /** Test for eval and stacktrace functions */
+    /** Test for eval and stacktrace functions. */
     @Test
     public void callEvalStackTrace() throws LuaException {
         // Load script with some test functions

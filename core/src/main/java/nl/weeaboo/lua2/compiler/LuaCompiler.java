@@ -17,7 +17,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
 public interface LuaCompiler {
 
     /**
-     * Load into a Closure or LuaFunction from a Stream and initializes the environment
+     * Load into a Closure or LuaFunction from a Stream and initializes the environment.
      */
     LuaClosure load(InputStream stream, String filename, LuaValue env) throws IOException;
 

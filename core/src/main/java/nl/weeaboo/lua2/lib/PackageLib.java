@@ -453,7 +453,7 @@ public class PackageLib extends OneArgFunction {
         }
     }
 
-    /** Convert lua filename to valid class name */
+    /** Convert lua filename to valid class name. */
     public static final String toClassname(String filename) {
         int n = filename.length();
         int j = n;

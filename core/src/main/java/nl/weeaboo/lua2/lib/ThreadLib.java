@@ -67,7 +67,7 @@ public class ThreadLib extends LuaLibrary {
     }
 
     /**
-     * Creates a new thread group
+     * Creates a new thread group.
      *
      * @param args (not used)
      */

@@ -209,7 +209,9 @@ public abstract class IoLib extends OneArgFunction {
 
         public IoLib iolib;
 
-        /** Public no-arg constructor required for {@link LibFunction#bind(LuaValue, Class, String[])} */
+        /**
+         * Public no-arg constructor required for {@link LibFunction#bind(LuaValue, Class, String[])}.
+         */
         public IoLibV() {
         }
 
@@ -275,26 +277,26 @@ public abstract class IoLib extends OneArgFunction {
         }
     }
 
-    // io.flush() -> bool
+    /** io.flush() -> bool */
     public Varargs _io_flush() throws IOException {
         checkopen(getStdOut());
         stdOutHandle.flush();
         return TRUE;
     }
 
-    // io.tmpfile() -> file
+    /** io.tmpfile() -> file */
     public Varargs _io_tmpfile() throws IOException {
         return tmpFile();
     }
 
-    // io.close([file]) -> void
+    /** io.close([file]) -> void */
     public Varargs _io_close(LuaValue file) throws IOException {
         LuaFileHandle f = file.isnil() ? getStdOut() : checkfile(file);
         checkopen(f);
         return ioclose(f);
     }
 
-    // io.input([file]) -> file
+    /** io.input([file]) -> file */
     public Varargs _io_input(LuaValue file) {
         if (file.isnil()) {
             stdInHandle = getStdIn();
@@ -306,7 +308,7 @@ public abstract class IoLib extends OneArgFunction {
         return stdInHandle;
     }
 
-    // io.output(filename) -> file
+    /** io.output(filename) -> file */
     public Varargs _io_output(LuaValue filename) {
         if (filename.isnil()) {
             stdOutHandle = getStdOut();
@@ -318,79 +320,79 @@ public abstract class IoLib extends OneArgFunction {
         return stdOutHandle;
     }
 
-    // io.type(obj) -> "file" | "closed file" | nil
+    /** io.type(obj) -> "file" | "closed file" | nil */
     public Varargs _io_type(LuaValue obj) {
         LuaFileHandle f = optfile(obj);
         return f != null ? f.isclosed() ? CLOSED_FILE : FILE : NIL;
     }
 
-    // io.popen(prog, [mode]) -> file
+    /** io.popen(prog, [mode]) -> file */
     public Varargs _io_popen(String prog, String mode) throws IOException {
         return openProgram(prog, mode);
     }
 
-    // io.open(filename, [mode]) -> file | nil,err
+    /** io.open(filename, [mode]) -> file | nil,err */
     public Varargs _io_open(String filename, String mode) throws IOException {
         return rawopenfile(filename, mode);
     }
 
-    // io.lines(filename) -> iterator
+    /** io.lines(filename) -> iterator */
     public Varargs _io_lines(String filename) {
         stdInHandle = filename == null ? getStdIn() : ioopenfile(filename, "r");
         checkopen(stdInHandle);
         return lines(stdInHandle);
     }
 
-    // io.read(...) -> (...)
+    /** io.read(...) -> (...) */
     public Varargs _io_read(Varargs args) throws IOException {
         checkopen(getStdIn());
         return ioread(stdInHandle, args);
     }
 
-    // io.write(...) -> void
+    /** io.write(...) -> void */
     public Varargs _io_write(Varargs args) throws IOException {
         checkopen(getStdOut());
         return iowrite(stdOutHandle, args);
     }
 
-    // file:close() -> void
+    /** file:close() -> void. */
     public Varargs _file_close(LuaValue file) throws IOException {
         return ioclose(checkfile(file));
     }
 
-    // file:flush() -> void
+    /** file:flush() -> void. */
     public Varargs _file_flush(LuaValue file) throws IOException {
         checkfile(file).flush();
         return TRUE;
     }
 
-    // file:setvbuf(mode,[size]) -> void
+    /** file:setvbuf(mode,[size]) -> void. */
     public Varargs _file_setvbuf(LuaValue file, String mode, int size) {
         checkfile(file).setvbuf(mode, size);
         return TRUE;
     }
 
-    // file:lines() -> iterator
+    /** file:lines() -> iterator. */
     public Varargs _file_lines(LuaValue file) {
         return lines(checkfile(file));
     }
 
-    // file:read(...) -> (...)
+    /** file:read(...) -> (...) */
     public Varargs _file_read(LuaValue file, Varargs subargs) throws IOException {
         return ioread(checkfile(file), subargs);
     }
 
-    // file:seek([whence][,offset]) -> pos | nil,error
+    /** file:seek([whence][,offset]) -> pos | nil,error. */
     public Varargs _file_seek(LuaValue file, String whence, int offset) throws IOException {
         return valueOf(checkfile(file).seek(whence, offset));
     }
 
-    // file:write(...) -> void
+    /** file:write(...) -> void */
     public Varargs _file_write(LuaValue file, Varargs subargs) throws IOException {
         return iowrite(checkfile(file), subargs);
     }
 
-    // __index, returns a field
+    /** __index, returns a field. */
     public Varargs _io_index(LuaValue v) {
         if (v.equals(STDOUT)) {
             return getStdOut();
@@ -403,7 +405,7 @@ public abstract class IoLib extends OneArgFunction {
         }
     }
 
-    // lines iterator(s,var) -> var'
+    /** lines iterator(s,var) -> var'. */
     public Varargs _lines_iter(LuaValue file) throws IOException {
         return freadline(checkfile(file));
     }

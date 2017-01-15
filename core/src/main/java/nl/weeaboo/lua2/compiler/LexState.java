@@ -1926,7 +1926,7 @@ final class LexState {
                 fs.setmultret(e);
                 if (e.k == VCALL && nret == 1) { /* tail call? */
                     LuaC.setOpcode(fs.getcodePtr(e), Lua.OP_TAILCALL);
-                    LuaC.luaAssert(Lua.GETARG_A(fs.getcode(e)) == fs.nactvar);
+                    LuaC.luaAssert(Lua.getArgA(fs.getcode(e)) == fs.nactvar);
                 }
                 first = fs.nactvar;
                 nret = Lua.LUA_MULTRET; /* return all values */

@@ -19,6 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -52,7 +53,7 @@ public abstract class TwoArgFunction extends LibFunction {
 
     private static final long serialVersionUID = 4246903072049489129L;
 
-    /** Default constructor */
+    /** Default constructor. */
     public TwoArgFunction() {
     }
 

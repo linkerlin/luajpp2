@@ -32,11 +32,11 @@ import static nl.weeaboo.lua2.compiler.LuaC.setArgA;
 import static nl.weeaboo.lua2.compiler.LuaC.setArgB;
 import static nl.weeaboo.lua2.compiler.LuaC.setArgC;
 import static nl.weeaboo.lua2.compiler.LuaC.setArgSBx;
-import static nl.weeaboo.lua2.vm.Lua.GETARG_A;
-import static nl.weeaboo.lua2.vm.Lua.GETARG_B;
-import static nl.weeaboo.lua2.vm.Lua.GETARG_sBx;
-import static nl.weeaboo.lua2.vm.Lua.GET_OPCODE;
-import static nl.weeaboo.lua2.vm.Lua.ISK;
+import static nl.weeaboo.lua2.vm.Lua.getArgA;
+import static nl.weeaboo.lua2.vm.Lua.getArgB;
+import static nl.weeaboo.lua2.vm.Lua.getArgSBx;
+import static nl.weeaboo.lua2.vm.Lua.getOpcode;
+import static nl.weeaboo.lua2.vm.Lua.isK;
 import static nl.weeaboo.lua2.vm.Lua.LFIELDS_PER_FLUSH;
 import static nl.weeaboo.lua2.vm.Lua.LUA_MULTRET;
 import static nl.weeaboo.lua2.vm.Lua.MAXARG_C;
@@ -74,7 +74,7 @@ import static nl.weeaboo.lua2.vm.Lua.OP_TEST;
 import static nl.weeaboo.lua2.vm.Lua.OP_TESTSET;
 import static nl.weeaboo.lua2.vm.Lua.OP_UNM;
 import static nl.weeaboo.lua2.vm.Lua.OpArgN;
-import static nl.weeaboo.lua2.vm.Lua.RKASK;
+import static nl.weeaboo.lua2.vm.Lua.rkAsK;
 import static nl.weeaboo.lua2.vm.Lua.getBMode;
 import static nl.weeaboo.lua2.vm.Lua.getCMode;
 import static nl.weeaboo.lua2.vm.Lua.getOpMode;
@@ -309,9 +309,9 @@ final class FuncState {
                 }
             } else {
                 previous = new InstructionPtr(this.f.code, this.pc - 1);
-                if (GET_OPCODE(previous.get()) == OP_LOADNIL) {
-                    int pfrom = GETARG_A(previous.get());
-                    int pto = GETARG_B(previous.get());
+                if (getOpcode(previous.get()) == OP_LOADNIL) {
+                    int pfrom = getArgA(previous.get());
+                    int pto = getArgB(previous.get());
                     if (pfrom <= from && from <= pto + 1) { /* can connect both? */
                         if (from + n - 1 > pto) {
                             setArgB(previous, from + n - 1);
@@ -362,7 +362,7 @@ final class FuncState {
     }
 
     int getjump(int pc) {
-        int offset = GETARG_sBx(this.f.code[pc]);
+        int offset = getArgSBx(this.f.code[pc]);
         /* point to itself represents end of list */
         if (offset == LexState.NO_JUMP) {
             /* end of list */
@@ -375,7 +375,7 @@ final class FuncState {
 
     InstructionPtr getjumpcontrol(int pc) {
         InstructionPtr pi = new InstructionPtr(this.f.code, pc);
-        if (pc >= 1 && testTMode(GET_OPCODE(pi.code[pi.idx - 1]))) {
+        if (pc >= 1 && testTMode(getOpcode(pi.code[pi.idx - 1]))) {
             return new InstructionPtr(pi.code, pi.idx - 1);
         } else {
             return pi;
@@ -388,7 +388,7 @@ final class FuncState {
     boolean need_value(int list) {
         for (; list != LexState.NO_JUMP; list = this.getjump(list)) {
             int i = this.getjumpcontrol(list).get();
-            if (GET_OPCODE(i) != OP_TESTSET) {
+            if (getOpcode(i) != OP_TESTSET) {
                 return true;
             }
         }
@@ -397,15 +397,15 @@ final class FuncState {
 
     boolean patchtestreg(int node, int reg) {
         InstructionPtr i = this.getjumpcontrol(node);
-        if (GET_OPCODE(i.get()) != OP_TESTSET) {
+        if (getOpcode(i.get()) != OP_TESTSET) {
             /* cannot patch other instructions */
             return false;
         }
-        if (reg != NO_REG && reg != GETARG_B(i.get())) {
+        if (reg != NO_REG && reg != getArgB(i.get())) {
             setArgA(i, reg);
         } else {
             /* no register to put value or register already has the value */
-            i.set(createAbc(OP_TEST, GETARG_B(i.get()), 0, Lua.GETARG_C(i.get())));
+            i.set(createAbc(OP_TEST, getArgB(i.get()), 0, Lua.getArgC(i.get())));
         }
         return true;
     }
@@ -480,7 +480,7 @@ final class FuncState {
     }
 
     void freereg(int reg) {
-        if (!ISK(reg) && reg >= this.nactvar) {
+        if (!isK(reg) && reg >= this.nactvar) {
             this.freereg--;
             luaAssert(reg == this.freereg);
         }
@@ -544,7 +544,7 @@ final class FuncState {
     void setoneret(ExpDesc e) {
         if (e.k == LexState.VCALL) { /* expression is an open function call? */
             e.k = LexState.VNONRELOC;
-            e.u.s.info = GETARG_A(this.getcode(e));
+            e.u.s.info = getArgA(this.getcode(e));
         } else if (e.k == LexState.VVARARG) {
             setArgB(this.getcodePtr(e), 2);
             e.k = LexState.VRELOCABLE; /* can relocate its simple result */
@@ -704,14 +704,14 @@ final class FuncState {
                         : (e.k == LexState.VKNUM) ? this.numberK(e.u.nval())
                                 : this.boolK((e.k == LexState.VTRUE));
                 e.k = LexState.VK;
-                return RKASK(e.u.s.info);
+                return rkAsK(e.u.s.info);
             } else {
                 break;
             }
         }
         case LexState.VK: {
             if (e.u.s.info <= MAXINDEXRK) { /* constant fit in argC? */
-                return RKASK(e.u.s.info);
+                return rkAsK(e.u.s.info);
             } else {
                 break;
             }
@@ -767,10 +767,10 @@ final class FuncState {
 
     void invertjump(ExpDesc e) {
         InstructionPtr pc = this.getjumpcontrol(e.u.s.info);
-        luaAssert(testTMode(GET_OPCODE(pc.get())) && GET_OPCODE(pc.get()) != OP_TESTSET
-                && Lua.GET_OPCODE(pc.get()) != OP_TEST);
+        luaAssert(testTMode(getOpcode(pc.get())) && getOpcode(pc.get()) != OP_TESTSET
+                && Lua.getOpcode(pc.get()) != OP_TEST);
         // SETARG_A(pc, !(GETARG_A(pc.get())));
-        int a = GETARG_A(pc.get());
+        int a = getArgA(pc.get());
         int nota = (a != 0 ? 0 : 1);
         setArgA(pc, nota);
     }
@@ -778,9 +778,9 @@ final class FuncState {
     int jumponcond(ExpDesc e, int cond) {
         if (e.k == LexState.VRELOCABLE) {
             int ie = this.getcode(e);
-            if (GET_OPCODE(ie) == OP_NOT) {
+            if (getOpcode(ie) == OP_NOT) {
                 this.pc--; /* remove previous OP_NOT */
-                return this.condjump(OP_TEST, GETARG_B(ie), 0, (cond != 0 ? 0 : 1));
+                return this.condjump(OP_TEST, getArgB(ie), 0, (cond != 0 ? 0 : 1));
             }
             /* else go through */
         }
@@ -1047,8 +1047,8 @@ final class FuncState {
         }
         case LexState.OPR_CONCAT: {
             this.exp2val(e2);
-            if (e2.k == LexState.VRELOCABLE && GET_OPCODE(this.getcode(e2)) == OP_CONCAT) {
-                luaAssert(e1.u.s.info == GETARG_B(this.getcode(e2)) - 1);
+            if (e2.k == LexState.VRELOCABLE && getOpcode(this.getcode(e2)) == OP_CONCAT) {
+                luaAssert(e1.u.s.info == getArgB(this.getcode(e2)) - 1);
                 this.freeexp(e1);
                 setArgB(this.getcodePtr(e2), e1.u.s.info);
                 e1.k = LexState.VRELOCABLE;

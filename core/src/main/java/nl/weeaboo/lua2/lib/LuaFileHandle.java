@@ -80,7 +80,9 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
         throw new IOException("peek not supported");
     }
 
-    /** return char if read, -1 if eof, throw IOException on other exception */
+    /**
+     * return char if read, -1 if eof, throw IOException on other exception.
+     */
     public int read() throws IOException {
         throw new IOException("read not supported");
     }

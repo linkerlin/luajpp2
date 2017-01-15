@@ -65,22 +65,22 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
-    /** Constant LuaDouble representing NaN (not a number) */
+    /** Constant LuaDouble representing NaN (not a number). */
     public static final LuaDouble NAN = new LuaDouble(Double.NaN);
 
-    /** Constant LuaDouble representing positive infinity */
+    /** Constant LuaDouble representing positive infinity. */
     public static final LuaDouble POSINF = new LuaDouble(Double.POSITIVE_INFINITY);
 
-    /** Constant LuaDouble representing negative infinity */
+    /** Constant LuaDouble representing negative infinity. */
     public static final LuaDouble NEGINF = new LuaDouble(Double.NEGATIVE_INFINITY);
 
-    /** Constant String representation for NaN (not a number), "nan" */
+    /** Constant String representation for NaN (not a number), "nan". */
     public static final String JSTR_NAN = "nan";
 
-    /** Constant String representation for positive infinity, "inf" */
+    /** Constant String representation for positive infinity, "inf". */
     public static final String JSTR_POSINF = "inf";
 
-    /** Constant String representation for negative infinity, "-inf" */
+    /** Constant String representation for negative infinity, "-inf". */
     public static final String JSTR_NEGINF = "-inf";
 
     /** The value being held by this instance. */
@@ -93,7 +93,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
     public LuaDouble() {
     }
 
-    /** Don't allow ints to be boxed by DoubleValues */
+    /** Don't allow ints to be boxed by DoubleValues. */
     private LuaDouble(double d) {
         value = d;
     }
