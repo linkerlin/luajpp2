@@ -160,7 +160,7 @@ public final class StackFrame implements Externalizable {
         this.status = Status.FRESH;
         this.c = c;
         this.args = args;
-        this.varargs = (p.is_vararg != 0 ? args.subargs(p.numparams + 1) : NONE);
+        this.varargs = (p.isVararg != 0 ? args.subargs(p.numparams + 1) : NONE);
 
         this.parent = parent;
         this.parentCount = (parent != null ? parent.size() : 0);
@@ -173,7 +173,7 @@ public final class StackFrame implements Externalizable {
         for (int i = 0; i < p.numparams; i++) {
             stack[i] = args.arg(i + 1);
         }
-        if (p.is_vararg >= Lua.VARARG_NEEDSARG) {
+        if (p.isVararg >= Lua.VARARG_NEEDSARG) {
             stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
         }
     }
@@ -187,7 +187,7 @@ public final class StackFrame implements Externalizable {
 
         this.c = c;
         this.args = args;
-        this.varargs = (p.is_vararg != 0 ? args.subargs(p.numparams + 1) : NONE);
+        this.varargs = (p.isVararg != 0 ? args.subargs(p.numparams + 1) : NONE);
 
         //Don't change parent
 
@@ -197,7 +197,7 @@ public final class StackFrame implements Externalizable {
         for (int i = 0; i < p.numparams; i++) {
             stack[top + i] = args.arg(i + 1);
         }
-        if (p.is_vararg >= Lua.VARARG_NEEDSARG) {
+        if (p.isVararg >= Lua.VARARG_NEEDSARG) {
             stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
         }
     }

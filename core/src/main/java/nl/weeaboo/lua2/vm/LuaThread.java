@@ -148,12 +148,15 @@ public final class LuaThread extends LuaValue implements Serializable {
     public boolean isRunning() {
         return (isMainThread && !isDead()) || status == STATUS_RUNNING;
     }
+
     public boolean isFinished() {
         return isDead() || callstack == null;
     }
+
     public boolean isDead() {
         return status == STATUS_DEAD;
     }
+
     public boolean isEndCall() {
         return status == STATUS_END_CALL;
     }
@@ -192,6 +195,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public void pushPending(LuaClosure func, Varargs args) {
         pushPending(func, args, -1, 0);
     }
+
     public void pushPending(LuaClosure func, Varargs args, int returnBase, int returnCount) {
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
     }
@@ -209,7 +213,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     /**
-     * Yield this thread with arguments
+     * Yield this thread with arguments.
      */
     public Varargs yield(Varargs args) {
         if (!isRunning()) {
@@ -250,8 +254,8 @@ public final class LuaThread extends LuaValue implements Serializable {
             result = LuaInterpreter.resume(this, callstackMin);
         } catch (LuaError e) {
             throw e;
-        } catch (Throwable t) {
-            throw new LuaError("Runtime error :: " + t, t);
+        } catch (Exception e) {
+            throw new LuaError("Runtime error :: " + e, e);
         } finally {
             callstackMin = oldCallstackMin;
             if (status == STATUS_RUNNING) {

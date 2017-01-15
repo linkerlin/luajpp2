@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
@@ -73,19 +74,19 @@ public class PackageLib extends OneArgFunction {
 
     public static String DEFAULT_LUA_PATH = "?.lua";
 
-    public LuaTable LOADED;
-    public LuaTable PACKAGE;
+    public LuaTable loadedTable;
+    public LuaTable packageTable;
 
-    /** Loader that loads from preload table if found there */
-    public LuaValue preload_loader;
+    /** Loader that loads from preload table if found there. */
+    public LuaValue preloadLoader;
 
-    /** Loader that loads as a lua script using the LUA_PATH */
-    public LuaValue lua_loader;
+    /** Loader that loads as a lua script using the LUA_PATH. */
+    public LuaValue luaLoader;
 
     /**
      * Loader that loads as a Java class. Class must have public constructor and be a LuaValue
      */
-    public LuaValue java_loader;
+    public LuaValue javaLoader;
 
     private static final LuaString _M = valueOf("_M");
     private static final LuaString _NAME = valueOf("_NAME");
@@ -115,14 +116,14 @@ public class PackageLib extends OneArgFunction {
         env.set("require", new PkgLib1(env, "require", OP_REQUIRE, this));
         env.set("module", new PkgLibV(env, "module", OP_MODULE, this));
         env.set("package",
-                PACKAGE = tableOf(new LuaValue[] { _LOADED, LOADED = tableOf(), _PRELOAD, tableOf(), _PATH,
+                packageTable = tableOf(new LuaValue[] { _LOADED, loadedTable = tableOf(), _PRELOAD, tableOf(), _PATH,
                         valueOf(DEFAULT_LUA_PATH), _LOADLIB, new PkgLibV(env, "loadlib", OP_LOADLIB, this),
                         _SEEALL, new PkgLib1(env, "seeall", OP_SEEALL, this), _LOADERS,
                         listOf(new LuaValue[] {
-                                preload_loader = new PkgLibV(env, "preload_loader", OP_PRELOAD_LOADER, this),
-                                lua_loader = new PkgLibV(env, "lua_loader", OP_LUA_LOADER, this),
-                                java_loader = new PkgLibV(env, "java_loader", OP_JAVA_LOADER, this), }) }));
-        LOADED.set("package", PACKAGE);
+                                preloadLoader = new PkgLibV(env, "preload_loader", OP_PRELOAD_LOADER, this),
+                                luaLoader = new PkgLibV(env, "lua_loader", OP_LUA_LOADER, this),
+                                javaLoader = new PkgLibV(env, "java_loader", OP_JAVA_LOADER, this), }) }));
+        loadedTable.set("package", packageTable);
         return env;
     }
 
@@ -195,13 +196,13 @@ public class PackageLib extends OneArgFunction {
         }
     }
 
-    /** Allow packages to mark themselves as loaded */
+    /** Allow packages to mark themselves as loaded. */
     public void setIsLoaded(String name, LuaTable value) {
-        LOADED.set(name, value);
+        loadedTable.set(name, value);
     }
 
     public void setLuaPath(String newLuaPath) {
-        PACKAGE.set(_PATH, valueOf(newLuaPath));
+        packageTable.set(_PATH, valueOf(newLuaPath));
     }
 
     @Override
@@ -233,8 +234,8 @@ public class PackageLib extends OneArgFunction {
         LuaThread running = LuaThread.getRunning();
 
         LuaString modname = args.checkstring(1);
-        int n = args.narg();
-        LuaValue value = LOADED.get(modname);
+        final int n = args.narg();
+        LuaValue value = loadedTable.get(modname);
         LuaValue module;
         if (!value.istable()) { /* not found? */
 
@@ -244,7 +245,7 @@ public class PackageLib extends OneArgFunction {
             if (module == null) {
                 error("name conflict for module '" + modname + "'");
             }
-            LOADED.set(modname, module);
+            loadedTable.set(modname, module);
         } else {
             module = value;
         }
@@ -281,7 +282,8 @@ public class PackageLib extends OneArgFunction {
      * @return the table for that name, possible a new one, or null if a non-table has that name already.
      */
     private static final LuaValue findtable(LuaValue table, LuaString fname) {
-        int b, e = (-1);
+        int b;
+        int e = -1;
         do {
             e = fname.indexOf(_DOT, b = e + 1);
             if (e < 0) {
@@ -336,7 +338,7 @@ public class PackageLib extends OneArgFunction {
      */
     public LuaValue require(LuaValue arg) {
         LuaString name = arg.checkstring();
-        LuaValue loaded = LOADED.get(name);
+        LuaValue loaded = loadedTable.get(name);
         if (loaded.toboolean()) {
             if (loaded == _SENTINEL) {
                 error("loop or previous error loading module '" + name + "'");
@@ -345,7 +347,7 @@ public class PackageLib extends OneArgFunction {
         }
 
         /* else must load it; iterate over available loaders */
-        LuaTable tbl = PACKAGE.get(_LOADERS).checktable();
+        LuaTable tbl = packageTable.get(_LOADERS).checktable();
         StringBuffer sb = new StringBuffer();
         LuaValue chunk = null;
         for (int i = 1; true; i++) {
@@ -365,12 +367,12 @@ public class PackageLib extends OneArgFunction {
         }
 
         // load the module using the loader
-        LOADED.set(name, _SENTINEL);
+        loadedTable.set(name, _SENTINEL);
         LuaValue result = chunk.call(name);
         if (!result.isnil()) {
-            LOADED.set(name, result);
-        } else if ((result = LOADED.get(name)) == _SENTINEL) {
-            LOADED.set(name, result = TRUE);
+            loadedTable.set(name, result);
+        } else if ((result = loadedTable.get(name)) == _SENTINEL) {
+            loadedTable.set(name, result = TRUE);
         }
         return result;
     }
@@ -382,7 +384,7 @@ public class PackageLib extends OneArgFunction {
 
     LuaValue loader_preload(Varargs args) {
         LuaString name = args.checkstring(1);
-        LuaValue preload = PACKAGE.get(_PRELOAD).checktable();
+        LuaValue preload = packageTable.get(_PRELOAD).checktable();
         LuaValue val = preload.get(name);
         return val.isnil() ? valueOf("\n\tno field package.preload['" + name + "']") : val;
     }
@@ -391,7 +393,7 @@ public class PackageLib extends OneArgFunction {
         String name = args.checkjstring(1);
 
         // get package path
-        LuaValue pp = PACKAGE.get(_PATH);
+        LuaValue pp = packageTable.get(_PATH);
         if (!pp.isstring()) {
             return valueOf("package.path is not a string");
         }

@@ -827,9 +827,9 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testArithMetatagNumberTable() {
-        LuaValue zero = LuaInteger.valueOf(0);
-        LuaValue one = LuaInteger.valueOf(1);
-        LuaValue tbl = new LuaTable();
+        final LuaValue zero = LuaInteger.valueOf(0);
+        final LuaValue one = LuaInteger.valueOf(1);
+        final LuaValue tbl = new LuaTable();
 
         try {
             tbl.add(zero);

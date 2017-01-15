@@ -216,7 +216,7 @@ public final class DumpState {
         dumpInt(f.lastlinedefined);
         dumpChar(f.nups);
         dumpChar(f.numparams);
-        dumpChar(f.is_vararg);
+        dumpChar(f.isVararg);
         dumpChar(f.maxstacksize);
         dumpCode(f);
         dumpConstants(f);
@@ -236,7 +236,9 @@ public final class DumpState {
     }
 
     /**
-     * dump Lua function as precompiled chunk.
+     * Dump Lua function as precompiled chunk.
+     *
+     * @see #dump(Prototype, OutputStream, boolean, int, boolean)
      */
     public static void dump(Prototype f, OutputStream w, boolean strip) throws IOException {
         DumpState d = new DumpState(w, strip);
@@ -245,6 +247,7 @@ public final class DumpState {
     }
 
     /**
+     * Dump Lua function as precompiled chunk.
      *
      * @param f the function to dump
      * @param w the output stream to dump to

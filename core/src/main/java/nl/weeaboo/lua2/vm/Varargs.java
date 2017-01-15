@@ -83,7 +83,7 @@ public abstract class Varargs {
     // -----------------------------------------------------------------------
 
     /**
-     * Gets the type of argument {@code i}
+     * Gets the type of argument {@code i}.
      *
      * @param i the index of the argument to convert, 1 is the first argument
      * @return int value corresponding to one of the LuaValue integer type values
@@ -274,7 +274,7 @@ public abstract class Varargs {
 
     /**
      * Return argument i as a java String if a string or number, {@code defval} if nil, or throw a LuaError if
-     * any other type
+     * any other type.
      *
      * @param i the index of the argument to test, 1 is the first argument
      * @return String value if argument i is a string or number, or defval if not supplied or nil
@@ -286,7 +286,7 @@ public abstract class Varargs {
 
     /**
      * Return argument i as a LuaString if a string or number, {@code defval} if nil, or throw a LuaError if
-     * any other type
+     * any other type.
      *
      * @param i the index of the argument to test, 1 is the first argument
      * @return LuaString value if argument i is a string or number, or defval if not supplied or nil
@@ -450,7 +450,7 @@ public abstract class Varargs {
     }
 
     /**
-     * Return argument i as a java String if a string or number, or throw an error if any other type
+     * Return argument i as a java String if a string or number, or throw an error if any other type.
      *
      * @param i the index of the argument to test, 1 is the first argument
      * @return String value if argument i is a string or number
@@ -461,7 +461,7 @@ public abstract class Varargs {
     }
 
     /**
-     * Return argument i as a LuaString if a string or number, or throw an error if any other type
+     * Return argument i as a LuaString if a string or number, or throw an error if any other type.
      *
      * @param i the index of the argument to test, 1 is the first argument
      * @return LuaString value if argument i is a string or number
@@ -644,6 +644,24 @@ public abstract class Varargs {
     }
 
     /**
+     * Convert the list of varargs values to a human readable java String.
+     *
+     * @return String value in human readable form such as {1,2}.
+     */
+    public String tojstring() {
+        Buffer sb = new Buffer();
+        sb.append("(");
+        for (int i = 1, n = narg(); i <= n; i++) {
+            if (i > 1) {
+                sb.append(",");
+            }
+            sb.append(arg(i).tojstring());
+        }
+        sb.append(")");
+        return sb.tojstring();
+    }
+
+    /**
      * Return argument i as a java String based on the type of the argument.
      *
      * @param i the index of the argument to convert, 1 is the first argument
@@ -685,24 +703,6 @@ public abstract class Varargs {
      */
     public <T> T touserdata(int i, Class<T> c) {
         return arg(i).touserdata(c);
-    }
-
-    /**
-     * Convert the list of varargs values to a human readable java String.
-     *
-     * @return String value in human readable form such as {1,2}.
-     */
-    public String tojstring() {
-        Buffer sb = new Buffer();
-        sb.append("(");
-        for (int i = 1, n = narg(); i <= n; i++) {
-            if (i > 1) {
-                sb.append(",");
-            }
-            sb.append(arg(i).tojstring());
-        }
-        sb.append(")");
-        return sb.tojstring();
     }
 
     /**

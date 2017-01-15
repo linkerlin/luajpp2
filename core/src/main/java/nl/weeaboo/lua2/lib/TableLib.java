@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
@@ -45,7 +46,10 @@ import nl.weeaboo.lua2.vm.Varargs;
  *     _G.load(new BaseLib());
  *     _G.load(new PackageLib());
  *     _G.load(new TableLib());
- *     LuaValue tbl = LuaValue.listOf(new LuaValue[] { LuaValue.valueOf(&quot;abc&quot;), LuaValue.valueOf(&quot;def&quot;) });
+ *     LuaValue tbl = LuaValue.listOf(new LuaValue[] {
+ *         LuaValue.valueOf(&quot;abc&quot;),
+ *         LuaValue.valueOf(&quot;def&quot;)
+ *     });
  *     LuaValue sep = LuaValue.valueOf(&quot;-&quot;);
  *     System.out.println(_G.get(&quot;table&quot;).get(&quot;concat&quot;).call(tbl, sep));
  * }

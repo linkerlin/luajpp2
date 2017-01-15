@@ -18,6 +18,7 @@ public class LuaMethodLink extends LuaFunctionLink {
     public LuaMethodLink(LuaRunState lrs, LuaUserdata self, String methodName, Object... args) {
         this(lrs, lrs.getGlobalEnvironment(), self, methodName, args);
     }
+
     public LuaMethodLink(LuaRunState lrs, LuaValue environment, LuaUserdata self, String methodName,
             Object... args) {
 
@@ -29,6 +30,7 @@ public class LuaMethodLink extends LuaFunctionLink {
     public LuaMethodLink(LuaRunState lrs, LuaUserdata self, LuaClosure func, Varargs args) {
         this(lrs, lrs.getGlobalEnvironment(), self, func, args);
     }
+
     public LuaMethodLink(LuaRunState lrs, LuaValue environment, LuaUserdata self, LuaClosure func,
             Varargs args) {
 

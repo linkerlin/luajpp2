@@ -11,17 +11,17 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
 final class MethodInfo implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
 
     private Method method;
-    
-    private transient Class<?> params[];
-    
+
+    private transient Class<?>[] params;
+
     public MethodInfo(Method m) {
         method = m;
     }
-    
+
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         Class<?> clazz = (Class<?>)in.readObject();
         String methodName = in.readUTF();
@@ -34,9 +34,10 @@ final class MethodInfo implements Serializable {
         } catch (NoSuchMethodException e) {
             method = null;
         }
-        
+
         if (method == null) {
-            throw new IOException("Class format changed, method " + methodName + "(" + Arrays.toString(params) + ") could not be found.");
+            throw new IOException("Class format changed, method " + methodName
+                    + "(" + Arrays.toString(params) + ") could not be found.");
         }
     }
 
@@ -45,12 +46,12 @@ final class MethodInfo implements Serializable {
         out.writeUTF(method.getName());
         out.writeObject(params != null ? params : method.getParameterTypes());
     }
-    
+
     @Override
     public int hashCode() {
         return method.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof MethodInfo) {
@@ -59,15 +60,16 @@ final class MethodInfo implements Serializable {
         }
         return false;
     }
-    
+
     public Method getMethod() {
         return method;
     }
+
     public Class<?>[] getParams() {
         if (params == null) {
             params = method.getParameterTypes();
         }
         return params;
     }
-    
+
 }

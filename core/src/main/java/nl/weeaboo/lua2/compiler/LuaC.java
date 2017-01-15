@@ -71,7 +71,7 @@ public final class LuaC extends Lua implements LuaCompiler {
     }
 
     /**
-     * Load into a Closure or LuaFunction, with the supplied initial environment
+     * Load into a Closure or LuaFunction, with the supplied initial environment.
      */
     @Override
     public LuaClosure load(InputStream stream, String name, LuaValue env) throws IOException {
@@ -83,7 +83,7 @@ public final class LuaC extends Lua implements LuaCompiler {
         return compile(new ByteArrayInputStream(source.getBytes("UTF-8")), name);
     }
 
-    /** Compile a prototype or load as a binary chunk */
+    /** Compile a prototype or load as a binary chunk. */
     public static Prototype compile(InputStream stream, String name) throws IOException {
         int firstByte = stream.read();
         if (firstByte == '\033') {
@@ -93,7 +93,7 @@ public final class LuaC extends Lua implements LuaCompiler {
         }
     }
 
-    /** Parse the input */
+    /** Parse the input. */
     private Prototype luaY_parser(int firstByte, InputStream z, String name) {
         LexState lexstate = new LexState(this, z);
         FuncState funcstate = new FuncState();
@@ -101,19 +101,19 @@ public final class LuaC extends Lua implements LuaCompiler {
         lexstate.setinput(this, firstByte, z, LuaValue.valueOf(name));
         lexstate.open_func(funcstate);
         /* main func. is always vararg */
-        funcstate.f.is_vararg = Lua.VARARG_ISVARARG;
+        funcstate.f.isVararg = Lua.VARARG_ISVARARG;
         funcstate.f.source = LuaValue.valueOf(name);
         lexstate.next(); /* read first token */
         lexstate.chunk();
         lexstate.check(LexState.TK_EOS);
         lexstate.close_func();
-        LuaC._assert(funcstate.prev == null);
-        LuaC._assert(funcstate.f.nups == 0);
-        LuaC._assert(lexstate.fs == null);
+        LuaC.luaAssert(funcstate.prev == null);
+        LuaC.luaAssert(funcstate.f.nups == 0);
+        LuaC.luaAssert(lexstate.fs == null);
         return funcstate.f;
     }
 
-    // look up and keep at most one copy of each string
+    /** Look up and keep at most one copy of each string. */
     public LuaString newTString(byte[] bytes, int offset, int len) {
         LuaString tmp = LuaString.valueOf(bytes, offset, len);
         LuaString v = strings.get(tmp);
@@ -133,42 +133,42 @@ public final class LuaC extends Lua implements LuaCompiler {
         return string;
     }
 
-    protected static void _assert(boolean b) {
+    protected static void luaAssert(boolean b) {
         if (!b) {
             throw new LuaError("compiler assert failed");
         }
     }
 
-    static void SET_OPCODE(InstructionPtr i, int o) {
+    static void setOpcode(InstructionPtr i, int o) {
         i.set((i.get() & (MASK_NOT_OP)) | ((o << POS_OP) & MASK_OP));
     }
 
-    static void SETARG_A(InstructionPtr i, int u) {
+    static void setArgA(InstructionPtr i, int u) {
         i.set((i.get() & (MASK_NOT_A)) | ((u << POS_A) & MASK_A));
     }
 
-    static void SETARG_B(InstructionPtr i, int u) {
+    static void setArgB(InstructionPtr i, int u) {
         i.set((i.get() & (MASK_NOT_B)) | ((u << POS_B) & MASK_B));
     }
 
-    static void SETARG_C(InstructionPtr i, int u) {
+    static void setArgC(InstructionPtr i, int u) {
         i.set((i.get() & (MASK_NOT_C)) | ((u << POS_C) & MASK_C));
     }
 
-    static void SETARG_Bx(InstructionPtr i, int u) {
+    static void setArgBx(InstructionPtr i, int u) {
         i.set((i.get() & (MASK_NOT_Bx)) | ((u << POS_Bx) & MASK_Bx));
     }
 
-    static void SETARG_sBx(InstructionPtr i, int u) {
-        SETARG_Bx(i, u + MAXARG_sBx);
+    static void setArgSBx(InstructionPtr i, int u) {
+        setArgBx(i, u + MAXARG_sBx);
     }
 
-    static int CREATE_ABC(int o, int a, int b, int c) {
+    static int createAbc(int o, int a, int b, int c) {
         return ((o << POS_OP) & MASK_OP) | ((a << POS_A) & MASK_A) | ((b << POS_B) & MASK_B)
                 | ((c << POS_C) & MASK_C);
     }
 
-    static int CREATE_ABx(int o, int a, int bc) {
+    static int createAbx(int o, int a, int bc) {
         return ((o << POS_OP) & MASK_OP) | ((a << POS_A) & MASK_A) | ((bc << POS_Bx) & MASK_Bx);
     }
 

@@ -81,13 +81,12 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
 
-    /** The singleton instance representing lua {@code true} */
     public static LuaValue s_metatable;
 
     //--- Uses manual serialization, don't add variables ---
-    private /*final*/ byte[] m_bytes;
-    private /*final*/ int m_offset;
-    private /*final*/ int m_length;
+    private /*final*/ byte[] strBytes;
+    private /*final*/ int strOffset;
+    private /*final*/ int strLength;
     private transient /*final*/ int hashCode;
     //--- Uses manual serialization, don't add variables ---
 
@@ -183,16 +182,16 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @param length length of the byte buffer
      */
     private LuaString(byte[] bytes, int offset, int length) {
-        this.m_bytes = bytes;
-        this.m_offset = offset;
-        this.m_length = length;
+        this.strBytes = bytes;
+        this.strOffset = offset;
+        this.strLength = length;
 
-        if (m_offset < 0) {
-            throw new IllegalArgumentException("Invalid offset: " + m_offset);
+        if (strOffset < 0) {
+            throw new IllegalArgumentException("Invalid offset: " + strOffset);
         }
-        if (m_length < 0 || m_offset + m_length > bytes.length) {
-            throw new IllegalArgumentException("Invalid length: " + m_length + " (offset=" + m_offset
-                    + ", array.length=" + m_bytes.length + ")");
+        if (strLength < 0 || strOffset + strLength > bytes.length) {
+            throw new IllegalArgumentException("Invalid length: " + strLength + " (offset=" + strOffset
+                    + ", array.length=" + strBytes.length + ")");
         }
     }
 
@@ -218,7 +217,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public String tojstring() {
-        return decodeAsUtf8(m_bytes, m_offset, m_length);
+        return decodeAsUtf8(strBytes, strOffset, strLength);
     }
 
     // get is delegated to the string library
@@ -467,11 +466,11 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public LuaValue concatTo(LuaString lhs) {
         SharedByteAlloc sba = SharedByteAlloc.getInstance();
-        int len = lhs.m_length + this.m_length;
+        int len = lhs.strLength + this.strLength;
         int offset = sba.reserve(len);
         byte[] b = sba.getReserved();
-        System.arraycopy(lhs.m_bytes, lhs.m_offset, b, offset, lhs.m_length);
-        System.arraycopy(this.m_bytes, this.m_offset, b, offset + lhs.m_length, this.m_length);
+        System.arraycopy(lhs.strBytes, lhs.strOffset, b, offset, lhs.strLength);
+        System.arraycopy(this.strBytes, this.strOffset, b, offset + lhs.strLength, this.strLength);
         return new LuaString(b, offset, len);
     }
 
@@ -483,15 +482,15 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public int strcmp(LuaString rhs) {
-        for (int i = 0, j = 0; i < m_length && j < rhs.m_length; ++i, ++j) {
-            if (m_bytes[m_offset + i] != rhs.m_bytes[rhs.m_offset + j]) {
-                return m_bytes[m_offset + i] - rhs.m_bytes[rhs.m_offset + j];
+        for (int i = 0, j = 0; i < strLength && j < rhs.strLength; ++i, ++j) {
+            if (strBytes[strOffset + i] != rhs.strBytes[rhs.strOffset + j]) {
+                return strBytes[strOffset + i] - rhs.strBytes[rhs.strOffset + j];
             }
         }
-        return m_length - rhs.m_length;
+        return strLength - rhs.strLength;
     }
 
-    /** Check for number in arithmetic, or throw aritherror */
+    /** Check for number in arithmetic, or throw aritherror. */
     private double checkarith() {
         double d = scannumber(10);
         if (Double.isNaN(d)) {
@@ -541,6 +540,18 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public LuaValue tonumber() {
         return tonumber(10);
+    }
+
+    /**
+     * Convert to a number using a supplied base, or NIL if it can't be converted.
+     *
+     * @param base the base to use, such as 10
+     * @return IntValue, DoubleValue, or NIL depending on the content of the string.
+     * @see LuaValue#tonumber()
+     */
+    public LuaValue tonumber(int base) {
+        double d = scannumber(base);
+        return Double.isNaN(d) ? NIL : valueOf(d);
     }
 
     @Override
@@ -651,16 +662,16 @@ public final class LuaString extends LuaValue implements Externalizable {
     }
 
     public LuaString substring(int beginIndex, int endIndex) {
-        return new LuaString(m_bytes, m_offset + beginIndex, endIndex - beginIndex);
+        return new LuaString(strBytes, strOffset + beginIndex, endIndex - beginIndex);
     }
 
     @Override
     public int hashCode() {
         if (hashCode == 0) { //If the calculated hashCode by chance is also zero, caching doesn't work
-            int h = m_length; //seed
-            int step = (m_length >> 5) + 1; //If string is too long, don't hash all its chars
-            for (int l1 = m_length; l1 >= step; l1 -= step) {
-                h = h ^ ((h << 5) + (h >> 2) + (m_bytes[m_offset + l1 - 1] & 0x0FF));
+            int h = strLength; //seed
+            int step = (strLength >> 5) + 1; //If string is too long, don't hash all its chars
+            for (int l1 = strLength; l1 >= step; l1 -= step) {
+                h = h ^ ((h << 5) + (h >> 2) + (strBytes[strOffset + l1 - 1] & 0x0FF));
             }
             hashCode = h;
         }
@@ -674,6 +685,22 @@ public final class LuaString extends LuaValue implements Externalizable {
             return raweq((LuaString) o);
         }
         return false;
+    }
+
+    public static boolean equals(LuaString a, int i, LuaString b, int j, int n) {
+        return equals(a.strBytes, a.strOffset + i, b.strBytes, b.strOffset + j, n);
+    }
+
+    public static boolean equals(byte[] a, int i, byte[] b, int j, int n) {
+        if (a.length < i + n || b.length < j + n) {
+            return false;
+        }
+        while (--n >= 0) {
+            if (a[i++] != b[j++]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // equality w/ metatable processing
@@ -698,62 +725,46 @@ public final class LuaString extends LuaValue implements Externalizable {
         if (this == s) {
             return true;
         }
-        if (s.m_length != m_length) {
+        if (s.strLength != strLength) {
             return false;
         }
-        if (s.m_bytes == m_bytes && s.m_offset == m_offset) {
+        if (s.strBytes == strBytes && s.strOffset == strOffset) {
             return true;
         }
         if (s.hashCode() != hashCode()) {
             return false;
         }
-        return equals(m_bytes, m_offset, s.m_bytes, s.m_offset, m_length);
-    }
-
-    public static boolean equals(LuaString a, int i, LuaString b, int j, int n) {
-        return equals(a.m_bytes, a.m_offset + i, b.m_bytes, b.m_offset + j, n);
-    }
-
-    public static boolean equals(byte[] a, int i, byte[] b, int j, int n) {
-        if (a.length < i + n || b.length < j + n) {
-            return false;
-        }
-        while (--n >= 0) {
-            if (a[i++] != b[j++]) {
-                return false;
-            }
-        }
-        return true;
+        return equals(strBytes, strOffset, s.strBytes, s.strOffset, strLength);
     }
 
     public void write(OutputStream writer, int i, int len) throws IOException {
-        writer.write(m_bytes, m_offset + i, len);
+        writer.write(strBytes, strOffset + i, len);
     }
 
     public void write(DataOutput out, int i, int len) throws IOException {
-        out.write(m_bytes, m_offset + i, len);
+        out.write(strBytes, strOffset + i, len);
     }
 
     @Override
     public LuaValue len() {
-        return LuaInteger.valueOf(m_length);
+        return LuaInteger.valueOf(strLength);
     }
 
     @Override
     public int length() {
-        return m_length;
+        return strLength;
     }
 
     @Override
     public int rawlen() {
-        return m_length;
+        return strLength;
     }
 
     public int luaByte(int index) {
-        if (index < 0 || index >= m_length) {
-            throw new IndexOutOfBoundsException("index=" + index + ", length=" + m_length);
+        if (index < 0 || index >= strLength) {
+            throw new IndexOutOfBoundsException("index=" + index + ", length=" + strLength);
         }
-        return m_bytes[m_offset + index] & 0x0FF;
+        return strBytes[strOffset + index] & 0x0FF;
     }
 
     public int charAt(int index) {
@@ -777,19 +788,19 @@ public final class LuaString extends LuaValue implements Externalizable {
      *         {@link LuaString}
      */
     public InputStream toInputStream() {
-        return new ByteArrayInputStream(m_bytes, m_offset, m_length);
+        return new ByteArrayInputStream(strBytes, strOffset, strLength);
     }
 
     /**
      * Copy the bytes of the string into the given byte array.
      *
-     * @param strOffset offset from which to copy
+     * @param offset offset from which to copy
      * @param bytes destination byte array
      * @param arrayOffset offset in destination
      * @param len number of bytes to copy
      */
-    public void copyInto(int strOffset, byte[] bytes, int arrayOffset, int len) {
-        System.arraycopy(m_bytes, m_offset + strOffset, bytes, arrayOffset, len);
+    public void copyInto(int offset, byte[] bytes, int arrayOffset, int len) {
+        System.arraycopy(strBytes, strOffset + offset, bytes, arrayOffset, len);
     }
 
     /**
@@ -801,12 +812,12 @@ public final class LuaString extends LuaValue implements Externalizable {
      *         found.
      */
     public int indexOfAny(LuaString accept) {
-        final int ilimit = m_offset + m_length;
-        final int jlimit = accept.m_offset + accept.m_length;
-        for (int i = m_offset; i < ilimit; ++i) {
-            for (int j = accept.m_offset; j < jlimit; ++j) {
-                if (m_bytes[i] == accept.m_bytes[j]) {
-                    return i - m_offset;
+        final int ilimit = strOffset + strLength;
+        final int jlimit = accept.strOffset + accept.strLength;
+        for (int i = strOffset; i < ilimit; ++i) {
+            for (int j = accept.strOffset; j < jlimit; ++j) {
+                if (strBytes[i] == accept.strBytes[j]) {
+                    return i - strOffset;
                 }
             }
         }
@@ -821,8 +832,8 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @return index of first match found, or -1 if not found.
      */
     public int indexOf(byte b, int start) {
-        for (int i = 0, j = m_offset + start; i < m_length; ++i) {
-            if (m_bytes[j++] == b) {
+        for (int i = 0, j = strOffset + start; i < strLength; ++i) {
+            if (strBytes[j++] == b) {
                 return i + start;
             }
         }
@@ -838,10 +849,10 @@ public final class LuaString extends LuaValue implements Externalizable {
      */
     public int indexOf(LuaString s, int start) {
         final int slen = s.length();
-        final int limit = m_offset + m_length - slen;
-        for (int i = m_offset + start; i <= limit; ++i) {
-            if (equals(m_bytes, i, s.m_bytes, s.m_offset, slen)) {
-                return i - m_offset;
+        final int limit = strOffset + strLength - slen;
+        for (int i = strOffset + start; i <= limit; ++i) {
+            if (equals(strBytes, i, s.strBytes, s.strOffset, slen)) {
+                return i - strOffset;
             }
         }
         return -1;
@@ -855,10 +866,10 @@ public final class LuaString extends LuaValue implements Externalizable {
      */
     public int lastIndexOf(LuaString s) {
         final int slen = s.length();
-        final int limit = m_offset + m_length - slen;
-        for (int i = limit; i >= m_offset; --i) {
-            if (equals(m_bytes, i, s.m_bytes, s.m_offset, slen)) {
-                return i - m_offset;
+        final int limit = strOffset + strLength - slen;
+        for (int i = limit; i >= strOffset; --i) {
+            if (equals(strBytes, i, s.strBytes, s.strOffset, slen)) {
+                return i - strOffset;
             }
         }
         return -1;
@@ -870,8 +881,7 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @param bytes byte array in UTF8 encoding to convert
      * @param offset starting index in byte array
      * @param length number of bytes to convert
-     * @return Java String corresponding to the value of bytes interpreted using
-     *         UTF8
+     * @return Java String corresponding to the value of bytes interpreted using UTF8
      * @see #lengthAsUtf8(char[])
      * @see #encodeToUtf8(char[], byte[], int)
      * @see #isValidUtf8()
@@ -966,7 +976,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     }
 
     /**
-     * Check that a byte sequence is valid UTF-8
+     * Check that a byte sequence is valid UTF-8.
      *
      * @return true if it is valid UTF-8, otherwise false
      * @see #lengthAsUtf8(char[])
@@ -974,17 +984,17 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @see #decodeAsUtf8(byte[], int, int)
      */
     public boolean isValidUtf8() {
-        int j = m_offset + m_length;
-        for (int i = m_offset; i < j;) {
-            int c = m_bytes[i++];
+        int j = strOffset + strLength;
+        for (int i = strOffset; i < j;) {
+            int c = strBytes[i++];
             if (c >= 0) {
                 continue;
             }
-            if (((c & 0xE0) == 0xC0) && i < j && (m_bytes[i++] & 0xC0) == 0x80) {
+            if (((c & 0xE0) == 0xC0) && i < j && (strBytes[i++] & 0xC0) == 0x80) {
                 continue;
             }
-            if (((c & 0xF0) == 0xE0) && i + 1 < j && (m_bytes[i++] & 0xC0) == 0x80
-                    && (m_bytes[i++] & 0xC0) == 0x80) {
+            if (((c & 0xF0) == 0xE0) && i + 1 < j && (strBytes[i++] & 0xC0) == 0x80
+                    && (strBytes[i++] & 0xC0) == 0x80) {
                 continue;
             }
             return false;
@@ -995,20 +1005,6 @@ public final class LuaString extends LuaValue implements Externalizable {
     // --------------------- number conversion -----------------------
 
     /**
-     * convert to a number using a supplied base, or NIL if it can't be
-     * converted
-     *
-     * @param base the base to use, such as 10
-     * @return IntValue, DoubleValue, or NIL depending on the content of the
-     *         string.
-     * @see LuaValue#tonumber()
-     */
-    public LuaValue tonumber(int base) {
-        double d = scannumber(base);
-        return Double.isNaN(d) ? NIL : valueOf(d);
-    }
-
-    /**
      * Convert to a number in a base, or return Double.NaN if not a number.
      *
      * @param base the base to use, such as 10
@@ -1016,18 +1012,19 @@ public final class LuaString extends LuaValue implements Externalizable {
      */
     public double scannumber(int base) {
         if (base >= 2 && base <= 36) {
-            int i = m_offset, j = m_offset + m_length;
-            while (i < j && m_bytes[i] == ' ') {
+            int i = strOffset;
+            int j = strOffset + strLength;
+            while (i < j && strBytes[i] == ' ') {
                 ++i;
             }
-            while (i < j && m_bytes[j - 1] == ' ') {
+            while (i < j && strBytes[j - 1] == ' ') {
                 --j;
             }
             if (i >= j) {
                 return Double.NaN;
             }
             if ((base == 10 || base == 16)
-                    && (m_bytes[i] == '0' && i + 1 < j && (m_bytes[i + 1] == 'x' || m_bytes[i + 1] == 'X'))) {
+                    && (strBytes[i] == '0' && i + 1 < j && (strBytes[i + 1] == 'x' || strBytes[i + 1] == 'X'))) {
                 base = 16;
                 i += 2;
             }
@@ -1048,11 +1045,11 @@ public final class LuaString extends LuaValue implements Externalizable {
      */
     private double scanlong(int base, int start, int end) {
         long x = 0;
-        boolean neg = (m_bytes[start] == '-');
+        boolean neg = (strBytes[start] == '-');
         for (int i = (neg ? start + 1 : start); i < end; i++) {
-            int digit = m_bytes[i]
-                    - (base <= 10 || (m_bytes[i] >= '0' && m_bytes[i] <= '9') ? '0' : m_bytes[i] >= 'A'
-                            && m_bytes[i] <= 'Z' ? ('A' - 10) : ('a' - 10));
+            int digit = strBytes[i]
+                    - (base <= 10 || (strBytes[i] >= '0' && strBytes[i] <= '9') ? '0' : strBytes[i] >= 'A'
+                            && strBytes[i] <= 'Z' ? ('A' - 10) : ('a' - 10));
             if (digit < 0 || digit >= base) {
                 return Double.NaN;
             }
@@ -1073,7 +1070,7 @@ public final class LuaString extends LuaValue implements Externalizable {
             end = start + 64;
         }
         for (int i = start; i < end; i++) {
-            switch (m_bytes[i]) {
+            switch (strBytes[i]) {
             case '-':
             case '+':
             case '.':
@@ -1096,7 +1093,7 @@ public final class LuaString extends LuaValue implements Externalizable {
         }
         char[] c = new char[end - start];
         for (int i = start; i < end; i++) {
-            c[i - start] = (char) m_bytes[i];
+            c[i - start] = (char) strBytes[i];
         }
         try {
             return Double.parseDouble(new String(c));
@@ -1107,17 +1104,17 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeInt(m_length);
-        out.write(m_bytes, m_offset, m_length);
+        out.writeInt(strLength);
+        out.write(strBytes, strOffset, strLength);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException {
-        m_length = in.readInt();
+        strLength = in.readInt();
         SharedByteAlloc sba = SharedByteAlloc.getInstance();
-        m_offset = sba.reserve(m_length);
-        m_bytes = sba.getReserved();
-        in.readFully(m_bytes, m_offset, m_length);
+        strOffset = sba.reserve(strLength);
+        strBytes = sba.getReserved();
+        in.readFully(strBytes, strOffset, strLength);
     }
 
 }

@@ -10,28 +10,28 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
 final class ConstructorInfo implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private int constrIndex;
     private Constructor<?> constr;
-    
-    private transient Class<?> params[];
-    
+
+    private transient Class<?>[] params;
+
     public ConstructorInfo(int index, Constructor<?> c) {
         constrIndex = index;
         constr = c;
     }
-    
+
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         Class<?> clazz = (Class<?>)in.readObject();
         constrIndex = in.readInt();
-        
-        Constructor<?> constrs[] = clazz.getConstructors();
+
+        Constructor<?>[] constrs = clazz.getConstructors();
         if (constrIndex < 0 || constrIndex >= constrs.length) {
             throw new IOException("Class format changed, constructor index " + constrIndex + " not found.");
         }
-        
+
         constr = constrs[constrIndex];
     }
 
@@ -39,12 +39,12 @@ final class ConstructorInfo implements Serializable {
         out.writeObject(constr.getDeclaringClass());
         out.writeInt(constrIndex);
     }
-    
+
     @Override
     public int hashCode() {
         return constr.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ConstructorInfo) {
@@ -53,15 +53,16 @@ final class ConstructorInfo implements Serializable {
         }
         return false;
     }
-    
+
     public Constructor<?> getConstructor() {
         return constr;
     }
+
     public Class<?>[] getParams() {
         if (params == null) {
             params = constr.getParameterTypes();
         }
         return params;
     }
-    
+
 }

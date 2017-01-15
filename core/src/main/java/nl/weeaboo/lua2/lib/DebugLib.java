@@ -43,6 +43,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
@@ -109,9 +110,6 @@ public class DebugLib extends VarArgFunction {
     private static final int SETMETATABLE = 12;
     private static final int SETUPVALUE = 13;
     private static final int TRACEBACK = 14;
-
-    /* maximum stack for a Lua function */
-    private static final int MAXSTACK = 250;
 
     private static final LuaString LUA = valueOf("Lua");
     private static final LuaString JAVA = valueOf("Java");
@@ -618,7 +616,10 @@ public class DebugLib extends VarArgFunction {
         }
     }
 
-    /** @return StrValue[] { name, namewhat } if found, null if not */
+    /**
+     *
+     * @return StrValue[] { name, namewhat } if found, null if not
+     */
     static LuaString[] getobjname(DebugInfo di, int stackpos) {
         if (di.closure == null) {
             return null; // Not a Lua function
@@ -627,7 +628,7 @@ public class DebugLib extends VarArgFunction {
         Prototype p = di.closure.getPrototype();
         int pc = di.pc; // currentpc(L, ci);
         LuaString name = p.getlocalname(stackpos + 1, pc);
-        if (name != null) {/* is a local? */
+        if (name != null) { /* is a local? */
             return new LuaString[] { name, LOCAL };
         }
 
@@ -679,11 +680,11 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static boolean precheck(Prototype pt) {
-        if (!(pt.maxstacksize <= MAXSTACK)) {
+        if (!(pt.maxstacksize <= LuaConstants.MAXSTACK)) {
             return false;
         }
-        lua_assert(pt.numparams + (pt.is_vararg & Lua.VARARG_HASARG) <= pt.maxstacksize);
-        lua_assert((pt.is_vararg & Lua.VARARG_NEEDSARG) == 0 || (pt.is_vararg & Lua.VARARG_HASARG) != 0);
+        lua_assert(pt.numparams + (pt.isVararg & Lua.VARARG_HASARG) <= pt.maxstacksize);
+        lua_assert((pt.isVararg & Lua.VARARG_NEEDSARG) == 0 || (pt.isVararg & Lua.VARARG_HASARG) != 0);
         if (!(pt.upvalues.length <= pt.nups)) {
             return false;
         }
@@ -944,7 +945,7 @@ public class DebugLib extends VarArgFunction {
                 break;
             }
             case Lua.OP_VARARG: {
-                if (!((pt.is_vararg & Lua.VARARG_ISVARARG) != 0 && (pt.is_vararg & Lua.VARARG_NEEDSARG) == 0)) {
+                if (!((pt.isVararg & Lua.VARARG_ISVARARG) != 0 && (pt.isVararg & Lua.VARARG_NEEDSARG) == 0)) {
                     return 0;
                 }
                 b--;

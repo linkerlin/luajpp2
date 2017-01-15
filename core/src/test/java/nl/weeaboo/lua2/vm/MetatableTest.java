@@ -63,13 +63,13 @@ public class MetatableTest {
     private LuaThread thread;
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         LuaRunState lrs = new LuaRunState();
         thread = new LuaThread(lrs, null);
     }
 
     @After
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         LuaBoolean.s_metatable = null;
         LuaFunction.s_metatable = null;
         LuaNil.s_metatable = null;

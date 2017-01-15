@@ -83,7 +83,7 @@ public class CoerceJavaToLua {
         COERCIONS.put(String.class, stringCoercion);
     }
 
-    /** Converts a sequence of values to an equivalent LuaTable */
+    /** Converts a sequence of values to an equivalent LuaTable. */
     public static <T> LuaTable toTable(Iterable<? extends T> values, Class<T> type) {
         LuaTable table = new LuaTable();
         int i = 1;

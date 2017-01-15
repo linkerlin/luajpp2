@@ -5,6 +5,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import java.lang.ref.WeakReference;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 public class WeakKeyTableTest extends WeakTableTest {
 
@@ -18,6 +19,7 @@ public class WeakKeyTableTest extends WeakTableTest {
         return WeakTable.make(true, false);
     }
 
+    @Test
     public void testWeakKeysTable() {
         LuaTable t = WeakTable.make(true, false);
 
@@ -51,6 +53,7 @@ public class WeakKeyTableTest extends WeakTableTest {
         Assert.assertEquals(null, origval.get());
     }
 
+    @Test
     public void testNext() {
         LuaTable t = WeakTable.make(true, true);
 

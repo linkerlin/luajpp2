@@ -59,7 +59,7 @@ public final class Prototype implements Externalizable {
     public int linedefined;
     public int lastlinedefined;
     public int numparams;
-    public int is_vararg;
+    public int isVararg;
     public int maxstacksize;
 
     @Override
@@ -75,7 +75,7 @@ public final class Prototype implements Externalizable {
         out.writeInt(linedefined);
         out.writeInt(lastlinedefined);
         out.writeInt(numparams);
-        out.writeInt(is_vararg);
+        out.writeInt(isVararg);
         out.writeInt(maxstacksize);
     }
 
@@ -92,7 +92,7 @@ public final class Prototype implements Externalizable {
         linedefined = in.readInt();
         lastlinedefined = in.readInt();
         numparams = in.readInt();
-        is_vararg = in.readInt();
+        isVararg = in.readInt();
         maxstacksize = in.readInt();
     }
 

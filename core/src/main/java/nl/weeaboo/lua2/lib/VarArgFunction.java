@@ -49,7 +49,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  * @see ThreeArgFunction
  */
 @LuaSerializable
-abstract public class VarArgFunction extends LibFunction {
+public abstract class VarArgFunction extends LibFunction {
 
     private static final long serialVersionUID = -2534602021495342749L;
 

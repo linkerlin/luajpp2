@@ -41,16 +41,20 @@ public final class LuaBoolean extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** The singleton instance representing lua {@code true} */
+    /**
+     * The singleton instance representing lua {@code true}.
+     */
     public static final LuaBoolean TRUE = new LuaBoolean(true);
 
-    /** The singleton instance representing lua {@code false} */
+    /**
+     * The singleton instance representing lua {@code false}.
+     */
     public static final LuaBoolean FALSE = new LuaBoolean(false);
 
     /** Shared static metatable for boolean values represented in lua. */
     public static LuaValue s_metatable;
 
-    /** The value of the boolean */
+    /** The value of the boolean. */
     public final boolean bool;
 
     private LuaBoolean(boolean b) {

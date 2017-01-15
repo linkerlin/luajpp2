@@ -200,7 +200,7 @@ public class CoerceLuaToJava {
             @Override
             public Object coerce(LuaValue value) {
                 if (value instanceof LuaUserdata) {
-                    return ((LuaUserdata) value).m_instance;
+                    return ((LuaUserdata) value).userdata;
                 }
                 if (value instanceof LuaString) {
                     return value.tojstring();
@@ -287,20 +287,23 @@ public class CoerceLuaToJava {
         }
     }
 
-    public static <T> T coerceArg(LuaValue a, Class<T> c) {
+    /**
+     * Casts or converts the given Lua value to the given Java type.
+     */
+    public static <T> T coerceArg(LuaValue lv, Class<T> c) {
         /*
          * The java arg is a Lua type. Check that c is a subclass of LuaValue to prevent using this case for
          * Object params.
          */
-        if (LuaValue.class.isAssignableFrom(c) && c.isAssignableFrom(a.getClass())) {
-            return c.cast(a);
+        if (LuaValue.class.isAssignableFrom(c) && c.isAssignableFrom(lv.getClass())) {
+            return c.cast(lv);
         }
 
         // The lua arg is a Java object
-        if (a instanceof LuaUserdata) {
-            Object o = ((LuaUserdata) a).m_instance;
-            if (c.isAssignableFrom(o.getClass())) {
-                return c.cast(o);
+        if (lv instanceof LuaUserdata) {
+            Object obj = ((LuaUserdata) lv).userdata;
+            if (c.isAssignableFrom(obj.getClass())) {
+                return c.cast(obj);
             }
         }
 
@@ -309,16 +312,16 @@ public class CoerceLuaToJava {
         if (co != null) {
             // Can't used checked cast, because Class.cast() doesn't work for primitive types
             @SuppressWarnings("unchecked")
-            T coerced = (T)co.coerce(a);
+            T coerced = (T)co.coerce(lv);
             return coerced;
         }
 
         //Special coercion for arrays
         if (c.isArray()) {
             Class<?> inner = c.getComponentType();
-            if (a instanceof LuaTable) {
+            if (lv instanceof LuaTable) {
                 //LTable -> Array
-                LuaTable table = (LuaTable)a;
+                LuaTable table = (LuaTable)lv;
                 int len = table.length();
                 Object result = Array.newInstance(inner, len);
                 for (int n = 0; n < len; n++) {
@@ -331,27 +334,31 @@ public class CoerceLuaToJava {
             } else {
                 //Single element -> Array
                 Object result = Array.newInstance(inner, 1);
-                Array.set(result, 0, coerceArg(a, inner));
+                Array.set(result, 0, coerceArg(lv, inner));
                 return c.cast(result);
             }
         }
 
         //Special case for nil
-        if (a.isnil()) {
+        if (lv.isnil()) {
             return null;
         }
 
         //String -> Enum
-        if (c.isEnum() && a.isstring()) {
+        if (c.isEnum() && lv.isstring()) {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            Enum enumVal = Enum.valueOf((Class<Enum>)c, a.tojstring());
+            Enum enumVal = Enum.valueOf((Class<Enum>)c, lv.tojstring());
             return c.cast(enumVal);
         }
 
-        throw new LuaError("Invalid coercion: " + a.getClass() + " -> " + c);
+        throw new LuaError("Invalid coercion: " + lv.getClass() + " -> " + c);
     }
 
     /**
+     * Judges how well the given Lua and Java parameters match. The algorithm looks at the number of
+     * parameters as well as their types. The output of this method is a score, where lower scores indicate a
+     * better match.
+     *
      * @return The score, lower scores are better matches
      */
     public static int scoreParamTypes(Varargs luaArgs, Class<?>[] javaParams) {
@@ -387,7 +394,7 @@ public class CoerceLuaToJava {
 
         //The lua arg is a Java object
         if (a instanceof LuaUserdata) {
-            Object o = ((LuaUserdata) a).m_instance;
+            Object o = ((LuaUserdata) a).userdata;
             if (c.isAssignableFrom(o.getClass())) {
                 return 0; //Perfect match
             }

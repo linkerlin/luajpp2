@@ -54,6 +54,7 @@ import nl.weeaboo.lua2.lib.MathLib;
 public final class LuaInteger extends LuaNumber implements Externalizable {
 
     private static final LuaInteger[] intValues = new LuaInteger[512];
+
     static {
         for (int i = 0; i < 512; i++) {
             intValues[i] = new LuaInteger(i - 256);

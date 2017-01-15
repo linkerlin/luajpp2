@@ -38,8 +38,8 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = -2825288508171353992L;
 
-    public final Object m_instance;
-    public LuaValue m_metatable;
+    public final Object userdata;
+    public LuaValue metatable;
 
     public LuaUserdata(Object obj) {
         this(obj, null);
@@ -50,8 +50,8 @@ public class LuaUserdata extends LuaValue implements Serializable {
             throw new LuaError("Attempt to create userdata from null object");
         }
 
-        m_instance = obj;
-        m_metatable = metatable;
+        this.userdata = obj;
+        this.metatable = metatable;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -64,7 +64,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public String tojstring() {
-        return String.valueOf(m_instance);
+        return String.valueOf(userdata);
     }
 
     @Override
@@ -79,11 +79,11 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public int hashCode() {
-        return m_instance.hashCode();
+        return userdata.hashCode();
     }
 
     public Object userdata() {
-        return m_instance;
+        return userdata;
     }
 
     @Override
@@ -93,64 +93,64 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public boolean isuserdata(Class<?> c) {
-        return c.isAssignableFrom(m_instance.getClass());
+        return c.isAssignableFrom(userdata.getClass());
     }
 
     @Override
     public Object touserdata() {
-        return m_instance;
+        return userdata;
     }
 
     @Override
     public <T> T touserdata(Class<T> c) {
-        return c.isAssignableFrom(m_instance.getClass()) ? c.cast(m_instance) : null;
+        return c.isAssignableFrom(userdata.getClass()) ? c.cast(userdata) : null;
     }
 
     @Override
     public Object optuserdata(Object defval) {
-        return m_instance;
+        return userdata;
     }
 
     @Override
     public <T> T optuserdata(Class<T> c, T defval) {
-        if (!c.isAssignableFrom(m_instance.getClass())) {
+        if (!c.isAssignableFrom(userdata.getClass())) {
             typerror(c.getName());
         }
-        return c.cast(m_instance);
+        return c.cast(userdata);
     }
 
     @Override
     public LuaValue getmetatable() {
-        return m_metatable;
+        return metatable;
     }
 
     @Override
     public LuaValue setmetatable(LuaValue metatable) {
-        this.m_metatable = metatable;
+        this.metatable = metatable;
         return this;
     }
 
     @Override
     public Object checkuserdata() {
-        return m_instance;
+        return userdata;
     }
 
     @Override
     public <T> T checkuserdata(Class<T> c) {
-        if (!c.isAssignableFrom(m_instance.getClass())) {
+        if (!c.isAssignableFrom(userdata.getClass())) {
             typerror(c.getName());
         }
-        return c.cast(m_instance);
+        return c.cast(userdata);
     }
 
     @Override
     public LuaValue get(LuaValue key) {
-        return m_metatable != null ? gettable(this, key) : NIL;
+        return metatable != null ? gettable(this, key) : NIL;
     }
 
     @Override
     public void set(LuaValue key, LuaValue value) {
-        if (m_metatable == null || !settable(this, key, value)) {
+        if (metatable == null || !settable(this, key, value)) {
             error("cannot set " + key + " for userdata");
         }
     }
@@ -164,7 +164,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
             return false;
         }
         LuaUserdata u = (LuaUserdata) val;
-        return m_instance.equals(u.m_instance);
+        return userdata.equals(u.userdata);
     }
 
     // equality w/ metatable processing
@@ -178,11 +178,11 @@ public class LuaUserdata extends LuaValue implements Serializable {
         if (val.raweq(this)) {
             return true;
         }
-        if (m_metatable == null || !val.isuserdata()) {
+        if (metatable == null || !val.isuserdata()) {
             return false;
         }
         LuaValue valmt = val.getmetatable();
-        return valmt != null && LuaValue.eqmtcall(this, m_metatable, val, valmt);
+        return valmt != null && LuaValue.eqmtcall(this, metatable, val, valmt);
     }
 
     // equality w/o metatable processing
@@ -193,13 +193,13 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public boolean raweq(LuaUserdata val) {
-        return this == val || (m_metatable == val.m_metatable && m_instance.equals(val.m_instance));
+        return this == val || (metatable == val.metatable && userdata.equals(val.userdata));
     }
 
     // __eq metatag processing
     public boolean eqmt(LuaValue val) {
-        if (m_metatable != null && val.isuserdata()) {
-            return LuaValue.eqmtcall(this, m_metatable, val, val.getmetatable());
+        if (metatable != null && val.isuserdata()) {
+            return LuaValue.eqmtcall(this, metatable, val, val.getmetatable());
         } else {
             return false;
         }

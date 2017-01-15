@@ -3,6 +3,7 @@ package nl.weeaboo.lua2.vm;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 public class WeakValueTableTest extends WeakTableTest {
 
@@ -16,6 +17,7 @@ public class WeakValueTableTest extends WeakTableTest {
         return WeakTable.make(false, true);
     }
 
+    @Test
     public void testWeakValuesTable() {
         LuaTable t = newTable();
 

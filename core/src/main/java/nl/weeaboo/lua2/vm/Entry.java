@@ -20,6 +20,11 @@ abstract class Entry extends Varargs implements StrongSlot, Externalizable {
     @Override
     public abstract LuaValue value();
 
+    @Override
+    public Slot set(StrongSlot target, LuaValue value) {
+        return set(value);
+    }
+
     abstract Entry set(LuaValue value);
 
     @Override
@@ -86,11 +91,6 @@ abstract class Entry extends Varargs implements StrongSlot, Externalizable {
     @Override
     public StrongSlot find(LuaValue key) {
         return keyeq(key) ? this : null;
-    }
-
-    @Override
-    public Slot set(StrongSlot target, LuaValue value) {
-        return set(value);
     }
 
     @Override

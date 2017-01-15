@@ -11,61 +11,63 @@ public final class LuaConstants {
     public static final int TINT = (-2);
 
     /**
-     * Type enumeration constant for lua values that have no type, for example weak table entries
+     * Type enumeration constant for lua values that have no type, for example weak table entries.
      */
     public static final int TNONE = (-1);
 
-    /** Type enumeration constant for lua nil */
+    /** Type enumeration constant for lua nil. */
     public static final int TNIL = 0;
 
-    /** Type enumeration constant for lua booleans */
+    /** Type enumeration constant for lua booleans. */
     public static final int TBOOLEAN = 1;
 
     /**
-     * Type enumeration constant for lua light userdata, for compatibility with C-based lua only
+     * Type enumeration constant for lua light userdata, for compatibility with C-based lua only.
      */
     public static final int TLIGHTUSERDATA = 2;
 
-    /** Type enumeration constant for lua numbers */
+    /** Type enumeration constant for lua numbers. */
     public static final int TNUMBER = 3;
 
-    /** Type enumeration constant for lua strings */
+    /** Type enumeration constant for lua strings. */
     public static final int TSTRING = 4;
 
-    /** Type enumeration constant for lua tables */
+    /** Type enumeration constant for lua tables. */
     public static final int TTABLE = 5;
 
-    /** Type enumeration constant for lua functions */
+    /** Type enumeration constant for lua functions. */
     public static final int TFUNCTION = 6;
 
-    /** Type enumeration constant for lua userdatas */
+    /** Type enumeration constant for lua userdatas. */
     public static final int TUSERDATA = 7;
 
-    /** Type enumeration constant for lua threads */
+    /** Type enumeration constant for lua threads. */
     public static final int TTHREAD = 8;
 
     /**
-     * Type enumeration constant for unknown values, for compatibility with C-based lua only
+     * Type enumeration constant for unknown values, for compatibility with C-based lua only.
      */
     public static final int TVALUE = 9;
 
     /**
-     * format corresponding to non-number-patched lua, all numbers are floats or doubles
+     * format corresponding to non-number-patched lua, all numbers are floats or doubles.
      */
     public static final int NUMBER_FORMAT_FLOATS_OR_DOUBLES = 0;
 
-    /** format corresponding to non-number-patched lua, all numbers are ints */
+    /** format corresponding to non-number-patched lua, all numbers are ints. */
     public static final int NUMBER_FORMAT_INTS_ONLY = 1;
 
     /**
-     * format corresponding to number-patched lua, all numbers are 32-bit (4 byte) ints
+     * format corresponding to number-patched lua, all numbers are 32-bit (4 byte) ints.
      */
     public static final int NUMBER_FORMAT_NUM_PATCH_INT32 = 4;
 
-    /** LuaValue constant corresponding to a {@link Varargs} list of no values */
+    /**
+     * LuaValue constant corresponding to a {@link Varargs} list of no values.
+     */
     public static final LuaValue NONE = None.NONE;
 
-    /** LuaValue array constant with no values */
+    /** LuaValue array constant with no values. */
     public static final LuaValue[] NOVALS = {};
 
     public static final LuaString INDEX = valueOf("__index");
@@ -88,7 +90,7 @@ public final class LuaConstants {
     public static final LuaString CONCAT = valueOf("__concat");
     public static final LuaString EMPTYSTRING = valueOf("");
 
-    /** Limit on lua stack size */
+    /** Limit on lua stack size. */
     public static final int MAXSTACK = 250;
 
     private LuaConstants() {

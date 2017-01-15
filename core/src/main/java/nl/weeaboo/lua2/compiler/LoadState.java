@@ -92,22 +92,22 @@ import nl.weeaboo.lua2.vm.Prototype;
  */
 public class LoadState {
 
-    /** Compiler instance, if installed */
+    /** Compiler instance, if installed. */
     private static final LuaCompiler compiler = new LuaC();
 
-    /** Signature byte indicating the file is a compiled binary chunk */
+    /** Signature byte indicating the file is a compiled binary chunk. */
     private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };
 
-    /** Name for compiled chunks */
+    /** Name for compiled chunks. */
     public static final String SOURCE_BINARY_STRING = "binary string";
 
     /** for header of binary files -- this is Lua 5.1 */
     public static final int LUAC_VERSION = 0x51;
 
-    /** for header of binary files -- this is the official format */
+    /** for header of binary files -- this is the official format. */
     public static final int LUAC_FORMAT = 0;
 
-    /** size of header of binary files */
+    /** size of header of binary files. */
     public static final int LUAC_HEADERSIZE = 12;
 
     private static final LuaValue[] NOVALUES = {};
@@ -118,10 +118,10 @@ public class LoadState {
 
     private final SharedByteAlloc alloc = SharedByteAlloc.getInstance();
 
-    /** input stream from which we are loading */
+    /** input stream from which we are loading. */
     private final DataInputStream is;
 
-    /** Read buffer */
+    /** Read buffer. */
     private byte[] buf = new byte[512];
 
     // values read from the header
@@ -140,7 +140,7 @@ public class LoadState {
     private int luacSizeofLuaNumber;
     private int luacNumberFormat;
 
-    /** Private constructor for create a load state */
+    /** Private constructor for create a load state. */
     private LoadState(InputStream stream) {
         this.is = new DataInputStream(stream);
     }
@@ -152,9 +152,11 @@ public class LoadState {
      **/
     int loadInt() throws IOException {
         is.readFully(buf, 0, 4);
-        return luacLittleEndian
-                ? (buf[3] << 24) | ((0xff & buf[2]) << 16) | ((0xff & buf[1]) << 8) | (0xff & buf[0])
-                : (buf[0] << 24) | ((0xff & buf[1]) << 16) | ((0xff & buf[2]) << 8) | (0xff & buf[3]);
+        if (luacLittleEndian) {
+            return (buf[3] << 24) | ((0xff & buf[2]) << 16) | ((0xff & buf[1]) << 8) | (0xff & buf[0]);
+        } else {
+            return (buf[0] << 24) | ((0xff & buf[1]) << 16) | ((0xff & buf[2]) << 8) | (0xff & buf[3]);
+        }
     }
 
     /**
@@ -192,7 +194,8 @@ public class LoadState {
      * @return the long value laoded.
      **/
     long loadInt64() throws IOException {
-        int a, b;
+        int a;
+        int b;
         if (this.luacLittleEndian) {
             a = loadInt();
             b = loadInt();
@@ -247,7 +250,7 @@ public class LoadState {
     }
 
     /**
-     * Load a number from a binary chunk
+     * Load a number from a binary chunk.
      *
      * @return the {@link LuaValue} loaded
      * @throws IOException if an i/o exception occurs
@@ -261,7 +264,7 @@ public class LoadState {
     }
 
     /**
-     * Load a list of constants from a binary chunk
+     * Load a list of constants from a binary chunk.
      *
      * @param f the function prototype
      * @throws IOException if an i/o exception occurs
@@ -301,7 +304,7 @@ public class LoadState {
     }
 
     /**
-     * Load the debug infor for a function prototype
+     * Load the debug infor for a function prototype.
      *
      * @param f the function Prototype
      * @throws IOException if there is an i/o exception
@@ -325,7 +328,7 @@ public class LoadState {
     }
 
     /**
-     * Load a function prototype from the input stream
+     * Load a function prototype from the input stream.
      *
      * @param p name of the source
      * @return {@link Prototype} instance that was loaded
@@ -340,7 +343,7 @@ public class LoadState {
         f.lastlinedefined = loadInt();
         f.nups = is.readUnsignedByte();
         f.numparams = is.readUnsignedByte();
-        f.is_vararg = is.readUnsignedByte();
+        f.isVararg = is.readUnsignedByte();
         f.maxstacksize = is.readUnsignedByte();
         f.code = loadIntArray();
         loadConstants(f);
@@ -427,7 +430,7 @@ public class LoadState {
     }
 
     /**
-     * Construct a source name from a supplied chunk name
+     * Construct a source name from a supplied chunk name.
      *
      * @param name String name that appears in the chunk
      * @return source file name

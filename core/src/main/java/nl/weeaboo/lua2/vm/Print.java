@@ -244,7 +244,7 @@ public class Print extends Lua {
             }
             break;
         case OP_VARARG:
-            ps.print("  ; is_vararg=" + f.is_vararg);
+            ps.print("  ; is_vararg=" + f.isVararg);
             break;
         default:
             break;

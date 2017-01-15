@@ -120,7 +120,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
  * specific examples.
  */
 @LuaSerializable
-abstract public class LibFunction extends LuaFunction {
+public abstract class LibFunction extends LuaFunction {
 
     private static final long serialVersionUID = -4025668290315326469L;
 

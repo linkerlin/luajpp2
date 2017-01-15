@@ -46,12 +46,9 @@ import nl.weeaboo.lua2.vm.Varargs;
  * @see VarArgFunction
  */
 @LuaSerializable
-abstract public class ZeroArgFunction extends LibFunction {
+public abstract class ZeroArgFunction extends LibFunction {
 
     private static final long serialVersionUID = -4675605076010039321L;
-
-    @Override
-    abstract public LuaValue call();
 
     /** Default constructor */
     public ZeroArgFunction() {
@@ -65,6 +62,9 @@ abstract public class ZeroArgFunction extends LibFunction {
     public ZeroArgFunction(LuaValue env) {
         this.env = env;
     }
+
+    @Override
+    public abstract LuaValue call();
 
     @Override
     public LuaValue call(LuaValue arg) {

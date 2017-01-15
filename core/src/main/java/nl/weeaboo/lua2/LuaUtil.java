@@ -31,6 +31,8 @@ public final class LuaUtil {
     }
 
     /**
+     * Makes the given class available to Lua by registering a global table.
+     *
      * @see #registerClass(LuaValue, Class, String)
      */
     public static void registerClass(LuaValue globals, Class<?> clazz) {
@@ -219,7 +221,7 @@ public final class LuaUtil {
         'r', '\r',
         't', '\t',
         'f', '\f',
-        'a', '\u0007',
+        'a', '\u0007', // Bell character
         'b', '\b',
         'v', '\u000B',
     };

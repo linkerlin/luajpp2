@@ -22,16 +22,16 @@
 
 package nl.weeaboo.lua2.compiler;
 
-import static nl.weeaboo.lua2.compiler.LuaC.CREATE_ABC;
-import static nl.weeaboo.lua2.compiler.LuaC.CREATE_ABx;
 import static nl.weeaboo.lua2.compiler.LuaC.LUAI_MAXUPVALUES;
 import static nl.weeaboo.lua2.compiler.LuaC.LUAI_MAXVARS;
-import static nl.weeaboo.lua2.compiler.LuaC.SETARG_A;
-import static nl.weeaboo.lua2.compiler.LuaC.SETARG_B;
-import static nl.weeaboo.lua2.compiler.LuaC.SETARG_C;
-import static nl.weeaboo.lua2.compiler.LuaC.SETARG_sBx;
-import static nl.weeaboo.lua2.compiler.LuaC._assert;
+import static nl.weeaboo.lua2.compiler.LuaC.createAbc;
+import static nl.weeaboo.lua2.compiler.LuaC.createAbx;
+import static nl.weeaboo.lua2.compiler.LuaC.luaAssert;
 import static nl.weeaboo.lua2.compiler.LuaC.realloc;
+import static nl.weeaboo.lua2.compiler.LuaC.setArgA;
+import static nl.weeaboo.lua2.compiler.LuaC.setArgB;
+import static nl.weeaboo.lua2.compiler.LuaC.setArgC;
+import static nl.weeaboo.lua2.compiler.LuaC.setArgSBx;
 import static nl.weeaboo.lua2.vm.Lua.GETARG_A;
 import static nl.weeaboo.lua2.vm.Lua.GETARG_B;
 import static nl.weeaboo.lua2.vm.Lua.GETARG_sBx;
@@ -106,7 +106,7 @@ final class FuncState {
     Map<LuaValue, Integer> htable; /* table to find (and reuse) elements in `k' */
     FuncState prev; /* enclosing function */
     LexState ls; /* lexical state */
-    LuaC L; /* compiler being invoked */
+    LuaC luaC; /* compiler being invoked */
     BlockCnt bl; /* chain of current blocks */
     int pc; /* next position to code (equivalent to `ncode') */
     int lasttarget; /* `pc' of last `jump target' */
@@ -134,8 +134,8 @@ final class FuncState {
         return f.code[e.u.s.info];
     }
 
-    int codeAsBx(int o, int A, int sBx) {
-        return codeABx(o, A, sBx + MAXARG_sBx);
+    int codeAsBx(int o, int a, int sBx) {
+        return codeABx(o, a, sBx + MAXARG_sBx);
     }
 
     void setmultret(ExpDesc e) {
@@ -157,8 +157,8 @@ final class FuncState {
     }
 
     void errorlimit(int limit, String what) {
-        String msg = (f.linedefined == 0) ? L.pushfstring("main function has more than " + limit + " " + what)
-                : L.pushfstring("function at line " + f.linedefined + " has more than " + limit + " " + what);
+        String msg = (f.linedefined == 0) ? luaC.pushfstring("main function has more than " + limit + " " + what)
+                : luaC.pushfstring("function at line " + f.linedefined + " has more than " + limit + " " + what);
         ls.lexerror(msg, 0);
     }
 
@@ -166,7 +166,7 @@ final class FuncState {
         int i;
         for (i = 0; i < f.nups; i++) {
             if (upvalues[i].k == v.k && upvalues[i].info == v.u.s.info) {
-                _assert(f.upvalues[i] == name);
+                luaAssert(f.upvalues[i] == name);
                 return i;
             }
         }
@@ -176,7 +176,7 @@ final class FuncState {
             f.upvalues = realloc(f.upvalues, f.nups * 2 + 1);
         }
         f.upvalues[f.nups] = name;
-        _assert(v.k == LexState.VLOCAL || v.k == LexState.VUPVAL);
+        luaAssert(v.k == LexState.VLOCAL || v.k == LexState.VUPVAL);
         upvalues[f.nups] = new UpValueDesc();
         upvalues[f.nups].k = (short)(v.k);
         upvalues[f.nups].info = (short)(v.u.s.info);
@@ -233,7 +233,7 @@ final class FuncState {
         bl.upval = false;
         bl.previous = this.bl;
         this.bl = bl;
-        _assert(this.freereg == this.nactvar);
+        luaAssert(this.freereg == this.nactvar);
     }
 
     //
@@ -258,8 +258,8 @@ final class FuncState {
             codeABC(OP_CLOSE, bl.nactvar, 0, 0);
         }
         /* a block either controls scope or breaks (never both) */
-        _assert(!bl.isbreakable || !bl.upval);
-        _assert(bl.nactvar == this.nactvar);
+        luaAssert(!bl.isbreakable || !bl.upval);
+        luaAssert(bl.nactvar == this.nactvar);
         this.freereg = this.nactvar; /* free registers */
         this.patchtohere(bl.breaklist.i);
     }
@@ -314,7 +314,7 @@ final class FuncState {
                     int pto = GETARG_B(previous.get());
                     if (pfrom <= from && from <= pto + 1) { /* can connect both? */
                         if (from + n - 1 > pto) {
-                            SETARG_B(previous, from + n - 1);
+                            setArgB(previous, from + n - 1);
                         }
                         return;
                     }
@@ -337,19 +337,19 @@ final class FuncState {
         this.codeABC(OP_RETURN, first, nret + 1, 0);
     }
 
-    int condjump(int /* OpCode */ op, int A, int B, int C) {
-        this.codeABC(op, A, B, C);
+    int condjump(int /* OpCode */ op, int a, int b, int c) {
+        this.codeABC(op, a, b, c);
         return this.jump();
     }
 
     void fixjump(int pc, int dest) {
         InstructionPtr jmp = new InstructionPtr(this.f.code, pc);
         int offset = dest - (pc + 1);
-        _assert(dest != LexState.NO_JUMP);
+        luaAssert(dest != LexState.NO_JUMP);
         if (Math.abs(offset) > MAXARG_sBx) {
             ls.syntaxerror("control structure too long");
         }
-        SETARG_sBx(jmp, offset);
+        setArgSBx(jmp, offset);
     }
 
     /*
@@ -402,10 +402,10 @@ final class FuncState {
             return false;
         }
         if (reg != NO_REG && reg != GETARG_B(i.get())) {
-            SETARG_A(i, reg);
+            setArgA(i, reg);
         } else {
             /* no register to put value or register already has the value */
-            i.set(CREATE_ABC(OP_TEST, GETARG_B(i.get()), 0, Lua.GETARG_C(i.get())));
+            i.set(createAbc(OP_TEST, GETARG_B(i.get()), 0, Lua.GETARG_C(i.get())));
         }
         return true;
     }
@@ -437,7 +437,7 @@ final class FuncState {
         if (target == this.pc) {
             patchtohere(list);
         } else {
-            _assert(target < this.pc);
+            luaAssert(target < this.pc);
             patchlistaux(list, target, NO_REG, target);
         }
     }
@@ -482,7 +482,7 @@ final class FuncState {
     void freereg(int reg) {
         if (!ISK(reg) && reg >= this.nactvar) {
             this.freereg--;
-            _assert(reg == this.freereg);
+            luaAssert(reg == this.freereg);
         }
     }
 
@@ -533,10 +533,10 @@ final class FuncState {
 
     void setreturns(ExpDesc e, int nresults) {
         if (e.k == LexState.VCALL) { /* expression is an open function call? */
-            SETARG_C(this.getcodePtr(e), nresults + 1);
+            setArgC(this.getcodePtr(e), nresults + 1);
         } else if (e.k == LexState.VVARARG) {
-            SETARG_B(this.getcodePtr(e), nresults + 1);
-            SETARG_A(this.getcodePtr(e), this.freereg);
+            setArgB(this.getcodePtr(e), nresults + 1);
+            setArgA(this.getcodePtr(e), this.freereg);
             this.reserveregs(1);
         }
     }
@@ -546,7 +546,7 @@ final class FuncState {
             e.k = LexState.VNONRELOC;
             e.u.s.info = GETARG_A(this.getcode(e));
         } else if (e.k == LexState.VVARARG) {
-            SETARG_B(this.getcodePtr(e), 2);
+            setArgB(this.getcodePtr(e), 2);
             e.k = LexState.VRELOCABLE; /* can relocate its simple result */
         }
     }
@@ -584,9 +584,9 @@ final class FuncState {
         }
     }
 
-    int code_label(int A, int b, int jump) {
+    int code_label(int a, int b, int jump) {
         this.getlabel(); /* those instructions may be jump targets */
-        return this.codeABC(OP_LOADBOOL, A, b, jump);
+        return this.codeABC(OP_LOADBOOL, a, b, jump);
     }
 
     void discharge2reg(ExpDesc e, int reg) {
@@ -611,7 +611,7 @@ final class FuncState {
         }
         case LexState.VRELOCABLE: {
             InstructionPtr pc = this.getcodePtr(e);
-            SETARG_A(pc, reg);
+            setArgA(pc, reg);
             break;
         }
         case LexState.VNONRELOC: {
@@ -621,7 +621,7 @@ final class FuncState {
             break;
         }
         default: {
-            _assert(e.k == LexState.VVOID || e.k == LexState.VJMP);
+            luaAssert(e.k == LexState.VVOID || e.k == LexState.VJMP);
             return; /* nothing to do... */
         }
         }
@@ -746,7 +746,7 @@ final class FuncState {
             break;
         }
         default: {
-            _assert(false); /* invalid var kind to store */
+            luaAssert(false); /* invalid var kind to store */
             break;
         }
         }
@@ -767,12 +767,12 @@ final class FuncState {
 
     void invertjump(ExpDesc e) {
         InstructionPtr pc = this.getjumpcontrol(e.u.s.info);
-        _assert(testTMode(GET_OPCODE(pc.get())) && GET_OPCODE(pc.get()) != OP_TESTSET
+        luaAssert(testTMode(GET_OPCODE(pc.get())) && GET_OPCODE(pc.get()) != OP_TESTSET
                 && Lua.GET_OPCODE(pc.get()) != OP_TEST);
         // SETARG_A(pc, !(GETARG_A(pc.get())));
         int a = GETARG_A(pc.get());
         int nota = (a != 0 ? 0 : 1);
-        SETARG_A(pc, nota);
+        setArgA(pc, nota);
     }
 
     int jumponcond(ExpDesc e, int cond) {
@@ -872,7 +872,7 @@ final class FuncState {
             break;
         }
         default: {
-            _assert(false); /* cannot happen */
+            luaAssert(false); /* cannot happen */
             break;
         }
         }
@@ -926,7 +926,7 @@ final class FuncState {
             // break;
             return false; /* no constant folding for 'len' */
         default:
-            _assert(false);
+            luaAssert(false);
             r = null;
             return false;
         }
@@ -991,7 +991,7 @@ final class FuncState {
             break;
         }
         default:
-            _assert(false);
+            luaAssert(false);
         }
     }
 
@@ -1030,7 +1030,7 @@ final class FuncState {
     void posfix(int op, ExpDesc e1, ExpDesc e2) {
         switch (op) {
         case LexState.OPR_AND: {
-            _assert(e1.t.i == LexState.NO_JUMP); /* list must be closed */
+            luaAssert(e1.t.i == LexState.NO_JUMP); /* list must be closed */
             this.dischargevars(e2);
             this.concat(e2.f, e1.f.i);
             // *e1 = *e2;
@@ -1038,7 +1038,7 @@ final class FuncState {
             break;
         }
         case LexState.OPR_OR: {
-            _assert(e1.f.i == LexState.NO_JUMP); /* list must be closed */
+            luaAssert(e1.f.i == LexState.NO_JUMP); /* list must be closed */
             this.dischargevars(e2);
             this.concat(e2.t, e1.t.i);
             // *e1 = *e2;
@@ -1048,9 +1048,9 @@ final class FuncState {
         case LexState.OPR_CONCAT: {
             this.exp2val(e2);
             if (e2.k == LexState.VRELOCABLE && GET_OPCODE(this.getcode(e2)) == OP_CONCAT) {
-                _assert(e1.u.s.info == GETARG_B(this.getcode(e2)) - 1);
+                luaAssert(e1.u.s.info == GETARG_B(this.getcode(e2)) - 1);
                 this.freeexp(e1);
-                SETARG_B(this.getcodePtr(e2), e1.u.s.info);
+                setArgB(this.getcodePtr(e2), e1.u.s.info);
                 e1.k = LexState.VRELOCABLE;
                 e1.u.s.info = e2.u.s.info;
             } else {
@@ -1096,7 +1096,7 @@ final class FuncState {
             this.codecomp(OP_LE, 0, e1, e2);
             break;
         default:
-            _assert(false);
+            luaAssert(false);
         }
     }
 
@@ -1121,22 +1121,22 @@ final class FuncState {
     }
 
     int codeABC(int o, int a, int b, int c) {
-        _assert(getOpMode(o) == iABC);
-        _assert(getBMode(o) != OpArgN || b == 0);
-        _assert(getCMode(o) != OpArgN || c == 0);
-        return this.code(CREATE_ABC(o, a, b, c), this.ls.lastline);
+        luaAssert(getOpMode(o) == iABC);
+        luaAssert(getBMode(o) != OpArgN || b == 0);
+        luaAssert(getCMode(o) != OpArgN || c == 0);
+        return this.code(createAbc(o, a, b, c), this.ls.lastline);
     }
 
     int codeABx(int o, int a, int bc) {
-        _assert(getOpMode(o) == iABx || getOpMode(o) == iAsBx);
-        _assert(getCMode(o) == OpArgN);
-        return this.code(CREATE_ABx(o, a, bc), this.ls.lastline);
+        luaAssert(getOpMode(o) == iABx || getOpMode(o) == iAsBx);
+        luaAssert(getCMode(o) == OpArgN);
+        return this.code(createAbx(o, a, bc), this.ls.lastline);
     }
 
     void setlist(int base, int nelems, int tostore) {
         int c = (nelems - 1) / LFIELDS_PER_FLUSH + 1;
         int b = (tostore == LUA_MULTRET) ? 0 : tostore;
-        _assert(tostore != 0);
+        luaAssert(tostore != 0);
         if (c <= MAXARG_C) {
             codeABC(OP_SETLIST, base, b, c);
         } else {

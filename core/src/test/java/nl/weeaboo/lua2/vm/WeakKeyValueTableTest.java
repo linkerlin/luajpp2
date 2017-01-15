@@ -5,6 +5,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import java.lang.ref.WeakReference;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 public class WeakKeyValueTableTest extends WeakTableTest {
 
@@ -18,6 +19,7 @@ public class WeakKeyValueTableTest extends WeakTableTest {
         return WeakTable.make(true, true);
     }
 
+    @Test
     public void testWeakKeysValuesTable() {
         LuaTable t = WeakTable.make(true, true);
 
@@ -41,12 +43,12 @@ public class WeakKeyValueTableTest extends WeakTableTest {
         Assert.assertEquals(val3, t.get(key3));
 
         // drop key and value references, replace them with new ones
-        WeakReference<LuaValue> origkey = new WeakReference<LuaValue>(key);
-        WeakReference<LuaValue> origval = new WeakReference<LuaValue>(val);
-        WeakReference<LuaValue> origkey2 = new WeakReference<LuaValue>(key2);
-        WeakReference<LuaValue> origval2 = new WeakReference<LuaValue>(val2);
-        WeakReference<LuaValue> origkey3 = new WeakReference<LuaValue>(key3);
-        WeakReference<LuaValue> origval3 = new WeakReference<LuaValue>(val3);
+        final WeakReference<LuaValue> origkey = new WeakReference<LuaValue>(key);
+        final WeakReference<LuaValue> origval = new WeakReference<LuaValue>(val);
+        final WeakReference<LuaValue> origkey2 = new WeakReference<LuaValue>(key2);
+        final WeakReference<LuaValue> origval2 = new WeakReference<LuaValue>(val2);
+        final WeakReference<LuaValue> origkey3 = new WeakReference<LuaValue>(key3);
+        final WeakReference<LuaValue> origval3 = new WeakReference<LuaValue>(val3);
         key = LuaValue.userdataOf(new MyData(111));
         val = LuaValue.userdataOf(new MyData(222));
         key2 = LuaValue.userdataOf(new MyData(333));
@@ -71,6 +73,7 @@ public class WeakKeyValueTableTest extends WeakTableTest {
         Assert.assertEquals(null, origkey3.get());
     }
 
+    @Test
     public void testReplace() {
         LuaTable t = WeakTable.make(true, true);
 

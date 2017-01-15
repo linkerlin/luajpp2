@@ -57,6 +57,9 @@ public class LC {
         reset0();
     }
 
+    /**
+     * Main entrypoint for running the Lua compiler as a standalone application.
+     */
     public static void main(String[] args) {
         LC lc = new LC();
         lc.run(args);

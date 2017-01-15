@@ -58,7 +58,7 @@ final class WeakTable implements Metatable, Serializable {
     }
 
     /**
-     * Construct a table with weak keys, weak values, or both
+     * Construct a table with weak keys, weak values, or both.
      *
      * @param weakkeys true to let the table have weak keys
      * @param weakvalues true to let the table have weak values
@@ -141,6 +141,21 @@ final class WeakTable implements Metatable, Serializable {
         public abstract Slot set(LuaValue value);
 
         @Override
+        public Slot set(StrongSlot target, LuaValue value) {
+            LuaValue key = strongkey();
+            if (key != null && target.find(key) != null) {
+                return set(value);
+            } else if (key != null) {
+                // Our key is still good.
+                next = next.set(target, value);
+                return this;
+            } else {
+                // our key was dropped, remove ourselves from the chain.
+                return next.set(target, value);
+            }
+        }
+
+        @Override
         public StrongSlot first() {
             LuaValue key = strongkey();
             LuaValue value = strongvalue();
@@ -174,21 +189,6 @@ final class WeakTable implements Metatable, Serializable {
         public int arraykey(int max) {
             // Integer keys can never be weak.
             return 0;
-        }
-
-        @Override
-        public Slot set(StrongSlot target, LuaValue value) {
-            LuaValue key = strongkey();
-            if (key != null && target.find(key) != null) {
-                return set(value);
-            } else if (key != null) {
-                // Our key is still good.
-                next = next.set(target, value);
-                return this;
-            } else {
-                // our key was dropped, remove ourselves from the chain.
-                return next.set(target, value);
-            }
         }
 
         @Override
@@ -358,7 +358,7 @@ final class WeakTable implements Metatable, Serializable {
     }
 
     /**
-     * Self-sent message to convert a value to its weak counterpart
+     * Self-sent message to convert a value to its weak counterpart.
      *
      * @param value value to convert
      * @return {@link LuaValue} that is a strong or weak reference, depending on type of {@code value}

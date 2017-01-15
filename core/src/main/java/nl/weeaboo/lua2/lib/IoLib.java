@@ -75,7 +75,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  *      </a>
  */
 @LuaSerializable
-abstract public class IoLib extends OneArgFunction {
+public abstract class IoLib extends OneArgFunction {
 
     private static final long serialVersionUID = -5905012974365980539L;
 

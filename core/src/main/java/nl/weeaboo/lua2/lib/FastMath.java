@@ -43,10 +43,6 @@ public final class FastMath {
         return SinLut.LUT[angle & SinLut.MASK];
     }
 
-    public static float fastCos(int angle) {
-        return SinLut.LUT[(angle + SinLut.COS_OFFSET) & SinLut.MASK];
-    }
-
     public static float fastSin(float angle) {
         int a = (angle >= 0 ? (int)(angle) : (int)(angle - 1));
         float prev = fastSin(a);
@@ -54,6 +50,10 @@ public final class FastMath {
 
         float result = prev + (next - prev) * Math.abs(angle - a);
         return result;
+    }
+
+    public static float fastCos(int angle) {
+        return SinLut.LUT[(angle + SinLut.COS_OFFSET) & SinLut.MASK];
     }
 
     public static float fastCos(float angle) {
