@@ -15,19 +15,21 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: "eclipse"
-    apply plugin: "idea"
-    apply plugin: "java"
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
 
     ext {
         slf4jVersion = '1.7.21'
         junitVersion = '4.12'
     }
     
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
-    compileJava.options.encoding = 'UTF-8'
-    compileTestJava.options.encoding = 'UTF-8'
+    sourceCompatibility = JavaVersion.VERSION_1_6
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
 
     dependencies {
         testCompile "junit:junit:$junitVersion"
@@ -36,6 +38,11 @@ subprojects {
     task sourceJar(type: Jar) {
         from sourceSets.main.allJava
         classifier "sources"
+    }
+    
+    checkstyle {
+        configFile = rootProject.file('/checkstyle.xml')
+        toolVersion = '7.3'
     }
 }
 
