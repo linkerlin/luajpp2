@@ -19,7 +19,9 @@ public class LuaSerializer {
         env = new Environment();
     }
 
-    /** @return The previously active {@link LuaSerializer} */
+    /**
+     * @return The previously active {@link LuaSerializer}
+     */
     protected LuaSerializer makeCurrent() {
         LuaSerializer previous = CURRENT.get();
         CURRENT.set(this);

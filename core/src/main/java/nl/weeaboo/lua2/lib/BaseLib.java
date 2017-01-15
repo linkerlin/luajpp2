@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -170,8 +171,9 @@ public class BaseLib extends OneArgFunction {
             case 2: { // "setfenv", // (f, table) -> void
                 LuaTable t = arg2.checktable();
                 LuaValue f = getfenvobj(arg1);
-                if (!f.isfunction() && !f.isclosure())
+                if (!f.isfunction() && !f.isclosure()) {
                     error("'setfenv' cannot change environment of given object");
+                }
                 f.setfenv(t);
                 return f.isthread() ? NONE : f;
             }
@@ -181,10 +183,14 @@ public class BaseLib extends OneArgFunction {
     }
 
     private static LuaValue getfenvobj(LuaValue arg) {
-        if (arg.isfunction()) return arg;
+        if (arg.isfunction()) {
+            return arg;
+        }
         int level = arg.optint(1);
         arg.argcheck(level >= 0, 1, "level must be non-negative");
-        if (level == 0) return LuaThread.getRunning();
+        if (level == 0) {
+            return LuaThread.getRunning();
+        }
         LuaThread running = LuaThread.getRunning();
         LuaValue f = running.getCallstackFunction(level);
         arg.argcheck(f != null, 1, "invalid level");
@@ -203,8 +209,9 @@ public class BaseLib extends OneArgFunction {
         public Varargs invoke(Varargs args) {
             switch (opcode) {
             case 0: // "assert", // ( v [,message] ) -> v, message | ERR
-                if (!args.arg1().toboolean())
+                if (!args.arg1().toboolean()) {
                     error(args.narg() > 1 ? args.optjstring(2, "assertion failed!") : "assertion failed!");
+                }
                 return args;
             case 1: // "dofile", // ( filename ) -> result1, ...
             {
@@ -272,7 +279,9 @@ public class BaseLib extends OneArgFunction {
                 LuaThread running = LuaThread.getRunning();
                 LuaValue tostring = running.getfenv().get("tostring");
                 for (int i = 1, n = args.narg(); i <= n; i++) {
-                    if (i > 1) STDOUT.write('\t');
+                    if (i > 1) {
+                        STDOUT.write('\t');
+                    }
                     LuaString s = tostring.call(args.arg(i)).strvalue();
                     int z = s.indexOf((byte)0, 0);
                     try {
@@ -287,9 +296,13 @@ public class BaseLib extends OneArgFunction {
             case 10: // "select", // (f, ...) -> value1, ...
             {
                 int n = args.narg() - 1;
-                if (args.arg1().equals(valueOf("#"))) return valueOf(n);
+                if (args.arg1().equals(valueOf("#"))) {
+                    return valueOf(n);
+                }
                 int i = args.checkint(1);
-                if (i == 0 || i < -n) argerror(1, "index out of range");
+                if (i == 0 || i < -n) {
+                    argerror(1, "index out of range");
+                }
                 return args.subargs(i < 0 ? n + i + 2 : i + 1);
             }
             case 11: // "unpack", // (list [,i [,j]]) -> result1, ...
@@ -300,12 +313,19 @@ public class BaseLib extends OneArgFunction {
                 int i = na >= 2 ? args.checkint(2) : 1;
                 int j = na >= 3 ? args.checkint(3) : n;
                 n = j - i + 1;
-                if (n < 0) return NONE;
-                if (n == 1) return t.get(i);
-                if (n == 2) return varargsOf(t.get(i), t.get(j));
+                if (n < 0) {
+                    return NONE;
+                }
+                if (n == 1) {
+                    return t.get(i);
+                }
+                if (n == 2) {
+                    return varargsOf(t.get(i), t.get(j));
+                }
                 LuaValue[] v = new LuaValue[n];
-                for (int k = 0; k < n; k++)
+                for (int k = 0; k < n; k++) {
                     v[k] = t.get(i + k);
+                }
                 return varargsOf(v);
             }
             case 12: // "type", // (v) -> value
@@ -322,17 +342,22 @@ public class BaseLib extends OneArgFunction {
             case 16: { // "setmetatable", // (table, metatable) -> table
                 final LuaValue t = args.arg1();
                 final LuaValue mt0 = t.getmetatable();
-                if (mt0 != null && !mt0.rawget(METATABLE).isnil())
+                if (mt0 != null && !mt0.rawget(METATABLE).isnil()) {
                     error("cannot change a protected metatable");
+                }
                 final LuaValue mt = args.checkvalue(2);
                 return t.setmetatable(mt.isnil() ? null : mt.checktable());
             }
             case 17: { // "tostring", // (e) -> value
                 LuaValue arg = args.checkvalue(1);
                 LuaValue h = arg.metatag(TOSTRING);
-                if (!h.isnil()) return h.call(arg);
+                if (!h.isnil()) {
+                    return h.call(arg);
+                }
                 LuaValue v = arg.tostring();
-                if (!v.isnil()) return v;
+                if (!v.isnil()) {
+                    return v;
+                }
                 return valueOf(arg.tojstring());
             }
             case 18: { // "tonumber", // (e [,base]) -> value
@@ -341,7 +366,9 @@ public class BaseLib extends OneArgFunction {
                 if (base == 10) { /* standard conversion */
                     return arg1.tonumber();
                 } else {
-                    if (base < 2 || base > 36) argerror(2, "base out of range");
+                    if (base < 2 || base > 36) {
+                        argerror(2, "base out of range");
+                    }
                     return arg1.checkstring().tonumber(base);
                 }
             }
@@ -379,7 +406,7 @@ public class BaseLib extends OneArgFunction {
     }
 
     /**
-     * Load from a named file, returning the chunk or nil,error of can't load
+     * Load from a named file, returning the chunk or nil,error of can't load.
      *
      * @return Varargs containing chunk, or NIL,error-text on error
      */
@@ -434,7 +461,9 @@ public class BaseLib extends OneArgFunction {
 
         @Override
         public int read() throws IOException {
-            if (func == null) return -1;
+            if (func == null) {
+                return -1;
+            }
 
             if (bytes == null) {
                 LuaValue s = func.call();

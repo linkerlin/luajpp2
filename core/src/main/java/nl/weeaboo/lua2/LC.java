@@ -65,6 +65,7 @@ public class LC {
     protected void reset() {
         reset0();
     }
+
     private void reset0() {
         list = false;
         output = "luac.out";
@@ -96,7 +97,9 @@ public class LC {
                         list = true;
                         break;
                     case 'o':
-                        if (++i >= args.length) usageExit();
+                        if (++i >= args.length) {
+                            usageExit();
+                        }
                         output = args[i];
                         break;
                     case 'w':
@@ -112,14 +115,18 @@ public class LC {
                         littleendian = true;
                         break;
                     case 'i':
-                        if (args[i].length() <= 2) usageExit();
+                        if (args[i].length() <= 2) {
+                            usageExit();
+                        }
                         numberformat = Integer.parseInt(args[i].substring(2));
                         break;
                     case 'v':
                         versioninfo = true;
                         break;
                     case '-':
-                        if (args[i].length() > 2) usageExit();
+                        if (args[i].length() > 2) {
+                            usageExit();
+                        }
                         processing = false;
                         break;
                     default:
@@ -151,8 +158,10 @@ public class LC {
                         in = new FileInputStream(file);
                         int read = 0;
                         while (read < data.length) {
-                            int r = in.read(data, read, data.length-read);
-                            if (r <= 0) break;
+                            int r = in.read(data, read, data.length - read);
+                            if (r <= 0) {
+                                break;
+                            }
                             read += r;
                         }
                         in.close();
@@ -192,7 +201,9 @@ public class LC {
                     }
                 }
             } finally {
-                if (fos != null) fos.close();
+                if (fos != null) {
+                    fos.close();
+                }
 
                 lrs.destroy();
             }
@@ -209,22 +220,24 @@ public class LC {
 
     private void processScript(InputStream script, String chunkname, OutputStream out) throws IOException {
         try {
-            script.mark(4<<20);
+            script.mark(4 << 20);
 
             try {
                 // create the chunk
                 Prototype chunk = LuaC.compile(script, chunkname);
 
                 // list the chunk
-                if (list) Print.printCode(chunk);
+                if (list) {
+                    Print.printCode(chunk);
+                }
 
                 // write out the chunk
                 if (!parseonly) {
                     DumpState.dump(chunk, out, stripdebug, numberformat, littleendian);
                 }
-            } catch (Throwable t) {
-                errors.add(t);
-                t.printStackTrace(System.err);
+            } catch (Exception e) {
+                errors.add(e);
+                e.printStackTrace(System.err);
 
                 //Copy script to output without compiling.
                 script.reset();

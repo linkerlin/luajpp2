@@ -7,7 +7,7 @@ import org.junit.Test;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.link.LuaLinkStub;
 
-public class LuaThreadGroupTest {
+public final class LuaThreadGroupTest {
 
     private LuaThreadGroup threadGroup;
 
@@ -31,7 +31,9 @@ public class LuaThreadGroupTest {
         assertThreadCount(0);
     }
 
-    /** Test suspend/resume behavior of the thread group */
+    /**
+     * Test suspend/resume behavior of the thread group.
+     */
     @Test
     public void suspendResume() throws LuaException {
         LuaLinkStub link = new LuaLinkStub();
@@ -52,7 +54,9 @@ public class LuaThreadGroupTest {
         assertCalled(link, 1);
     }
 
-    /** Check that finished threads are automatically removed from the thread group */
+    /**
+     * Check that finished threads are automatically removed from the thread group.
+     */
     @Test
     public void finishedThreadsRemoved() throws LuaException {
         LuaLinkStub link = new LuaLinkStub(1);
@@ -61,7 +65,9 @@ public class LuaThreadGroupTest {
         assertThreadCount(0);
     }
 
-    /** Destroying the thread group also destroys all attached threads */
+    /**
+     * Destroying the thread group also destroys all attached threads.
+     */
     @Test
     public void destroyGroup() throws LuaException {
         @SuppressWarnings("serial")

@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
@@ -94,8 +95,11 @@ public class TableHashTest {
             t.set(keys[i], NIL);
             Assert.assertEquals(0, t.length());
             Assert.assertEquals(keys.length - i - 1, t.keyCount());
-            if (i < keys.length - 1) Assert.assertEquals(capacities[keys.length], t.getHashLength());
-            else Assert.assertTrue(0 <= t.getHashLength());
+            if (i < keys.length - 1) {
+                Assert.assertEquals(capacities[keys.length], t.getHashLength());
+            } else {
+                Assert.assertTrue(0 <= t.getHashLength());
+            }
         }
         for (int i = 0; i < keys.length; ++i) {
             Assert.assertEquals(NIL, t.get(keys[i]));

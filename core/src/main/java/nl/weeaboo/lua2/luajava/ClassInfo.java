@@ -111,7 +111,7 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 
     public ConstructorInfo[] getConstructors() {
         if (constrs == null) {
-            Constructor<?> cs[] = clazz.getConstructors();
+            Constructor<?>[] cs = clazz.getConstructors();
 
             constrs = new ConstructorInfo[cs.length];
             for (int n = 0; n < cs.length; n++) {
@@ -140,7 +140,7 @@ public final class ClassInfo implements IWriteReplaceSerializable {
 
     public MethodInfo[] getMethods(LuaValue name) {
         if (methods == null) {
-            Method marr[] = clazz.getMethods();
+            Method[] marr = clazz.getMethods();
             Arrays.sort(marr, methodSorter);
 
             methods = new HashMap<LuaString, MethodInfo[]>();

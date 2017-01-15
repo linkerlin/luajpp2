@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
@@ -34,7 +35,7 @@ import java.io.Serializable;
  * @see LuaValue
  *
  */
-abstract public class LuaNumber extends LuaValue implements Serializable {
+public abstract class LuaNumber extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

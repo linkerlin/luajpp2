@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
@@ -26,14 +27,18 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NEWINDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ThreeArgFunction;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
 import nl.weeaboo.lua2.vm.TypeTest.MyData;
 
-public class MetatableTest extends TestCase {
+public class MetatableTest {
 
     private final Object sampleobject = new Object();
     private final MyData sampledata = new MyData();
@@ -57,15 +62,14 @@ public class MetatableTest extends TestCase {
 
     private LuaThread thread;
 
-    @Override
+    @Before
     protected void setUp() throws Exception {
         LuaRunState lrs = new LuaRunState();
         thread = new LuaThread(lrs, null);
     }
 
-    @Override
+    @After
     protected void tearDown() throws Exception {
-        super.tearDown();
         LuaBoolean.s_metatable = null;
         LuaFunction.s_metatable = null;
         LuaNil.s_metatable = null;
@@ -74,111 +78,114 @@ public class MetatableTest extends TestCase {
         LuaThread.s_metatable = null;
     }
 
+    @Test
     public void testGetMetatable() {
-        assertEquals(null, NIL.getmetatable());
-        assertEquals(null, bool.getmetatable());
-        assertEquals(null, number.getmetatable());
+        Assert.assertEquals(null, NIL.getmetatable());
+        Assert.assertEquals(null, bool.getmetatable());
+        Assert.assertEquals(null, number.getmetatable());
         // assertEquals( null, string.getmetatable() );
-        assertEquals(null, table.getmetatable());
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
-        assertEquals(null, userdata.getmetatable());
-        assertEquals(table, userdatamt.getmetatable());
+        Assert.assertEquals(null, table.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, userdata.getmetatable());
+        Assert.assertEquals(table, userdatamt.getmetatable());
     }
 
+    @Test
     public void testSetMetatable() {
-        LuaValue mt = LuaValue.tableOf();
-        assertEquals(null, table.getmetatable());
-        assertEquals(null, userdata.getmetatable());
-        assertEquals(table, userdatamt.getmetatable());
-        assertEquals(table, table.setmetatable(mt));
-        assertEquals(userdata, userdata.setmetatable(mt));
-        assertEquals(userdatamt, userdatamt.setmetatable(mt));
-        assertEquals(mt, table.getmetatable());
-        assertEquals(mt, userdata.getmetatable());
-        assertEquals(mt, userdatamt.getmetatable());
+        final LuaValue mt = LuaValue.tableOf();
+        Assert.assertEquals(null, table.getmetatable());
+        Assert.assertEquals(null, userdata.getmetatable());
+        Assert.assertEquals(table, userdatamt.getmetatable());
+        Assert.assertEquals(table, table.setmetatable(mt));
+        Assert.assertEquals(userdata, userdata.setmetatable(mt));
+        Assert.assertEquals(userdatamt, userdatamt.setmetatable(mt));
+        Assert.assertEquals(mt, table.getmetatable());
+        Assert.assertEquals(mt, userdata.getmetatable());
+        Assert.assertEquals(mt, userdatamt.getmetatable());
 
         // these all get metatable behind-the-scenes
-        assertEquals(null, NIL.getmetatable());
-        assertEquals(null, bool.getmetatable());
-        assertEquals(null, number.getmetatable());
+        Assert.assertEquals(null, NIL.getmetatable());
+        Assert.assertEquals(null, bool.getmetatable());
+        Assert.assertEquals(null, number.getmetatable());
         // assertEquals( null, string.getmetatable() );
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
         LuaNil.s_metatable = mt;
-        assertEquals(mt, NIL.getmetatable());
-        assertEquals(null, bool.getmetatable());
-        assertEquals(null, number.getmetatable());
+        Assert.assertEquals(mt, NIL.getmetatable());
+        Assert.assertEquals(null, bool.getmetatable());
+        Assert.assertEquals(null, number.getmetatable());
         // assertEquals( null, string.getmetatable() );
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
         LuaBoolean.s_metatable = mt;
-        assertEquals(mt, bool.getmetatable());
-        assertEquals(null, number.getmetatable());
+        Assert.assertEquals(mt, bool.getmetatable());
+        Assert.assertEquals(null, number.getmetatable());
         // assertEquals( null, string.getmetatable() );
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
         LuaNumber.s_metatable = mt;
-        assertEquals(mt, number.getmetatable());
-        assertEquals(mt, LuaValue.valueOf(1.25).getmetatable());
+        Assert.assertEquals(mt, number.getmetatable());
+        Assert.assertEquals(mt, LuaValue.valueOf(1.25).getmetatable());
         // assertEquals( null, string.getmetatable() );
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
         // LuaString.s_metatable = mt;
         // assertEquals( mt, string.getmetatable() );
-        assertEquals(null, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
-        assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(null, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(null, closure.getmetatable());
         LuaFunction.s_metatable = mt;
-        assertEquals(mt, function.getmetatable());
-        assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(mt, function.getmetatable());
+        Assert.assertEquals(null, thread.getmetatable());
         LuaThread.s_metatable = mt;
-        assertEquals(mt, thread.getmetatable());
+        Assert.assertEquals(mt, thread.getmetatable());
     }
 
+    @Test
     public void testMetatableIndex() {
-        assertEquals(table, table.setmetatable(null));
-        assertEquals(userdata, userdata.setmetatable(null));
-        assertEquals(userdatamt, userdatamt.setmetatable(null));
-        assertEquals(NIL, table.get(1));
-        assertEquals(NIL, userdata.get(1));
-        assertEquals(NIL, userdatamt.get(1));
+        Assert.assertEquals(table, table.setmetatable(null));
+        Assert.assertEquals(userdata, userdata.setmetatable(null));
+        Assert.assertEquals(userdatamt, userdatamt.setmetatable(null));
+        Assert.assertEquals(NIL, table.get(1));
+        Assert.assertEquals(NIL, userdata.get(1));
+        Assert.assertEquals(NIL, userdatamt.get(1));
 
         // empty metatable
         LuaValue mt = LuaValue.tableOf();
-        assertEquals(table, table.setmetatable(mt));
-        assertEquals(userdata, userdata.setmetatable(mt));
+        Assert.assertEquals(table, table.setmetatable(mt));
+        Assert.assertEquals(userdata, userdata.setmetatable(mt));
         LuaBoolean.s_metatable = mt;
         LuaFunction.s_metatable = mt;
         LuaNil.s_metatable = mt;
         LuaNumber.s_metatable = mt;
         // LuaString.s_metatable = mt;
         LuaThread.s_metatable = mt;
-        assertEquals(mt, table.getmetatable());
-        assertEquals(mt, userdata.getmetatable());
-        assertEquals(mt, NIL.getmetatable());
-        assertEquals(mt, bool.getmetatable());
-        assertEquals(mt, number.getmetatable());
+        Assert.assertEquals(mt, table.getmetatable());
+        Assert.assertEquals(mt, userdata.getmetatable());
+        Assert.assertEquals(mt, NIL.getmetatable());
+        Assert.assertEquals(mt, bool.getmetatable());
+        Assert.assertEquals(mt, number.getmetatable());
         // assertEquals( StringLib.instance, string.getmetatable() );
-        assertEquals(mt, function.getmetatable());
-        assertEquals(mt, thread.getmetatable());
+        Assert.assertEquals(mt, function.getmetatable());
+        Assert.assertEquals(mt, thread.getmetatable());
 
         // plain metatable
         LuaValue abc = LuaValue.valueOf("abc");
         mt.set(INDEX, LuaValue.listOf(new LuaValue[] { abc }));
-        assertEquals(abc, table.get(1));
-        assertEquals(abc, userdata.get(1));
-        assertEquals(abc, NIL.get(1));
-        assertEquals(abc, bool.get(1));
-        assertEquals(abc, number.get(1));
+        Assert.assertEquals(abc, table.get(1));
+        Assert.assertEquals(abc, userdata.get(1));
+        Assert.assertEquals(abc, NIL.get(1));
+        Assert.assertEquals(abc, bool.get(1));
+        Assert.assertEquals(abc, number.get(1));
         // assertEquals( abc, string.get(1) );
-        assertEquals(abc, function.get(1));
-        assertEquals(abc, thread.get(1));
+        Assert.assertEquals(abc, function.get(1));
+        Assert.assertEquals(abc, thread.get(1));
 
         // plain metatable
         mt.set(INDEX, new TwoArgFunction() {
@@ -190,21 +197,22 @@ public class MetatableTest extends TestCase {
             }
 
         });
-        assertEquals("table[1]=xyz", table.get(1).tojstring());
-        assertEquals("userdata[1]=xyz", userdata.get(1).tojstring());
-        assertEquals("nil[1]=xyz", NIL.get(1).tojstring());
-        assertEquals("boolean[1]=xyz", bool.get(1).tojstring());
-        assertEquals("number[1]=xyz", number.get(1).tojstring());
+        Assert.assertEquals("table[1]=xyz", table.get(1).tojstring());
+        Assert.assertEquals("userdata[1]=xyz", userdata.get(1).tojstring());
+        Assert.assertEquals("nil[1]=xyz", NIL.get(1).tojstring());
+        Assert.assertEquals("boolean[1]=xyz", bool.get(1).tojstring());
+        Assert.assertEquals("number[1]=xyz", number.get(1).tojstring());
         // assertEquals( "string[1]=xyz", string.get(1).tojstring() );
-        assertEquals("function[1]=xyz", function.get(1).tojstring());
-        assertEquals("thread[1]=xyz", thread.get(1).tojstring());
+        Assert.assertEquals("function[1]=xyz", function.get(1).tojstring());
+        Assert.assertEquals("thread[1]=xyz", thread.get(1).tojstring());
     }
 
+    @Test
     public void testMetatableNewIndex() {
         // empty metatable
         LuaValue mt = LuaValue.tableOf();
-        assertEquals(table, table.setmetatable(mt));
-        assertEquals(userdata, userdata.setmetatable(mt));
+        Assert.assertEquals(table, table.setmetatable(mt));
+        Assert.assertEquals(userdata, userdata.setmetatable(mt));
         LuaBoolean.s_metatable = mt;
         LuaFunction.s_metatable = mt;
         LuaNil.s_metatable = mt;
@@ -224,14 +232,14 @@ public class MetatableTest extends TestCase {
         // string.set(7,abc);
         function.set(8, abc);
         thread.set(9, abc);
-        assertEquals(abc, fallback.get(2));
-        assertEquals(abc, fallback.get(3));
-        assertEquals(abc, fallback.get(4));
-        assertEquals(abc, fallback.get(5));
-        assertEquals(abc, fallback.get(6));
+        Assert.assertEquals(abc, fallback.get(2));
+        Assert.assertEquals(abc, fallback.get(3));
+        Assert.assertEquals(abc, fallback.get(4));
+        Assert.assertEquals(abc, fallback.get(5));
+        Assert.assertEquals(abc, fallback.get(6));
         // assertEquals( abc, StringLib.instance.get(7) );
-        assertEquals(abc, fallback.get(8));
-        assertEquals(abc, fallback.get(9));
+        Assert.assertEquals(abc, fallback.get(8));
+        Assert.assertEquals(abc, fallback.get(9));
 
         // metatable with function call
         mt.set(NEWINDEX, new ThreeArgFunction() {
@@ -253,33 +261,34 @@ public class MetatableTest extends TestCase {
         function.set(18, abc);
         thread.set(19, abc);
         LuaValue via = LuaValue.valueOf("via-func-abc");
-        assertEquals(via, fallback.get(12));
-        assertEquals(via, fallback.get(13));
-        assertEquals(via, fallback.get(14));
-        assertEquals(via, fallback.get(15));
-        assertEquals(via, fallback.get(16));
+        Assert.assertEquals(via, fallback.get(12));
+        Assert.assertEquals(via, fallback.get(13));
+        Assert.assertEquals(via, fallback.get(14));
+        Assert.assertEquals(via, fallback.get(15));
+        Assert.assertEquals(via, fallback.get(16));
         // assertEquals( via, StringLib.instance.get(17) );
-        assertEquals(via, fallback.get(18));
-        assertEquals(via, fallback.get(19));
+        Assert.assertEquals(via, fallback.get(18));
+        Assert.assertEquals(via, fallback.get(19));
     }
 
     private void checkTable(LuaValue t, LuaValue aa, LuaValue bb, LuaValue cc, LuaValue dd, LuaValue ee,
             LuaValue ff, LuaValue gg, LuaValue ra, LuaValue rb, LuaValue rc, LuaValue rd, LuaValue re,
             LuaValue rf, LuaValue rg) {
-        assertEquals(aa, t.get("aa"));
-        assertEquals(bb, t.get("bb"));
-        assertEquals(cc, t.get("cc"));
-        assertEquals(dd, t.get("dd"));
-        assertEquals(ee, t.get("ee"));
-        assertEquals(ff, t.get("ff"));
-        assertEquals(gg, t.get("gg"));
-        assertEquals(ra, t.rawget("aa"));
-        assertEquals(rb, t.rawget("bb"));
-        assertEquals(rc, t.rawget("cc"));
-        assertEquals(rd, t.rawget("dd"));
-        assertEquals(re, t.rawget("ee"));
-        assertEquals(rf, t.rawget("ff"));
-        assertEquals(rg, t.rawget("gg"));
+
+        Assert.assertEquals(aa, t.get("aa"));
+        Assert.assertEquals(bb, t.get("bb"));
+        Assert.assertEquals(cc, t.get("cc"));
+        Assert.assertEquals(dd, t.get("dd"));
+        Assert.assertEquals(ee, t.get("ee"));
+        Assert.assertEquals(ff, t.get("ff"));
+        Assert.assertEquals(gg, t.get("gg"));
+        Assert.assertEquals(ra, t.rawget("aa"));
+        Assert.assertEquals(rb, t.rawget("bb"));
+        Assert.assertEquals(rc, t.rawget("cc"));
+        Assert.assertEquals(rd, t.rawget("dd"));
+        Assert.assertEquals(re, t.rawget("ee"));
+        Assert.assertEquals(rf, t.rawget("ff"));
+        Assert.assertEquals(rg, t.rawget("gg"));
     }
 
     private LuaValue makeTable(String key1, String val1, String key2, String val2) {
@@ -287,6 +296,7 @@ public class MetatableTest extends TestCase {
                 LuaValue.valueOf(key2), LuaValue.valueOf(val2), });
     }
 
+    @Test
     public void testRawsetMetatableSet() {
         // set up tables
         LuaValue m = makeTable("aa", "aaa", "bb", "bbb");
@@ -295,19 +305,20 @@ public class MetatableTest extends TestCase {
         LuaValue s = makeTable("cc", "ccc", "dd", "ddd");
         LuaValue t = makeTable("cc", "ccc", "dd", "ddd");
         t.setmetatable(m);
-        LuaValue aaa = LuaValue.valueOf("aaa");
-        LuaValue bbb = LuaValue.valueOf("bbb");
-        LuaValue ccc = LuaValue.valueOf("ccc");
-        LuaValue ddd = LuaValue.valueOf("ddd");
-        LuaValue ppp = LuaValue.valueOf("ppp");
-        LuaValue qqq = LuaValue.valueOf("qqq");
-        LuaValue rrr = LuaValue.valueOf("rrr");
-        LuaValue sss = LuaValue.valueOf("sss");
-        LuaValue ttt = LuaValue.valueOf("ttt");
-        LuaValue www = LuaValue.valueOf("www");
-        LuaValue xxx = LuaValue.valueOf("xxx");
-        LuaValue yyy = LuaValue.valueOf("yyy");
-        LuaValue zzz = LuaValue.valueOf("zzz");
+
+        final LuaValue aaa = LuaValue.valueOf("aaa");
+        final LuaValue bbb = LuaValue.valueOf("bbb");
+        final LuaValue ccc = LuaValue.valueOf("ccc");
+        final LuaValue ddd = LuaValue.valueOf("ddd");
+        final LuaValue ppp = LuaValue.valueOf("ppp");
+        final LuaValue qqq = LuaValue.valueOf("qqq");
+        final LuaValue rrr = LuaValue.valueOf("rrr");
+        final LuaValue sss = LuaValue.valueOf("sss");
+        final LuaValue ttt = LuaValue.valueOf("ttt");
+        final LuaValue www = LuaValue.valueOf("www");
+        final LuaValue xxx = LuaValue.valueOf("xxx");
+        final LuaValue yyy = LuaValue.valueOf("yyy");
+        final LuaValue zzz = LuaValue.valueOf("zzz");
 
         // check initial values
         // values via "bet()" values via "rawget()"

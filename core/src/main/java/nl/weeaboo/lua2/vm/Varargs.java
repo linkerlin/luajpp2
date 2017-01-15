@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
@@ -60,14 +61,14 @@ public abstract class Varargs {
      * @return Value at position i, or LuaValue.NIL if there is none.
      * @see Varargs#arg1()
      */
-    abstract public LuaValue arg(int i);
+    public abstract LuaValue arg(int i);
 
     /**
      * Get the number of arguments, or 0 if there are none.
      *
      * @return number of arguments.
      */
-    abstract public int narg();
+    public abstract int narg();
 
     /**
      * Get the first argument in the list.
@@ -75,7 +76,7 @@ public abstract class Varargs {
      * @return LuaValue which is first in the list, or LuaValue.NIL if there are no values.
      * @see Varargs#arg(int)
      */
-    abstract public LuaValue arg1();
+    public abstract LuaValue arg1();
 
     // -----------------------------------------------------------------------
     // utilities to get specific arguments and type-check them.
@@ -547,7 +548,9 @@ public abstract class Varargs {
      * @exception LuaError if the the value of {@code test} is {@code false}
      */
     public void argcheck(boolean test, int i, String msg) {
-        if (!test) LuaValue.argerror(i, msg);
+        if (!test) {
+            LuaValue.argerror(i, msg);
+        }
     }
 
     /**

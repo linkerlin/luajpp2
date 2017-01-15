@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.compiler;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -163,19 +164,24 @@ public class LoadState {
      **/
     int[] loadIntArray() throws IOException {
         int n = loadInt();
-        if (n == 0) return NOINTS;
+        if (n == 0) {
+            return NOINTS;
+        }
 
         // read all data at once
         int m = n << 2;
-        if (buf.length < m) buf = new byte[m];
+        if (buf.length < m) {
+            buf = new byte[m];
+        }
         is.readFully(buf, 0, m);
         int[] array = new int[n];
-        for (int i = 0, j = 0; i < n; ++i, j += 4)
+        for (int i = 0, j = 0; i < n; ++i, j += 4) {
             array[i] = luacLittleEndian
                     ? (buf[j + 3] << 24) | ((0xff & buf[j + 2]) << 16) | ((0xff & buf[j + 1]) << 8)
                             | (0xff & buf[j + 0])
                     : (buf[j + 0] << 24) | ((0xff & buf[j + 1]) << 16) | ((0xff & buf[j + 2]) << 8)
                             | (0xff & buf[j + 3]);
+        }
 
         return array;
     }
@@ -204,7 +210,9 @@ public class LoadState {
      **/
     LuaString loadString() throws IOException {
         int size = loadInt();
-        if (size == 0) return null;
+        if (size == 0) {
+            return null;
+        }
 
         int offset = alloc.reserve(size);
         byte[] bytes = alloc.getReserved();
@@ -325,7 +333,9 @@ public class LoadState {
     public Prototype loadFunction(LuaString p) throws IOException {
         Prototype f = new Prototype();
         f.source = loadString();
-        if (f.source == null) f.source = p;
+        if (f.source == null) {
+            f.source = p;
+        }
         f.linedefined = loadInt();
         f.lastlinedefined = loadInt();
         f.nups = is.readUnsignedByte();
@@ -395,8 +405,9 @@ public class LoadState {
 
         // check rest of signature
         if (firstByte != LUA_SIGNATURE[0] || stream.read() != LUA_SIGNATURE[1]
-                || stream.read() != LUA_SIGNATURE[2] || stream.read() != LUA_SIGNATURE[3])
+                || stream.read() != LUA_SIGNATURE[2] || stream.read() != LUA_SIGNATURE[3]) {
             throw new IllegalArgumentException("bad signature");
+        }
 
         // load file as a compiled chunk
         String sname = getSourceName(name);
@@ -423,8 +434,11 @@ public class LoadState {
      */
     public static String getSourceName(String name) {
         String sname = name;
-        if (name.startsWith("@") || name.startsWith("=")) sname = name.substring(1);
-        else if (name.startsWith("\033")) sname = SOURCE_BINARY_STRING;
+        if (name.startsWith("@") || name.startsWith("=")) {
+            sname = name.substring(1);
+        } else if (name.startsWith("\033")) {
+            sname = SOURCE_BINARY_STRING;
+        }
         return sname;
     }
 

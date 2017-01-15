@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.MODE;
@@ -104,7 +105,9 @@ final class WeakTable implements Metatable, Serializable {
     @Override
     public Slot entry(LuaValue key, LuaValue value) {
         value = value.strongvalue();
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
         if (weakKeys && !(key.isnumber() || key.isstring() || key.isboolean())) {
             if (weakValues && !(value.isnumber() || value.isstring() || value.isboolean())) {
                 return new WeakKeyAndValueSlot(key, value, null);
@@ -118,7 +121,7 @@ final class WeakTable implements Metatable, Serializable {
         return LuaTable.defaultEntry(key, value);
     }
 
-    private static abstract class WeakSlot implements Slot {
+    private abstract static class WeakSlot implements Slot {
 
         private static final long serialVersionUID = 1L;
 

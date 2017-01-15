@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -534,9 +535,15 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
          * >> 63 == 0 ) ? "0" : "-0"; }
          */
         long l = (long)value;
-        if (l == value) return Long.toString(l);
-        if (Double.isNaN(value)) return JSTR_NAN;
-        if (Double.isInfinite(value)) return (value < 0 ? JSTR_NEGINF : JSTR_POSINF);
+        if (l == value) {
+            return Long.toString(l);
+        }
+        if (Double.isNaN(value)) {
+            return JSTR_NAN;
+        }
+        if (Double.isInfinite(value)) {
+            return (value < 0 ? JSTR_NEGINF : JSTR_POSINF);
+        }
         return Float.toString((float)value);
     }
 

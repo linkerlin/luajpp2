@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -222,7 +223,7 @@ public class DebugLib extends VarArgFunction {
         }
     }
 
-    /** Called by Closures on bytecode execution */
+    /** Called by Closures on bytecode execution. */
     public static void debugBytecode(LuaThread thread, int pc, Varargs extras, int top) {
         DebugState ds = getDebugState(thread);
         if (ds.inhook) {
@@ -234,9 +235,9 @@ public class DebugLib extends VarArgFunction {
             return; // No debug information available
         }
 
-//        if (TRACE) {
-//            Print.printState(di.closure, pc, di.stack, top, di.varargs);
-//        }
+        // if (TRACE) {
+        // Print.printState(di.closure, pc, di.stack, top, di.varargs);
+        // }
 
         di.pc = pc;
         di.extras = extras;
@@ -612,7 +613,9 @@ public class DebugLib extends VarArgFunction {
     }
 
     private static void lua_assert(boolean x) {
-        if (!x) throw new LuaError("lua_assert failed");
+        if (!x) {
+            throw new LuaError("lua_assert failed");
+        }
     }
 
     /** @return StrValue[] { name, namewhat } if found, null if not */
@@ -745,8 +748,12 @@ public class DebugLib extends VarArgFunction {
             int a = Lua.GETARG_A(i);
             int b = 0;
             int c = 0;
-            if (!(op < Lua.NUM_OPCODES)) return 0;
-            if (!checkreg(pt, a)) return 0;
+            if (!(op < Lua.NUM_OPCODES)) {
+                return 0;
+            }
+            if (!checkreg(pt, a)) {
+                return 0;
+            }
             switch (Lua.getOpMode(op)) {
             case Lua.iABC: {
                 b = Lua.GETARG_B(i);
@@ -786,106 +793,169 @@ public class DebugLib extends VarArgFunction {
             }
 
             if (Lua.testAMode(op)) {
-                if (a == reg) last = pc; /* change register `a' */
+                if (a == reg) {
+                    last = pc; /* change register `a' */
+                }
             }
             if (Lua.testTMode(op)) {
-                if (!(pc + 2 < pt.code.length)) return 0; /* check skip */
-                if (!(Lua.GET_OPCODE(pt.code[pc + 1]) == Lua.OP_JMP)) return 0;
+                if (!(pc + 2 < pt.code.length)) {
+                    return 0; /* check skip */
+                }
+                if (!(Lua.GET_OPCODE(pt.code[pc + 1]) == Lua.OP_JMP)) {
+                    return 0;
+                }
             }
             switch (op) {
             case Lua.OP_LOADBOOL: {
-                if (!(c == 0 || pc + 2 < pt.code.length)) return 0; /*
-                                                                     * check its jump
-                                                                     */
+                if (!(c == 0 || pc + 2 < pt.code.length)) {
+                    return 0; /*
+                                                                         * check its jump
+                                                                         */
+                }
                 break;
             }
             case Lua.OP_LOADNIL: {
-                if (a <= reg && reg <= b) last = pc; /*
-                                                      * set registers from `a' to `b'
-                                                      */
+                if (a <= reg && reg <= b) {
+                    last = pc; /*
+                                                          * set registers from `a' to `b'
+                                                          */
+                }
                 break;
             }
             case Lua.OP_GETUPVAL:
             case Lua.OP_SETUPVAL: {
-                if (!(b < pt.nups)) return 0;
+                if (!(b < pt.nups)) {
+                    return 0;
+                }
                 break;
             }
             case Lua.OP_GETGLOBAL:
             case Lua.OP_SETGLOBAL: {
-                if (!(pt.k[b].isstring())) return 0;
+                if (!(pt.k[b].isstring())) {
+                    return 0;
+                }
                 break;
             }
             case Lua.OP_SELF: {
-                if (!checkreg(pt, a + 1)) return 0;
-                if (reg == a + 1) last = pc;
+                if (!checkreg(pt, a + 1)) {
+                    return 0;
+                }
+                if (reg == a + 1) {
+                    last = pc;
+                }
                 break;
             }
             case Lua.OP_CONCAT: {
-                if (!(b < c)) return 0; /* at least two operands */
+                if (!(b < c)) {
+                    return 0; /* at least two operands */
+                }
                 break;
             }
             case Lua.OP_TFORLOOP: {
-                if (!(c >= 1)) return 0; /*
-                                          * at least one result (control variable)
-                                          */
-                if (!checkreg(pt, a + 2 + c)) return 0; /* space for results */
-                if (reg >= a + 2) last = pc; /* affect all regs above its base */
+                if (!(c >= 1)) {
+                    return 0; /*
+                                              * at least one result (control variable)
+                                              */
+                }
+                if (!checkreg(pt, a + 2 + c)) {
+                    return 0; /* space for results */
+                }
+                if (reg >= a + 2) {
+                    last = pc; /* affect all regs above its base */
+                }
                 break;
             }
             case Lua.OP_FORLOOP:
             case Lua.OP_FORPREP:
-                if (!checkreg(pt, a + 3)) return 0;
+                if (!checkreg(pt, a + 3)) {
+                    return 0;
+                }
                 /* go through */
                 //$FALL-THROUGH$
             case Lua.OP_JMP: {
                 int dest = pc + 1 + b;
                 /* not full check and jump is forward and do not skip `lastpc'? */
-                if (reg != Lua.NO_REG && pc < dest && dest <= lastpc) pc += b; /*
-                                                                                * do the jump
-                                                                                */
+                if (reg != Lua.NO_REG && pc < dest && dest <= lastpc) {
+                    pc += b; /*
+                              * do the jump
+                              */
+                }
                 break;
             }
             case Lua.OP_CALL:
             case Lua.OP_TAILCALL: {
                 if (b != 0) {
-                    if (!checkreg(pt, a + b - 1)) return 0;
+                    if (!checkreg(pt, a + b - 1)) {
+                        return 0;
+                    }
                 }
                 c--; /* c = num. returns */
                 if (c == Lua.LUA_MULTRET) {
-                    if (!(checkopenop(pt, pc))) return 0;
-                } else if (c != 0) if (!checkreg(pt, a + c - 1)) return 0;
-                if (reg >= a) last = pc; /* affect all registers above base */
+                    if (!(checkopenop(pt, pc))) {
+                        return 0;
+                    }
+                } else if (c != 0) {
+                    if (!checkreg(pt, a + c - 1)) {
+                        return 0;
+                    }
+                }
+                if (reg >= a) {
+                    last = pc; /* affect all registers above base */
+                }
                 break;
             }
             case Lua.OP_RETURN: {
                 b--; /* b = num. returns */
-                if (b > 0) if (!checkreg(pt, a + b - 1)) return 0;
+                if (b > 0) {
+                    if (!checkreg(pt, a + b - 1)) {
+                        return 0;
+                    }
+                }
                 break;
             }
             case Lua.OP_SETLIST: {
-                if (b > 0) if (!checkreg(pt, a + b)) return 0;
-                if (c == 0) pc++;
+                if (b > 0) {
+                    if (!checkreg(pt, a + b)) {
+                        return 0;
+                    }
+                }
+                if (c == 0) {
+                    pc++;
+                }
                 break;
             }
             case Lua.OP_CLOSURE: {
-                int nup, j;
-                if (!(b < pt.p.length)) return 0;
-                nup = pt.p[b].nups;
-                if (!(pc + nup < pt.code.length)) return 0;
-                for (j = 1; j <= nup; j++) {
-                    int op1 = Lua.GET_OPCODE(pt.code[pc + j]);
-                    if (!(op1 == Lua.OP_GETUPVAL || op1 == Lua.OP_MOVE)) return 0;
+                if (b >= pt.p.length) {
+                    return 0;
                 }
-                if (reg != Lua.NO_REG) /* tracing? */
+                int nup = pt.p[b].nups;
+                if (!(pc + nup < pt.code.length)) {
+                    return 0;
+                }
+                for (int j = 1; j <= nup; j++) {
+                    int op1 = Lua.GET_OPCODE(pt.code[pc + j]);
+                    if (!(op1 == Lua.OP_GETUPVAL || op1 == Lua.OP_MOVE)) {
+                        return 0;
+                    }
+                }
+                if (reg != Lua.NO_REG) {
                     pc += nup; /* do not 'execute' these pseudo-instructions */
+                }
                 break;
             }
             case Lua.OP_VARARG: {
-                if (!((pt.is_vararg & Lua.VARARG_ISVARARG) != 0 && (pt.is_vararg & Lua.VARARG_NEEDSARG) == 0))
+                if (!((pt.is_vararg & Lua.VARARG_ISVARARG) != 0 && (pt.is_vararg & Lua.VARARG_NEEDSARG) == 0)) {
                     return 0;
+                }
                 b--;
-                if (b == Lua.LUA_MULTRET) if (!(checkopenop(pt, pc))) return 0;
-                if (!checkreg(pt, a + b - 1)) return 0;
+                if (b == Lua.LUA_MULTRET) {
+                    if (!(checkopenop(pt, pc))) {
+                        return 0;
+                    }
+                }
+                if (!checkreg(pt, a + b - 1)) {
+                    return 0;
+                }
                 break;
             }
             default:

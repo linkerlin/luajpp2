@@ -103,7 +103,7 @@ public class ObjectSerializer extends ObjectOutputStream {
         }
 
         if (collectStats) {
-            Entry<Class<?>, Stats> entries[] = classCounter.entrySet().toArray(new Entry[0]);
+            Entry<Class<?>, Stats>[] entries = classCounter.entrySet().toArray(new Entry[0]);
             Arrays.sort(entries, new Comparator<Entry<Class<?>, Stats>>() {
                 @Override
                 public int compare(Entry<Class<?>, Stats> e1, Entry<Class<?>, Stats> e2) {
@@ -213,10 +213,13 @@ public class ObjectSerializer extends ObjectOutputStream {
     private void resetValidClasses() {
         validClasses.clear();
 
-        Collections.<Class<?>> addAll(validClasses,
-            Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
-            String.class, Class.class, Random.class, BitSet.class
-        );
+        Collections.<Class<?>>addAll(validClasses,
+                Boolean.class,
+                Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
+                String.class,
+                Class.class,
+                Random.class,
+                BitSet.class);
     }
 
     private void onPackageLimitChanged() {

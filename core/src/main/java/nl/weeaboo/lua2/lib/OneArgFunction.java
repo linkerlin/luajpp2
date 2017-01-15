@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -48,14 +49,14 @@ import nl.weeaboo.lua2.vm.Varargs;
  * @see VarArgFunction
  */
 @LuaSerializable
-abstract public class OneArgFunction extends LibFunction {
+public abstract class OneArgFunction extends LibFunction {
 
     private static final long serialVersionUID = -1409066200120011275L;
 
     @Override
-    abstract public LuaValue call(LuaValue arg);
+    public abstract LuaValue call(LuaValue arg);
 
-    /** Default constructor */
+    /** Default constructor. */
     public OneArgFunction() {
     }
 

@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -89,7 +90,8 @@ public class UnaryBinaryOperatorsTest {
         LuaValue ia = LuaValue.valueOf(3);
         LuaValue da = LuaValue.valueOf(.25);
         LuaValue sa = LuaValue.valueOf("1.5");
-        LuaValue ba = TRUE, bb = FALSE;
+        LuaValue ba = TRUE;
+        LuaValue bb = FALSE;
 
         // like kinds
         Assert.assertEquals(FALSE, ia.not());
@@ -101,9 +103,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testNeg() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(-4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(-.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("-2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(-4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(-.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("-2.0");
 
         // like kinds
         Assert.assertEquals(-3., ia.neg().todouble(), EPSILON);
@@ -117,9 +122,13 @@ public class UnaryBinaryOperatorsTest {
     @Test
     public void testDoublesBecomeInts() {
         // DoubleValue.valueOf should return int
-        LuaValue ia = LuaInteger.valueOf(345), da = LuaDouble.valueOf(345.0), db = LuaDouble.valueOf(345.5);
-        LuaValue sa = LuaValue.valueOf("3.0"), sb = LuaValue.valueOf("3"), sc = LuaValue.valueOf("-2.0"),
-                sd = LuaValue.valueOf("-2");
+        LuaValue ia = LuaInteger.valueOf(345);
+        LuaValue da = LuaDouble.valueOf(345.0);
+        LuaValue db = LuaDouble.valueOf(345.5);
+        LuaValue sa = LuaValue.valueOf("3.0");
+        LuaValue sb = LuaValue.valueOf("3");
+        LuaValue sc = LuaValue.valueOf("-2.0");
+        LuaValue sd = LuaValue.valueOf("-2");
 
         Assert.assertEquals(ia, da);
         Assert.assertTrue(ia instanceof LuaInteger);
@@ -143,9 +152,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testEqualsInt() {
-        LuaValue ia = LuaInteger.valueOf(345), ib = LuaInteger.valueOf(345), ic = LuaInteger.valueOf(-345);
-        LuaString sa = LuaString.valueOf("345"), sb = LuaString.valueOf("345"),
-                sc = LuaString.valueOf("-345");
+        LuaValue ia = LuaInteger.valueOf(345);
+        LuaValue ib = LuaInteger.valueOf(345);
+        LuaValue ic = LuaInteger.valueOf(-345);
+        LuaString sa = LuaString.valueOf("345");
+        LuaValue sb = LuaString.valueOf("345");
+        LuaValue sc = LuaString.valueOf("-345");
 
         // assert equals for same type
         Assert.assertEquals(ia, ib);
@@ -160,9 +172,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testEqualsDouble() {
-        LuaValue da = LuaDouble.valueOf(345.5), db = LuaDouble.valueOf(345.5), dc = LuaDouble.valueOf(-345.5);
-        LuaString sa = LuaString.valueOf("345.5"), sb = LuaString.valueOf("345.5"),
-                sc = LuaString.valueOf("-345.5");
+        LuaValue da = LuaDouble.valueOf(345.5);
+        LuaValue db = LuaDouble.valueOf(345.5);
+        LuaValue dc = LuaDouble.valueOf(-345.5);
+        LuaString sa = LuaString.valueOf("345.5");
+        LuaValue sb = LuaString.valueOf("345.5");
+        LuaValue sc = LuaString.valueOf("-345.5");
 
         // assert equals for same type
         Assert.assertEquals(da, db);
@@ -177,8 +192,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testEqInt() {
-        LuaValue ia = LuaInteger.valueOf(345), ib = LuaInteger.valueOf(345), ic = LuaInteger.valueOf(-123);
-        LuaValue sa = LuaString.valueOf("345"), sb = LuaString.valueOf("345"), sc = LuaString.valueOf("-345");
+        LuaValue ia = LuaInteger.valueOf(345);
+        LuaValue ib = LuaInteger.valueOf(345);
+        LuaValue ic = LuaInteger.valueOf(-123);
+        LuaValue sa = LuaString.valueOf("345");
+        LuaValue sb = LuaString.valueOf("345");
+        LuaValue sc = LuaString.valueOf("-345");
 
         // check arithmetic equality among same types
         Assert.assertEquals(ia.eq(ib), TRUE);
@@ -202,9 +221,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testEqDouble() {
-        LuaValue da = LuaDouble.valueOf(345.5), db = LuaDouble.valueOf(345.5), dc = LuaDouble.valueOf(-345.5);
-        LuaValue sa = LuaString.valueOf("345.5"), sb = LuaString.valueOf("345.5"),
-                sc = LuaString.valueOf("-345.5");
+        LuaValue da = LuaDouble.valueOf(345.5);
+        LuaValue db = LuaDouble.valueOf(345.5);
+        LuaValue dc = LuaDouble.valueOf(-345.5);
+        LuaValue sa = LuaString.valueOf("345.5");
+        LuaValue sb = LuaString.valueOf("345.5");
+        LuaValue sc = LuaString.valueOf("-345.5");
 
         // check arithmetic equality among same types
         Assert.assertEquals(da.eq(db), TRUE);
@@ -384,9 +406,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testAdd() {
-        LuaValue ia = LuaValue.valueOf(111), ib = LuaValue.valueOf(44);
-        LuaValue da = LuaValue.valueOf(55.25), db = LuaValue.valueOf(3.5);
-        LuaValue sa = LuaValue.valueOf("22.125"), sb = LuaValue.valueOf("7.25");
+        LuaValue ia = LuaValue.valueOf(111);
+        LuaValue ib = LuaValue.valueOf(44);
+        LuaValue da = LuaValue.valueOf(55.25);
+        LuaValue db = LuaValue.valueOf(3.5);
+        LuaValue sa = LuaValue.valueOf("22.125");
+        LuaValue sb = LuaValue.valueOf("7.25");
 
         // check types
         Assert.assertTrue(ia instanceof LuaInteger);
@@ -412,9 +437,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testSub() {
-        LuaValue ia = LuaValue.valueOf(111), ib = LuaValue.valueOf(44);
-        LuaValue da = LuaValue.valueOf(55.25), db = LuaValue.valueOf(3.5);
-        LuaValue sa = LuaValue.valueOf("22.125"), sb = LuaValue.valueOf("7.25");
+        LuaValue ia = LuaValue.valueOf(111);
+        LuaValue ib = LuaValue.valueOf(44);
+        LuaValue da = LuaValue.valueOf(55.25);
+        LuaValue db = LuaValue.valueOf(3.5);
+        LuaValue sa = LuaValue.valueOf("22.125");
+        LuaValue sb = LuaValue.valueOf("7.25");
 
         // like kinds
         Assert.assertEquals(67.0, ia.sub(ib).todouble(), EPSILON);
@@ -432,9 +460,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testMul() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
 
         // like kinds
         Assert.assertEquals(12.0, ia.mul(ib).todouble(), EPSILON);
@@ -452,9 +483,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testDiv() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
 
         // like kinds
         Assert.assertEquals(3. / 4., ia.div(ib).todouble(), EPSILON);
@@ -472,9 +506,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testPow() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(4.), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(4.);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
 
         // like kinds
         Assert.assertEquals(Math.pow(3., 4.), ia.pow(ib).todouble(), EPSILON);
@@ -496,9 +533,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testMod() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(-4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(-.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("-2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(-4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(-.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("-2.0");
 
         // like kinds
         Assert.assertEquals(luaMod(3., -4.), ia.mod(ib).todouble(), EPSILON);
@@ -534,9 +574,10 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to perform arithmetic")) || actual.indexOf(type) < 0)
+            if ((!actual.startsWith("attempt to perform arithmetic")) || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
+            }
         } catch (Exception e) {
             Assert.fail("(" + a.typename() + "," + op + "," + b.typename() + ") threw " + e);
         }
@@ -903,8 +944,10 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testLt() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
 
         // like kinds
         Assert.assertEquals(3. < 4., ia.lt(ib).toboolean());
@@ -921,8 +964,10 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testLtEq() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
 
         // like kinds
         Assert.assertEquals(3. <= 4., ia.lteq(ib).toboolean());
@@ -939,8 +984,10 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testGt() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
 
         // like kinds
         Assert.assertEquals(3. > 4., ia.gt(ib).toboolean());
@@ -957,8 +1004,10 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testGtEq() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
 
         // like kinds
         Assert.assertEquals(3. >= 4., ia.gteq(ib).toboolean());
@@ -975,9 +1024,12 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testNotEq() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
 
         // like kinds
         Assert.assertEquals(3. != 4., ia.neq(ib).toboolean());
@@ -1022,9 +1074,10 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to compare")) || actual.indexOf(type) < 0)
+            if ((!actual.startsWith("attempt to compare")) || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
+            }
         } catch (Exception e) {
             Assert.fail("(" + a.typename() + "," + op + "," + b.typename() + ") threw " + e);
         }
@@ -1081,10 +1134,14 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testAnd() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
-        LuaValue ba = TRUE, bb = FALSE;
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
+        LuaValue ba = TRUE;
+        LuaValue bb = FALSE;
 
         // like kinds
         Assert.assertSame(ib, ia.and(ib));
@@ -1108,10 +1165,14 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testOr() {
-        LuaValue ia = LuaValue.valueOf(3), ib = LuaValue.valueOf(4);
-        LuaValue da = LuaValue.valueOf(.25), db = LuaValue.valueOf(.5);
-        LuaValue sa = LuaValue.valueOf("1.5"), sb = LuaValue.valueOf("2.0");
-        LuaValue ba = TRUE, bb = FALSE;
+        LuaValue ia = LuaValue.valueOf(3);
+        LuaValue ib = LuaValue.valueOf(4);
+        LuaValue da = LuaValue.valueOf(.25);
+        LuaValue db = LuaValue.valueOf(.5);
+        LuaValue sa = LuaValue.valueOf("1.5");
+        LuaValue sb = LuaValue.valueOf("2.0");
+        LuaValue ba = TRUE;
+        LuaValue bb = FALSE;
 
         // like kinds
         Assert.assertSame(ia, ia.or(ib));
@@ -1135,13 +1196,13 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testLexicalComparison() {
-        LuaValue aaa = LuaValue.valueOf("aaa");
-        LuaValue baa = LuaValue.valueOf("baa");
-        LuaValue Aaa = LuaValue.valueOf("Aaa");
-        LuaValue aba = LuaValue.valueOf("aba");
-        LuaValue aaaa = LuaValue.valueOf("aaaa");
-        LuaValue t = TRUE;
-        LuaValue f = FALSE;
+        final LuaValue aaa = LuaValue.valueOf("aaa");
+        final LuaValue baa = LuaValue.valueOf("baa");
+        final LuaValue Aaa = LuaValue.valueOf("Aaa");
+        final LuaValue aba = LuaValue.valueOf("aba");
+        final LuaValue aaaa = LuaValue.valueOf("aaaa");
+        final LuaValue t = TRUE;
+        final LuaValue f = FALSE;
 
         // basics
         Assert.assertEquals(t, aaa.eq(aaa));
@@ -1198,10 +1259,10 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testBuffer() {
-        LuaValue abc = LuaValue.valueOf("abcdefghi").substring(0, 3);
-        LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
-        LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
-        LuaValue n123 = LuaValue.valueOf(123);
+        final LuaValue abc = LuaValue.valueOf("abcdefghi").substring(0, 3);
+        final LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
+        final LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
+        final LuaValue n123 = LuaValue.valueOf(123);
 
         // basic append
         Buffer b = new Buffer();
@@ -1283,10 +1344,11 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testConcatBuffer() {
-        LuaValue abc = LuaValue.valueOf("abcdefghi").substring(0, 3);
-        LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
-        LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
-        LuaValue n123 = LuaValue.valueOf(123);
+        final LuaValue abc = LuaValue.valueOf("abcdefghi").substring(0, 3);
+        final LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
+        final LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
+        final LuaValue n123 = LuaValue.valueOf(123);
+
         Buffer b;
 
         b = new Buffer(def);
@@ -1417,9 +1479,10 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to concatenate")) || actual.indexOf(type) < 0)
+            if ((!actual.startsWith("attempt to concatenate")) || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
+            }
         } catch (Exception e) {
             Assert.fail("(" + a.typename() + "," + op + "," + b.typename() + ") threw " + e);
         }

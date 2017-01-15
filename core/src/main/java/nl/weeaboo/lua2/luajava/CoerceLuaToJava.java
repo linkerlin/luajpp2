@@ -18,8 +18,9 @@ import nl.weeaboo.lua2.vm.Varargs;
 
 public class CoerceLuaToJava {
 
-    public static interface Coercion {
+    public interface Coercion {
         public Object coerce(LuaValue value);
+
         public int score(LuaValue value);
     }
 
@@ -29,13 +30,17 @@ public class CoerceLuaToJava {
         Coercion boolCoercion = new Coercion() {
             @Override
             public Object coerce(LuaValue value) {
-                return value.toboolean() ? Boolean.TRUE: Boolean.FALSE;
+                return value.toboolean() ? Boolean.TRUE : Boolean.FALSE;
             }
 
             @Override
             public int score(LuaValue value) {
-                if (value.isboolean() || value.isnil()) return 0;
-                if (value.isnumber()) return 1;
+                if (value.isboolean() || value.isnil()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
@@ -47,8 +52,12 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isinttype()) return 0;
-                if (value.isnumber()) return 1;
+                if (value.isinttype()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
@@ -60,8 +69,12 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isinttype()) return 0;
-                if (value.isnumber()) return 1;
+                if (value.isinttype()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
@@ -73,8 +86,12 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isinttype()) return 0;
-                if (value.isnumber()) return 1;
+                if (value.isinttype()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
@@ -86,9 +103,15 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isinttype()) return 0;
-                if (value.isnumber()) return 1;
-                if (value.isboolean() || value.isnil()) return 2;
+                if (value.isinttype()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
+                if (value.isboolean() || value.isnil()) {
+                    return 2;
+                }
                 return 4;
             }
         };
@@ -100,46 +123,62 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isinttype()) return 0;
-                if (value.isnumber()) return 1;
+                if (value.isinttype()) {
+                    return 0;
+                }
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
         Coercion floatCoercion = new Coercion() {
-            //Cache the two most common values
-            private final Float ZERO = Float.valueOf(0f);
-            private final Float ONE  = Float.valueOf(1f);
+            // Cache the two most common values
+            private final Float zero = Float.valueOf(0f);
+            private final Float one  = Float.valueOf(1f);
 
             @Override
             public Object coerce(LuaValue value) {
                 float f = value.tofloat();
-                if (f == 0.0) return ZERO;
-                if (f == 1.0) return ONE;
+                if (f == 0.0) {
+                    return zero;
+                }
+                if (f == 1.0) {
+                    return one;
+                }
                 return Float.valueOf(f);
             }
 
             @Override
             public int score(LuaValue value) {
-                if (value.isnumber()) return 1;
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
         Coercion doubleCoercion = new Coercion() {
             //Cache the two most common values
-            private final Double ZERO = Double.valueOf(0.0);
-            private final Double ONE  = Double.valueOf(1.0);
+            private final Double zero = Double.valueOf(0.0);
+            private final Double one  = Double.valueOf(1.0);
 
             @Override
             public Object coerce(LuaValue value) {
                 double d = value.todouble();
-                if (d == 0.0) return ZERO;
-                if (d == 1.0) return ONE;
+                if (d == 0.0) {
+                    return zero;
+                }
+                if (d == 1.0) {
+                    return one;
+                }
                 return Double.valueOf(d);
             }
 
             @Override
             public int score(LuaValue value) {
-                if (value.isnumber()) return 1;
+                if (value.isnumber()) {
+                    return 1;
+                }
                 return 4;
             }
         };
@@ -151,26 +190,44 @@ public class CoerceLuaToJava {
 
             @Override
             public int score(LuaValue value) {
-                if (value.isstring()) return 0;
+                if (value.isstring()) {
+                    return 0;
+                }
                 return 2;
             }
         };
         Coercion objectCoercion = new Coercion() {
             @Override
             public Object coerce(LuaValue value) {
-                if (value instanceof LuaUserdata) return ((LuaUserdata) value).m_instance;
-                if (value instanceof LuaString)   return value.tojstring();
-                if (value instanceof LuaInteger)  return Integer.valueOf(value.toint());
-                if (value instanceof LuaDouble)   return Double.valueOf(value.todouble());
-                if (value instanceof LuaBoolean)  return Boolean.valueOf(value.toboolean());
-                if (value.isnil()) return null;
+                if (value instanceof LuaUserdata) {
+                    return ((LuaUserdata) value).m_instance;
+                }
+                if (value instanceof LuaString) {
+                    return value.tojstring();
+                }
+                if (value instanceof LuaInteger) {
+                    return Integer.valueOf(value.toint());
+                }
+                if (value instanceof LuaDouble) {
+                    return Double.valueOf(value.todouble());
+                }
+                if (value instanceof LuaBoolean) {
+                    return Boolean.valueOf(value.toboolean());
+                }
+                if (value.isnil()) {
+                    return null;
+                }
                 return value;
             }
 
             @Override
             public int score(LuaValue value) {
-                if (value.isuserdata()) return 0;
-                if (value.isstring()) return 1;
+                if (value.isuserdata()) {
+                    return 0;
+                }
+                if (value.isstring()) {
+                    return 1;
+                }
                 return 16;
             }
         };
@@ -207,7 +264,7 @@ public class CoerceLuaToJava {
 
         //Treat java functions ending in an array param as varargs
         for (int n = 0; n < jlast; n++) {
-            out[n] = coerceArg(luaArgs.arg(1+n), javaParams[n]);
+            out[n] = coerceArg(luaArgs.arg(1 + n), javaParams[n]);
         }
 
         final int vaCount = llen - jlast;
@@ -215,14 +272,14 @@ public class CoerceLuaToJava {
             final Class<?> vaType = javaParams[jlast].getComponentType();
             Object temp = Array.newInstance(vaType, vaCount);
             for (int n = 0; n < vaCount; n++) {
-                Array.set(temp, n, coerceArg(luaArgs.arg(1+jlast+n), vaType));
+                Array.set(temp, n, coerceArg(luaArgs.arg(1 + jlast + n), vaType));
             }
             out[jlast] = temp;
         } else if (llen > jlen && javaParams[jlast] == Varargs.class) {
-            out[jlast] = luaArgs.subargs(1+jlast);
+            out[jlast] = luaArgs.subargs(1 + jlast);
         } else {
             if (jlast >= 0) {
-                out[jlast] = coerceArg(luaArgs.arg(1+jlast), javaParams[jlast]);
+                out[jlast] = coerceArg(luaArgs.arg(1 + jlast), javaParams[jlast]);
             }
             for (int n = minlen; n < jlen; n++) {
                 out[n] = CoerceLuaToJava.coerceArg(NIL, javaParams[n]);
@@ -265,7 +322,7 @@ public class CoerceLuaToJava {
                 int len = table.length();
                 Object result = Array.newInstance(inner, len);
                 for (int n = 0; n < len; n++) {
-                    LuaValue val = table.get(n+1);
+                    LuaValue val = table.get(n + 1);
                     if (val != null) {
                         Array.set(result, n, coerceArg(val, inner));
                     }
@@ -317,7 +374,7 @@ public class CoerceLuaToJava {
 
         //Compare args
         for (int n = 0; n < len; n++) {
-            score += scoreParam(luaArgs.arg(1+n), javaParams[n]);
+            score += scoreParam(luaArgs.arg(1 + n), javaParams[n]);
         }
         return score;
     }

@@ -12,8 +12,8 @@ public final class SerializableIoLib extends IoLib {
 
     @Override
     protected LuaFileHandle openFile(String filename, boolean readMode, boolean appendMode, boolean updateMode,
-            boolean binaryMode) throws IOException
-    {
+            boolean binaryMode) throws IOException {
+
         throw new FileNotFoundException(filename);
     }
 

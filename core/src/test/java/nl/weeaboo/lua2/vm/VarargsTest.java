@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
@@ -66,8 +67,9 @@ public class VarargsTest {
         Assert.assertEquals(x.arg(-1), y.arg(-1));
         Assert.assertEquals(x.arg(2), y.arg(2));
         Assert.assertEquals(x.arg(3), y.arg(3));
-        for (int i = 4; i < x.narg() + 2; ++i)
+        for (int i = 4; i < x.narg() + 2; ++i) {
             Assert.assertEquals(x.arg(i), y.arg(i));
+        }
     }
 
     @Test
@@ -89,43 +91,43 @@ public class VarargsTest {
         expectEquals(NIL, NIL);
     }
 
-    static void standardTestsA_G(Varargs a_g) {
-        expectEquals(A_G, a_g);
-        expectEquals(A_G, a_g.subargs(1));
-        expectEquals(C_G, a_g.subargs(3).subargs(1));
-        expectEquals(E_G, a_g.subargs(5));
-        expectEquals(E_G, a_g.subargs(5).subargs(1));
-        expectEquals(FG, a_g.subargs(6));
-        expectEquals(FG, a_g.subargs(6).subargs(1));
-        expectEquals(G, a_g.subargs(7));
-        expectEquals(G, a_g.subargs(7).subargs(1));
-        expectEquals(NONE, a_g.subargs(8));
-        expectEquals(NONE, a_g.subargs(8).subargs(1));
+    static void standardTestsA_G(Varargs ag) {
+        expectEquals(A_G, ag);
+        expectEquals(A_G, ag.subargs(1));
+        expectEquals(C_G, ag.subargs(3).subargs(1));
+        expectEquals(E_G, ag.subargs(5));
+        expectEquals(E_G, ag.subargs(5).subargs(1));
+        expectEquals(FG, ag.subargs(6));
+        expectEquals(FG, ag.subargs(6).subargs(1));
+        expectEquals(G, ag.subargs(7));
+        expectEquals(G, ag.subargs(7).subargs(1));
+        expectEquals(NONE, ag.subargs(8));
+        expectEquals(NONE, ag.subargs(8).subargs(1));
         standardTestsC_G(A_G.subargs(3));
     }
 
-    static void standardTestsC_G(Varargs c_g) {
-        expectEquals(C_G, c_g.subargs(1));
-        expectEquals(E_G, c_g.subargs(3));
-        expectEquals(E_G, c_g.subargs(3).subargs(1));
-        expectEquals(FG, c_g.subargs(4));
-        expectEquals(FG, c_g.subargs(4).subargs(1));
-        expectEquals(G, c_g.subargs(5));
-        expectEquals(G, c_g.subargs(5).subargs(1));
-        expectEquals(NONE, c_g.subargs(6));
-        expectEquals(NONE, c_g.subargs(6).subargs(1));
-        standardTestsE_G(c_g.subargs(3));
+    static void standardTestsC_G(Varargs cg) {
+        expectEquals(C_G, cg.subargs(1));
+        expectEquals(E_G, cg.subargs(3));
+        expectEquals(E_G, cg.subargs(3).subargs(1));
+        expectEquals(FG, cg.subargs(4));
+        expectEquals(FG, cg.subargs(4).subargs(1));
+        expectEquals(G, cg.subargs(5));
+        expectEquals(G, cg.subargs(5).subargs(1));
+        expectEquals(NONE, cg.subargs(6));
+        expectEquals(NONE, cg.subargs(6).subargs(1));
+        standardTestsE_G(cg.subargs(3));
     }
 
-    static void standardTestsE_G(Varargs e_g) {
-        expectEquals(E_G, e_g.subargs(1));
-        expectEquals(FG, e_g.subargs(2));
-        expectEquals(FG, e_g.subargs(2).subargs(1));
-        expectEquals(G, e_g.subargs(3));
-        expectEquals(G, e_g.subargs(3).subargs(1));
-        expectEquals(NONE, e_g.subargs(4));
-        expectEquals(NONE, e_g.subargs(4).subargs(1));
-        standardTestsFG(e_g.subargs(2));
+    static void standardTestsE_G(Varargs eg) {
+        expectEquals(E_G, eg.subargs(1));
+        expectEquals(FG, eg.subargs(2));
+        expectEquals(FG, eg.subargs(2).subargs(1));
+        expectEquals(G, eg.subargs(3));
+        expectEquals(G, eg.subargs(3).subargs(1));
+        expectEquals(NONE, eg.subargs(4));
+        expectEquals(NONE, eg.subargs(4).subargs(1));
+        standardTestsFG(eg.subargs(2));
     }
 
     static void standardTestsFG(Varargs fg) {
@@ -156,62 +158,62 @@ public class VarargsTest {
 
     @Test
     public void testVarargsMore() {
-        Varargs a_g;
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, }, LuaValue.varargsOf( new LuaValue[] { B, C, D, E, F, G }));
-        standardTestsA_G(a_g);
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, B, }, LuaValue.varargsOf( new LuaValue[] { C, D, E, F, G }));
-        standardTestsA_G(a_g);
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, B, C, }, LuaValue.varargsOf( new LuaValue[] { D, E, F, G }));
-        standardTestsA_G(a_g);
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, }, LuaValue.varargsOf(E, F, G));
-        standardTestsA_G(a_g);
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, E }, LuaValue.varargsOf( F, G ));
-        standardTestsA_G(a_g);
-        a_g = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, E, F, }, G );
-        standardTestsA_G(a_g);
+        Varargs ag;
+        ag = LuaValue.varargsOf(new LuaValue[] { A, }, LuaValue.varargsOf( new LuaValue[] { B, C, D, E, F, G }));
+        standardTestsA_G(ag);
+        ag = LuaValue.varargsOf(new LuaValue[] { A, B, }, LuaValue.varargsOf( new LuaValue[] { C, D, E, F, G }));
+        standardTestsA_G(ag);
+        ag = LuaValue.varargsOf(new LuaValue[] { A, B, C, }, LuaValue.varargsOf( new LuaValue[] { D, E, F, G }));
+        standardTestsA_G(ag);
+        ag = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, }, LuaValue.varargsOf(E, F, G));
+        standardTestsA_G(ag);
+        ag = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, E }, LuaValue.varargsOf( F, G ));
+        standardTestsA_G(ag);
+        ag = LuaValue.varargsOf(new LuaValue[] { A, B, C, D, E, F, }, G );
+        standardTestsA_G(ag);
     }
 
     @Test
     public void testPairVarargsMore() {
-        Varargs a_g = new PairVarargs(A,
+        Varargs ag = new PairVarargs(A,
                     new PairVarargs(B,
                     new PairVarargs(C,
                     new PairVarargs(D,
                     new PairVarargs(E,
                     new PairVarargs(F, G))))));
-        standardTestsA_G(a_g);
+        standardTestsA_G(ag);
     }
 
     @Test
     public void testArrayPartMore() {
-        Varargs a_g;
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 1, new ArrayPartVarargs(Z_H_array, 2, 6));
-        standardTestsA_G(a_g);
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 2, new ArrayPartVarargs(Z_H_array, 3, 5));
-        standardTestsA_G(a_g);
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 3, new ArrayPartVarargs(Z_H_array, 4, 4));
-        standardTestsA_G(a_g);
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 4, new ArrayPartVarargs(Z_H_array, 5, 3));
-        standardTestsA_G(a_g);
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 5, new ArrayPartVarargs(Z_H_array, 6, 2));
-        standardTestsA_G(a_g);
-        a_g = new ArrayPartVarargs(Z_H_array, 1, 6, new ArrayPartVarargs(Z_H_array, 7, 1));
-        standardTestsA_G(a_g);
+        Varargs ag;
+        ag = new ArrayPartVarargs(Z_H_array, 1, 1, new ArrayPartVarargs(Z_H_array, 2, 6));
+        standardTestsA_G(ag);
+        ag = new ArrayPartVarargs(Z_H_array, 1, 2, new ArrayPartVarargs(Z_H_array, 3, 5));
+        standardTestsA_G(ag);
+        ag = new ArrayPartVarargs(Z_H_array, 1, 3, new ArrayPartVarargs(Z_H_array, 4, 4));
+        standardTestsA_G(ag);
+        ag = new ArrayPartVarargs(Z_H_array, 1, 4, new ArrayPartVarargs(Z_H_array, 5, 3));
+        standardTestsA_G(ag);
+        ag = new ArrayPartVarargs(Z_H_array, 1, 5, new ArrayPartVarargs(Z_H_array, 6, 2));
+        standardTestsA_G(ag);
+        ag = new ArrayPartVarargs(Z_H_array, 1, 6, new ArrayPartVarargs(Z_H_array, 7, 1));
+        standardTestsA_G(ag);
     }
 
     static void expectNegSubargsError(Varargs v) {
-        String expected_msg = "bad argument #1: start must be > 0";
+        String expectedMessage = "bad argument #1: start must be > 0";
         try {
             v.subargs(0);
             Assert.fail("Failed to throw exception for index 0");
         } catch ( LuaError e ) {
-            Assert.assertEquals(expected_msg, e.getMessage());
+            Assert.assertEquals(expectedMessage, e.getMessage());
         }
         try {
             v.subargs(-1);
             Assert.fail("Failed to throw exception for index -1");
         } catch ( LuaError e ) {
-            Assert.assertEquals(expected_msg, e.getMessage());
+            Assert.assertEquals(expectedMessage, e.getMessage());
         }
     }
 }

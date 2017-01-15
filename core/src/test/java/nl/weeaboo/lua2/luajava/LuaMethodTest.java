@@ -60,7 +60,7 @@ public class LuaMethodTest extends AbstractLuaTest {
     }
 
     /**
-     * Serialize a userdata object
+     * Serialize a userdata object.
      */
     @Test
     public void serialize() throws IOException, LuaException {

@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -90,8 +91,9 @@ public class LuaOperationsTest {
             LuaValue.class.getMethod(methodName).invoke(obj);
             Assert.fail("failed to throw LuaError as required");
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError))
+            if (!(e.getTargetException() instanceof LuaError)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
+            }
             return; // pass
         } catch (Exception e) {
             Assert.fail("bad exception: " + e);

@@ -28,7 +28,9 @@ public class LuaInterpreter {
      * @param callstackBase Don't touch stack frames with zero-based index &lt; callstackBase.
      */
     public static Varargs resume(LuaThread thread, int callstackBase) {
-        if (callstackBase < 0) throw new IllegalArgumentException("callstackBase must be >= 0");
+        if (callstackBase < 0) {
+            throw new IllegalArgumentException("callstackBase must be >= 0");
+        }
 
         Varargs result = NONE;
         while (thread.isRunning() && thread.callstackSize() > callstackBase) {
@@ -50,9 +52,6 @@ public class LuaInterpreter {
     }
 
     private static Varargs resume(LuaThread thread, StackFrame sf) {
-        int i, a, b, c;
-        LuaValue o;
-
         final LuaClosure closure = sf.c;
         final Prototype p = closure.getPrototype();
         final int[] code = p.code;
@@ -68,6 +67,12 @@ public class LuaInterpreter {
 
         LuaRunState lrs = LuaRunState.getCurrent();
         sf.status = Status.RUNNING;
+
+        int i;
+        int a;
+        int b;
+        int c;
+        LuaValue o;
         try {
             while (thread.isRunning()) {
                 if (pc < 0 || pc >= code.length) {
@@ -96,14 +101,17 @@ public class LuaInterpreter {
 
                 case Lua.OP_LOADBOOL:/* A B C R(A):= (Bool)B: if (C) pc++ */
                     stack[a] = (i >>> 23 != 0) ? TRUE : FALSE;
-                    if ((i & (0x1ff << 14)) != 0) pc++; /*
-                                                         * skip next instruction (if C)
-                                                         */
+                    if ((i & (0x1ff << 14)) != 0) {
+                        pc++; /*
+                                                             * skip next instruction (if C)
+                                                             */
+                    }
                     continue;
 
                 case Lua.OP_LOADNIL: /* A B R(A):= ...:= R(B):= nil */
-                    for (b = i >>> 23; a <= b;)
+                    for (b = i >>> 23; a <= b;) {
                         stack[a++] = NIL;
+                    }
                     continue;
 
                 case Lua.OP_GETUPVAL: /* A B R(A):= UpValue[B] */
@@ -187,8 +195,9 @@ public class LuaInterpreter {
                     c = (i >> 14) & 0x1ff;
                     if (c > b + 1) {
                         Buffer sb = stack[c].buffer();
-                        while (--c >= b)
+                        while (--c >= b) {
                             sb = stack[c].concat(sb);
+                        }
                         stack[a] = sb.value();
                     } else {
                         stack[a] = stack[c - 1].concat(stack[c]);
@@ -201,32 +210,40 @@ public class LuaInterpreter {
 
                 case Lua.OP_EQ: /* A B C if ((RK(B) == RK(C)) ~= A) then pc++ */
                     if (((b = i >>> 23) > 0xff ? k[b & 0x0ff] : stack[b])
-                            .eq_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0))
+                            .eq_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0)) {
                         ++pc;
+                    }
                     continue;
 
                 case Lua.OP_LT: /* A B C if ((RK(B) < RK(C)) ~= A) then pc++ */
                     if (((b = i >>> 23) > 0xff ? k[b & 0x0ff] : stack[b])
-                            .lt_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0))
+                            .lt_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0)) {
                         ++pc;
+                    }
                     continue;
 
                 case Lua.OP_LE: /* A B C if ((RK(B) <= RK(C)) ~= A) then pc++ */
                     if (((b = i >>> 23) > 0xff ? k[b & 0x0ff] : stack[b])
-                            .lteq_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0))
+                            .lteq_b((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]) != (a != 0)) {
                         ++pc;
+                    }
                     continue;
 
                 case Lua.OP_TEST: /* A C if not (R(A) <=> C) then pc++ */
-                    if (stack[a].toboolean() != ((i & (0x1ff << 14)) != 0)) ++pc;
+                    if (stack[a].toboolean() != ((i & (0x1ff << 14)) != 0)) {
+                        ++pc;
+                    }
                     continue;
 
                 case Lua.OP_TESTSET: /*
                                       * A B C if (R(B) <=> C) then R(A):= R(B) else pc++
                                       */
                     /* note: doc appears to be reversed */
-                    if ((o = stack[i >>> 23]).toboolean() != ((i & (0x1ff << 14)) != 0)) ++pc;
-                    else stack[a] = o; // TODO: should be sBx?
+                    if ((o = stack[i >>> 23]).toboolean() != ((i & (0x1ff << 14)) != 0)) {
+                        ++pc;
+                    } else {
+                        stack[a] = o; // TODO: should be sBx?
+                    }
                     continue;
 
                 case Lua.OP_CALL: /*
@@ -306,12 +323,13 @@ public class LuaInterpreter {
                     sf.pc = pc;
                     sf.v = v;
                     thread.postReturn(sf, sf.size() - 1);
-                    sf.parentCount--; // Hack to make recursive calls have the correct callstack size when I
-                                      // remove sf later
+                    // Hack to make recursive calls have the correct callstack size when I remove sf later
+                    sf.parentCount--;
                     v = f.invoke(v);
 
                     if (sf == thread.callstack) {
-                        sf.parentCount++; // Java function didn't do anything to the callstack, recover.
+                        // Java function didn't do anything to the callstack, recover.
+                        sf.parentCount++;
 
                         top = sf.top;
                         pc = sf.pc;
@@ -379,11 +397,13 @@ public class LuaInterpreter {
                     top = sf.top;
                     pc = sf.pc;
 
-                    if ((o = v.arg1()).isnil()) ++pc;
-                    else {
+                    if ((o = v.arg1()).isnil()) {
+                        ++pc;
+                    } else {
                         stack[a + 2] = stack[a + 3] = o;
-                        for (c = (i >> 14) & 0x1ff; c > 1; --c)
+                        for (c = (i >> 14) & 0x1ff; c > 1; --c) {
                             stack[a + 2 + c] = v.arg(c);
+                        }
                         v = NONE; // todo: necessary?
                     }
                     continue;
@@ -392,21 +412,26 @@ public class LuaInterpreter {
                                       * A B C R(A)[(C-1)*FPF+i]:= R(A+i), 1 <= i <= B
                                       */
                 {
-                    if ((c = (i >> 14) & 0x1ff) == 0) c = code[pc++];
+                    if ((c = (i >> 14) & 0x1ff) == 0) {
+                        c = code[pc++];
+                    }
                     int offset = (c - 1) * Lua.LFIELDS_PER_FLUSH;
                     o = stack[a];
                     if ((b = i >>> 23) == 0) {
                         b = top - a - 1;
                         int m = b - v.narg();
                         int j = 1;
-                        for (; j <= m; j++)
+                        for (; j <= m; j++) {
                             o.set(offset + j, stack[a + j]);
-                        for (; j <= b; j++)
+                        }
+                        for (; j <= b; j++) {
                             o.set(offset + j, v.arg(j - m));
+                        }
                     } else {
                         o.presize(offset + b);
-                        for (int j = 1; j <= b; j++)
+                        for (int j = 1; j <= b; j++) {
                             o.set(offset + j, stack[a + j]);
+                        }
                     }
                 }
                     continue;

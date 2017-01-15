@@ -29,12 +29,15 @@ public class LuaLink extends AbstractLuaLink {
 
     private boolean inited;
 
-    /** @see #setPersistent(boolean) */
+    /**
+     * @see #setPersistent(boolean)
+     */
     private boolean persistent;
 
     public LuaLink(LuaRunState lrs) {
         this(lrs, lrs.getGlobalEnvironment());
     }
+
     public LuaLink(LuaRunState lrs, LuaValue environment) {
         luaRunState = lrs;
 
@@ -88,7 +91,7 @@ public class LuaLink extends AbstractLuaLink {
         while (table != null && !table.isnil() && (index = funcName.indexOf('.')) >= 0) {
             String part = funcName.substring(0, index);
             table = table.get(LuaString.valueOf(part));
-            funcName = funcName.substring(index+1);
+            funcName = funcName.substring(index + 1);
         }
 
         LuaValue func = null;
@@ -201,15 +204,23 @@ public class LuaLink extends AbstractLuaLink {
     }
 
     public boolean isRunnable() {
-        if (!inited) return true;
-        if (thread == null) return false;
+        if (!inited) {
+            return true;
+        }
+        if (thread == null) {
+            return false;
+        }
         return !thread.isFinished();
     }
 
     @Override
     public final boolean isFinished() {
-        if (!inited) return false;
-        if (thread == null) return true;
+        if (!inited) {
+            return false;
+        }
+        if (thread == null) {
+            return true;
+        }
         return (persistent ? thread.isDead() : thread.isFinished());
     }
 

@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
@@ -150,8 +151,9 @@ abstract public class IoLib extends OneArgFunction {
 
     private void setLibInstance(LuaTable t) {
         LuaValue[] k = t.keys();
-        for (int i = 0, n = k.length; i < n; i++)
+        for (int i = 0, n = k.length; i < n; i++) {
             ((IoLibV)t.get(k[i])).iolib = this;
+        }
     }
 
     /**
@@ -467,8 +469,9 @@ abstract public class IoLib extends OneArgFunction {
     }
 
     private static Varargs iowrite(LuaFileHandle f, Varargs args) throws IOException {
-        for (int i = 1, n = args.narg(); i <= n; i++)
+        for (int i = 1, n = args.narg(); i <= n; i++) {
             f.write(args.checkstring(i));
+        }
         return TRUE;
     }
 
@@ -551,7 +554,9 @@ abstract public class IoLib extends OneArgFunction {
     public static LuaValue freadbytes(LuaFileHandle f, int count) throws IOException {
         byte[] b = new byte[count];
         int r;
-        if ((r = f.read(b, 0, b.length)) < 0) return NIL;
+        if ((r = f.read(b, 0, b.length)) < 0) {
+            return NIL;
+        }
         return LuaString.valueOf(b, 0, r);
     }
 
@@ -572,8 +577,9 @@ abstract public class IoLib extends OneArgFunction {
                     }
                 }
             } else {
-                while ((c = f.read()) > 0)
+                while ((c = f.read()) > 0) {
                     baos.write(c);
+                }
             }
         } catch (EOFException e) {
             c = -1;
@@ -625,7 +631,9 @@ abstract public class IoLib extends OneArgFunction {
                 return;
             }
             f.read();
-            if (baos != null) baos.write(c);
+            if (baos != null) {
+                baos.write(c);
+            }
         }
     }
 

@@ -30,7 +30,7 @@ public class JavaArrayTest extends AbstractLuaTest {
     }
 
     /**
-     * Access values from a covariant Java array
+     * Access values from a covariant Java array.
      */
     @Test
     public void accessArray() throws LuaException {

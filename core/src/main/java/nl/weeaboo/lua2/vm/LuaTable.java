@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -142,7 +143,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         int nu = (unnamed != null ? unnamed.length : 0);
         int nl = (lastarg != null ? lastarg.narg() : 0);
         presize(nu + nl, nn >> 1);
-        for (int i = 0; i < nu; i++){
+        for (int i = 0; i < nu; i++) {
             rawset(i + 1, unnamed[i]);
         }
         if (lastarg != null) {
@@ -289,7 +290,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     public void presize(int narray, int nhash) {
-        if (nhash > 0 && nhash < MIN_HASH_CAPACITY) nhash = MIN_HASH_CAPACITY;
+        if (nhash > 0 && nhash < MIN_HASH_CAPACITY) {
+            nhash = MIN_HASH_CAPACITY;
+        }
         // Size of both parts must be a power of two.
         array = (narray > 0 ? new LuaValue[1 << log2(narray)] : NOVALS);
         hash = (nhash > 0 ? new Slot[1 << log2(nhash)] : NOBUCKETS);
@@ -408,13 +411,17 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public void rawset(int key, LuaValue value) {
-        if (!arrayset(key, value)) hashset(LuaInteger.valueOf(key), value);
+        if (!arrayset(key, value)) {
+            hashset(LuaInteger.valueOf(key), value);
+        }
     }
 
     /** caller must ensure key is not nil */
     @Override
     public void rawset(LuaValue key, LuaValue value) {
-        if (!key.isinttype() || !arrayset(key.toint(), value)) hashset(key, value);
+        if (!key.isinttype() || !arrayset(key.toint(), value)) {
+            hashset(key, value);
+        }
     }
 
     /** Set an array element */
@@ -434,8 +441,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
      */
     public LuaValue remove(int pos) {
         int n = rawlen();
-        if (pos == 0) pos = n;
-        else if (pos > n) return NONE;
+        if (pos == 0) {
+            pos = n;
+        } else if (pos > n) {
+            return NONE;
+        }
         LuaValue v = rawget(pos);
         for (LuaValue r = v; !r.isnil();) {
             r = rawget(pos + 1);
@@ -451,7 +461,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
      * @param value The value to insert
      */
     public void insert(int pos, LuaValue value) {
-        if (pos == 0) pos = rawlen() + 1;
+        if (pos == 0) {
+            pos = rawlen() + 1;
+        }
         while (!value.isnil()) {
             LuaValue v = rawget(pos);
             rawset(pos++, value);
@@ -487,7 +499,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     @Override
     public LuaValue len() {
         final LuaValue h = metatag(LEN);
-        if (h.toboolean()) return h.call(this);
+        if (h.toboolean()) {
+            return h.call(this);
+        }
         return LuaInteger.valueOf(rawlen());
     }
 
@@ -527,7 +541,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                         break;
                     }
                 }
-                if (hash.length == 0) error("invalid key to 'next'");
+                if (hash.length == 0) {
+                    error("invalid key to 'next'");
+                }
                 i = hashSlot(key);
                 boolean found = false;
                 for (Slot slot = hash[i]; slot != null; slot = slot.rest()) {
@@ -562,7 +578,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             Slot slot = hash[i];
             while (slot != null) {
                 StrongSlot first = slot.first();
-                if (first != null) return first.toVarargs();
+                if (first != null) {
+                    return first.toVarargs();
+                }
                 slot = slot.rest();
             }
         }
@@ -684,7 +702,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         int keys = 0;
         for (int i = 0; i < hash.length; ++i) {
             for (Slot slot = hash[i]; slot != null; slot = slot.rest()) {
-                if (slot.first() != null) keys++;
+                if (slot.first() != null) {
+                    keys++;
+                }
             }
         }
         return keys;
@@ -702,11 +722,15 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         // Count integer keys in array part
         for (int bit = 0; bit < 31; ++bit) {
-            if (i > array.length) break;
+            if (i > array.length) {
+                break;
+            }
             int j = Math.min(array.length, 1 << bit);
             int c = 0;
             while (i <= j) {
-                if (array[i++ - 1] != null) c++;
+                if (array[i++ - 1] != null) {
+                    c++;
+                }
             }
             nums[bit] = c;
             total += c;
@@ -730,9 +754,10 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     static int log2(int x) {
         int lg = 0;
         x -= 1;
-        if (x < 0)
+        if (x < 0) {
             // 2^(-(2^31)) is approximately 0
             return Integer.MIN_VALUE;
+        }
         if ((x & 0xFFFF0000) != 0) {
             lg = 16;
             x >>>= 16;
@@ -855,12 +880,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             newArray = array;
         }
 
-        final int newHashSize = hashEntries - movingToArray + ((newKey < 0 || newKey > newArraySize) ? 1 : 0); // Make
-                                                                                                               // room
-                                                                                                               // for
-                                                                                                               // the
-                                                                                                               // new
-                                                                                                               // entry
+        // Make room for the new entry
+        final int newHashSize = hashEntries - movingToArray + ((newKey < 0 || newKey > newArraySize) ? 1 : 0);
         final int oldCapacity = oldHash.length;
         final int newCapacity;
         final int newHashMask;
@@ -882,7 +903,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                 int k;
                 if ((k = slot.arraykey(newArraySize)) > 0) {
                     StrongSlot entry = slot.first();
-                    if (entry != null) newArray[k - 1] = entry.value();
+                    if (entry != null) {
+                        newArray[k - 1] = entry.value();
+                    }
                 } else {
                     int j = slot.keyindex(newHashMask);
                     newHash[j] = slot.relink(newHash[j]);
@@ -898,7 +921,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                 Slot newEntry;
                 if (m_metatable != null) {
                     newEntry = m_metatable.entry(valueOf(i), v);
-                    if (newEntry == null) continue;
+                    if (newEntry == null) {
+                        continue;
+                    }
                 } else {
                     newEntry = defaultEntry(valueOf(i), v);
                 }
@@ -971,14 +996,17 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     private void heapify(int count, LuaValue cmpfunc) {
-        for (int start = count / 2 - 1; start >= 0; --start)
+        for (int start = count / 2 - 1; start >= 0; --start) {
             siftDown(start, count - 1, cmpfunc);
+        }
     }
 
     private void siftDown(int start, int end, LuaValue cmpfunc) {
         for (int root = start; root * 2 + 1 <= end;) {
             int child = root * 2 + 1;
-            if (child < end && compare(child, child + 1, cmpfunc)) ++child;
+            if (child < end && compare(child, child + 1, cmpfunc)) {
+                ++child;
+            }
             if (compare(root, child, cmpfunc)) {
                 swap(root, child);
                 root = child;
@@ -997,7 +1025,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             a = m_metatable.arrayget(array, i);
             b = m_metatable.arrayget(array, j);
         }
-        if (a == null || b == null) return false;
+        if (a == null || b == null) {
+            return false;
+        }
         if (!cmpfunc.isnil()) {
             return cmpfunc.call(a, b).toboolean();
         } else {
@@ -1074,7 +1104,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         case 2:
             return varargsOf(get(i), get(i + 1));
         default:
-            if (n < 0) return NONE;
+            if (n < 0) {
+                return NONE;
+            }
             LuaValue[] v = new LuaValue[n];
             while (--n >= 0) {
                 v[n] = get(i + n);

@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import java.io.Externalizable;
@@ -46,12 +47,12 @@ public final class LocVars implements Externalizable {
     public int endpc;
     // --- Uses manual serialization, don't add variables ---
 
-    public LocVars() {        
+    public LocVars() {
     }
-    
+
     /**
      * Construct a LocVars instance.
-     * 
+     *
      * @param varname The local variable name
      * @param startpc The instruction offset when the variable comes into scope
      * @param endpc The instruction offset when the variable goes out of scope
@@ -65,7 +66,7 @@ public final class LocVars implements Externalizable {
     public String tojstring() {
         return varname + " " + startpc + "-" + endpc;
     }
-    
+
     @Override
     public String toString() {
         return tojstring();
@@ -76,7 +77,7 @@ public final class LocVars implements Externalizable {
         int len = varname.length();
         out.writeInt(len);
         varname.write(out, 0, len);
-        
+
         out.writeInt(startpc);
         out.writeInt(endpc);
     }
@@ -87,9 +88,9 @@ public final class LocVars implements Externalizable {
         byte[] bytes = new byte[len];
         in.readFully(bytes);
         varname = LuaString.valueOf(bytes);
-        
+
         startpc = in.readInt();
         endpc = in.readInt();
     }
-    
+
 }

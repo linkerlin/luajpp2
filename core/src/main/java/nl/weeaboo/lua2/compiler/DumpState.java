@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.compiler;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NUMBER_FORMAT_FLOATS_OR_DOUBLES;
@@ -43,25 +44,27 @@ import nl.weeaboo.lua2.vm.Prototype;
 
 public final class DumpState {
 
-    /** mark for precompiled code (`<esc>Lua') */
+    /**
+     * Mark for precompiled code ({@code '<esc>Lua'}).
+     */
     public static final String LUA_SIGNATURE = "\033Lua";
 
     /** for header of binary files -- this is Lua 5.1 */
     public static final int LUAC_VERSION = 0x51;
 
-    /** for header of binary files -- this is the official format */
+    /** for header of binary files -- this is the official format. */
     public static final int LUAC_FORMAT = 0;
 
-    /** size of header of binary files */
+    /** size of header of binary files. */
     public static final int LUAC_HEADERSIZE = 12;
 
-    /** expected lua header bytes */
+    /** expected lua header bytes. */
     private static final byte[] LUAC_HEADER_SIGNATURE = { '\033', 'L', 'u', 'a' };
 
-    /** default number format */
+    /** default number format. */
     public static final int NUMBER_FORMAT_DEFAULT = LuaConstants.NUMBER_FORMAT_FLOATS_OR_DOUBLES;
 
-    /** set true to allow integer compilation */
+    /** set true to allow integer compilation. */
     private static boolean ALLOW_INTEGER_CASTING = false;
 
     private static final int SIZEOF_INT = 4;
@@ -121,15 +124,16 @@ public final class DumpState {
         final int[] code = f.code;
         int n = code.length;
         dumpInt(n);
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             dumpInt(code[i]);
+        }
     }
 
     void dumpConstants(final Prototype f) throws IOException {
         final LuaValue[] k = f.k;
-        int i, n = k.length;
+        int n = k.length;
         dumpInt(n);
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             final LuaValue o = k[i];
             switch (o.type()) {
             case TNIL:
@@ -176,19 +180,20 @@ public final class DumpState {
         }
         n = f.p.length;
         dumpInt(n);
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             dumpFunction(f.p[i], f.source);
+        }
     }
 
     void dumpDebug(final Prototype f) throws IOException {
-        int i, n;
-        n = (strip) ? 0 : f.lineinfo.length;
+        int n = (strip) ? 0 : f.lineinfo.length;
         dumpInt(n);
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             dumpInt(f.lineinfo[i]);
+        }
         n = (strip) ? 0 : f.locvars.length;
         dumpInt(n);
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             LocVars lvi = f.locvars[i];
             dumpString(lvi.varname);
             dumpInt(lvi.startpc);
@@ -196,13 +201,17 @@ public final class DumpState {
         }
         n = (strip) ? 0 : f.upvalues.length;
         dumpInt(n);
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             dumpString(f.upvalues[i]);
+        }
     }
 
     void dumpFunction(final Prototype f, final LuaString string) throws IOException {
-        if (f.source == null || f.source.equals(string) || strip) dumpInt(0);
-        else dumpString(f.source);
+        if (f.source == null || f.source.equals(string) || strip) {
+            dumpInt(0);
+        } else {
+            dumpString(f.source);
+        }
         dumpInt(f.linedefined);
         dumpInt(f.lastlinedefined);
         dumpChar(f.nups);
@@ -226,13 +235,13 @@ public final class DumpState {
         writer.write(numberFormat);
     }
 
-    /*
-     * * dump Lua function as precompiled chunk
+    /**
+     * dump Lua function as precompiled chunk.
      */
     public static void dump(Prototype f, OutputStream w, boolean strip) throws IOException {
-        DumpState D = new DumpState(w, strip);
-        D.dumpHeader();
-        D.dumpFunction(f, null);
+        DumpState d = new DumpState(w, strip);
+        d.dumpHeader();
+        d.dumpFunction(f, null);
     }
 
     /**
@@ -247,6 +256,7 @@ public final class DumpState {
      */
     public static void dump(Prototype f, OutputStream w, boolean stripDebug, int numberFormat,
             boolean littleendian) throws IOException {
+
         switch (numberFormat) {
         case NUMBER_FORMAT_FLOATS_OR_DOUBLES:
         case NUMBER_FORMAT_INTS_ONLY:
@@ -255,11 +265,11 @@ public final class DumpState {
         default:
             throw new IllegalArgumentException("number format not supported: " + numberFormat);
         }
-        DumpState D = new DumpState(w, stripDebug);
-        D.isLittleEndian = littleendian;
-        D.numberFormat = numberFormat;
-        D.sizeofLuaNumber = (numberFormat == NUMBER_FORMAT_INTS_ONLY ? 4 : 8);
-        D.dumpHeader();
-        D.dumpFunction(f, null);
+        DumpState d = new DumpState(w, stripDebug);
+        d.isLittleEndian = littleendian;
+        d.numberFormat = numberFormat;
+        d.sizeofLuaNumber = (numberFormat == NUMBER_FORMAT_INTS_ONLY ? 4 : 8);
+        d.dumpHeader();
+        d.dumpFunction(f, null);
     }
 }

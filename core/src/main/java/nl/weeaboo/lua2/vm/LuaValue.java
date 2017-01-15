@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -1226,8 +1227,9 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError if this is not a table.
      */
     public void rawsetlist(int key0, Varargs values) {
-        for (int i = 0, n = values.narg(); i < n; i++)
+        for (int i = 0, n = values.narg(); i < n; i++) {
             rawset(key0 + i, values.arg(i + 1));
+        }
     }
 
     /**
@@ -2824,9 +2826,15 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         do {
             if (t.istable()) {
                 LuaValue res = t.rawget(key);
-                if ((!res.isnil()) || (tm = t.metatag(INDEX)).isnil()) return res;
-            } else if ((tm = t.metatag(INDEX)).isnil()) t.indexerror();
-            if (tm.isfunction()) return tm.call(t, key);
+                if ((!res.isnil()) || (tm = t.metatag(INDEX)).isnil()) {
+                    return res;
+                }
+            } else if ((tm = t.metatag(INDEX)).isnil()) {
+                t.indexerror();
+            }
+            if (tm.isfunction()) {
+                return tm.call(t, key);
+            }
             t = tm;
         } while (++loop < MAXTAGLOOP);
         error("loop in gettable");
@@ -2852,7 +2860,9 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
                     t.rawset(key, value);
                     return true;
                 }
-            } else if ((tm = t.metatag(NEWINDEX)).isnil()) t.typerror("index");
+            } else if ((tm = t.metatag(NEWINDEX)).isnil()) {
+                t.typerror("index");
+            }
             if (tm.isfunction()) {
                 tm.call(t, key, value);
                 return true;
@@ -2872,7 +2882,9 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      */
     public LuaValue metatag(LuaValue tag) {
         LuaValue mt = getmetatable();
-        if (mt == null) return NIL;
+        if (mt == null) {
+            return NIL;
+        }
         return mt.rawget(tag);
     }
 
@@ -2887,7 +2899,9 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      */
     protected LuaValue checkmetatag(LuaValue tag, String reason) {
         LuaValue h = this.metatag(tag);
-        if (h.isnil()) throw new LuaError(reason + typename());
+        if (h.isnil()) {
+            throw new LuaError(reason + typename());
+        }
         return h;
     }
 

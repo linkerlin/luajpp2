@@ -11,7 +11,7 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 
-/** DebugState is associated with a Thread */
+/** DebugState is associated with a Thread. */
 @LuaSerializable
 final class DebugState implements Externalizable {
 
@@ -20,8 +20,12 @@ final class DebugState implements Externalizable {
     int debugCalls;
     private DebugInfo[] debugInfo;
     LuaValue hookfunc;
-    boolean hookcall, hookline, hookrtrn, inhook;
-    int hookcount, hookcodes;
+    boolean hookcall;
+    boolean hookline;
+    boolean hookrtrn;
+    boolean inhook;
+    int hookcount;
+    int hookcodes;
     int line;
     // --- Uses manual serialization, don't add variables ---
 

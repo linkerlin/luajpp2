@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.luajava;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -92,7 +93,9 @@ public class LuajavaLib extends VarArgFunction {
             }
             case CREATEPROXY: {
                 final int niface = args.narg() - 1;
-                if (niface <= 0) throw new LuaError("no interfaces");
+                if (niface <= 0) {
+                    throw new LuaError("no interfaces");
+                }
                 final LuaValue lobj = args.checktable(niface + 1);
 
                 // get the interfaces

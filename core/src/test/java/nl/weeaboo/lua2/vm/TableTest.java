@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -402,11 +403,15 @@ public class TableTest {
         Varargs n;
         int i;
         for (n = t.next(NIL), i = 0; !n.arg1().isnil(); n = t.next(n.arg1()), ++i) {
-            if (i % 2 == 0) expected.add(n.arg1() + "=" + n.arg(2));
+            if (i % 2 == 0) {
+                expected.add(n.arg1() + "=" + n.arg(2));
+            }
         }
         // Remove every other key while iterating over the table.
         for (n = t.next(NIL), i = 0; !n.arg1().isnil(); n = t.next(n.arg1()), ++i) {
-            if (i % 2 != 0) t.set(n.arg1(), NIL);
+            if (i % 2 != 0) {
+                t.set(n.arg1(), NIL);
+            }
         }
         // Iterate over remaining table, and form list of entries still in table.
         java.util.List<String> actual = new java.util.ArrayList<String>();

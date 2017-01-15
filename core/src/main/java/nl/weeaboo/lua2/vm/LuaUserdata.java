@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -112,7 +113,9 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public <T> T optuserdata(Class<T> c, T defval) {
-        if (!c.isAssignableFrom(m_instance.getClass())) typerror(c.getName());
+        if (!c.isAssignableFrom(m_instance.getClass())) {
+            typerror(c.getName());
+        }
         return c.cast(m_instance);
     }
 
@@ -134,7 +137,9 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public <T> T checkuserdata(Class<T> c) {
-        if (!c.isAssignableFrom(m_instance.getClass())) typerror(c.getName());
+        if (!c.isAssignableFrom(m_instance.getClass())) {
+            typerror(c.getName());
+        }
         return c.cast(m_instance);
     }
 
@@ -152,8 +157,12 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public boolean equals(Object val) {
-        if (this == val) return true;
-        if (!(val instanceof LuaUserdata)) return false;
+        if (this == val) {
+            return true;
+        }
+        if (!(val instanceof LuaUserdata)) {
+            return false;
+        }
         LuaUserdata u = (LuaUserdata) val;
         return m_instance.equals(u.m_instance);
     }
@@ -166,8 +175,12 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public boolean eq_b(LuaValue val) {
-        if (val.raweq(this)) return true;
-        if (m_metatable == null || !val.isuserdata()) return false;
+        if (val.raweq(this)) {
+            return true;
+        }
+        if (m_metatable == null || !val.isuserdata()) {
+            return false;
+        }
         LuaValue valmt = val.getmetatable();
         return valmt != null && LuaValue.eqmtcall(this, m_metatable, val, valmt);
     }

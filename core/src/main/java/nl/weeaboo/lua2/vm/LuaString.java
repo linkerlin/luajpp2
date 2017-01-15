@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -493,7 +494,9 @@ public final class LuaString extends LuaValue implements Externalizable {
     /** Check for number in arithmetic, or throw aritherror */
     private double checkarith() {
         double d = scannumber(10);
-        if (Double.isNaN(d)) aritherror();
+        if (Double.isNaN(d)) {
+            aritherror();
+        }
         return d;
     }
 
@@ -515,7 +518,9 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public double checkdouble() {
         double d = scannumber(10);
-        if (Double.isNaN(d)) argerror("number");
+        if (Double.isNaN(d)) {
+            argerror("number");
+        }
         return d;
     }
 
@@ -527,7 +532,9 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public LuaNumber checknumber(String msg) {
         double d = scannumber(10);
-        if (Double.isNaN(d)) argerror("number");
+        if (Double.isNaN(d)) {
+            argerror("number");
+        }
         return valueOf(d);
     }
 
@@ -545,7 +552,9 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public boolean isint() {
         double d = scannumber(10);
-        if (Double.isNaN(d)) return false;
+        if (Double.isNaN(d)) {
+            return false;
+        }
         int i = (int) d;
         return i == d;
     }
@@ -553,7 +562,9 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public boolean islong() {
         double d = scannumber(10);
-        if (Double.isNaN(d)) return false;
+        if (Double.isNaN(d)) {
+            return false;
+        }
         long l = (long) d;
         return l == d;
     }
@@ -684,10 +695,18 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public boolean raweq(LuaString s) {
-        if (this == s) return true;
-        if (s.m_length != m_length) return false;
-        if (s.m_bytes == m_bytes && s.m_offset == m_offset) return true;
-        if (s.hashCode() != hashCode()) return false;
+        if (this == s) {
+            return true;
+        }
+        if (s.m_length != m_length) {
+            return false;
+        }
+        if (s.m_bytes == m_bytes && s.m_offset == m_offset) {
+            return true;
+        }
+        if (s.hashCode() != hashCode()) {
+            return false;
+        }
         return equals(m_bytes, m_offset, s.m_bytes, s.m_offset, m_length);
     }
 
@@ -696,15 +715,21 @@ public final class LuaString extends LuaValue implements Externalizable {
     }
 
     public static boolean equals(byte[] a, int i, byte[] b, int j, int n) {
-        if (a.length < i + n || b.length < j + n) return false;
-        while (--n >= 0)
-            if (a[i++] != b[j++]) return false;
+        if (a.length < i + n || b.length < j + n) {
+            return false;
+        }
+        while (--n >= 0) {
+            if (a[i++] != b[j++]) {
+                return false;
+            }
+        }
         return true;
     }
 
     public void write(OutputStream writer, int i, int len) throws IOException {
         writer.write(m_bytes, m_offset + i, len);
     }
+
     public void write(DataOutput out, int i, int len) throws IOException {
         out.write(m_bytes, m_offset + i, len);
     }
@@ -854,7 +879,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     public static String decodeAsUtf8(byte[] bytes, int offset, int length) {
         int utf16L = 0;
         for (int n = 0; n < length; n++) {
-            switch (0xE0 & bytes[offset+n]) {
+            switch (0xE0 & bytes[offset + n]) {
             case 0xE0:
                 n += 2;
                 break;
@@ -867,7 +892,8 @@ public final class LuaString extends LuaValue implements Externalizable {
 
         try {
             char[] chars = new char[utf16L];
-            int i = offset, j = offset + length;
+            int i = offset;
+            int j = offset + length;
             for (int n = 0; i < j; n++) {
                 byte b = bytes[i++];
                 if (b >= 0 || i >= j) {
@@ -898,8 +924,8 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @see #isValidUtf8()
      */
     public static int lengthAsUtf8(char[] chars) {
-        int i, b;
-        for (i = b = chars.length; --i >= 0;) {
+        int b = chars.length;
+        for (int i = b; --i >= 0;) {
             char c = chars[i];
             if (c >= 0x80) {
                 b += (c >= 0x800) ? 2 : 1;
@@ -948,13 +974,19 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @see #decodeAsUtf8(byte[], int, int)
      */
     public boolean isValidUtf8() {
-        int i, j;
-        for (i = m_offset, j = m_offset + m_length; i < j;) {
+        int j = m_offset + m_length;
+        for (int i = m_offset; i < j;) {
             int c = m_bytes[i++];
-            if (c >= 0) continue;
-            if (((c & 0xE0) == 0xC0) && i < j && (m_bytes[i++] & 0xC0) == 0x80) continue;
+            if (c >= 0) {
+                continue;
+            }
+            if (((c & 0xE0) == 0xC0) && i < j && (m_bytes[i++] & 0xC0) == 0x80) {
+                continue;
+            }
             if (((c & 0xF0) == 0xE0) && i + 1 < j && (m_bytes[i++] & 0xC0) == 0x80
-                    && (m_bytes[i++] & 0xC0) == 0x80) continue;
+                    && (m_bytes[i++] & 0xC0) == 0x80) {
+                continue;
+            }
             return false;
         }
         return true;
@@ -985,11 +1017,15 @@ public final class LuaString extends LuaValue implements Externalizable {
     public double scannumber(int base) {
         if (base >= 2 && base <= 36) {
             int i = m_offset, j = m_offset + m_length;
-            while (i < j && m_bytes[i] == ' ')
+            while (i < j && m_bytes[i] == ' ') {
                 ++i;
-            while (i < j && m_bytes[j - 1] == ' ')
+            }
+            while (i < j && m_bytes[j - 1] == ' ') {
                 --j;
-            if (i >= j) return Double.NaN;
+            }
+            if (i >= j) {
+                return Double.NaN;
+            }
             if ((base == 10 || base == 16)
                     && (m_bytes[i] == '0' && i + 1 < j && (m_bytes[i + 1] == 'x' || m_bytes[i + 1] == 'X'))) {
                 base = 16;
@@ -1017,7 +1053,9 @@ public final class LuaString extends LuaValue implements Externalizable {
             int digit = m_bytes[i]
                     - (base <= 10 || (m_bytes[i] >= '0' && m_bytes[i] <= '9') ? '0' : m_bytes[i] >= 'A'
                             && m_bytes[i] <= 'Z' ? ('A' - 10) : ('a' - 10));
-            if (digit < 0 || digit >= base) return Double.NaN;
+            if (digit < 0 || digit >= base) {
+                return Double.NaN;
+            }
             x = x * base + digit;
         }
         return neg ? -x : x;
@@ -1031,7 +1069,9 @@ public final class LuaString extends LuaValue implements Externalizable {
      * @return double value if conversion is valid, or Double.NaN if not
      */
     private double scandouble(int start, int end) {
-        if (end > start + 64) end = start + 64;
+        if (end > start + 64) {
+            end = start + 64;
+        }
         for (int i = start; i < end; i++) {
             switch (m_bytes[i]) {
             case '-':
@@ -1055,8 +1095,9 @@ public final class LuaString extends LuaValue implements Externalizable {
             }
         }
         char[] c = new char[end - start];
-        for (int i = start; i < end; i++)
+        for (int i = start; i < end; i++) {
             c[i - start] = (char) m_bytes[i];
+        }
         try {
             return Double.parseDouble(new String(c));
         } catch (Exception e) {

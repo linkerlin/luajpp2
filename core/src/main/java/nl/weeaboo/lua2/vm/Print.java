@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import java.io.ByteArrayOutputStream;
@@ -144,15 +145,22 @@ public class Print extends Lua {
         int bx = GETARG_Bx(i);
         int sbx = GETARG_sBx(i);
         int line = getline(f, pc);
-        ps.printf("%4d   ", pc+1);
-        if (line > 0) ps.print("[" + line + "]  ");
-        else ps.print("[-]  ");
+        ps.printf("%4d   ", pc + 1);
+        if (line > 0) {
+            ps.print("[" + line + "]  ");
+        } else {
+            ps.print("[-]  ");
+        }
         ps.print(OPNAMES[o] + "  ");
         switch (getOpMode(o)) {
         case iABC:
             ps.print(a);
-            if (getBMode(o) != OpArgN) ps.print(" " + (ISK(b) ? (-1 - INDEXK(b)) : b));
-            if (getCMode(o) != OpArgN) ps.print(" " + (ISK(c) ? (-1 - INDEXK(c)) : c));
+            if (getBMode(o) != OpArgN) {
+                ps.print(" " + (ISK(b) ? (-1 - INDEXK(b)) : b));
+            }
+            if (getCMode(o) != OpArgN) {
+                ps.print(" " + (ISK(c) ? (-1 - INDEXK(c)) : c));
+            }
             break;
         case iABx:
             if (getBMode(o) == OpArgK) {
@@ -162,10 +170,14 @@ public class Print extends Lua {
             }
             break;
         case iAsBx:
-            if (o == OP_JMP) ps.print(sbx);
-            else ps.print(a + " " + sbx);
+            if (o == OP_JMP) {
+                ps.print(sbx);
+            } else {
+                ps.print(a + " " + sbx);
+            }
             break;
         }
+
         switch (o) {
         case OP_LOADK:
             ps.print("  ; ");
@@ -174,8 +186,11 @@ public class Print extends Lua {
         case OP_GETUPVAL:
         case OP_SETUPVAL:
             ps.print("  ; ");
-            if (f.upvalues.length > b) printValue(ps, f.upvalues[b]);
-            else ps.print("-");
+            if (f.upvalues.length > b) {
+                printValue(ps, f.upvalues[b]);
+            } else {
+                ps.print("-");
+            }
             break;
         case OP_GETGLOBAL:
         case OP_SETGLOBAL:
@@ -200,11 +215,17 @@ public class Print extends Lua {
         case OP_LE:
             if (ISK(b) || ISK(c)) {
                 ps.print("  ; ");
-                if (ISK(b)) printConstant(ps, f, INDEXK(b));
-                else ps.print("-");
+                if (ISK(b)) {
+                    printConstant(ps, f, INDEXK(b));
+                } else {
+                    ps.print("-");
+                }
                 ps.print(" ");
-                if (ISK(c)) printConstant(ps, f, INDEXK(c));
-                else ps.print("-");
+                if (ISK(c)) {
+                    printConstant(ps, f, INDEXK(c));
+                } else {
+                    ps.print("-");
+                }
             }
             break;
         case OP_JMP:
@@ -216,8 +237,11 @@ public class Print extends Lua {
             ps.print("  ; " + f.p[bx].getClass().getName());
             break;
         case OP_SETLIST:
-            if (c == 0) ps.print("  ; " + code[++pc]);
-            else ps.print("  ; " + c);
+            if (c == 0) {
+                ps.print("  ; " + code[++pc]);
+            } else {
+                ps.print("  ; " + c);
+            }
             break;
         case OP_VARARG:
             ps.print("  ; is_vararg=" + f.is_vararg);
@@ -233,9 +257,13 @@ public class Print extends Lua {
 
     static void printHeader(Prototype f) {
         String s = String.valueOf(f.source);
-        if (s.startsWith("@") || s.startsWith("=")) s = s.substring(1);
-        else if ("\033Lua".equals(s)) s = "(bstring)";
-        else s = "(string)";
+        if (s.startsWith("@") || s.startsWith("=")) {
+            s = s.substring(1);
+        } else if ("\033Lua".equals(s)) {
+            s = "(bstring)";
+        } else {
+            s = "(string)";
+        }
         String a = (f.linedefined == 0) ? "main" : "function";
         ps.print("\n%" + a + " <" + s + ":" + f.linedefined + "," + f.lastlinedefined + "> (" + f.code.length
                 + " instructions, " + f.code.length * 4 + " bytes at " + id(f) + ")\n");
@@ -275,7 +303,7 @@ public class Print extends Lua {
     }
 
     public static void printFunction(Prototype f, boolean full) {
-        int i, n = f.p.length;
+        final int n = f.p.length;
         printHeader(f);
         printCode(f);
         if (full) {
@@ -283,17 +311,20 @@ public class Print extends Lua {
             printLocals(f);
             printUpValues(f);
         }
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             printFunction(f.p[i], full);
+        }
     }
 
     private static void format(String s, int maxcols) {
         int n = s.length();
-        if (n > maxcols) ps.print(s.substring(0, maxcols));
-        else {
+        if (n > maxcols) {
+            ps.print(s.substring(0, maxcols));
+        } else {
             ps.print(s);
-            for (int i = maxcols - n; --i >= 0;)
+            for (int i = maxcols - n; --i >= 0;) {
                 ps.print(' ');
+            }
         }
     }
 
@@ -315,7 +346,7 @@ public class Print extends Lua {
      */
     public static void printState(LuaClosure cl, int pc, LuaValue[] stack, int top, Varargs varargs) {
         // print opcode into buffer
-        PrintStream previous = ps;
+        final PrintStream previous = ps;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ps = new PrintStream(baos);
         printOpCode(cl.getPrototype(), pc);

@@ -22,6 +22,7 @@ public class LuaFunctionLink extends LuaLink {
     public LuaFunctionLink(LuaRunState lrs, String funcName, Object... args) {
         this(lrs, lrs.getGlobalEnvironment(), funcName, args);
     }
+
     public LuaFunctionLink(LuaRunState lrs, LuaValue environment, String funcName, Object... args) {
         super(lrs, environment);
 
@@ -32,6 +33,7 @@ public class LuaFunctionLink extends LuaLink {
     public LuaFunctionLink(LuaRunState lrs, LuaClosure func, Varargs args) {
         this(lrs, lrs.getGlobalEnvironment(), func, args);
     }
+
     public LuaFunctionLink(LuaRunState lrs, LuaValue environment, LuaClosure func, Varargs args) {
         super(lrs, environment);
 

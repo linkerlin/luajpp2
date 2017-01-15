@@ -28,8 +28,10 @@ final class DebugInfo implements Externalizable {
     LuaValue func;
     LuaClosure closure;
     LuaValue[] stack;
-    Varargs varargs, extras;
-    int pc, top;
+    Varargs varargs;
+    Varargs extras;
+    int pc;
+    int top;
     // --- Uses manual serialization, don't add variables ---
 
     public DebugInfo() {

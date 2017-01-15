@@ -29,6 +29,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
     public LuaThreadGroup(LuaRunState lrs) {
         this(lrs, lrs.getGlobalEnvironment());
     }
+
     public LuaThreadGroup(LuaRunState lrs, LuaValue environment) {
         this.luaRunState = lrs;
         this.environment = environment;

@@ -19,9 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
-abstract public class WeakTableTest extends TableTest {
+public abstract class WeakTableTest extends TableTest {
 
     public static class MyData {
         public final int value;

@@ -118,10 +118,6 @@ public class StringTest {
     public void testIndexOfByteInSubstring() {
         LuaString str = LuaString.valueOf("abcdef:ghi");
         LuaString sub = str.substring(2, 10);
-//        Assert.assertEquals(10, str.m_length);
-//        Assert.assertEquals(8, sub.m_length);
-//        Assert.assertEquals(0, str.m_offset);
-//        Assert.assertEquals(2, sub.m_offset);
 
         Assert.assertEquals(6, str.indexOf((byte)':', 0));
         Assert.assertEquals(6, str.indexOf((byte)':', 2));
@@ -152,10 +148,6 @@ public class StringTest {
     public void testIndexOfPatternInSubstring() {
         LuaString str = LuaString.valueOf("abcdef:ghi");
         LuaString sub = str.substring(2, 10);
-//        Assert.assertEquals(10, str.m_length);
-//        Assert.assertEquals(8, sub.m_length);
-//        Assert.assertEquals(0, str.m_offset);
-//        Assert.assertEquals(2, sub.m_offset);
 
         LuaString pat = LuaString.valueOf(":");
         LuaString i = LuaString.valueOf("i");
@@ -190,10 +182,6 @@ public class StringTest {
     public void testLastIndexOfPatternInSubstring() {
         LuaString str = LuaString.valueOf("abcdef:ghi");
         LuaString sub = str.substring(2, 10);
-//        Assert.assertEquals(10, str.m_length);
-//        Assert.assertEquals(8, sub.m_length);
-//        Assert.assertEquals(0, str.m_offset);
-//        Assert.assertEquals(2, sub.m_offset);
 
         LuaString pat = LuaString.valueOf(":");
         LuaString i = LuaString.valueOf("i");
@@ -212,21 +200,15 @@ public class StringTest {
     public void testIndexOfAnyInSubstring() {
         LuaString str = LuaString.valueOf("abcdef:ghi");
         LuaString sub = str.substring(2, 10);
-//        Assert.assertEquals(10, str.m_length);
-//        Assert.assertEquals(8, sub.m_length);
-//        Assert.assertEquals(0, str.m_offset);
-//        Assert.assertEquals(2, sub.m_offset);
 
         LuaString ghi = LuaString.valueOf("ghi");
         LuaString ihg = LuaString.valueOf("ihg");
         LuaString ijk = LuaString.valueOf("ijk");
         LuaString kji = LuaString.valueOf("kji");
         LuaString xyz = LuaString.valueOf("xyz");
-        LuaString ABCdEFGHIJKL = LuaString.valueOf("ABCdEFGHIJKL");
-        LuaString EFGHIJKL = ABCdEFGHIJKL.substring(4, 12);
-        LuaString CdEFGHIJ = ABCdEFGHIJKL.substring(2, 10);
-//        Assert.assertEquals(4, EFGHIJKL.m_offset);
-//        Assert.assertEquals(2, CdEFGHIJ.m_offset);
+        final LuaString ABCdEFGHIJKL = LuaString.valueOf("ABCdEFGHIJKL");
+        final LuaString EFGHIJKL = ABCdEFGHIJKL.substring(4, 12);
+        final LuaString CdEFGHIJ = ABCdEFGHIJKL.substring(2, 10);
 
         Assert.assertEquals(7, str.indexOfAny(ghi));
         Assert.assertEquals(7, str.indexOfAny(ihg));

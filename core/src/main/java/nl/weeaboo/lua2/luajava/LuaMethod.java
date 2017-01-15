@@ -68,7 +68,9 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         try {
             MethodInfo method = findMethod(args);
             if (method == null) {
-                throw new NoSuchMethodException(String.format("Method %s with the specified parameter types doesn't exist", methodName));
+                throw new NoSuchMethodException(String.format(
+                        "Method %s with the specified parameter types doesn't exist",
+                        methodName));
             }
             Object javaResult = invokeMethod(method, instance, args);
             // Only allow access to declared type (prevents accidental use of nondeclared interfaces)
@@ -86,8 +88,8 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
     }
 
     private Object invokeMethod(MethodInfo mi, Object instance, Varargs args)
-        throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
-    {
+        throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+
         Class<?>[] params = mi.getParams();
         if (javaArgsTemp == null || javaArgsTemp.length != params.length) {
             //Length must be exactly the same

@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -586,8 +587,9 @@ public class TypeTest {
         try {
             obj.getClass().getMethod(method, argtype).invoke(obj, argument);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError))
+            if (!(e.getTargetException() instanceof LuaError)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
+            }
             return; // pass
         } catch (Exception e) {
             Assert.fail("bad exception: " + e);
@@ -889,8 +891,9 @@ public class TypeTest {
         try {
             obj.getClass().getMethod("optuserdata", Class.class, Object.class).invoke(obj, arg1, arg2);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError))
+            if (!(e.getTargetException() instanceof LuaError)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
+            }
             return; // pass
         } catch (Exception e) {
             Assert.fail("bad exception: " + e);
@@ -958,8 +961,9 @@ public class TypeTest {
         try {
             obj.getClass().getMethod(method).invoke(obj);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError))
+            if (!(e.getTargetException() instanceof LuaError)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
+            }
             return; // pass
         } catch (Exception e) {
             Assert.fail("bad exception: " + e);
@@ -1250,8 +1254,9 @@ public class TypeTest {
         try {
             obj.getClass().getMethod("checkuserdata", Class.class).invoke(obj, arg);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError))
+            if (!(e.getTargetException() instanceof LuaError)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
+            }
             return; // pass
         } catch (Exception e) {
             Assert.fail("bad exception: " + e);

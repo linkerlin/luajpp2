@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -38,7 +39,7 @@ import nl.weeaboo.lua2.lib.LibFunction;
  * @see LibFunction
  * @see LuaClosure
  */
-abstract public class LuaFunction extends LuaValue implements Serializable {
+public abstract class LuaFunction extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = 7157001427080411184L;
 

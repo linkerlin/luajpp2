@@ -57,7 +57,9 @@ public final class LuaUtil {
         globals.rawset(tableName, table);
     }
 
-    /** Compiles and runs a piece of Lua code in the given thread */
+    /**
+     * Compiles and runs a piece of Lua code in the given thread.
+     */
     public static Varargs eval(LuaLink thread, String code) throws LuaException {
         return thread.call(compileForEval(code, thread.getThread().getCallEnv()));
     }
@@ -86,7 +88,9 @@ public final class LuaUtil {
         }
     }
 
-    /** @return The current call stack of the active Lua thread, or an empty list if no thread is active. */
+    /**
+     * @return The current call stack of the active Lua thread, or an empty list if no thread is active.
+     */
     public static List<String> getLuaStack() {
         return getLuaStack(LuaThread.getRunning());
     }
@@ -135,7 +139,7 @@ public final class LuaUtil {
 
         LuaValue[] array = new LuaValue[length];
         for (int n = 0; n < length; n++) {
-            array[n] = stack[offset+n];
+            array[n] = stack[offset + n];
         }
         return varargsOf(array);
     }
@@ -152,7 +156,7 @@ public final class LuaUtil {
 
         LuaValue[] array = new LuaValue[length + extraL];
         for (int n = 0; n < length; n++) {
-            array[n] = stack[offset+n];
+            array[n] = stack[offset + n];
         }
         for (int n = 0; n < extraL; n++) {
             array[length + n] = extra.arg(1 + n);
@@ -161,13 +165,17 @@ public final class LuaUtil {
     }
 
     public static Varargs copyArgs(Varargs in) {
-        if (in == null) return null;
+        if (in == null) {
+            return null;
+        }
         final int inL = in.narg();
-        if (inL == 0) return NONE;
+        if (inL == 0) {
+            return NONE;
+        }
 
         LuaValue[] array = new LuaValue[inL];
         for (int n = 0; n < array.length; n++) {
-            array[n] = in.arg(1+n);
+            array[n] = in.arg(1 + n);
         }
         return LuaValue.varargsOf(array);
     }
@@ -182,10 +190,12 @@ public final class LuaUtil {
             return valueOf(true);
         } else if ("false".equals(code)) {
             return valueOf(false);
-        } else if (code.length() >= 2 && code.startsWith("\"") && code.endsWith("\"")) {
-            return valueOf(unescape(code.substring(1, code.length()-1)));
+        } else  if (code.length() >= 2 && code.startsWith("\"") && code.endsWith("\"")) {
+            String withoutQuotes = code.substring(1, code.length() - 1);
+            return valueOf(unescape(withoutQuotes));
         } else if (code.length() >= 2 && code.startsWith("'") && code.endsWith("'")) {
-            return valueOf(unescape(code.substring(1, code.length()-1)));
+            String withoutQuotes = code.substring(1, code.length() - 1);
+            return valueOf(unescape(withoutQuotes));
         }
 
         try {
@@ -201,7 +211,7 @@ public final class LuaUtil {
         return NIL;
     }
 
-    private static final char escapeList[] = {
+    private static final char[] escapeList = {
         '\"', '\"',
         '\'', '\'',
         '\\', '\\',
@@ -219,13 +229,14 @@ public final class LuaUtil {
         escape(sb, s);
         return sb.toString();
     }
+
     public static void escape(StringBuilder out, String s) {
         for (int n = 0; n < s.length(); n++) {
             char c = s.charAt(n);
 
             int t;
-            for (t = 0; t < escapeList.length; t+=2) {
-                if (c == escapeList[t+1]) {
+            for (t = 0; t < escapeList.length; t += 2) {
+                if (c == escapeList[t + 1]) {
                     out.append('\\');
                     out.append(escapeList[t]);
                     break;
@@ -238,7 +249,7 @@ public final class LuaUtil {
     }
 
     public static String unescape(String s) {
-        char chars[] = new char[s.length()];
+        char[] chars = new char[s.length()];
         s.getChars(0, chars.length, chars, 0);
 
         int t = 0;
@@ -255,9 +266,9 @@ public final class LuaUtil {
     }
 
     public static char unescape(char c) {
-        for (int n = 0; n < escapeList.length; n+=2) {
+        for (int n = 0; n < escapeList.length; n += 2) {
             if (c == escapeList[n]) {
-                return escapeList[n+1];
+                return escapeList[n + 1];
             }
         }
         return c;

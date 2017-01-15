@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.lib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
@@ -134,6 +135,7 @@ public class MathLib extends LuaLibrary {
     public MathLib() {
         this(new Random(1));
     }
+
     protected MathLib(Random random) {
         this.random = random;
     }
@@ -217,13 +219,13 @@ public class MathLib extends LuaLibrary {
         case FAST_COS:
             return valueOf(FastMath.fastCos(args.tofloat(1)));
         case FAST_TAN:
-            return valueOf(Math.tan(FastMath.fastAngleScale * args.tofloat(1)));
+            return valueOf(Math.tan(FastMath.getFastAngleScale() * args.tofloat(1)));
         case FAST_ASIN:
             return valueOf(FastMath.fastArcSin(args.tofloat(1)));
         case FAST_ACOS:
             return valueOf(FastMath.fastArcCos(args.tofloat(1)));
         case FAST_ATAN:
-            return valueOf(Math.tan(args.tofloat(1)) * FastMath.fastAngleScale);
+            return valueOf(Math.tan(args.tofloat(1)) * FastMath.getFastAngleScale());
         case FAST_ATAN2:
             return valueOf(FastMath.fastArcTan2(args.tofloat(1), args.tofloat(2)));
         default:
@@ -377,13 +379,17 @@ public class MathLib extends LuaLibrary {
             return valueOf(random.nextDouble());
         case 1: {
             int m = args.checkint(1);
-            if (m < 1) argerror(1, "interval is empty");
+            if (m < 1) {
+                argerror(1, "interval is empty");
+            }
             return valueOf(1 + random.nextInt(m));
         }
         default: {
             int m = args.checkint(1);
             int n = args.checkint(2);
-            if (n < m) argerror(2, "interval is empty");
+            if (n < m) {
+                argerror(2, "interval is empty");
+            }
             return valueOf(m + random.nextInt(n + 1 - m));
         }
         }
@@ -442,13 +448,13 @@ public class MathLib extends LuaLibrary {
             case 20:
                 return valueOf(FastMath.fastCos(arg.tofloat()));
             case 21:
-                return valueOf(Math.tan(FastMath.fastAngleScale * arg.tofloat()));
+                return valueOf(Math.tan(FastMath.getFastAngleScale() * arg.tofloat()));
             case 22:
                 return valueOf(FastMath.fastArcSin(arg.tofloat()));
             case 23:
                 return valueOf(FastMath.fastArcCos(arg.tofloat()));
             case 24:
-                return valueOf(Math.tan(arg.tofloat()) * FastMath.fastAngleScale);
+                return valueOf(Math.tan(arg.tofloat()) * FastMath.getFastAngleScale());
             }
             return NIL;
         }

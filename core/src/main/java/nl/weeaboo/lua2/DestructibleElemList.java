@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 
-/** List implementation that automatically removes destroyed elements */
+/**
+ * List implementation that automatically removes destroyed elements.
+ */
 @LuaSerializable
 final class DestructibleElemList<T extends IDestructible> implements Iterable<T>, Serializable {
 

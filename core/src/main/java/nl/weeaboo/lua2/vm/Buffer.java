@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
@@ -34,7 +35,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * <p>
  * To convert back to a {@link LuaValue} again, the function
  * {@link Buffer#value()} is used.
- * 
+ *
  * @see LuaValue
  * @see LuaValue#buffer()
  * @see LuaString
@@ -71,7 +72,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Create buffer with specified initial capacity
-     * 
+     *
      * @param initialCapacity the initial capacity
      */
     public Buffer(int initialCapacity) {
@@ -83,7 +84,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Create buffer with specified initial value
-     * 
+     *
      * @param value the initial value
      */
     public Buffer(LuaValue value) {
@@ -94,7 +95,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Get buffer contents as a {@link LuaValue}
-     * 
+     *
      * @return value as a {@link LuaValue}, converting as necessary
      */
     public LuaValue value() {
@@ -103,7 +104,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Set buffer contents as a {@link LuaValue}
-     * 
+     *
      * @param value value to set
      */
     public Buffer setvalue(LuaValue value) {
@@ -115,7 +116,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Convert the buffer to a {@link LuaString}
-     * 
+     *
      * @return the value as a {@link LuaString}
      */
     public final LuaString tostring() {
@@ -125,7 +126,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Convert the buffer to a Java String
-     * 
+     *
      * @return the value as a Java String
      */
     public String tojstring() {
@@ -134,7 +135,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Convert the buffer to a Java String
-     * 
+     *
      * @return the value as a Java String
      */
     @Override
@@ -144,7 +145,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Append a single byte to the buffer.
-     * 
+     *
      * @return {@code this} to allow call chaining
      */
     public final Buffer append(byte b) {
@@ -155,7 +156,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Append a {@link LuaValue} to the buffer.
-     * 
+     *
      * @return {@code this} to allow call chaining
      */
     public final Buffer append(LuaValue val) {
@@ -165,7 +166,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Append a {@link LuaString} to the buffer.
-     * 
+     *
      * @return {@code this} to allow call chaining
      */
     public final Buffer append(LuaString str) {
@@ -179,7 +180,7 @@ public final class Buffer implements Serializable {
     /**
      * Append a Java String to the buffer. The Java string will be converted to
      * bytes using the UTF8 encoding.
-     * 
+     *
      * @return {@code this} to allow call chaining
      * @see LuaString#encodeToUtf8(char[], byte[], int)
      */
@@ -194,7 +195,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Concatenate this buffer onto a {@link LuaValue}
-     * 
+     *
      * @param lhs the left-hand-side value onto which we are concatenating
      *        {@code this}
      * @return {@link Buffer} for use in call chaining.
@@ -205,7 +206,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Concatenate this buffer onto a {@link LuaString}
-     * 
+     *
      * @param lhs the left-hand-side value onto which we are concatenating
      *        {@code this}
      * @return {@link Buffer} for use in call chaining.
@@ -218,7 +219,7 @@ public final class Buffer implements Serializable {
      * Concatenate this buffer onto a {@link LuaNumber}
      * <p>
      * The {@link LuaNumber} will be converted to a string before concatenating.
-     * 
+     *
      * @param lhs the left-hand-side value onto which we are concatenating
      *        {@code this}
      * @return {@link Buffer} for use in call chaining.
@@ -229,7 +230,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Concatenate bytes from a {@link LuaString} onto the front of this buffer
-     * 
+     *
      * @param s the left-hand-side value which we will concatenate onto the
      *        front of {@code this}
      * @return {@link Buffer} for use in call chaining.
@@ -237,7 +238,7 @@ public final class Buffer implements Serializable {
     public Buffer prepend(LuaString s) {
         int n = s.length();
         makeroom(n, 0);
-        s.copyInto(0, bytes, offset-n, n);
+        s.copyInto(0, bytes, offset - n, n);
         offset -= n;
         length += n;
         value = null;
@@ -246,7 +247,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Ensure there is enough room before and after the bytes.
-     * 
+     *
      * @param nbefore number of unused bytes which must precede the data after
      *        this completes
      * @param nafter number of unused bytes which must follow the data after
@@ -269,7 +270,7 @@ public final class Buffer implements Serializable {
 
     /**
      * Reallocate the internal storage for the buffer
-     * 
+     *
      * @param newSize the size of the buffer to use
      * @param newOffset the offset to use
      */

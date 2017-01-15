@@ -7,6 +7,7 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.BaseLib;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
@@ -158,6 +159,8 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     }
 
     /**
+     * Called by {@link LuaInterpreter} on every instruction (if {@link DebugLib#DEBUG_ENABLED}).
+     *
      * @param pc The current program counter
      */
     public void onInstruction(int pc) throws LuaError {
@@ -224,7 +227,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     }
 
     /**
-     * Allow packages to mark themselves as loaded
+     * Allow packages to mark themselves as loaded.
      *
      * @see PackageLib#setIsLoaded(String, LuaTable)
      */

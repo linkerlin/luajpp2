@@ -10,7 +10,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.vm;
 
 import java.io.Externalizable;
@@ -36,12 +37,12 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * <p>
  * See documentatation on {@link LuaClosure} for information on how to load and
  * execute a {@link Prototype}.
- * 
+ *
  * @see LuaClosure
  */
 @LuaSerializable
 public final class Prototype implements Externalizable {
-    
+
     /* constants used by the function */
     public LuaValue[] k;
     public int[] code;
@@ -94,7 +95,7 @@ public final class Prototype implements Externalizable {
         is_vararg = in.readInt();
         maxstacksize = in.readInt();
     }
-    
+
     @Override
     public String toString() {
         return source + ":" + linedefined + "-" + lastlinedefined;
@@ -102,7 +103,7 @@ public final class Prototype implements Externalizable {
 
     /**
      * Get the name of a local variable.
-     * 
+     *
      * @param number the local variable number to look up
      * @param pc the program counter
      * @return the name, or null if not found
@@ -112,7 +113,9 @@ public final class Prototype implements Externalizable {
         for (i = 0; i < locvars.length && locvars[i].startpc <= pc; i++) {
             if (pc < locvars[i].endpc) { /* is variable active? */
                 number--;
-                if (number == 0) return locvars[i].varname;
+                if (number == 0) {
+                    return locvars[i].varname;
+                }
             }
         }
         return null; /* not found */

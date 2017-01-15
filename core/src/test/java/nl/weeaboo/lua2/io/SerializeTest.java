@@ -14,7 +14,7 @@ import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
-public class SerializeTest extends AbstractLuaTest {
+public final class SerializeTest extends AbstractLuaTest {
 
     @Test
     public void serialize1() throws IOException, LuaException {
@@ -28,7 +28,7 @@ public class SerializeTest extends AbstractLuaTest {
     }
 
     /**
-     * Test serialization of weak tables
+     * Test serialization of weak tables.
      */
     @Test
     public void testWeakTable() throws IOException, LuaException {
@@ -39,9 +39,9 @@ public class SerializeTest extends AbstractLuaTest {
         luaRunState.registerOnThread();
 
         // Collect globals
-        LuaTable weakKeys1 = LuaTestUtil.getGlobal("weakKeys1").checktable();
-        LuaTable weakValues1 = LuaTestUtil.getGlobal("weakValues1").checktable();
-        LuaTable weakDouble1 = LuaTestUtil.getGlobal("weakDouble1").checktable();
+        final LuaTable weakKeys1 = LuaTestUtil.getGlobal("weakKeys1").checktable();
+        final LuaTable weakValues1 = LuaTestUtil.getGlobal("weakValues1").checktable();
+        final LuaTable weakDouble1 = LuaTestUtil.getGlobal("weakDouble1").checktable();
 
         // Check weak tables when all references exist
         collectGarbage();

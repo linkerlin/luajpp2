@@ -56,7 +56,7 @@ public final class StackFrame implements Externalizable {
         return frame;
     }
 
-    /** Closes every frame in the callstack */
+    /** Closes every frame in the callstack. */
     public static void releaseCallstack(StackFrame frame) {
         while (frame != null) {
             StackFrame parent = frame.parent;
@@ -152,9 +152,9 @@ public final class StackFrame implements Externalizable {
         return sf.c;
     }
 
-    public final void prepareCall(LuaClosure c, Varargs args,
-            StackFrame parent, int returnBase, int returnCount)
-    {
+    public final void prepareCall(LuaClosure c, Varargs args, StackFrame parent, int returnBase,
+            int returnCount) {
+
         final Prototype p = c.getPrototype();
 
         this.status = Status.FRESH;
