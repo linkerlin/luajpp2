@@ -97,7 +97,7 @@ public final class LuaUtil {
         }
 
         List<String> result = new ArrayList<String>();
-        for (int level = 0; level < DEFAULT_STACK_LIMIT; level++) {
+        for (int level = 1; level <= DEFAULT_STACK_LIMIT; level++) {
             String line = DebugLib.fileline(thread, level);
             if (line == null) {
                 break;

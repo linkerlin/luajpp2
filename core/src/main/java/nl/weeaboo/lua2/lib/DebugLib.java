@@ -196,13 +196,12 @@ public class DebugLib extends VarArgFunction {
      */
     public static void debugOnCall(LuaThread thread, int calls, LuaFunction func) {
         DebugState ds = getDebugState(thread);
-        if (ds.inhook) {
-            return;
-        }
+
         DebugInfo di = ds.pushInfo(calls);
         di.setfunction(func);
-        if (ds.hookcall) {
-            ds.callHookFunc(ds, CALL, NIL);
+
+        if (!ds.inhook && ds.hookcall) {
+            ds.callHookFunc(CALL, NIL);
         }
     }
 
@@ -214,12 +213,9 @@ public class DebugLib extends VarArgFunction {
      */
     public static void debugOnReturn(LuaThread thread, int calls) {
         DebugState ds = getDebugState(thread);
-        if (ds.inhook) {
-            return;
-        }
         try {
-            if (ds.hookrtrn) {
-                ds.callHookFunc(ds, RETURN, NIL);
+            if (!ds.inhook && ds.hookrtrn) {
+                ds.callHookFunc(RETURN, NIL);
             }
         } finally {
             getDebugState(thread).popInfo(calls);
@@ -250,7 +246,7 @@ public class DebugLib extends VarArgFunction {
             ds.hookcodes++;
             if (ds.hookcodes >= ds.hookcount) {
                 ds.hookcodes = 0;
-                ds.callHookFunc(ds, COUNT, NIL);
+                ds.callHookFunc(COUNT, NIL);
             }
         }
 
@@ -260,7 +256,7 @@ public class DebugLib extends VarArgFunction {
                 int c = di.closure.getPrototype().code[pc];
                 if ((c & 0x3f) != Lua.OP_JMP || ((c >>> 14) - 0x1ffff) >= 0) {
                     ds.line = newline;
-                    ds.callHookFunc(ds, LINE, valueOf(newline));
+                    ds.callHookFunc(LINE, valueOf(newline));
                 }
             }
         }
@@ -319,7 +315,7 @@ public class DebugLib extends VarArgFunction {
         DebugInfo di = null;
         if (func.isnumber()) {
             int level = func.checkint();
-            di = (level > 0 ? ds.getDebugInfo(level - 1) : new DebugInfo(level0func));
+            di = (level > 0 ? ds.getDebugInfo(level) : new DebugInfo(level0func));
         } else {
             di = ds.findDebugInfo(func.checkfunction());
         }
@@ -402,7 +398,7 @@ public class DebugLib extends VarArgFunction {
         int local = args.checkint(a++);
 
         DebugState ds = getDebugState(thread);
-        DebugInfo di = ds.getDebugInfo(level - 1);
+        DebugInfo di = ds.getDebugInfo(level);
         LuaString name = (di != null ? di.getlocalname(local) : null);
         if (name != null) {
             LuaValue value = di.stack[local - 1];
@@ -420,7 +416,7 @@ public class DebugLib extends VarArgFunction {
         LuaValue value = args.arg(a++);
 
         DebugState ds = getDebugState(thread);
-        DebugInfo di = ds.getDebugInfo(level - 1);
+        DebugInfo di = ds.getDebugInfo(level);
         LuaString name = (di != null ? di.getlocalname(local) : null);
         if (name != null) {
             di.stack[local - 1] = value;
@@ -519,7 +515,7 @@ public class DebugLib extends VarArgFunction {
         LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
         String message = args.optjstring(a++, null);
         int level = args.optint(a++, 1);
-        String tb = DebugLib.traceback(thread, level - 1);
+        String tb = DebugLib.traceback(thread, level);
         return valueOf(message != null ? message + "\n" + tb : tb);
     }
 
@@ -566,7 +562,7 @@ public class DebugLib extends VarArgFunction {
         DebugState ds = getDebugState(thread);
 
         List<StackTraceElement> out = new ArrayList<StackTraceElement>();
-        for (int level = 0; level < count; level++) {
+        for (int level = 1; level <= count; level++) {
             DebugInfo di = ds.getDebugInfo(levelOffset + level);
             if (di == null) {
                 break;
@@ -585,19 +581,20 @@ public class DebugLib extends VarArgFunction {
     public static String fileline() {
         LuaThread running = LuaThread.getRunning();
         DebugState ds = getDebugState(running);
-        for (int i = 0, n = ds.debugCalls; i < n; i++) {
-            DebugInfo di = ds.getDebugInfo(i);
+        int limit = ds.debugCalls;
+        for (int level = 1; level <= limit; level++) {
+            DebugInfo di = ds.getDebugInfo(level);
             if (di != null && di.closure != null) {
                 return di.sourceline();
             }
         }
-        return fileline(0);
+        return fileline(1);
     }
 
     /**
      * Get file and line for a particular level, even if it is a java function.
      *
-     * @param level 0-based index of level to get
+     * @param level 1-based index of level to get
      * @return String containing file and line info if available
      */
     public static String fileline(int level) {

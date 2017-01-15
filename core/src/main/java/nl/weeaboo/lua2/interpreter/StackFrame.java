@@ -202,4 +202,9 @@ public final class StackFrame implements Externalizable {
 		}
 	}
 
+    @Override
+    public String toString() {
+        return "StackFrame[" + c + ", args=" + args + "]";
+    }
+
 }

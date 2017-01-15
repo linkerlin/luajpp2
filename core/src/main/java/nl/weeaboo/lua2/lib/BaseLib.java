@@ -33,6 +33,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -85,6 +88,7 @@ import nl.weeaboo.lua2.vm.Varargs;
 public class BaseLib extends OneArgFunction {
 
     private static final long serialVersionUID = -7626584035951180651L;
+    private static final Logger LOG = LoggerFactory.getLogger(BaseLib.class);
 
     private static InputStream STDIN = null;
     private static PrintStream STDOUT = System.out;
@@ -257,23 +261,11 @@ public class BaseLib extends OneArgFunction {
             case 7: // "pcall", // (f, arg1, ...) -> status, result1, ...
             {
                 LuaValue func = args.checkvalue(1);
-                // LuaThread running = LuaThread.getRunning();
-                // running.preCall(this);
-                try {
-                    return pcall(func, args.subargs(2), null);
-                } finally {
-                    // running.postReturn();
-                }
+                return pcall(func, args.subargs(2), null);
             }
             case 8: // "xpcall", // (f, err) -> result1, ...
             {
-                // LuaThread running = LuaThread.getRunning();
-                // running.preCall(this);
-                try {
-                    return pcall(args.arg1(), NONE, args.checkvalue(2));
-                } finally {
-                    // running.postReturn();
-                }
+                return pcall(args.arg1(), NONE, args.checkvalue(2));
             }
             case 9: // "print", // (...) -> void
             {
@@ -373,11 +365,14 @@ public class BaseLib extends OneArgFunction {
      */
     public static Varargs pcall(LuaValue func, Varargs args, LuaValue errfunc) {
         try {
-            return varargsOf(TRUE, func.invoke(args));
+            Varargs funcResult = func.invoke(args);
+            return varargsOf(TRUE, funcResult);
         } catch (LuaError le) {
+            LOG.debug("Error in pcall: {} {}", func, args, le);
             String m = le.getMessage();
             return varargsOf(FALSE, m != null ? valueOf(m) : NIL);
         } catch (Exception e) {
+            LOG.debug("Error in pcall: {} {}", func, args, e);
             String m = e.getMessage();
             return varargsOf(FALSE, valueOf(m != null ? m : e.toString()));
         }

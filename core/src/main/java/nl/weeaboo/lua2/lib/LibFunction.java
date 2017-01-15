@@ -182,7 +182,7 @@ abstract public class LibFunction extends LuaFunction {
                 env.set(names[i], f);
             }
         } catch (Exception e) {
-            throw new LuaError("Bind failed", e);
+            throw new LuaError("Bind failed: " + factory.getName(), e);
         }
     }
 

@@ -101,22 +101,16 @@ final class DebugState implements Externalizable {
         }
     }
 
-    void callHookFunc(DebugState ds, LuaString type, LuaValue arg) {
+    void callHookFunc(LuaString type, LuaValue arg) {
         if (inhook || hookfunc == null) {
             return;
         }
+
         inhook = true;
         try {
-            int n = debugCalls;
-            ds.nextInfo().setargs(arg, null);
-            ds.pushInfo(n + 1).setfunction(hookfunc);
-            try {
-                hookfunc.call(type, arg);
-            } finally {
-                ds.popInfo(n);
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
+            hookfunc.call(type, arg);
+        } catch (Exception e) {
+            throw new LuaError(e);
         } finally {
             inhook = false;
         }
@@ -131,15 +125,14 @@ final class DebugState implements Externalizable {
     }
 
     DebugInfo getDebugInfo() {
-        if (debugCalls > 0 && debugCalls <= debugInfo.length) {
-            return debugInfo[debugCalls - 1];
-        } else {
-            return null;
-        }
+        return getDebugInfo(1);
     }
 
     DebugInfo getDebugInfo(int level) {
-        return level < 0 || level >= debugCalls ? null : debugInfo[debugCalls - level - 1];
+        if (level <= 0 || level > debugCalls) {
+            return null;
+        }
+        return debugInfo[debugCalls - level];
     }
 
     public DebugInfo findDebugInfo(LuaValue func) {

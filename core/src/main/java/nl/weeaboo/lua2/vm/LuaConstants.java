@@ -2,10 +2,6 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 public final class LuaConstants {
 
     /**
@@ -95,29 +91,11 @@ public final class LuaConstants {
     /** Limit on lua stack size */
     public static final int MAXSTACK = 250;
 
-    private static final String engineVersion;
-
-    static {
-        Properties props = new Properties();
-        InputStream in = LuaConstants.class.getResourceAsStream("version.properties");
-        try {
-            try {
-                props.load(in);
-            } finally {
-                in.close();
-            }
-        } catch (IOException ioe) {
-            throw new RuntimeException("Unable to open version properties file", ioe);
-        }
-
-        engineVersion = props.getProperty("engine.version", "SNAPSHOT");
-    }
-
     private LuaConstants() {
     }
 
     public static String getEngineVersion() {
-        return engineVersion;
+        return "Lua 5.1";
     }
 
 }

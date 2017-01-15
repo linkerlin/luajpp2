@@ -25,6 +25,9 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.interpreter.StackFrame;
@@ -34,6 +37,7 @@ import nl.weeaboo.lua2.lib.DebugLib;
 @LuaSerializable
 public final class LuaThread extends LuaValue implements Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
 	private static final long serialVersionUID = -5915771649511060629L;
 
 	private static final String[] STATUS_NAMES = { "suspended", "running", "normal", "dead", "endcall" };
@@ -168,7 +172,8 @@ public final class LuaThread extends LuaValue implements Serializable {
 	public void preCall(StackFrame sf, int calls) {
 		if (DebugLib.DEBUG_ENABLED) {
 			DebugLib.debugOnCall(this, calls, sf.getCallstackFunction(0));
-			//System.out.println(">>" + calls);
+
+			LOG.trace(">>({}) {}", sf.size(), sf);
 		}
 	}
 
@@ -177,8 +182,9 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
 	public void postReturn(StackFrame sf, int calls) {
 		if (DebugLib.DEBUG_ENABLED) {
-			DebugLib.debugOnReturn(this, calls);
-			//System.out.println("<<" + calls);
+            LOG.trace("<<({}) {}", sf.size(), sf);
+
+            DebugLib.debugOnReturn(this, calls);
 		}
 	}
 
