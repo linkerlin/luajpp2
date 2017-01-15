@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.logging.LogManager;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 
 import nl.weeaboo.lua2.lib.BaseLib;
@@ -55,6 +56,9 @@ public abstract class AbstractLuaTest {
         return luaRunState.newThread(loadResult.checkclosure(1), LuaConstants.NONE);
     }
 
+    /**
+     * Runs Lua code until all threads are finished.
+     */
     public void runToCompletion() throws LuaException {
         for (int n = 0; n < 1000; n++) {
             luaRunState.update();
@@ -63,6 +67,7 @@ public abstract class AbstractLuaTest {
                 break;
             }
         }
+        Assert.assertTrue(luaRunState.isFinished());
     }
 
 }
