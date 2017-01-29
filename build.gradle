@@ -1,6 +1,6 @@
 
 plugins {
-    id "com.jfrog.bintray" version "1.6"
+    id 'com.jfrog.bintray' version '1.7.3'
 }
 
 allprojects {
@@ -9,22 +9,24 @@ allprojects {
     version = '3.0.0'
 
     repositories {
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        jcenter()
     }    
 }
 
 subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-    apply plugin: 'java'
 
     ext {
+        javaVersion = JavaVersion.VERSION_1_6
+
         slf4jVersion = '1.7.21'
         junitVersion = '4.12'
     }
     
-    sourceCompatibility = JavaVersion.VERSION_1_6
+    sourceCompatibility = javaVersion
     
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
@@ -38,6 +40,16 @@ subprojects {
         from sourceSets.main.allJava
         classifier "sources"
     }
+    
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+    
+    eclipse.project {
+        name = "luajpp2-${project.name}"
+    }
 }
 
 project(':core') {
@@ -45,10 +57,6 @@ project(':core') {
         compile "org.slf4j:slf4j-api:$slf4jVersion"
 
         testRuntime "org.slf4j:slf4j-jdk14:$slf4jVersion"
-    }
-
-    eclipse.project {
-        name = "luajpp2-core"
     }
     
     processResources {
@@ -62,10 +70,6 @@ project(':core') {
 }
 
 project(':plugin') {
-    eclipse.project {
-        name = "luajpp2-plugin"
-    }
-    
     dependencies {
         compile project(':core')
     }
@@ -74,14 +78,14 @@ project(':plugin') {
 publishing {
     publications {
         core(MavenPublication) {
-            artifactId = 'luajpp2-core'
+            artifactId = 'core'
 
             def proj = project(":core")
             from proj.components.java            
             artifact(proj.sourceJar)
         }
         plugin(MavenPublication) {
-            artifactId = 'luajpp2-plugin'
+            artifactId = 'plugin'
 
             def proj = project(":plugin")
             from proj.components.java            
