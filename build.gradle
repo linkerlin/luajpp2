@@ -78,14 +78,14 @@ project(':plugin') {
 publishing {
     publications {
         core(MavenPublication) {
-            artifactId = 'core'
+            artifactId = 'luajpp2-core'
 
             def proj = project(":core")
             from proj.components.java            
             artifact(proj.sourceJar)
         }
         plugin(MavenPublication) {
-            artifactId = 'plugin'
+            artifactId = 'luajpp2-plugin'
 
             def proj = project(":plugin")
             from proj.components.java            
