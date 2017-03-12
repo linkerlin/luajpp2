@@ -7,13 +7,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
@@ -27,15 +25,7 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 public final class ClassInfo implements IWriteReplaceSerializable {
 
-    private static final Comparator<Method> methodSorter = new Comparator<Method>() {
-
-        private final Collator c = Collator.getInstance(Locale.US);
-
-        @Override
-        public int compare(Method m1, Method m2) {
-            return c.compare(m1.getName(), m2.getName());
-        }
-    };
+	private static final Comparator<Method> methodSorter = new MethodSorter();
 
     private final Class<?> clazz;
     private final boolean isArray;
@@ -189,5 +179,12 @@ public final class ClassInfo implements IWriteReplaceSerializable {
         }
     }
 
+	private static class MethodSorter implements Comparator<Method> {
+
+        @Override
+        public int compare(Method m1, Method m2) {
+            return m1.getName().compareTo(m2.getName());
+        }
+    }
 
 }
