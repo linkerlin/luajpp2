@@ -91,7 +91,7 @@ publishing {
             artifact(proj.sourceJar)
 
             pom.withXml {
-                asNode().children().last() + pomLicenseConfig
+                asNode().children().last() + proj.ext.pomLicenseConfig
             }  
         }
         plugin(MavenPublication) {
@@ -102,7 +102,7 @@ publishing {
             artifact(proj.sourceJar)
 
             pom.withXml {
-                asNode().children().last() + pomLicenseConfig
+                asNode().children().last() + proj.ext.pomLicenseConfig
             }  
         }
     }
