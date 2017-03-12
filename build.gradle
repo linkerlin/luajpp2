@@ -6,7 +6,7 @@ plugins {
 allprojects {
     apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
-    version = '2.3.14'
+    version = '2.3.15'
 
     repositories {
         mavenCentral()
@@ -22,6 +22,17 @@ subprojects {
     ext {
         slf4jVersion = '1.7.21'
         junitVersion = '4.12'
+
+        pomLicenseConfig = {
+           licenses {
+                license {
+                    name 'MIT'
+                    url 'https://opensource.org/licenses/mit-license.php'
+                    distribution 'repo'
+                }
+            }
+        }
+        pomLicenseConfig.resolveStrategy = Closure.DELEGATE_ONLY // Otherwise 'license' elem is missing
     }
     
     sourceCompatibility = 1.6
@@ -78,6 +89,10 @@ publishing {
             def proj = project(":core")
             from proj.components.java            
             artifact(proj.sourceJar)
+
+            pom.withXml {
+                asNode().children().last() + pomLicenseConfig
+            }  
         }
         plugin(MavenPublication) {
             artifactId = 'luajpp2-plugin'
@@ -85,6 +100,10 @@ publishing {
             def proj = project(":plugin")
             from proj.components.java            
             artifact(proj.sourceJar)
+
+            pom.withXml {
+                asNode().children().last() + pomLicenseConfig
+            }  
         }
     }
 }
