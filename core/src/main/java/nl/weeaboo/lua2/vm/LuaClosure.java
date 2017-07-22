@@ -25,7 +25,7 @@ package nl.weeaboo.lua2.vm;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import nl.weeaboo.lua2.compiler.LuaC;
-import nl.weeaboo.lua2.compiler.LuaCompiler;
+import nl.weeaboo.lua2.compiler.ILuaCompiler;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -38,7 +38,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * <ul>
  * <li>Construct an instance using {@link #LuaClosure(Prototype, LuaValue)}</li>
  * <li>Construct it indirectly by loading a chunk via
- * {@link LuaCompiler#load(java.io.InputStream, String, LuaValue)}
+ * {@link ILuaCompiler#load(java.io.InputStream, String, LuaValue)}
  * <li>Execute the lua bytecode {@link Lua#OP_CLOSURE} as part of bytecode processing
  * </ul>
  * <p>
@@ -53,7 +53,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * }
  * </pre>
  * <p>
- * To construct it indirectly, the {@link LuaC} compiler may be used, which implements the {@link LuaCompiler}
+ * To construct it indirectly, the {@link LuaC} compiler may be used, which implements the {@link ILuaCompiler}
  * interface:
  *
  * <pre>

@@ -10,7 +10,7 @@ import java.io.Externalizable;
  * <p>
  * If the key may be an integer, the {@link #arraykey(int)} method must be overridden to handle that case.
  */
-abstract class Entry extends Varargs implements StrongSlot, Externalizable {
+abstract class Entry extends Varargs implements IStrongSlot, Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ abstract class Entry extends Varargs implements StrongSlot, Externalizable {
     public abstract LuaValue value();
 
     @Override
-    public Slot set(StrongSlot target, LuaValue value) {
+    public ISlot set(IStrongSlot target, LuaValue value) {
         return set(value);
     }
 
@@ -79,32 +79,32 @@ abstract class Entry extends Varargs implements StrongSlot, Externalizable {
     }
 
     @Override
-    public StrongSlot first() {
+    public IStrongSlot first() {
         return this;
     }
 
     @Override
-    public Slot rest() {
+    public ISlot rest() {
         return null;
     }
 
     @Override
-    public StrongSlot find(LuaValue key) {
+    public IStrongSlot find(LuaValue key) {
         return keyeq(key) ? this : null;
     }
 
     @Override
-    public Slot add(Slot entry) {
+    public ISlot add(ISlot entry) {
         return new LinkSlot(this, entry);
     }
 
     @Override
-    public Slot remove(StrongSlot target) {
+    public ISlot remove(IStrongSlot target) {
         return new DeadSlot(key(), null);
     }
 
     @Override
-    public Slot relink(Slot rest) {
-        return (rest != null) ? new LinkSlot(this, rest) : (Slot)this;
+    public ISlot relink(ISlot rest) {
+        return (rest != null) ? new LinkSlot(this, rest) : (ISlot)this;
     }
 }

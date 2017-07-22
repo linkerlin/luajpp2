@@ -2912,7 +2912,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /** Construct a Metatable instance from the given LuaValue. */
-    protected static Metatable metatableOf(LuaValue mt) {
+    protected static IMetatable metatableOf(LuaValue mt) {
         if (mt != null && mt.istable()) {
             LuaValue mode = mt.rawget(MODE);
             if (mode.isstring()) {

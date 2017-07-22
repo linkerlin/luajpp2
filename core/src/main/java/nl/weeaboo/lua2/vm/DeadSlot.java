@@ -9,14 +9,14 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * next().
  */
 @LuaSerializable
-final class DeadSlot implements Slot {
+final class DeadSlot implements ISlot {
 
     private static final long serialVersionUID = 1L;
 
     private final Object key;
-    private Slot next;
+    private ISlot next;
 
-    DeadSlot(LuaValue key, Slot next) {
+    DeadSlot(LuaValue key, ISlot next) {
         this.key = LuaTable.isLargeKey(key) ? new WeakReference<LuaValue>(key) : (Object)key;
         this.next = next;
     }
@@ -36,12 +36,12 @@ final class DeadSlot implements Slot {
     }
 
     @Override
-    public StrongSlot first() {
+    public IStrongSlot first() {
         return null;
     }
 
     @Override
-    public StrongSlot find(LuaValue key) {
+    public IStrongSlot find(LuaValue key) {
         return null;
     }
 
@@ -52,7 +52,7 @@ final class DeadSlot implements Slot {
     }
 
     @Override
-    public Slot rest() {
+    public ISlot rest() {
         return next;
     }
 
@@ -62,8 +62,8 @@ final class DeadSlot implements Slot {
     }
 
     @Override
-    public Slot set(StrongSlot target, LuaValue value) {
-        Slot next = (this.next != null) ? this.next.set(target, value) : null;
+    public ISlot set(IStrongSlot target, LuaValue value) {
+        ISlot next = (this.next != null) ? this.next.set(target, value) : null;
         if (key() != null) {
             // if key hasn't been garbage collected, it is still potentially a valid argument
             // to next(), so we can't drop this entry yet.
@@ -75,12 +75,12 @@ final class DeadSlot implements Slot {
     }
 
     @Override
-    public Slot add(Slot newEntry) {
+    public ISlot add(ISlot newEntry) {
         return (next != null) ? next.add(newEntry) : newEntry;
     }
 
     @Override
-    public Slot remove(StrongSlot target) {
+    public ISlot remove(IStrongSlot target) {
         if (key() != null) {
             next = next.remove(target);
             return this;
@@ -90,7 +90,7 @@ final class DeadSlot implements Slot {
     }
 
     @Override
-    public Slot relink(Slot rest) {
+    public ISlot relink(ISlot rest) {
         return rest;
     }
 

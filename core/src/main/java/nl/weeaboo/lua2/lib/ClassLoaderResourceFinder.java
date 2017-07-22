@@ -9,7 +9,7 @@ import java.net.URL;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
-public class ClassLoaderResourceFinder implements LuaResourceFinder, Serializable {
+public class ClassLoaderResourceFinder implements ILuaResourceFinder, Serializable {
 
     private static final long serialVersionUID = 1L;
 

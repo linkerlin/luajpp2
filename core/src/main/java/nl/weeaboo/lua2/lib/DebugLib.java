@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.compiler.LuaCompiler;
+import nl.weeaboo.lua2.compiler.ILuaCompiler;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaBoolean;
@@ -61,7 +61,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  * <p>
  * The debug library in luaj tries to emulate the behavior of the corresponding C-based lua library. To do
  * this, it must maintain a separate stack of calls to {@link LuaClosure} and {@link LibFunction} instances.
- * Especially when lua-to-java bytecode compiling is being used via a {@link LuaCompiler} such as
+ * Especially when lua-to-java bytecode compiling is being used via a {@link ILuaCompiler} such as
  * {@code LuaJC}, this cannot be done in all cases.
  * <p>
  * To instantiate and use it directly, link it into your globals table via {@link LuaValue#load(LuaValue)}

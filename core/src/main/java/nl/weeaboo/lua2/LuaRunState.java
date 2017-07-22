@@ -12,7 +12,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.lib.LuaResourceFinder;
+import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
@@ -32,7 +32,7 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class LuaRunState implements Serializable, IDestructible, LuaResourceFinder {
+public final class LuaRunState implements Serializable, IDestructible, ILuaResourceFinder {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
@@ -48,7 +48,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     private boolean destroyed;
     private int instructionCountLimit = 1000000;
 
-    private LuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
+    private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
     private transient ILuaLink current;
     private transient LuaThread currentThread;
@@ -249,7 +249,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
         return resourceFinder.findResource(filename);
     }
 
-    public void setResourceFinder(LuaResourceFinder resourceFinder) {
+    public void setResourceFinder(ILuaResourceFinder resourceFinder) {
         this.resourceFinder = resourceFinder;
     }
 

@@ -96,24 +96,24 @@ import nl.weeaboo.lua2.io.LuaSerializer;
  * @see LuaValue
  */
 @LuaSerializable
-public class LuaTable extends LuaValue implements Metatable, Externalizable {
+public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     private static final int MIN_HASH_CAPACITY = 2;
     private static final LuaString N = valueOf("n");
 
-    private static final Slot[] NOBUCKETS = {};
+    private static final ISlot[] NOBUCKETS = {};
 
     /** the array values. */
     protected LuaValue[] array;
 
     /** the hash part. */
-    protected Slot[] hash;
+    protected ISlot[] hash;
 
     /** the number of hash entries. */
     protected int hashEntries;
 
     /** metatable for this table, or null. */
-    protected Metatable metatable;
+    protected IMetatable metatable;
 
     /** Construct empty table. */
     public LuaTable() {
@@ -231,7 +231,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        metatable = (Metatable)in.readObject();
+        metatable = (IMetatable)in.readObject();
 
         int arrayLength = in.readInt();
         int arrayUsed = in.readInt();
@@ -247,11 +247,11 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             ls.readDelayed(new DelayedReader() {
                 @Override
                 public void onRead(Object obj) {
-                    hash = (Slot[])obj;
+                    hash = (ISlot[])obj;
                 }
             });
         } else {
-            hash = (Slot[])in.readObject();
+            hash = (ISlot[])in.readObject();
         }
     }
 
@@ -293,7 +293,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
         // Size of both parts must be a power of two.
         array = (narray > 0 ? new LuaValue[1 << log2(narray)] : NOVALS);
-        hash = (nhash > 0 ? new Slot[1 << log2(nhash)] : NOBUCKETS);
+        hash = (nhash > 0 ? new ISlot[1 << log2(nhash)] : NOBUCKETS);
         hashEntries = 0;
     }
 
@@ -379,8 +379,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
     protected LuaValue hashget(LuaValue key) {
         if (hashEntries > 0) {
-            for (Slot slot = hash[hashSlot(key)]; slot != null; slot = slot.rest()) {
-                StrongSlot foundSlot;
+            for (ISlot slot = hash[hashSlot(key)]; slot != null; slot = slot.rest()) {
+                IStrongSlot foundSlot;
                 if ((foundSlot = slot.find(key)) != null) {
                     return foundSlot.value();
                 }
@@ -545,9 +545,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                 }
                 i = hashSlot(key);
                 boolean found = false;
-                for (Slot slot = hash[i]; slot != null; slot = slot.rest()) {
+                for (ISlot slot = hash[i]; slot != null; slot = slot.rest()) {
                     if (found) {
-                        StrongSlot nextEntry = slot.first();
+                        IStrongSlot nextEntry = slot.first();
                         if (nextEntry != null) {
                             return nextEntry.toVarargs();
                         }
@@ -574,9 +574,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         // check hash part
         for (i -= array.length; i < hash.length; ++i) {
-            Slot slot = hash[i];
+            ISlot slot = hash[i];
             while (slot != null) {
-                StrongSlot first = slot.first();
+                IStrongSlot first = slot.first();
                 if (first != null) {
                     return first.toVarargs();
                 }
@@ -613,8 +613,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             int index = 0;
             if (hash.length > 0) {
                 index = hashSlot(key);
-                for (Slot slot = hash[index]; slot != null; slot = slot.rest()) {
-                    StrongSlot foundSlot;
+                for (ISlot slot = hash[index]; slot != null; slot = slot.rest()) {
+                    IStrongSlot foundSlot;
                     if ((foundSlot = slot.find(key)) != null) {
                         hash[index] = hash[index].set(foundSlot, value);
                         return;
@@ -633,7 +633,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
                 }
                 index = hashSlot(key);
             }
-            Slot entry = (metatable != null) ? metatable.entry(key, value) : defaultEntry(key, value);
+            ISlot entry = (metatable != null) ? metatable.entry(key, value) : defaultEntry(key, value);
             hash[index] = (hash[index] != null) ? hash[index].add(entry) : entry;
             ++hashEntries;
         }
@@ -683,8 +683,8 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
 
         int index = hashSlot(key);
-        for (Slot slot = hash[index]; slot != null; slot = slot.rest()) {
-            StrongSlot foundSlot;
+        for (ISlot slot = hash[index]; slot != null; slot = slot.rest()) {
+            IStrongSlot foundSlot;
             if ((foundSlot = slot.find(key)) != null) {
                 hash[index] = hash[index].remove(foundSlot);
                 --hashEntries;
@@ -700,7 +700,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     private int countHashKeys() {
         int keys = 0;
         for (int i = 0; i < hash.length; ++i) {
-            for (Slot slot = hash[i]; slot != null; slot = slot.rest()) {
+            for (ISlot slot = hash[i]; slot != null; slot = slot.rest()) {
                 if (slot.first() != null) {
                     keys++;
                 }
@@ -737,7 +737,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         // Count integer keys in hash part
         for (i = 0; i < hash.length; ++i) {
-            for (Slot s = hash[i]; s != null; s = s.rest()) {
+            for (ISlot s = hash[i]; s != null; s = s.rest()) {
                 int k;
                 if ((k = s.arraykey(Integer.MAX_VALUE)) > 0) {
                     nums[log2(k)]++;
@@ -854,9 +854,9 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
         }
 
         final LuaValue[] oldArray = array;
-        final Slot[] oldHash = hash;
+        final ISlot[] oldHash = hash;
         final LuaValue[] newArray;
-        final Slot[] newHash;
+        final ISlot[] newHash;
 
         // Copy existing array entries and compute number of moving entries.
         int movingToArray = 0;
@@ -889,7 +889,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             // round up to next power of 2.
             newCapacity = (newHashSize < MIN_HASH_CAPACITY) ? MIN_HASH_CAPACITY : 1 << log2(newHashSize);
             newHashMask = newCapacity - 1;
-            newHash = new Slot[newCapacity];
+            newHash = new ISlot[newCapacity];
         } else {
             newCapacity = 0;
             newHashMask = 0;
@@ -898,10 +898,10 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
 
         // Move hash buckets
         for (int i = 0; i < oldCapacity; ++i) {
-            for (Slot slot = oldHash[i]; slot != null; slot = slot.rest()) {
+            for (ISlot slot = oldHash[i]; slot != null; slot = slot.rest()) {
                 int k;
                 if ((k = slot.arraykey(newArraySize)) > 0) {
-                    StrongSlot entry = slot.first();
+                    IStrongSlot entry = slot.first();
                     if (entry != null) {
                         newArray[k - 1] = entry.value();
                     }
@@ -917,7 +917,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
             LuaValue v;
             if ((v = oldArray[i++]) != null) {
                 int slot = hashmod(LuaInteger.hashCode(i), newHashMask);
-                Slot newEntry;
+                ISlot newEntry;
                 if (metatable != null) {
                     newEntry = metatable.entry(valueOf(i), v);
                     if (newEntry == null) {
@@ -936,7 +936,7 @@ public class LuaTable extends LuaValue implements Metatable, Externalizable {
     }
 
     @Override
-    public Slot entry(LuaValue key, LuaValue value) {
+    public ISlot entry(LuaValue key, LuaValue value) {
         return defaultEntry(key, value);
     }
 

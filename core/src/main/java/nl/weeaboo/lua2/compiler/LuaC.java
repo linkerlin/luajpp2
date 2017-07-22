@@ -45,7 +45,7 @@ import nl.weeaboo.lua2.vm.Prototype;
  * into a{@link Prototype}, and optionaly instantiates a {@link LuaClosure} around the result using a
  * user-supplied environment.
  * <p>
- * Implements the {@link LuaCompiler} interface for loading initialized chunks, which is an interface common
+ * Implements the {@link ILuaCompiler} interface for loading initialized chunks, which is an interface common
  * to lua bytecode compiling and java bytecode compiling.
  * <p>
  * The {@link LuaC} compiler is installed by default by {@link LuaRunState}, so in the following example, the
@@ -59,7 +59,7 @@ import nl.weeaboo.lua2.vm.Prototype;
  * }
  * </pre>
  */
-public final class LuaC extends Lua implements LuaCompiler {
+public final class LuaC extends Lua implements ILuaCompiler {
 
     static final int LUAI_MAXUPVALUES = 60;
     static final int LUAI_MAXVARS = 200;

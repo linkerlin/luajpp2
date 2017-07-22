@@ -31,11 +31,10 @@ import nl.weeaboo.lua2.stdlib.BaseLib;
  * implemented by BaseLib for both the Jme and Jse platforms.
  * <p>
  * The io library does not use this API for file manipulation.
- * <p>
  *
  * @see BaseLib
  */
-public interface LuaResourceFinder {
+public interface ILuaResourceFinder {
 
     /**
      * Try to open a file, or return null if not found.

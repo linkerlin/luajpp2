@@ -45,7 +45,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * However, calling the constructors directly when weak tables are required from Java will reduce overhead.
  */
 @LuaSerializable
-final class WeakTable implements Metatable, Serializable {
+final class WeakTable implements IMetatable, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -103,7 +103,7 @@ final class WeakTable implements Metatable, Serializable {
     }
 
     @Override
-    public Slot entry(LuaValue key, LuaValue value) {
+    public ISlot entry(LuaValue key, LuaValue value) {
         value = value.strongvalue();
         if (value == null) {
             return null;
@@ -121,15 +121,15 @@ final class WeakTable implements Metatable, Serializable {
         return LuaTable.defaultEntry(key, value);
     }
 
-    private abstract static class WeakSlot implements Slot {
+    private abstract static class WeakSlot implements ISlot {
 
         private static final long serialVersionUID = 1L;
 
         protected Object key;
         protected Object value;
-        protected Slot next;
+        protected ISlot next;
 
-        protected WeakSlot(Object key, Object value, Slot next) {
+        protected WeakSlot(Object key, Object value, ISlot next) {
             this.key = key;
             this.value = value;
             this.next = next;
@@ -138,10 +138,10 @@ final class WeakTable implements Metatable, Serializable {
         @Override
         public abstract int keyindex(int hashMask);
 
-        public abstract Slot set(LuaValue value);
+        public abstract ISlot set(LuaValue value);
 
         @Override
-        public Slot set(StrongSlot target, LuaValue value) {
+        public ISlot set(IStrongSlot target, LuaValue value) {
             LuaValue key = strongkey();
             if (key != null && target.find(key) != null) {
                 return set(value);
@@ -156,7 +156,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public StrongSlot first() {
+        public IStrongSlot first() {
             LuaValue key = strongkey();
             LuaValue value = strongvalue();
             if (key != null && value != null) {
@@ -169,19 +169,19 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public StrongSlot find(LuaValue key) {
-            StrongSlot first = first();
+        public IStrongSlot find(LuaValue key) {
+            IStrongSlot first = first();
             return (first != null) ? first.find(key) : null;
         }
 
         @Override
         public boolean keyeq(LuaValue key) {
-            StrongSlot first = first();
+            IStrongSlot first = first();
             return (first != null) && first.keyeq(key);
         }
 
         @Override
-        public Slot rest() {
+        public ISlot rest() {
             return next;
         }
 
@@ -192,7 +192,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot add(Slot entry) {
+        public ISlot add(ISlot entry) {
             next = (next != null) ? next.add(entry) : entry;
             if (strongkey() != null && strongvalue() != null) {
                 return this;
@@ -202,7 +202,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot remove(StrongSlot target) {
+        public ISlot remove(IStrongSlot target) {
             LuaValue key = strongkey();
             if (key == null) {
                 return next.remove(target);
@@ -216,7 +216,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot relink(Slot rest) {
+        public ISlot relink(ISlot rest) {
             if (strongkey() != null && strongvalue() != null) {
                 if (rest == null && this.next == null) {
                     return this;
@@ -236,7 +236,7 @@ final class WeakTable implements Metatable, Serializable {
             return (LuaValue)value;
         }
 
-        protected abstract WeakSlot copy(Slot next);
+        protected abstract WeakSlot copy(ISlot next);
     }
 
     @LuaSerializable
@@ -246,12 +246,12 @@ final class WeakTable implements Metatable, Serializable {
 
         private final int keyhash;
 
-        protected WeakKeySlot(LuaValue key, LuaValue value, Slot next) {
+        protected WeakKeySlot(LuaValue key, LuaValue value, ISlot next) {
             super(weaken(key), value, next);
             keyhash = key.hashCode();
         }
 
-        protected WeakKeySlot(WeakKeySlot copyFrom, Slot next) {
+        protected WeakKeySlot(WeakKeySlot copyFrom, ISlot next) {
             super(copyFrom.key, copyFrom.value, next);
             this.keyhash = copyFrom.keyhash;
         }
@@ -262,7 +262,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot set(LuaValue value) {
+        public ISlot set(LuaValue value) {
             this.value = value;
             return this;
         }
@@ -273,7 +273,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        protected WeakSlot copy(Slot rest) {
+        protected WeakSlot copy(ISlot rest) {
             return new WeakKeySlot(this, rest);
         }
     }
@@ -283,11 +283,11 @@ final class WeakTable implements Metatable, Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        protected WeakValueSlot(LuaValue key, LuaValue value, Slot next) {
+        protected WeakValueSlot(LuaValue key, LuaValue value, ISlot next) {
             super(key, weaken(value), next);
         }
 
-        protected WeakValueSlot(WeakValueSlot copyFrom, Slot next) {
+        protected WeakValueSlot(WeakValueSlot copyFrom, ISlot next) {
             super(copyFrom.key, copyFrom.value, next);
         }
 
@@ -297,7 +297,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot set(LuaValue value) {
+        public ISlot set(LuaValue value) {
             this.value = weaken(value);
             return this;
         }
@@ -308,7 +308,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        protected WeakSlot copy(Slot next) {
+        protected WeakSlot copy(ISlot next) {
             return new WeakValueSlot(this, next);
         }
     }
@@ -320,12 +320,12 @@ final class WeakTable implements Metatable, Serializable {
 
         private final int keyhash;
 
-        protected WeakKeyAndValueSlot(LuaValue key, LuaValue value, Slot next) {
+        protected WeakKeyAndValueSlot(LuaValue key, LuaValue value, ISlot next) {
             super(weaken(key), weaken(value), next);
             keyhash = key.hashCode();
         }
 
-        protected WeakKeyAndValueSlot(WeakKeyAndValueSlot copyFrom, Slot next) {
+        protected WeakKeyAndValueSlot(WeakKeyAndValueSlot copyFrom, ISlot next) {
             super(copyFrom.key, copyFrom.value, next);
             keyhash = copyFrom.keyhash;
         }
@@ -336,7 +336,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        public Slot set(LuaValue value) {
+        public ISlot set(LuaValue value) {
             this.value = weaken(value);
             return this;
         }
@@ -352,7 +352,7 @@ final class WeakTable implements Metatable, Serializable {
         }
 
         @Override
-        protected WeakSlot copy(Slot next) {
+        protected WeakSlot copy(ISlot next) {
             return new WeakKeyAndValueSlot(this, next);
         }
     }

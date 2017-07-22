@@ -1,6 +1,6 @@
 package nl.weeaboo.lua2.vm;
 
-final class NonTableMetatable implements Metatable {
+final class NonTableMetatable implements IMetatable {
 
     private final LuaValue value;
 
@@ -24,7 +24,7 @@ final class NonTableMetatable implements Metatable {
     }
 
     @Override
-    public Slot entry(LuaValue key, LuaValue value) {
+    public ISlot entry(LuaValue key, LuaValue value) {
         return LuaTable.defaultEntry(key, value);
     }
 

@@ -14,7 +14,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
  * @see LuaClosure
  * @see #load(InputStream, String, LuaValue)
  */
-public interface LuaCompiler {
+public interface ILuaCompiler {
 
     /**
      * Load into a Closure or LuaFunction from a Stream and initializes the environment.

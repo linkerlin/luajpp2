@@ -25,7 +25,7 @@ package nl.weeaboo.lua2.vm;
 /**
  * Provides operations that depend on the __mode key of the metatable.
  */
-interface Metatable {
+interface IMetatable {
 
     /** Return whether or not this table's keys are weak. */
     public boolean useWeakKeys();
@@ -37,7 +37,7 @@ interface Metatable {
     public LuaValue toLuaValue();
 
     /** Return an instance of Slot appropriate for the given key and value. */
-    public Slot entry( LuaValue key, LuaValue value );
+    public ISlot entry( LuaValue key, LuaValue value );
 
     /** Returns the given value wrapped in a weak reference if appropriate. */
     public LuaValue wrap( LuaValue value );

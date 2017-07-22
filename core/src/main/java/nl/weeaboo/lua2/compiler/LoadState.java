@@ -66,7 +66,7 @@ import nl.weeaboo.lua2.vm.Prototype;
  * }
  * </pre>
  *
- * This should work regardless of which {@link LuaCompiler} has been installed.
+ * This should work regardless of which {@link ILuaCompiler} has been installed.
  * <p>
  *
  * Prior to loading code, a compiler should be installed.
@@ -83,7 +83,7 @@ import nl.weeaboo.lua2.vm.Prototype;
  * }
  * </pre>
  *
- * @see LuaCompiler
+ * @see ILuaCompiler
  * @see LuaClosure
  * @see LuaFunction
  * @see LoadState#compiler
@@ -93,7 +93,7 @@ import nl.weeaboo.lua2.vm.Prototype;
 public class LoadState {
 
     /** Compiler instance, if installed. */
-    private static final LuaCompiler compiler = new LuaC();
+    private static final ILuaCompiler compiler = new LuaC();
 
     /** Signature byte indicating the file is a compiled binary chunk. */
     private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };

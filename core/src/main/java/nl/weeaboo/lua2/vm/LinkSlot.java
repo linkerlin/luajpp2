@@ -8,13 +8,13 @@ import java.io.ObjectOutput;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
-final class LinkSlot implements StrongSlot, Externalizable {
+final class LinkSlot implements IStrongSlot, Externalizable {
 
     private static final long serialVersionUID = 1L;
 
     // --- Uses manual serialization ---
     private Entry entry;
-    private Slot next;
+    private ISlot next;
     // --- Uses manual serialization ---
 
     /** Exists for serialization */
@@ -22,7 +22,7 @@ final class LinkSlot implements StrongSlot, Externalizable {
     public LinkSlot() {
     }
 
-    public LinkSlot(Entry entry, Slot next) {
+    public LinkSlot(Entry entry, ISlot next) {
         this.entry = entry;
         this.next = next;
     }
@@ -36,7 +36,7 @@ final class LinkSlot implements StrongSlot, Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         entry = (Entry)in.readObject();
-        next = (Slot)in.readObject();
+        next = (ISlot)in.readObject();
     }
 
     @Override
@@ -60,12 +60,12 @@ final class LinkSlot implements StrongSlot, Externalizable {
     }
 
     @Override
-    public StrongSlot first() {
+    public IStrongSlot first() {
         return entry;
     }
 
     @Override
-    public StrongSlot find(LuaValue key) {
+    public IStrongSlot find(LuaValue key) {
         return entry.keyeq(key) ? this : null;
     }
 
@@ -75,7 +75,7 @@ final class LinkSlot implements StrongSlot, Externalizable {
     }
 
     @Override
-    public Slot rest() {
+    public ISlot rest() {
         return next;
     }
 
@@ -85,7 +85,7 @@ final class LinkSlot implements StrongSlot, Externalizable {
     }
 
     @Override
-    public Slot set(StrongSlot target, LuaValue value) {
+    public ISlot set(IStrongSlot target, LuaValue value) {
         if (target == this) {
             entry = entry.set(value);
             return this;
@@ -95,12 +95,12 @@ final class LinkSlot implements StrongSlot, Externalizable {
     }
 
     @Override
-    public Slot add(Slot entry) {
+    public ISlot add(ISlot entry) {
         return setnext(next.add(entry));
     }
 
     @Override
-    public Slot remove(StrongSlot target) {
+    public ISlot remove(IStrongSlot target) {
         if (this == target) {
             return new DeadSlot(key(), next);
         } else {
@@ -110,13 +110,13 @@ final class LinkSlot implements StrongSlot, Externalizable {
     }
 
     @Override
-    public Slot relink(Slot rest) {
+    public ISlot relink(ISlot rest) {
         // This method is (only) called during rehash, so it must not change this.next.
-        return (rest != null) ? new LinkSlot(entry, rest) : (Slot)entry;
+        return (rest != null) ? new LinkSlot(entry, rest) : (ISlot)entry;
     }
 
     // this method ensures that this.next is never set to null.
-    private Slot setnext(Slot next) {
+    private ISlot setnext(ISlot next) {
         if (next != null) {
             this.next = next;
             return this;
