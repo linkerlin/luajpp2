@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
-import nl.weeaboo.lua2.lib.CoroutineLib;
 import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.lib.LuaResourceFinder;
@@ -18,13 +17,14 @@ import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
 import nl.weeaboo.lua2.lib.SerializableIoLib;
-import nl.weeaboo.lua2.lib.ThreadLib;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.BaseLib;
+import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.StringLib;
 import nl.weeaboo.lua2.stdlib.TableLib;
+import nl.weeaboo.lua2.stdlib.ThreadLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -77,12 +77,12 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
         globals.load(packageLib);
         new TableLib().register();
         new StringLib().register();
-        globals.load(new CoroutineLib());
+        new CoroutineLib().register();
         globals.load(new MathLib());
         globals.load(new SerializableIoLib());
         globals.load(new OsLib());
         globals.load(new LuajavaLib());
-        globals.load(new ThreadLib());
+        new ThreadLib().register();
         globals.load(new DebugLib());
 
         // Set Thread.yield() as a global yield function

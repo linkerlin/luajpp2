@@ -1,54 +1,26 @@
-package nl.weeaboo.lua2.lib;
+package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
-import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public class ThreadLib extends LuaLibrary {
+public final class ThreadLib extends LuaModule {
 
-    private static final long serialVersionUID = 449470590558474872L;
+    private static final long serialVersionUID = 1L;
 
-    private static final String[] NAMES = {
-        "new",
-        "newGroup",
-        "yield",
-        "endCall",
-        "jump"
-    };
-
-    private static final int INIT      = 0;
-    private static final int NEW       = 1;
-    private static final int NEW_GROUP = 2;
-    private static final int YIELD     = 3;
-    private static final int END_CALL  = 4;
-    private static final int JUMP      = 5;
-
-    @Override
-    protected LuaLibrary newInstance() {
-        return new ThreadLib();
-    }
-
-    @Override
-    public Varargs invoke(Varargs args) {
-        switch (opcode) {
-        case INIT: return initLibrary("Thread", NAMES, 1);
-        case NEW: return newThread(args);
-        case NEW_GROUP: return newThreadGroup(args);
-        case YIELD: return yield(args);
-        case END_CALL: return endCall(args);
-        case JUMP: return jump(args);
-        default: return super.invoke(args);
-        }
+    public ThreadLib() {
+        super("Thread");
     }
 
     /**
@@ -60,7 +32,8 @@ public class ThreadLib extends LuaLibrary {
      *        <li>Vararg of arguments to pass to the closure
      *        </ol>
      */
-    protected Varargs newThread(Varargs args) {
+    @LuaBoundFunction(luaName = "new")
+    public Varargs new_(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         LuaClosure func = args.arg1().checkclosure();
         LuaLink result = lrs.newThread(func, args.subargs(2));
@@ -72,7 +45,8 @@ public class ThreadLib extends LuaLibrary {
      *
      * @param args (not used)
      */
-    protected Varargs newThreadGroup(Varargs args) {
+    @LuaBoundFunction
+    public Varargs newGroup(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         LuaThreadGroup result = lrs.newThreadGroup();
         return LuajavaLib.toUserdata(result, result.getClass());
@@ -86,7 +60,8 @@ public class ThreadLib extends LuaLibrary {
      *        <li>Number of frames to yield. If negative, the wait is infinite.
      *        </ol>
      */
-    protected Varargs yield(Varargs args) {
+    @LuaBoundFunction
+    public Varargs yield(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         ILuaLink link = lrs.getCurrentLink();
 
@@ -108,7 +83,8 @@ public class ThreadLib extends LuaLibrary {
      *        <li>Number of frames to yield. If negative, the wait is infinite.
      *        </ol>
      */
-    protected Varargs endCall(Varargs args) {
+    @LuaBoundFunction
+    public Varargs endCall(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         ILuaLink link = lrs.getCurrentLink();
 
@@ -129,10 +105,11 @@ public class ThreadLib extends LuaLibrary {
      *        <li>Filename of the script to jump to.
      *        </ol>
      */
-    protected Varargs jump(Varargs args) {
+    @LuaBoundFunction
+    public Varargs jump(Varargs args) {
         Varargs v = BaseLib.loadFile(args.checkjstring(1));
         if (v.isnil(1)) {
-            return error(v.tojstring(2));
+            throw new LuaError(v.tojstring(2));
         }
 
         // We can only jump to closures
