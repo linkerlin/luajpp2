@@ -30,6 +30,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -439,11 +440,9 @@ public class PackageLib extends OneArgFunction {
     LuaValue loader_Java(Varargs args) {
         String name = args.checkjstring(1);
         String classname = toClassname(name);
-        Class<?> c = null;
-        LuaValue v = null;
         try {
-            c = Class.forName(classname);
-            v = (LuaValue)c.newInstance();
+            Class<?> c = Class.forName(classname);
+            LuaValue v = (LuaValue)c.newInstance();
             v.setfenv(env);
             return v;
         } catch (ClassNotFoundException cnfe) {

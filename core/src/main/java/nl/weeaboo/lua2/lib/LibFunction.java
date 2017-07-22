@@ -25,6 +25,8 @@ package nl.weeaboo.lua2.lib;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.BaseLib;
+import nl.weeaboo.lua2.stdlib.TableLib;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaValue;

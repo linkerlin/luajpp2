@@ -22,6 +22,8 @@
 
 package nl.weeaboo.lua2.lib;
 
+import nl.weeaboo.lua2.stdlib.BaseLib;
+
 /**
  * Interface for opening application resource files such as scripts sources.
  * <p>

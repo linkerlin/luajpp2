@@ -8,8 +8,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import nl.weeaboo.lua2.lib.BaseLib;
 import nl.weeaboo.lua2.link.LuaLink;
+import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.Varargs;

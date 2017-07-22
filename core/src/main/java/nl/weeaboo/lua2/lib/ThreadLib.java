@@ -8,6 +8,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;

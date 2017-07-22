@@ -89,6 +89,8 @@ public final class LuaConstants {
     public static final LuaString TOSTRING = valueOf("__tostring");
     public static final LuaString CONCAT = valueOf("__concat");
     public static final LuaString EMPTYSTRING = valueOf("");
+    public static final LuaString NEXT = valueOf("next");
+    public static final LuaString INEXT = valueOf("__inext");
 
     /** Limit on lua stack size. */
     public static final int MAXSTACK = 250;
