@@ -14,33 +14,15 @@ import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
 
-/** Base class for modules of Lua functions */
+/** Base class for making libraries of Java functions available to Lua. */
 public abstract class LuaLib implements ILuaLib {
 
     private static final long serialVersionUID = 1L;
 
-    private final String tableName;
-
-    /**
-     * @param tableName The name of the global table object to which the library functions should be added, or
-     *        {@code null} if the library functions should be directly added to the global table.
-     */
-    public LuaLib(String tableName) {
-        this.tableName = tableName;
-    }
-
     @Override
-    public void register(LuaTable globals) throws LuaException {
-        if (tableName != null) {
-            LuaTable table = new LuaTable();
-            initTable(table);
-            globals.rawset(tableName, table);
-        } else {
-            initTable(globals);
-        }
-    }
+    public abstract void register() throws LuaException;
 
-    protected void initTable(LuaTable table) throws LuaException {
+    protected final void registerFunctions(LuaTable table) throws LuaException {
         for (Method method : getClass().getMethods()) {
             LuaBoundFunction functionAnnot = method.getAnnotation(LuaBoundFunction.class);
             if (functionAnnot == null) {

@@ -76,7 +76,7 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
         globals.load(new BaseLib());
         globals.load(packageLib);
         globals.load(new TableLib());
-        new StringLib().register(globals);
+        new StringLib().register();
         globals.load(new CoroutineLib());
         globals.load(new MathLib());
         globals.load(new SerializableIoLib());

@@ -11,11 +11,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import nl.weeaboo.lua2.LuaException;
-import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
-import nl.weeaboo.lua2.lib2.LuaLib;
 import nl.weeaboo.lua2.vm.Buffer;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
@@ -26,7 +24,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class StringLib extends LuaLib {
+public final class StringLib extends LuaModule {
 
     static final int L_ESC = '%';
 
@@ -38,14 +36,11 @@ public final class StringLib extends LuaLib {
     }
 
     @Override
-    protected void initTable(LuaTable table) throws LuaException {
-        super.initTable(table);
+    protected void registerInEnv(LuaTable table) throws LuaException {
+        super.registerInEnv(table);
 
         LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.INDEX, table });
-        LuaRunState.getCurrent().setIsLoaded("string", table);
     }
-
-
 
     /**
      * string.dump (function)
@@ -330,18 +325,18 @@ public final class StringLib extends LuaLib {
      * used as the replacement string; otherwise, if it is false or nil, then there is no replacement (that
      * is, the original match is kept in the string).
      *
-     * Here are some examples: x = string.gsub("hello world", "(%w+)", "%1 %1") --> x=
-     * "hello hello world world"
+     * Here are some examples: x = string.gsub("hello world", "(%w+)", "%1 %1") --> x= "hello hello world
+     * world"
      *
      * x = string.gsub("hello world", "%w+", "%0 %0", 1) --> x="hello hello world"
      *
      * x = string.gsub("hello world from Lua", "(%w+)%s*(%w+)", "%2 %1") --> x="world hello Lua from"
      *
-     * x = string.gsub("home = $HOME, user = $USER", "%$(%w+)", os.getenv) --> x=
-     * "home = /home/roberto, user = roberto"
+     * x = string.gsub("home = $HOME, user = $USER", "%$(%w+)", os.getenv) --> x= "home = /home/roberto, user
+     * = roberto"
      *
-     * x = string.gsub("4+5 = $return 4+5$", "%$(.-)%$", function (s) return loadstring(s)() end) --> x=
-     * "4+5 = 9"
+     * x = string.gsub("4+5 = $return 4+5$", "%$(.-)%$", function (s) return loadstring(s)() end) --> x= "4+5
+     * = 9"
      *
      * local t = {name="lua", version="5.1"} x = string.gsub("$name-$version.tar.gz", "%$(%w+)", t) -->
      * x="lua-5.1.tar.gz"
