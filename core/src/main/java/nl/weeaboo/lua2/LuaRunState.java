@@ -19,12 +19,12 @@ import nl.weeaboo.lua2.lib.MathLib;
 import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
 import nl.weeaboo.lua2.lib.SerializableIoLib;
-import nl.weeaboo.lua2.lib.StringLib;
 import nl.weeaboo.lua2.lib.TableLib;
 import nl.weeaboo.lua2.lib.ThreadLib;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.stdlib.StringLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -39,10 +39,11 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 
     private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
-    private final PackageLib packageLib;
     private final LuaTable globals;
-    private final LuaThread mainThread;
     private final DestructibleElemList<LuaThreadGroup> threadGroups;
+    private final LuaThread mainThread;
+
+    private PackageLib packageLib;
 
     private boolean destroyed;
     private int instructionCountLimit = 1000000;
@@ -53,16 +54,29 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
     private transient LuaThread currentThread;
     private transient int instructionCount;
 
-    public LuaRunState() {
+    private LuaRunState() {
+        globals = new LuaTable();
+        threadGroups = new DestructibleElemList<LuaThreadGroup>();
+        mainThread = LuaThread.createMainThread(this, globals);
+        newThreadGroup();
+    }
+
+    public static LuaRunState newInstance() throws LuaException {
+        LuaRunState runState = new LuaRunState();
+        runState.loadStandardLib();
+
+        return runState;
+    }
+
+    private void loadStandardLib() throws LuaException {
         registerOnThread();
 
         packageLib = new PackageLib();
 
-        globals = new LuaTable();
         globals.load(new BaseLib());
         globals.load(packageLib);
         globals.load(new TableLib());
-        globals.load(new StringLib());
+        new StringLib().register(globals);
         globals.load(new CoroutineLib());
         globals.load(new MathLib());
         globals.load(new SerializableIoLib());
@@ -73,11 +87,6 @@ public final class LuaRunState implements Serializable, IDestructible, LuaResour
 
         // Set Thread.yield() as a global yield function
         globals.rawset("yield", globals.rawget("Thread").rawget("yield"));
-
-        mainThread = LuaThread.createMainThread(this, globals);
-        threadGroups = new DestructibleElemList<LuaThreadGroup>();
-
-        newThreadGroup();
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

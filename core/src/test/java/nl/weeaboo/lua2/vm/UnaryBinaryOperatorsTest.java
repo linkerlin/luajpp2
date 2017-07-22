@@ -42,6 +42,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
 
@@ -53,8 +54,8 @@ public class UnaryBinaryOperatorsTest {
     private static final float EPSILON = 0.001f;
 
     @Before
-    public void before() {
-        new LuaRunState().registerOnThread();
+    public void before() throws LuaException {
+        LuaRunState.newInstance();
     }
 
     @Test

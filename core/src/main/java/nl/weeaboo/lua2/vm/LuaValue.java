@@ -1318,6 +1318,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param library The callable {@link LuaValue} to load into {@code this}
      * @return {@link LuaValue} containing the result of the initialization call.
      */
+    @Deprecated
     public LuaValue load(LuaValue library) {
         library.setfenv(this);
         return library.call();

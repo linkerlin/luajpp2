@@ -33,6 +33,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
 
@@ -83,8 +84,8 @@ public class TypeTest {
     }
 
     @Before
-    public void before() {
-        LuaRunState lrs = new LuaRunState();
+    public void before() throws LuaException {
+        LuaRunState lrs = LuaRunState.newInstance();
         thread = new LuaThread(lrs, null);
     }
 

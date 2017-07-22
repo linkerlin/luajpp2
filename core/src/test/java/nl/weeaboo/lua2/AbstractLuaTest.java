@@ -25,8 +25,8 @@ public abstract class AbstractLuaTest {
     protected LuaRunState luaRunState;
 
     @Before
-    public void initLuaRunState() {
-        luaRunState = new LuaRunState();
+    public void initLuaRunState() throws LuaException {
+        luaRunState = LuaRunState.newInstance();
     }
 
     private static void configureLogging() {

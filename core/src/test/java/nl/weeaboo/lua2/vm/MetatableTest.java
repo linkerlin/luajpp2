@@ -32,6 +32,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ThreeArgFunction;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
@@ -63,8 +64,8 @@ public class MetatableTest {
     private LuaThread thread;
 
     @Before
-    public void setUp() throws Exception {
-        LuaRunState lrs = new LuaRunState();
+    public void setUp() throws LuaException {
+        LuaRunState lrs = LuaRunState.newInstance();
         thread = new LuaThread(lrs, null);
     }
 

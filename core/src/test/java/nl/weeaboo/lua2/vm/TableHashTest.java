@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
 
@@ -39,8 +40,8 @@ import nl.weeaboo.lua2.lib.TwoArgFunction;
 public class TableHashTest {
 
     @Before
-    public void before() {
-        new LuaRunState().registerOnThread();
+    public void before() throws LuaException {
+        LuaRunState.newInstance();
     }
 
     protected LuaTable new_Table() {

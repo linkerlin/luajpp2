@@ -60,7 +60,7 @@ public class LC {
     /**
      * Main entrypoint for running the Lua compiler as a standalone application.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws LuaException {
         LC lc = new LC();
         lc.run(args);
     }
@@ -83,7 +83,7 @@ public class LC {
         errors.clear();
     }
 
-    private void run(String[] args) {
+    private void run(String[] args) throws LuaException {
         reset();
 
         // process args
@@ -147,7 +147,7 @@ public class LC {
             processing = true;
 
             // open output file
-            LuaRunState lrs = new LuaRunState();
+            LuaRunState lrs = LuaRunState.newInstance();
             OutputStream fos = null;
             try {
                 for (int i = 0; i < args.length; i++) {

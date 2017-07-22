@@ -12,8 +12,8 @@ public final class LuaThreadGroupTest {
     private LuaThreadGroup threadGroup;
 
     @Before
-    public void before() {
-        LuaRunState lrs = new LuaRunState();
+    public void before() throws LuaException {
+        LuaRunState lrs = LuaRunState.newInstance();
 
         threadGroup = new LuaThreadGroup(lrs);
     }

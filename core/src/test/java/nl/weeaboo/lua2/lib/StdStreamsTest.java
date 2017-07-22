@@ -17,8 +17,8 @@ public class StdStreamsTest extends AbstractLuaTest {
     public StdStreamsRedirect redir = new StdStreamsRedirect();
 
     @Before
-    public void before() {
-        new LuaRunState().registerOnThread();
+    public void before() throws LuaException {
+        LuaRunState.newInstance();
     }
 
     @Test
