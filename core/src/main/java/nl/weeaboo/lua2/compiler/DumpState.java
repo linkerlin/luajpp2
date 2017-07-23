@@ -79,7 +79,7 @@ public final class DumpState {
     private final DataOutputStream writer;
     private final boolean strip;
 
-    public DumpState(OutputStream w, boolean strip) {
+    private DumpState(OutputStream w, boolean strip) {
         this.writer = new DataOutputStream(w);
         this.strip = strip;
     }

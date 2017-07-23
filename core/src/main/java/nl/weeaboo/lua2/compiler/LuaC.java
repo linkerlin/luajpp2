@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.SharedByteAlloc;
+import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaClosure;

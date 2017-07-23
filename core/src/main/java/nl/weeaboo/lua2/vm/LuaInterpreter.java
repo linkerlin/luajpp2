@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.interpreter;
+package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.LuaUtil.copyArgs;
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
@@ -8,20 +8,10 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.interpreter.StackFrame.Status;
 import nl.weeaboo.lua2.stdlib.DebugLib;
-import nl.weeaboo.lua2.vm.Buffer;
-import nl.weeaboo.lua2.vm.Lua;
-import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaThread;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Prototype;
-import nl.weeaboo.lua2.vm.UpValue;
-import nl.weeaboo.lua2.vm.Varargs;
+import nl.weeaboo.lua2.vm.StackFrame.Status;
 
-public final class LuaInterpreter {
+final class LuaInterpreter {
 
     private LuaInterpreter() {
     }

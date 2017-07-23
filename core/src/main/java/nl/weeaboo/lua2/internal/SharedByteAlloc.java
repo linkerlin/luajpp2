@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2;
+package nl.weeaboo.lua2.internal;
 
 /**
  * <b>Warning: Not thread safe.</b> Use getInstance() for a thread local version.

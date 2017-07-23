@@ -7,7 +7,6 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
@@ -171,7 +170,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     }
 
     /**
-     * Called by {@link LuaInterpreter} on every instruction (if {@link LuaRunState#isDebugEnabled()}).
+     * Called by the interpreter on every instruction (if {@link LuaRunState#isDebugEnabled()}).
      *
      * @param pc The current program counter
      */

@@ -246,7 +246,7 @@ public final class DebugLib extends LuaModule {
             if (level > 0) {
                 di = ds.getDebugInfo(level);
             } else {
-                di = new DebugInfo(thread.callstack.getCallstackFunction(0));
+                di = new DebugInfo(thread.getCallstackFunction(0));
             }
         } else {
             di = ds.findDebugInfo(func.checkfunction());

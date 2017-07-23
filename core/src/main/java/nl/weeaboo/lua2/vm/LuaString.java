@@ -46,7 +46,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import nl.weeaboo.lua2.SharedByteAlloc;
+import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**

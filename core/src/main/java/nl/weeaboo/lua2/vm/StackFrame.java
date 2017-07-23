@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.interpreter;
+package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -10,17 +10,9 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.vm.Lua;
-import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaFunction;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Prototype;
-import nl.weeaboo.lua2.vm.UpValue;
-import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class StackFrame implements Externalizable {
+final class StackFrame implements Externalizable {
 
     enum Status {
         FRESH, RUNNING, PAUSED, DEAD

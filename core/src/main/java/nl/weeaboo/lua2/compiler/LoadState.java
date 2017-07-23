@@ -39,7 +39,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import nl.weeaboo.lua2.SharedByteAlloc;
+import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaDouble;
@@ -90,7 +90,7 @@ import nl.weeaboo.lua2.vm.Prototype;
  * @see LoadState#load(InputStream, String, LuaValue)
  * @see LuaC
  */
-public class LoadState {
+public final class LoadState {
 
     /** Compiler instance, if installed. */
     private static final ILuaCompiler compiler = new LuaC();

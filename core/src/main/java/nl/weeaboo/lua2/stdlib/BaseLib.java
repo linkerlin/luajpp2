@@ -41,8 +41,9 @@ public final class BaseLib extends LuaLib {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(BaseLib.class);
 
-    private static InputStream STDIN = null;
-    private static PrintStream STDOUT = System.out;
+    static InputStream STDIN = null;
+    static PrintStream STDOUT = System.out;
+    static PrintStream STDERR = System.err;
 
     @Override
     public void register() throws LuaException {

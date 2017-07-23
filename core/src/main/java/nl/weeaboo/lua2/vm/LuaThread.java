@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.interpreter.LuaInterpreter;
-import nl.weeaboo.lua2.interpreter.StackFrame;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 
