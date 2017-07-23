@@ -81,7 +81,6 @@ public final class CoroutineLib extends LuaModule {
 
             return result;
         }
-
     }
 
 }

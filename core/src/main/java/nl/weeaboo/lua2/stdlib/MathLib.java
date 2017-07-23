@@ -27,11 +27,11 @@ public final class MathLib extends LuaModule {
     }
 
     @Override
-    protected void registerInEnv(LuaTable table) throws LuaException {
-        super.registerInEnv(table);
+    protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
+        super.registerAdditional(globals, globals);
 
-        table.set("pi", Math.PI);
-        table.set("huge", LuaDouble.POSINF);
+        libTable.set("pi", Math.PI);
+        libTable.set("huge", LuaDouble.POSINF);
     }
 
     @LuaBoundFunction

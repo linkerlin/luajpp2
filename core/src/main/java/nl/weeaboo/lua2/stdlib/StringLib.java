@@ -36,10 +36,10 @@ public final class StringLib extends LuaModule {
     }
 
     @Override
-    protected void registerInEnv(LuaTable table) throws LuaException {
-        super.registerInEnv(table);
+    protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
+        super.registerAdditional(globals, libTable);
 
-        LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.INDEX, table });
+        LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.INDEX, libTable });
     }
 
     /**

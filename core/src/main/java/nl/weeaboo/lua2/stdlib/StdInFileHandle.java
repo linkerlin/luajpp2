@@ -1,9 +1,10 @@
-package nl.weeaboo.lua2.lib;
+package nl.weeaboo.lua2.stdlib;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.vm.LuaTable;
 
 @LuaSerializable

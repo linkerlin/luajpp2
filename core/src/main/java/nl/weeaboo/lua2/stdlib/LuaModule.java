@@ -22,18 +22,24 @@ public abstract class LuaModule extends LuaLib {
     public final void register() throws LuaException {
         LuaTable table = new LuaTable();
         registerFunctions(table);
-        registerInEnv(table);
+        LuaRunState lrs = LuaRunState.getCurrent();
+
+        LuaTable globals = lrs.getGlobalEnvironment();
+        globals.rawset(moduleName, table);
+
+        registerAdditional(globals, table);
+
+        lrs.setIsLoaded(moduleName, table);
     }
 
     /**
-     * Handles any required bookkeeping to register the table of Lua functions into the global environment.
+     * This overridable method can be used to register additional items.
+     *
+     * @param globals The globals table ({@link LuaRunState#getGlobalEnvironment()}).
+     * @param libTable The table containing the module's methods.
      * @throws LuaException If a fatal error occurs
      */
-    protected void registerInEnv(LuaTable table) throws LuaException {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        LuaTable globals = lrs.getGlobalEnvironment();
-        globals.rawset(moduleName, table);
-        lrs.setIsLoaded(moduleName, table);
+    protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
     }
 
 }
