@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
-import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.lib.OsLib;
@@ -21,6 +20,7 @@ import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.stdlib.CoroutineLib;
+import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.MathLib;
 import nl.weeaboo.lua2.stdlib.StringLib;
 import nl.weeaboo.lua2.stdlib.TableLib;
@@ -39,13 +39,15 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
-    private final LuaTable globals;
+    private final LuaTable globals = new LuaTable();
+    private final LuaTable registry = new LuaTable();
     private final DestructibleElemList<LuaThreadGroup> threadGroups;
     private final LuaThread mainThread;
 
     private PackageLib packageLib;
 
     private boolean destroyed;
+    private boolean debugEnabled = true;
     private int instructionCountLimit = 1000000;
 
     private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
@@ -55,7 +57,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     private transient int instructionCount;
 
     private LuaRunState() {
-        globals = new LuaTable();
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
         mainThread = LuaThread.createMainThread(this, globals);
         newThreadGroup();
@@ -83,7 +84,9 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         globals.load(new OsLib());
         globals.load(new LuajavaLib());
         new ThreadLib().register();
-        globals.load(new DebugLib());
+        if (debugEnabled) {
+            new DebugLib().register();
+        }
 
         // Set Thread.yield() as a global yield function
         globals.rawset("yield", globals.rawget("Thread").rawget("yield"));
@@ -168,7 +171,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     }
 
     /**
-     * Called by {@link LuaInterpreter} on every instruction (if {@link DebugLib#DEBUG_ENABLED}).
+     * Called by {@link LuaInterpreter} on every instruction (if {@link LuaRunState#isDebugEnabled()}).
      *
      * @param pc The current program counter
      */
@@ -186,6 +189,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     @Override
     public boolean isDestroyed() {
         return destroyed;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
     public ILuaLink getCurrentLink() {
@@ -206,6 +213,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     public LuaTable getGlobalEnvironment() {
         return globals;
+    }
+
+    public LuaTable getRegistry() {
+        return registry;
     }
 
     public int getInstructionCountLimit() {

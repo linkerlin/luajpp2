@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.lib;
+package nl.weeaboo.lua2.stdlib;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -149,7 +149,7 @@ final class DebugState implements Externalizable {
     }
 
     public String tojstring() {
-        return DebugLib.traceback(thread, 0);
+        return DebugTrace.traceback(thread, 0);
     }
 
 }

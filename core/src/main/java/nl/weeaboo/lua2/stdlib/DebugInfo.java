@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.lib;
+package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
@@ -13,14 +13,15 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
-// ------------------------ Debug Info management --------------------------
-//
-// when DEBUG_ENABLED is set to true, these functions will be called
-// by Closure instances as they process bytecodes.
-//
-// Each thread will get a DebugState attached to it by the debug library
-// which will track function calls, hook functions, etc.
-//
+/**
+ * ------------------------ Debug Info management --------------------------
+ * <p>
+ * when DEBUG_ENABLED is set to true, these functions will be called
+ * by Closure instances as they process bytecodes.
+ * <p>
+ * Each thread will get a DebugState attached to it by the debug library
+ * which will track function calls, hook functions, etc.
+ */
 @LuaSerializable
 final class DebugInfo implements Externalizable {
 
@@ -92,7 +93,7 @@ final class DebugInfo implements Externalizable {
             return null;
         }
         int stackpos = (code[pc] >> 6) & 0xff;
-        return DebugLib.getobjname(this, stackpos);
+        return DebugTrace.getobjname(this, stackpos);
     }
 
     public String source() {

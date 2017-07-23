@@ -9,7 +9,7 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.interpreter.StackFrame.Status;
-import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.vm.Buffer;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -21,7 +21,10 @@ import nl.weeaboo.lua2.vm.Prototype;
 import nl.weeaboo.lua2.vm.UpValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
-public class LuaInterpreter {
+public final class LuaInterpreter {
+
+    private LuaInterpreter() {
+    }
 
     /**
      * @param thread The executing thread
@@ -79,7 +82,7 @@ public class LuaInterpreter {
                     throw new LuaError("Program Counter outside code range: " + pc + " for " + closure);
                 }
 
-                if (DebugLib.DEBUG_ENABLED) {
+                if (DebugLib.isDebugEnabled()) {
                     lrs.onInstruction(pc);
                     DebugLib.debugBytecode(thread, pc, varargs, top);
                 }
@@ -493,7 +496,7 @@ public class LuaInterpreter {
     }
 
     private static void startCall(LuaThread thread, StackFrame sf) {
-        if (DebugLib.DEBUG_ENABLED) {
+        if (DebugLib.isDebugEnabled()) {
             DebugLib.debugSetupCall(thread, sf.args, sf.stack);
         }
         thread.preCall(sf, sf.size());

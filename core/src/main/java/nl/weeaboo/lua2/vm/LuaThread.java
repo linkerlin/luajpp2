@@ -33,7 +33,7 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.interpreter.LuaInterpreter;
 import nl.weeaboo.lua2.interpreter.StackFrame;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugLib;
 
 @LuaSerializable
 public final class LuaThread extends LuaValue implements Serializable {
@@ -174,7 +174,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     public void preCall(StackFrame sf, int calls) {
-        if (DebugLib.DEBUG_ENABLED) {
+        if (DebugLib.isDebugEnabled()) {
             DebugLib.debugOnCall(this, calls, sf.getCallstackFunction(0));
 
             LOG.trace(">>({}) {}", sf.size(), sf);
@@ -185,7 +185,7 @@ public final class LuaThread extends LuaValue implements Serializable {
      * @param sf The stack frame that was just poppep from the callstack.
      */
     public void postReturn(StackFrame sf, int calls) {
-        if (DebugLib.DEBUG_ENABLED) {
+        if (DebugLib.isDebugEnabled()) {
             LOG.trace("<<({}) {}", sf.size(), sf);
 
             DebugLib.debugOnReturn(this, calls);

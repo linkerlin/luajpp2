@@ -1,7 +1,7 @@
 package nl.weeaboo.lua2.vm;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 
 @LuaSerializable
 public class LuaError extends RuntimeException {
@@ -37,7 +37,7 @@ public class LuaError extends RuntimeException {
         this.cause = c;
 
         if (level >= 0) {
-            StackTraceElement[] stack = DebugLib.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
+            StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
             if (c != null) {
                 stack = prefixLuaStackTrace(c, stack);
             } else {

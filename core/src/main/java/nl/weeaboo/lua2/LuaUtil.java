@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.weeaboo.lua2.compiler.LoadState;
-import nl.weeaboo.lua2.lib.DebugLib;
 import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
@@ -104,7 +104,7 @@ public final class LuaUtil {
 
         List<String> result = new ArrayList<String>();
         for (int level = 1; level <= DEFAULT_STACK_LIMIT; level++) {
-            String line = DebugLib.fileline(thread, level);
+            String line = DebugTrace.fileline(thread, level);
             if (line == null) {
                 break;
             }
