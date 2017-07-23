@@ -48,7 +48,6 @@ import java.nio.charset.CharsetDecoder;
 
 import nl.weeaboo.lua2.SharedByteAlloc;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.MathLib;
 
 /**
  * Subclass of {@link LuaValue} for representing lua strings.
@@ -298,22 +297,22 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue pow(double rhs) {
-        return valueOf(MathLib.dpow(checkarith(), rhs));
+        return valueOf(LuaDouble.dpow(checkarith(), rhs));
     }
 
     @Override
     public LuaValue pow(int rhs) {
-        return valueOf(MathLib.dpow(checkarith(), rhs));
+        return valueOf(LuaDouble.dpow(checkarith(), rhs));
     }
 
     @Override
     public LuaValue powWith(double lhs) {
-        return valueOf(MathLib.dpow(lhs, checkarith()));
+        return valueOf(LuaDouble.dpow(lhs, checkarith()));
     }
 
     @Override
     public LuaValue powWith(int lhs) {
-        return valueOf(MathLib.dpow(lhs, checkarith()));
+        return valueOf(LuaDouble.dpow(lhs, checkarith()));
     }
 
     @Override

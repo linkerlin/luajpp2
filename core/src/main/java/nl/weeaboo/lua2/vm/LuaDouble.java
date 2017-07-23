@@ -31,7 +31,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.MathLib;
 
 /**
  * Extension of {@link LuaNumber} which can hold a Java double as its value.
@@ -277,22 +276,26 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
 
     @Override
     public LuaValue pow(double rhs) {
-        return valueOf(MathLib.dpow(value, rhs));
+        return valueOf(dpow(value, rhs));
     }
 
     @Override
     public LuaValue pow(int rhs) {
-        return valueOf(MathLib.dpow(value, rhs));
+        return valueOf(dpow(value, rhs));
     }
 
     @Override
     public LuaValue powWith(double lhs) {
-        return valueOf(MathLib.dpow(lhs, value));
+        return valueOf(dpow(lhs, value));
     }
 
     @Override
     public LuaValue powWith(int lhs) {
-        return valueOf(MathLib.dpow(lhs, value));
+        return valueOf(dpow(lhs, value));
+    }
+
+    static double dpow(double a, double b) {
+        return Math.pow(a, b);
     }
 
     @Override
