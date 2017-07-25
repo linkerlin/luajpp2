@@ -74,13 +74,13 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
     public static final LuaDouble NEGINF = new LuaDouble(Double.NEGATIVE_INFINITY);
 
     /** Constant String representation for NaN (not a number), "nan". */
-    public static final String JSTR_NAN = "nan";
+    private static final String JSTR_NAN = "nan";
 
     /** Constant String representation for positive infinity, "inf". */
-    public static final String JSTR_POSINF = "inf";
+    private static final String JSTR_POSINF = "inf";
 
     /** Constant String representation for negative infinity, "-inf". */
-    public static final String JSTR_NEGINF = "-inf";
+    private static final String JSTR_NEGINF = "-inf";
 
     /** The value being held by this instance. */
     private double value;
@@ -347,7 +347,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
      *         infinity, and Nan
      * @see #ddiv_d(double, double)
      */
-    public static LuaValue ddiv(double lhs, double rhs) {
+    static LuaValue ddiv(double lhs, double rhs) {
         if (rhs != 0) {
             return valueOf(lhs / rhs);
         } else if (lhs > 0) {
@@ -367,7 +367,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
      * @return Value of the division, taking into account positive and negative infinity, and Nan
      * @see #ddiv(double, double)
      */
-    public static double ddiv_d(double lhs, double rhs) {
+    static double ddiv_d(double lhs, double rhs) {
         if (rhs != 0) {
             return lhs / rhs;
         } else if (lhs > 0) {
@@ -387,7 +387,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
      * @return {@link LuaValue} for the result of the modulo, using lua's rules for modulo
      * @see #dmod_d(double, double)
      */
-    public static LuaValue dmod(double lhs, double rhs) {
+    static LuaValue dmod(double lhs, double rhs) {
         return rhs != 0 ? valueOf(lhs - rhs * Math.floor(lhs / rhs)) : NAN;
     }
 
@@ -399,7 +399,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
      * @return double value for the result of the modulo, using lua's rules for modulo
      * @see #dmod(double, double)
      */
-    public static double dmod_d(double lhs, double rhs) {
+    static double dmod_d(double lhs, double rhs) {
         return rhs != 0 ? lhs - rhs * Math.floor(lhs / rhs) : Double.NaN;
     }
 

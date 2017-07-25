@@ -7,11 +7,12 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.internal.DestructibleElemList;
+import nl.weeaboo.lua2.internal.IDestructible;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.lib.OsLib;
 import nl.weeaboo.lua2.lib.PackageLib;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
@@ -21,6 +22,7 @@ import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.IoLib;
 import nl.weeaboo.lua2.stdlib.MathLib;
+import nl.weeaboo.lua2.stdlib.OsLib;
 import nl.weeaboo.lua2.stdlib.StringLib;
 import nl.weeaboo.lua2.stdlib.TableLib;
 import nl.weeaboo.lua2.stdlib.ThreadLib;
@@ -80,7 +82,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         new CoroutineLib().register();
         new MathLib().register();
         new IoLib().register();
-        globals.load(new OsLib());
+        new OsLib().register();
         globals.load(new LuajavaLib());
         new ThreadLib().register();
         if (debugEnabled) {

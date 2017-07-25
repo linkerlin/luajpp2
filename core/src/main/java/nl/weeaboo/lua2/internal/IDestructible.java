@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2;
+package nl.weeaboo.lua2.internal;
 
 public interface IDestructible {
 

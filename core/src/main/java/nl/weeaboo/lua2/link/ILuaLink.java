@@ -2,8 +2,8 @@ package nl.weeaboo.lua2.link;
 
 import java.io.Serializable;
 
-import nl.weeaboo.lua2.IDestructible;
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.internal.IDestructible;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.Varargs;
 

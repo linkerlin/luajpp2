@@ -6,6 +6,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.internal.DestructibleElemList;
+import nl.weeaboo.lua2.internal.IDestructible;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;

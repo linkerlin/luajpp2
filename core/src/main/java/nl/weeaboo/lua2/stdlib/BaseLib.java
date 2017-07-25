@@ -6,7 +6,6 @@ import static nl.weeaboo.lua2.vm.LuaConstants.INEXT;
 import static nl.weeaboo.lua2.vm.LuaConstants.METATABLE;
 import static nl.weeaboo.lua2.vm.LuaConstants.NEXT;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
-import static nl.weeaboo.lua2.vm.LuaConstants.TOSTRING;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.argerror;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
@@ -40,6 +39,8 @@ public final class BaseLib extends LuaLib {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(BaseLib.class);
+
+    private static final LuaString TOSTRING = valueOf("tostring");
 
     static InputStream STDIN = null;
     static PrintStream STDOUT = System.out;
@@ -280,7 +281,7 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs print(Varargs args) {
         LuaThread running = LuaThread.getRunning();
-        LuaValue tostring = running.getfenv().get("tostring");
+        LuaValue tostring = running.getfenv().get(TOSTRING);
         for (int i = 1, n = args.narg(); i <= n; i++) {
             if (i > 1) {
                 STDOUT.write('\t');

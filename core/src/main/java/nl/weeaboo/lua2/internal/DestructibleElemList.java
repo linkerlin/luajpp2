@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2;
+package nl.weeaboo.lua2.internal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * List implementation that automatically removes destroyed elements.
  */
 @LuaSerializable
-final class DestructibleElemList<T extends IDestructible> implements Iterable<T>, Serializable {
+public final class DestructibleElemList<T extends IDestructible> implements Iterable<T>, Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
