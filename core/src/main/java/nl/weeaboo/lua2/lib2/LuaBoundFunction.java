@@ -17,4 +17,8 @@ public @interface LuaBoundFunction {
      */
     String luaName() default "";
 
+    /**
+     * If {@code true}, the function will be bound as a global function rather than as part of its lib table.
+     */
+    boolean global() default false;
 }

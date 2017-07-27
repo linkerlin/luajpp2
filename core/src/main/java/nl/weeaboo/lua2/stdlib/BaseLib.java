@@ -52,7 +52,7 @@ public final class BaseLib extends LuaLib {
         globals.set("_G", globals);
         globals.set("_VERSION", LuaConstants.getEngineVersion());
 
-        registerFunctions(globals);
+        registerFunctions(globals, globals);
     }
 
     private LuaTable getGlobals() {

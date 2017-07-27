@@ -20,15 +20,14 @@ public abstract class LuaModule extends LuaLib {
 
     @Override
     public final void register() throws LuaException {
-        LuaTable table = new LuaTable();
-        registerFunctions(table);
         LuaRunState lrs = LuaRunState.getCurrent();
-
         LuaTable globals = lrs.getGlobalEnvironment();
+
+        LuaTable table = new LuaTable();
+        registerFunctions(globals, table);
         globals.rawset(moduleName, table);
 
         registerAdditional(globals, table);
-
         lrs.setIsLoaded(moduleName, table);
     }
 

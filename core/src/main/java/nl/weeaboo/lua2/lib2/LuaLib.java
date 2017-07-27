@@ -22,11 +22,16 @@ public abstract class LuaLib implements ILuaLib {
     @Override
     public abstract void register() throws LuaException;
 
-    protected final void registerFunctions(LuaTable table) throws LuaException {
+    protected final void registerFunctions(LuaTable globals, LuaTable libTable) throws LuaException {
         for (Method method : getClass().getMethods()) {
             LuaBoundFunction functionAnnot = method.getAnnotation(LuaBoundFunction.class);
             if (functionAnnot == null) {
                 continue;
+            }
+
+            LuaTable targetTable = libTable;
+            if (functionAnnot.global()) {
+                targetTable = globals;
             }
 
             // Get name from annotation. If missing, default to using the Java function name.
@@ -36,12 +41,12 @@ public abstract class LuaLib implements ILuaLib {
             }
 
             // Check that we don't accidentally overwrite an existing table entry.
-            if (table.rawget(luaMethodName) != LuaNil.NIL) {
+            if (targetTable.rawget(luaMethodName) != LuaNil.NIL) {
                 throw new LuaException("There's already a table entry named: "
-                        + luaMethodName + " :: " + table.rawget(luaMethodName));
+                        + luaMethodName + " :: " + targetTable.rawget(luaMethodName));
             }
 
-            table.rawset(luaMethodName, wrapFunction(method));
+            targetTable.rawset(luaMethodName, wrapFunction(method));
         }
     }
 

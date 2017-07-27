@@ -13,7 +13,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.lib.PackageLib;
 import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
@@ -23,6 +22,7 @@ import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.IoLib;
 import nl.weeaboo.lua2.stdlib.MathLib;
 import nl.weeaboo.lua2.stdlib.OsLib;
+import nl.weeaboo.lua2.stdlib.PackageLib;
 import nl.weeaboo.lua2.stdlib.StringLib;
 import nl.weeaboo.lua2.stdlib.TableLib;
 import nl.weeaboo.lua2.stdlib.ThreadLib;
@@ -76,7 +76,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         packageLib = new PackageLib();
 
         new BaseLib().register();
-        globals.load(packageLib);
+        packageLib.register();
         new TableLib().register();
         new StringLib().register();
         new CoroutineLib().register();

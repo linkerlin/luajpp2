@@ -28,7 +28,7 @@ public final class FileLib extends LuaLib {
         LuaTable globals = lrs.getGlobalEnvironment();
 
         LuaTable fileTable = new LuaTable();
-        registerFunctions(fileTable);
+        registerFunctions(globals, fileTable);
         globals.rawset("file", fileTable);
     }
 

@@ -24,8 +24,8 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
-import nl.weeaboo.lua2.compiler.LuaC;
 import nl.weeaboo.lua2.compiler.ILuaCompiler;
+import nl.weeaboo.lua2.compiler.LuaC;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
