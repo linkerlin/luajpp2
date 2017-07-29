@@ -187,11 +187,11 @@ final class LuaInterpreter {
                     b = i >>> 23;
                     c = (i >> 14) & 0x1ff;
                     if (c > b + 1) {
-                        Buffer sb = stack[c].buffer();
-                        while (--c >= b) {
-                            sb = stack[c].concat(sb);
+                        Buffer buffer = stack[b].buffer();
+                        for (int s = b + 1; s < c; s++) {
+                            buffer.append(stack[s]);
                         }
-                        stack[a] = sb.value();
+                        stack[a] = buffer.value();
                     } else {
                         stack[a] = stack[c - 1].concat(stack[c]);
                     }
