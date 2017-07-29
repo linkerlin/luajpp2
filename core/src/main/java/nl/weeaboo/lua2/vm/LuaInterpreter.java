@@ -188,7 +188,7 @@ final class LuaInterpreter {
                     c = (i >> 14) & 0x1ff;
                     if (c > b + 1) {
                         Buffer buffer = stack[b].buffer();
-                        for (int s = b + 1; s < c; s++) {
+                        for (int s = b + 1; s <= c; s++) {
                             buffer.append(stack[s]);
                         }
                         stack[a] = buffer.value();
