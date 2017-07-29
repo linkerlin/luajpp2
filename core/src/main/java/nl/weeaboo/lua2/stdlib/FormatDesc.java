@@ -1,6 +1,7 @@
 package nl.weeaboo.lua2.stdlib;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Buffer;
@@ -163,15 +164,45 @@ final class FormatDesc implements Serializable {
     }
 
     public void format(Buffer buf, double x) {
-        buf.append(String.valueOf(x));
+        StringBuilder format = new StringBuilder("%");
+        if (width >= 0) {
+            format.append(width);
+        }
+        if (precision >= 0) {
+            format.append('.');
+            format.append(precision);
+        }
+        format.append('f');
+
+        String str = String.format(Locale.ROOT, format.toString(), x);
+        buf.append(str);
     }
 
-    public void format(Buffer buf, LuaString s) {
-        int nullindex = s.indexOf((byte)'\0', 0);
-        if (nullindex != -1) {
-            s = s.substring(0, nullindex);
+    public void format(Buffer buf, LuaString str) {
+        int nullindex = str.indexOf((byte)'\0', 0);
+        if (nullindex >= 0) {
+            str = str.substring(0, nullindex);
         }
-        buf.append(s);
+
+        // Trim to precision
+        str = trimToPrecision(str);
+
+        int pad = Math.max(0, width - str.length());
+        if (leftAdjust) {
+            buf.append(str);
+            pad(buf, ' ', pad);
+        } else {
+            pad(buf, ' ', pad);
+            buf.append(str);
+        }
+    }
+
+    private LuaString trimToPrecision(LuaString str) {
+        if (precision >= 0) {
+            return str.substring(0, Math.min(str.length(), precision));
+        } else {
+            return str;
+        }
     }
 
     public int getPrecision() {
