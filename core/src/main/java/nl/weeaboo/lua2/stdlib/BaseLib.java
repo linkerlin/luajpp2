@@ -319,11 +319,10 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs unpack(Varargs args) {
-        int na = args.narg();
         LuaTable t = args.checktable(1);
         int n = t.length();
-        int i = na >= 2 ? args.checkint(2) : 1;
-        int j = na >= 3 ? args.checkint(3) : n;
+        int i = args.optint(2, 1);
+        int j = args.isnil(3) ? t.getn().checkint() : args.checkint(3);
         n = j - i + 1;
         if (n < 0) {
             return NONE;
