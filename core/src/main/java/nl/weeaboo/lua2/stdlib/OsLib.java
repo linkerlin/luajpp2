@@ -1,5 +1,6 @@
 package nl.weeaboo.lua2.stdlib;
 
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
 import java.io.File;
@@ -113,14 +114,14 @@ public final class OsLib extends LuaModule {
      *        <li>(optional) Locale to set
      *        <li>Category to set the locale for
      *        </ol>
-     * @return the name of the new locale, or null if the request cannot be honored.
+     * @return the name of the new locale, or NIL if the request cannot be honored.
      */
     @LuaBoundFunction
     public Varargs setlocale(Varargs args) {
         if (args.isnil(1)) {
             return valueOf("C");
         }
-        return null;
+        return NIL;
     }
 
     /**
