@@ -26,7 +26,7 @@ public class LuaUtilTest extends AbstractLuaTest {
         Assert.assertEquals(Arrays.asList("/util/calleval.lua:13"), LuaUtil.getLuaStack(thread.getThread()));
 
         // Run some arbitrary code
-        LuaUtil.eval(thread, "test = 42");
+        LuaUtil.eval(thread, "test = 42"); // TODO: Thread.sleep is still > 0, so call fails now...
         LuaTestUtil.assertGlobal("test", 42);
         // After eval completes, the thread is still stuck in the same position as before
         Assert.assertEquals(Arrays.asList("/util/calleval.lua:13"), LuaUtil.getLuaStack(thread.getThread()));

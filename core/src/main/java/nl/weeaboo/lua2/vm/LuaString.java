@@ -1029,10 +1029,10 @@ public final class LuaString extends LuaValue implements Externalizable {
         if (base >= 2 && base <= 36) {
             int i = strOffset;
             int j = strOffset + strLength;
-            while (i < j && strBytes[i] == ' ') {
+            while (i < j && Character.isWhitespace(strBytes[i])) {
                 ++i;
             }
-            while (i < j && strBytes[j - 1] == ' ') {
+            while (i < j && Character.isWhitespace(strBytes[j - 1])) {
                 --j;
             }
             if (i >= j) {

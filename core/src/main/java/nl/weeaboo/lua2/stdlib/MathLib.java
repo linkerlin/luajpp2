@@ -91,7 +91,7 @@ public final class MathLib extends LuaModule {
 
     @LuaBoundFunction
     public Varargs acos(Varargs args) {
-        return valueOf(Math.cos(args.checkdouble(1)));
+        return valueOf(Math.acos(args.checkdouble(1)));
     }
 
     @LuaBoundFunction
@@ -180,6 +180,12 @@ public final class MathLib extends LuaModule {
                 * ((bits >= 0) ? (.5 / (1L << 52)) : (-.5 / (1L << 52)));
         double e = (((int)(bits >> 52)) & 0x7ff) - 1022;
         return varargsOf(valueOf(m), valueOf(e));
+    }
+
+    @Deprecated
+    @LuaBoundFunction
+    public Varargs mod(Varargs args) {
+        return fmod(args);
     }
 
     @LuaBoundFunction
