@@ -1303,7 +1303,7 @@ final class LexState {
             return;
         }
         default: {
-            this.syntaxerror("unexpected symbol (#" + this.t.token + ")");
+            this.syntaxerror("unexpected symbol (#" + this.t.token + ", '" + (char)t.token + "')");
             return;
         }
         }

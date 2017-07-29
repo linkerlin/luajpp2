@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 
 @LuaSerializable
@@ -13,7 +14,7 @@ final class StringInputStream extends InputStream implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private LuaValue func;
-    private byte[] bytes;
+    private byte[] bytes = new byte[0];
     private int offset;
 
     StringInputStream(LuaValue func) {
@@ -26,18 +27,19 @@ final class StringInputStream extends InputStream implements Serializable {
             return -1;
         }
 
-        if (bytes == null) {
-            LuaValue s = func.call();
-            if (s.isnil()) {
+        if (offset >= bytes.length) {
+            LuaValue val = func.call();
+            if (val.isnil() || val.length() == 0) {
                 func = null;
                 bytes = null;
                 return -1;
             }
-            bytes = s.tojstring().getBytes();
+
+            LuaString str = val.checkstring();
+            bytes = new byte[str.length()];
+            str.copyInto(0, bytes, 0, bytes.length);
+
             offset = 0;
-        }
-        if (offset >= bytes.length) {
-            return -1;
         }
         return bytes[offset++];
     }

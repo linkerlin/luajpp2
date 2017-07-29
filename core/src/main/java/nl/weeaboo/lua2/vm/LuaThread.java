@@ -47,7 +47,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public static final int STATUS_ERROR = 4;
     public static final int STATUS_END_CALL = 5;
 
-    public static final int MAX_CALLSTACK = 128;
+    public static final int MAX_CALLSTACK = 256;
     public static LuaValue s_metatable;
 
     private LuaRunState luaRunState;
@@ -182,7 +182,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     /**
-     * @param sf The stack frame that was just poppep from the callstack.
+     * @param sf The stack frame that was just popped from the callstack.
      */
     public void postReturn(StackFrame sf, int calls) {
         if (DebugLib.isDebugEnabled()) {
@@ -259,8 +259,10 @@ public final class LuaThread extends LuaValue implements Serializable {
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
             result = LuaInterpreter.resume(this, callstackMin);
         } catch (LuaError e) {
+            popStackFrames();
             throw e;
         } catch (Exception e) {
+            popStackFrames();
             throw new LuaError("Runtime error :: " + e, e);
         } finally {
             callstackMin = oldCallstackMin;
@@ -274,6 +276,13 @@ public final class LuaThread extends LuaValue implements Serializable {
         }
 
         return result;
+    }
+
+    private void popStackFrames() {
+        // Note: maxDepth may be negative
+        while (callstack != null && callstackSize() >= callstackMin) {
+            popStackFrame();
+        }
     }
 
     public static Varargs execute(LuaClosure c, Varargs args) {
@@ -297,6 +306,19 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     public void setSleep(int frames) {
         sleep = frames;
+    }
+
+    void popStackFrame() {
+        final StackFrame sf = callstack;
+
+        // Pop from call stack
+        callstack = callstack.parent;
+
+        // Close stack frame
+        sf.close();
+
+        // Notify debuglib that we've returned from our current call
+        postReturn(sf, callstack != null ? callstack.size() : 0);
     }
 
 }

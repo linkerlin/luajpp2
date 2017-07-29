@@ -511,10 +511,10 @@ final class LuaInterpreter {
             }
         }
 
-        sf.close();
         if (thread.callstack == sf) {
-            thread.callstack = thread.callstack.parent;
-            thread.postReturn(sf, (thread.callstack != null ? thread.callstack.size() : 0));
+            thread.popStackFrame();
+        } else {
+            sf.close();
         }
     }
 

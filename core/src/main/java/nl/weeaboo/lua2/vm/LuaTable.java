@@ -304,6 +304,18 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return v;
     }
 
+    @Override
+    public LuaValue getn() {
+        int count = 0;
+        for (int n = 1; n <= getArrayLength(); n++) {
+            if (rawget(n).isnil()) {
+                break;
+            }
+            count++;
+        }
+        return valueOf(count);
+    }
+
     /**
      * Get the length of the array part of the table.
      *

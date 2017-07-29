@@ -66,15 +66,15 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs collectgarbage(Varargs args) {
-        String s = args.checkjstring(1);
-        if ("collect".equals(s)) {
+        String opt = args.optjstring(1, "collect");
+        if ("collect".equals(opt)) {
             System.gc();
             return LuaInteger.valueOf(0);
-        } else if ("count".equals(s)) {
+        } else if ("count".equals(opt)) {
             Runtime rt = Runtime.getRuntime();
             long used = rt.totalMemory() - rt.freeMemory();
             return valueOf(used / 1024.0);
-        } else if ("step".equals(s)) {
+        } else if ("step".equals(opt)) {
             System.gc();
             return TRUE;
         } else {
@@ -452,7 +452,7 @@ public final class BaseLib extends LuaLib {
     /**
      * "inext" ( table, [int-index] ) -> next-index, next-value
      */
-    @LuaBoundFunction
+    @LuaBoundFunction(luaName = "__inext")
     public Varargs inext(Varargs args) {
         return args.checktable(1).inext(args.arg(2));
     }
