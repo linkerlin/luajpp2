@@ -140,7 +140,7 @@ public final class Buffer implements Serializable {
      */
     @Override
     public String toString() {
-        return tojstring();
+        return value().toString();
     }
 
     /**

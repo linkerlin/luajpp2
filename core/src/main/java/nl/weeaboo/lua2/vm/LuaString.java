@@ -79,6 +79,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 public final class LuaString extends LuaValue implements Externalizable {
 
     private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
+    private static final int MAX_TO_STRING_LENGTH = 1000;
 
     public static LuaValue s_metatable;
 
@@ -217,6 +218,19 @@ public final class LuaString extends LuaValue implements Externalizable {
     @Override
     public String tojstring() {
         return decodeAsUtf8(strBytes, strOffset, strLength);
+    }
+
+    @Override
+    public String toString() {
+        /*
+         * toString() is generally used for logging and debugging -- we don't want to cause perf. problems by
+         * printing multi-megabyte strings.
+         */
+        if (strLength > MAX_TO_STRING_LENGTH) {
+            return decodeAsUtf8(strBytes, strOffset, MAX_TO_STRING_LENGTH) + "[...]";
+        } else {
+            return decodeAsUtf8(strBytes, strOffset, strLength);
+        }
     }
 
     // get is delegated to the string library
