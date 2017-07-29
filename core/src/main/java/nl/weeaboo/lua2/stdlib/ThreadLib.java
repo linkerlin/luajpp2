@@ -6,7 +6,6 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
-import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -62,16 +61,14 @@ public final class ThreadLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs yield(Varargs args) {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        ILuaLink link = lrs.getCurrentLink();
+        final LuaThread thread = LuaThread.getRunning();
 
-        if (link != null && !args.isnil(1)) {
+        if (!args.isnil(1)) {
             int w = args.toint(1);
-            link.setWait(w <= 0 ? w : w - 1);
+            thread.setSleep(w <= 0 ? w : w - 1);
         }
 
-        final LuaThread running = LuaThread.getRunning();
-        return running.yield(args);
+        return thread.yield(args);
     }
 
     /**
@@ -85,16 +82,14 @@ public final class ThreadLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs endCall(Varargs args) {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        ILuaLink link = lrs.getCurrentLink();
+        final LuaThread thread = LuaThread.getRunning();
 
-        if (link != null && !args.isnil(1)) {
+        if (!args.isnil(1)) {
             int w = args.toint(1);
-            link.setWait(w <= 0 ? w : w - 1);
+            thread.setSleep(w <= 0 ? w : w - 1);
         }
 
-        final LuaThread running = LuaThread.getRunning();
-        return running.endCall(args);
+        return thread.endCall(args);
     }
 
     /**
@@ -115,9 +110,8 @@ public final class ThreadLib extends LuaModule {
         // We can only jump to closures
         LuaClosure closure = v.checkclosure(1);
 
-        LuaRunState lrs = LuaRunState.getCurrent();
-        ILuaLink link = lrs.getCurrentLink();
-        link.jump(closure, NONE);
+        LuaThread thread = LuaThread.getRunning();
+        thread.jump(closure, NONE);
         return NONE;
     }
 

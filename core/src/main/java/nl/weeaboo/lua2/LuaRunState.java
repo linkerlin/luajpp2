@@ -13,7 +13,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.link.ILuaLink;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.BaseLib;
@@ -53,7 +52,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
-    private transient ILuaLink current;
     private transient LuaThread currentThread;
     private transient int instructionCount;
 
@@ -110,7 +108,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         destroyed = true;
         threadGroups.destroyAll();
 
-        current = null;
         currentThread = null;
 
         if (threadInstance.get() == this) {
@@ -196,20 +193,12 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return debugEnabled;
     }
 
-    public ILuaLink getCurrentLink() {
-        return current;
-    }
-
     public LuaThreadGroup getDefaultThreadGroup() {
         return findFirstThreadGroup();
     }
 
     public LuaThread getRunningThread() {
         return (currentThread != null ? currentThread : mainThread);
-    }
-
-    public PackageLib getPackageLib() {
-        return packageLib;
     }
 
     public LuaTable getGlobalEnvironment() {
@@ -226,15 +215,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     public void setInstructionCountLimit(int lim) {
         instructionCountLimit = lim;
-    }
-
-    public void setCurrentLink(ILuaLink cur) {
-        if (current == cur) {
-            return;
-        }
-
-        current = cur;
-        LOG.trace("Set current link: {}", cur);
     }
 
     public void setRunningThread(LuaThread t) {

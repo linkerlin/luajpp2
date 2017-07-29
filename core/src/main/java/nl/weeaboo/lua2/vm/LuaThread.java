@@ -55,7 +55,9 @@ public final class LuaThread extends LuaValue implements Serializable {
     private int status = STATUS_SUSPENDED;
     private int callstackMin;
     private boolean isMainThread;
-    public StackFrame callstack;
+    private int sleep;
+
+    StackFrame callstack;
     public Object debugState;
 
     /**
@@ -237,10 +239,16 @@ public final class LuaThread extends LuaValue implements Serializable {
             return valueOf("cannot resume dead thread");
         }
 
-        Varargs result;
+        if (sleep != 0) {
+            if (sleep > 0) {
+                sleep--;
+            }
+            return NONE;
+        }
 
         final int oldCallstackMin = callstackMin;
         final LuaThread prior = luaRunState.getRunningThread();
+        Varargs result;
         try {
             if (prior.status == STATUS_RUNNING) {
                 prior.status = STATUS_NORMAL;
@@ -279,6 +287,16 @@ public final class LuaThread extends LuaValue implements Serializable {
             return callstack.getCallstackFunction(1).getfenv();
         }
         return getfenv();
+    }
+
+    /** Jumps to the given closure, ending the current call. */
+    public void jump(LuaClosure closure, LuaValue args) {
+        reset();
+        pushPending(closure, args);
+    }
+
+    public void setSleep(int frames) {
+        sleep = frames;
     }
 
 }

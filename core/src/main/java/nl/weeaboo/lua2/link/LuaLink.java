@@ -136,15 +136,11 @@ public class LuaLink extends AbstractLuaLink {
     private Varargs doCall(LuaClosure func, Varargs args) throws LuaException {
         Varargs result = NONE;
 
-        ILuaLink oldLink = luaRunState.getCurrentLink();
-        luaRunState.setCurrentLink(this);
         try {
             doPushCall(func, args);
             result = thread.resume(1);
         } catch (RuntimeException e) {
             handleThreadException("Error calling function: " + func, e);
-        } finally {
-            luaRunState.setCurrentLink(oldLink);
         }
 
         return result;
@@ -175,15 +171,11 @@ public class LuaLink extends AbstractLuaLink {
             return changed;
         }
 
-        ILuaLink oldLink = luaRunState.getCurrentLink();
-        luaRunState.setCurrentLink(this);
         try {
             changed = true;
             thread.resume(-1);
         } catch (RuntimeException e) {
             handleThreadException("Error running thread", e);
-        } finally {
-            luaRunState.setCurrentLink(oldLink);
         }
 
         return changed;
