@@ -99,9 +99,6 @@ public final class BaseLib extends LuaLib {
     public Varargs setfenv(Varargs args) {
         LuaValue f = getfenvobj(args.arg(1));
         LuaTable t = args.checktable(2);
-        if (!f.isfunction() && !f.isclosure()) {
-            throw new LuaError("'setfenv' cannot change environment of given object");
-        }
         f.setfenv(t);
         return f.isthread() ? NONE : f;
     }
