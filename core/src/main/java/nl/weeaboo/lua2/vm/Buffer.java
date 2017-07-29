@@ -254,6 +254,8 @@ public final class Buffer implements Serializable {
      *        this completes
      */
     public final void makeroom(int nbefore, int nafter) {
+        LuaString.assertValidStringLength(nbefore + length + nafter);
+
         if (value != null) {
             LuaString s = value.strvalue();
             value = null;
@@ -275,6 +277,8 @@ public final class Buffer implements Serializable {
      * @param newOffset the offset to use
      */
     private final void realloc(int newSize, int newOffset) {
+        LuaString.assertValidStringLength(newSize);
+
         if (newSize != bytes.length) {
             byte[] newBytes = new byte[newSize];
             System.arraycopy(bytes, offset, newBytes, newOffset, length);

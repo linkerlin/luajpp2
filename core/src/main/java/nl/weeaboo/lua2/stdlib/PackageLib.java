@@ -38,7 +38,7 @@ public final class PackageLib extends LuaModule {
     private static final LuaString _SENTINEL = valueOf("\u0001");
 
     public LuaTable loadedTable = new LuaTable();
-    public LuaTable packageTable = new LuaTable();
+    public LuaTable packageTable;
 
     public PackageLib() {
         super("package");
@@ -48,11 +48,12 @@ public final class PackageLib extends LuaModule {
     protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
         super.registerAdditional(globals, libTable);
 
-        libTable.rawset(_LOADED, loadedTable);
-        libTable.rawset(_PRELOAD, new LuaTable());
-        libTable.rawset(_PATH, valueOf("?.lua"));
+        packageTable = libTable;
+        packageTable.rawset(_LOADED, loadedTable);
+        packageTable.rawset(_PRELOAD, new LuaTable());
+        packageTable.rawset(_PATH, valueOf("?.lua"));
 
-        libTable.rawset(_LOADERS, listOf(new LuaValue[] {
+        packageTable.rawset(_LOADERS, listOf(new LuaValue[] {
                 new LuaLoader(packageTable)
         }));
 

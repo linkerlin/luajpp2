@@ -79,6 +79,8 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 public final class LuaString extends LuaValue implements Externalizable {
 
     private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
+
+    private static final int MAX_STRING_LENGTH = 64 << 20; // 64 MiB
     private static final int MAX_TO_STRING_LENGTH = 1000;
 
     public static LuaValue s_metatable;
@@ -1128,6 +1130,17 @@ public final class LuaString extends LuaValue implements Externalizable {
         strOffset = sba.reserve(strLength);
         strBytes = sba.getReserved();
         in.readFully(strBytes, strOffset, strLength);
+    }
+
+    public static void assertValidStringLength(int len) {
+        if (len < 0) {
+            throw new LuaError("String length may not be negative: " + len);
+        }
+
+        if (len > MAX_STRING_LENGTH) {
+            // Note: Lua test suite explicitly checks for the word 'overflow' in this error message
+            throw new LuaError("String length overflow: " + len + " > " + MAX_STRING_LENGTH);
+        }
     }
 
 }
