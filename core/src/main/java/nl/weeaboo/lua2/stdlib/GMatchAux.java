@@ -24,14 +24,18 @@ final class GMatchAux extends VarArgFunction {
 
     @Override
     public Varargs invoke(Varargs args) {
-        for (; soffset < srclen; soffset++) {
+        while (soffset <= srclen) {
             ms.reset();
             int res = ms.match(soffset, 0);
             if (res >= 0) {
                 int soff = soffset;
-                soffset = res;
-                return ms.push_captures(true, soff, res);
+                soffset = Math.max(soffset + 1, res); // Move ahead at least one char, even when result empty
+
+                Varargs result = ms.push_captures(true, soff, res);
+                return result;
             }
+
+            soffset++;
         }
         return NIL;
     }

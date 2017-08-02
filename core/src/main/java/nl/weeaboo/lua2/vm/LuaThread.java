@@ -47,7 +47,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public static final int STATUS_ERROR = 4;
     public static final int STATUS_END_CALL = 5;
 
-    public static final int MAX_CALLSTACK = 256;
+    public static final int MAX_CALLSTACK = 512;
     public static LuaValue s_metatable;
 
     private LuaRunState luaRunState;

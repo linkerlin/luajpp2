@@ -39,6 +39,8 @@ public final class StringLib extends LuaModule {
     protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
         super.registerAdditional(globals, libTable);
 
+        libTable.rawset("gfind", libTable.rawget("gmatch"));
+
         LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.INDEX, libTable });
     }
 
