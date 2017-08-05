@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.VarArgFunction;
@@ -37,6 +38,8 @@ public final class IoLib extends LuaModule {
     private static final LuaValue FILE = valueOf("file");
     private static final LuaValue CLOSED_FILE = valueOf("closed file");
 
+    private final ILuaIoImpl impl;
+
     private LuaFileHandle stdInHandle;
     private LuaFileHandle stdOutHandle;
     private LuaFileHandle stdErrHandle;
@@ -44,8 +47,11 @@ public final class IoLib extends LuaModule {
     private LuaFileHandle currentInput;
     private LuaFileHandle currentOutput;
 
-    public IoLib() {
+
+    IoLib(ILuaIoImpl impl) {
         super("io");
+
+        this.impl = impl;
     }
 
     @Override
@@ -59,12 +65,17 @@ public final class IoLib extends LuaModule {
         new FileLib().register();
 
         // Initialize file handles
-        LuaTable fileTable = globals.rawget("file").checktable();
+        LuaTable fileTable = getFileTable();
         stdInHandle = new StdInFileHandle(fileTable);
         currentInput = stdInHandle;
         stdOutHandle = new StdOutFileHandle(fileTable, false);
         currentOutput = stdOutHandle;
         stdErrHandle = new StdOutFileHandle(fileTable, true);
+    }
+
+    static LuaTable getFileTable() {
+        LuaTable globals = LuaRunState.getCurrent().getGlobalEnvironment();
+        return globals.rawget("file").checktable();
     }
 
     /** io.close([file]) -> void */
@@ -144,20 +155,10 @@ public final class IoLib extends LuaModule {
     public Varargs popen(Varargs args) throws IOException {
         String program = args.checkjstring(1);
         String mode = args.optjstring(2, "r");
-        return openProgram(program, mode);
+        return impl.openProgram(program, mode);
     }
 
-    /**
-     * Start a new process and return a file for input or output
-     *
-     * @param prog the program to execute
-     * @param mode "r" to read, "w" to write
-     * @return File to read to or write from
-     * @throws IOException if an i/o exception occurs
-     */
-    protected LuaFileHandle openProgram(String prog, String mode) throws IOException {
-        throw new IOException("Unable to open program: " + prog);
-    }
+
 
     /**
      * io.read(...) -> (...)
@@ -198,9 +199,13 @@ public final class IoLib extends LuaModule {
                     case 'a':
                         vi = freadall(f);
                         break;
+                    default:
+                        return argerror(i + 1, "(invalid format)");
                     }
+                } else {
+                    return argerror(i + 1, "(invalid format)");
                 }
-                return argerror(i + 1, "(invalid format)");
+                break;
             default:
                 return argerror(i + 1, "(invalid format)");
             }
@@ -232,17 +237,7 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs tmpfile(Varargs args) throws IOException {
-        return createTempFile();
-    }
-
-    /**
-     * Open a temporary file.
-     *
-     * @return File object if successful
-     * @throws IOException if could not be opened
-     */
-    protected LuaFileHandle createTempFile() throws IOException {
-        throw new IOException("Unable to create temp file");
+        return impl.createTempFile();
     }
 
     /** io.type(obj) -> "file" | "closed file" | nil */

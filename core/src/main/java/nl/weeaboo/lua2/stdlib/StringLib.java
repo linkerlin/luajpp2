@@ -31,7 +31,7 @@ public final class StringLib extends LuaModule {
     private static final long serialVersionUID = 1L;
     private static final LuaString SPECIALS = valueOf("^$*+?.([%-");
 
-    public StringLib() {
+    StringLib() {
         super("string");
     }
 

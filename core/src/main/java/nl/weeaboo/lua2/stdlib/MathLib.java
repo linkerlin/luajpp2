@@ -22,7 +22,7 @@ public final class MathLib extends LuaModule {
 
     private final Random random = new Random();
 
-    public MathLib() {
+    MathLib() {
         super("math");
     }
 

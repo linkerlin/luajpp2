@@ -71,7 +71,7 @@ public class LuajavaLib extends VarArgFunction {
                 LuaTable t = new LuaTable();
                 bind(t, LuajavaLib.class, NAMES, BINDCLASS);
                 env.set("luajava", t);
-                LuaRunState.getCurrent().setIsLoaded("luajava", t);
+                LuaRunState.getCurrent().setPackageLoaded("luajava", t);
                 return t;
             }
             case BINDCLASS: {

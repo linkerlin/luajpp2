@@ -4,8 +4,18 @@ import org.junit.Test;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.stdlib.StandardLibrary;
 
 public final class Lua51TestSuiteTest extends AbstractLuaTest {
+
+    @Override
+    public void initLuaRunState() throws LuaException {
+        StandardLibrary stdlib = new StandardLibrary();
+        stdlib.setUnsafeIo(true); // Unsafe I/O functions are required for this test
+        luaRunState = LuaRunState.create(stdlib);
+        luaRunState.setLuaPath("lua51tests/?.lua");
+    }
 
     @Test
     public void testApi() {

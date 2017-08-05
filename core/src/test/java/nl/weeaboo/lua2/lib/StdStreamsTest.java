@@ -18,7 +18,7 @@ public class StdStreamsTest extends AbstractLuaTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState.newInstance();
+        LuaRunState.create();
     }
 
     @Test

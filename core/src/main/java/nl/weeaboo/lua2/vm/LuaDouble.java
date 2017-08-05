@@ -547,7 +547,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
         if (Double.isInfinite(value)) {
             return (value < 0 ? JSTR_NEGINF : JSTR_POSINF);
         }
-        return Float.toString((float)value);
+        return Double.toString(value);
     }
 
     @Override

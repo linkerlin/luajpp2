@@ -143,7 +143,7 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
         ScriptEngine eng = engines.get();
         if ( eng == null ) {
             try {
-                LuaRunState lrs = LuaRunState.newInstance();
+                LuaRunState lrs = LuaRunState.create();
                 eng = new LuaScriptEngine(lrs);
                 engines.set(eng);
             } catch (LuaException e) {

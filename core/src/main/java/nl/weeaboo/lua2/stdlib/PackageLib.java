@@ -11,6 +11,7 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.compiler.LuaScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
@@ -40,7 +41,7 @@ public final class PackageLib extends LuaModule {
     public LuaTable loadedTable = new LuaTable();
     public LuaTable packageTable;
 
-    public PackageLib() {
+    PackageLib() {
         super("package");
     }
 
@@ -239,15 +240,6 @@ public final class PackageLib extends LuaModule {
         return table;
     }
 
-    /** Allow packages to mark themselves as loaded. */
-    public void setIsLoaded(String name, LuaTable value) {
-        loadedTable.set(name, value);
-    }
-
-    public void setLuaPath(String newLuaPath) {
-        packageTable.set(_PATH, valueOf(newLuaPath));
-    }
-
     @LuaSerializable
     private static final class LuaLoader extends VarArgFunction {
 
@@ -293,7 +285,7 @@ public final class PackageLib extends LuaModule {
                 }
 
                 // try loading the file
-                Varargs v = BaseLib.loadFile(filename);
+                Varargs v = LuaScriptLoader.loadFile(filename);
                 if (v.arg1().isfunction()) {
                     return v.arg1();
                 }

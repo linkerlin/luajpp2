@@ -13,7 +13,7 @@ public final class LuaThreadGroupTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState lrs = LuaRunState.newInstance();
+        LuaRunState lrs = LuaRunState.create();
 
         threadGroup = new LuaThreadGroup(lrs);
     }

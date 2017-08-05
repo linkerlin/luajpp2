@@ -20,9 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.compiler.LoadState;
+import nl.weeaboo.lua2.compiler.LuaScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.lib2.LuaLib;
 import nl.weeaboo.lua2.vm.LuaConstants;
@@ -45,6 +44,9 @@ public final class BaseLib extends LuaLib {
     static InputStream STDIN = null;
     static PrintStream STDOUT = System.out;
     static PrintStream STDERR = System.err;
+
+    BaseLib() {
+    }
 
     @Override
     public void register() throws LuaException {
@@ -139,9 +141,9 @@ public final class BaseLib extends LuaLib {
     public Varargs dofile(Varargs args) {
         Varargs v;
         if (args.isnil(1)) {
-            v = loadStream(STDIN, "=stdin");
+            v = LuaScriptLoader.loadStream(STDIN, "=stdin");
         } else {
-            v = loadFile(args.checkjstring(1));
+            v = LuaScriptLoader.loadFile(args.checkjstring(1));
         }
 
         if (v.isnil(1)) {
@@ -179,7 +181,7 @@ public final class BaseLib extends LuaLib {
 
         StringInputStream in = new StringInputStream(func);
         try {
-            return loadStream(in, chunkname);
+            return LuaScriptLoader.loadStream(in, chunkname);
         } finally {
             try {
                 in.close();
@@ -195,33 +197,9 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs loadfile(Varargs args) {
         if (args.isnil(1)) {
-            return loadStream(STDIN, "stdin");
+            return LuaScriptLoader.loadStream(STDIN, "stdin");
         } else {
-            return loadFile(args.checkjstring(1));
-        }
-    }
-
-    /**
-     * Load from a named file, returning the chunk or nil,error of can't load.
-     *
-     * @return Varargs containing chunk, or NIL,error-text on error
-     */
-    public static Varargs loadFile(String filename) {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        LuaResource r = lrs.findResource(filename);
-        if (r == null) {
-            return varargsOf(NIL, valueOf("cannot open " + filename));
-        }
-
-        try {
-            final InputStream in = r.open();
-            try {
-                return loadStream(in, "@" + r.getCanonicalName());
-            } finally {
-                in.close();
-            }
-        } catch (IOException e) {
-            return varargsOf(NIL, valueOf("cannot open " + filename));
+            return LuaScriptLoader.loadFile(args.checkjstring(1));
         }
     }
 
@@ -232,23 +210,7 @@ public final class BaseLib extends LuaLib {
     public Varargs loadstring(Varargs args) {
         LuaString script = args.checkstring(1);
         String chunkname = args.optjstring(2, "string");
-        return loadStream(script.toInputStream(), chunkname);
-    }
-
-    public static Varargs loadStream(InputStream is, String chunkname) {
-        try {
-            if (is == null) {
-                return varargsOf(NIL, valueOf("not found: " + chunkname));
-            }
-            LuaThread running = LuaThread.getRunning();
-            return LoadState.load(is, chunkname, running.getfenv());
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = "";
-            }
-            return varargsOf(NIL, valueOf(message));
-        }
+        return LuaScriptLoader.loadStream(script.toInputStream(), chunkname);
     }
 
     /**

@@ -10,7 +10,7 @@ public class IoLibTest extends AbstractLuaTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState.newInstance();
+        LuaRunState.create();
     }
 
     // TODO: Implement unit tests

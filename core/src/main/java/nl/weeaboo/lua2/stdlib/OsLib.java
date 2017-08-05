@@ -21,7 +21,7 @@ public final class OsLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
 
-    public OsLib() {
+    OsLib() {
         super("os");
     }
 

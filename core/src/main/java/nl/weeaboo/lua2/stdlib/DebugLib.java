@@ -56,7 +56,7 @@ public final class DebugLib extends LuaModule {
     private static final LuaString CURRENTLINE = valueOf("currentline");
     private static final LuaString ACTIVELINES = valueOf("activelines");
 
-    public DebugLib() {
+    DebugLib() {
         super("debug");
     }
 

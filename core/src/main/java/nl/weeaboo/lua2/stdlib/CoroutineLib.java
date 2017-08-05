@@ -15,7 +15,7 @@ public final class CoroutineLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
 
-    public CoroutineLib() {
+    CoroutineLib() {
         super("coroutine");
     }
 

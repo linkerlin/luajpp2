@@ -14,17 +14,7 @@ import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
-import nl.weeaboo.lua2.luajava.LuajavaLib;
-import nl.weeaboo.lua2.stdlib.BaseLib;
-import nl.weeaboo.lua2.stdlib.CoroutineLib;
-import nl.weeaboo.lua2.stdlib.DebugLib;
-import nl.weeaboo.lua2.stdlib.IoLib;
-import nl.weeaboo.lua2.stdlib.MathLib;
-import nl.weeaboo.lua2.stdlib.OsLib;
-import nl.weeaboo.lua2.stdlib.PackageLib;
-import nl.weeaboo.lua2.stdlib.StringLib;
-import nl.weeaboo.lua2.stdlib.TableLib;
-import nl.weeaboo.lua2.stdlib.ThreadLib;
+import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -44,8 +34,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     private final DestructibleElemList<LuaThreadGroup> threadGroups;
     private final LuaThread mainThread;
 
-    private PackageLib packageLib;
-
     private boolean destroyed;
     private boolean debugEnabled = true;
     private int instructionCountLimit = 1000000;
@@ -61,34 +49,15 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         newThreadGroup();
     }
 
-    public static LuaRunState newInstance() throws LuaException {
-        LuaRunState runState = new LuaRunState();
-        runState.loadStandardLib();
-
-        return runState;
+    public static LuaRunState create() throws LuaException {
+        return create(new StandardLibrary());
     }
 
-    private void loadStandardLib() throws LuaException {
-        registerOnThread();
-
-        packageLib = new PackageLib();
-
-        new BaseLib().register();
-        packageLib.register();
-        new TableLib().register();
-        new StringLib().register();
-        new CoroutineLib().register();
-        new MathLib().register();
-        new IoLib().register();
-        new OsLib().register();
-        globals.load(new LuajavaLib());
-        new ThreadLib().register();
-        if (debugEnabled) {
-            new DebugLib().register();
-        }
-
-        // Set Thread.yield() as a global yield function
-        globals.rawset("yield", globals.rawget("Thread").rawget("yield"));
+    public static LuaRunState create(StandardLibrary stdlib) throws LuaException {
+        LuaRunState runState = new LuaRunState();
+        runState.registerOnThread();
+        stdlib.register();
+        return runState;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -228,12 +197,18 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     }
 
     /**
-     * Allow packages to mark themselves as loaded.
-     *
-     * @see PackageLib#setIsLoaded(String, LuaTable)
+     * Sets the load path for Lua's 'require' function.
      */
-    public void setIsLoaded(String name, LuaTable value) {
-        packageLib.setIsLoaded(name, value);
+    public void setLuaPath(String path) {
+        globals.get("package").set("path", path);
+
+    }
+
+    /**
+     * Allow packages to mark themselves as loaded.
+     */
+    public void setPackageLoaded(String name, LuaTable value) {
+        globals.get("package").get("loaded").set(name, value);
     }
 
     @Override

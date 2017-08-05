@@ -17,7 +17,7 @@ public final class TableLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
 
-    public TableLib() {
+    TableLib() {
         super("table");
     }
 

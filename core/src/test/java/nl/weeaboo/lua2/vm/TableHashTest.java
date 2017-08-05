@@ -41,7 +41,7 @@ public class TableHashTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState.newInstance();
+        LuaRunState.create();
     }
 
     protected LuaTable new_Table() {

@@ -15,7 +15,7 @@ public class StringLibTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState.newInstance();
+        LuaRunState.create();
     }
 
     @Test

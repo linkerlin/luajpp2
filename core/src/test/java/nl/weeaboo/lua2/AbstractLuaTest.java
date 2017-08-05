@@ -8,8 +8,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
+import nl.weeaboo.lua2.compiler.LuaScriptLoader;
 import nl.weeaboo.lua2.link.LuaLink;
-import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -26,7 +26,7 @@ public abstract class AbstractLuaTest {
 
     @Before
     public void initLuaRunState() throws LuaException {
-        luaRunState = LuaRunState.newInstance();
+        luaRunState = LuaRunState.create();
     }
 
     private static void configureLogging() {
@@ -49,7 +49,7 @@ public abstract class AbstractLuaTest {
     }
 
     protected LuaLink loadScript(String filename) {
-        Varargs loadResult = BaseLib.loadFile(filename);
+        Varargs loadResult = LuaScriptLoader.loadFile(filename);
         if (loadResult.isnil(1)) {
             throw new LuaError(loadResult.tojstring(2));
         }

@@ -65,7 +65,7 @@ public class MetatableTest {
 
     @Before
     public void setUp() throws LuaException {
-        LuaRunState lrs = LuaRunState.newInstance();
+        LuaRunState lrs = LuaRunState.create();
         thread = new LuaThread(lrs, null);
     }
 

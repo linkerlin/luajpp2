@@ -147,7 +147,7 @@ public class LC {
             processing = true;
 
             // open output file
-            LuaRunState lrs = LuaRunState.newInstance();
+            LuaRunState lrs = LuaRunState.create();
             OutputStream fos = null;
             try {
                 for (int i = 0; i < args.length; i++) {

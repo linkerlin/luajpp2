@@ -28,7 +28,7 @@ public abstract class LuaModule extends LuaLib {
         globals.rawset(moduleName, table);
 
         registerAdditional(globals, table);
-        lrs.setIsLoaded(moduleName, table);
+        lrs.setPackageLoaded(moduleName, table);
     }
 
     /**

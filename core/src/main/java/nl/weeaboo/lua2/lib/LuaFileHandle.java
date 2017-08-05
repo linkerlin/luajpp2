@@ -60,14 +60,14 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      *        </ul>
      * @param size Buffer size
      */
-    public void setvbuf(String mode, int size) {
+    public void setvbuf(String mode, int size) throws IOException {
         throw new LuaError("setvbuf not supported");
     }
 
     /**
      * Get length remaining to read, or {@code -1} if unknown.
      */
-    public int remaining() {
+    public int remaining() throws IOException {
         return -1;
     }
 

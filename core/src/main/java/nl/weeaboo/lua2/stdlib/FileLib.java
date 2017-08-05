@@ -22,6 +22,9 @@ public final class FileLib extends LuaLib {
 
     private static final long serialVersionUID = 1L;
 
+    FileLib() {
+    }
+
     @Override
     public void register() throws LuaException {
         LuaRunState lrs = LuaRunState.getCurrent();
@@ -53,7 +56,7 @@ public final class FileLib extends LuaLib {
      * file:setvbuf(mode,[size]) -> void.
      */
     @LuaBoundFunction
-    public Varargs setvbuf(Varargs args) {
+    public Varargs setvbuf(Varargs args) throws IOException {
         LuaFileHandle file = checkfile(args.arg1());
         String mode = args.checkjstring(2);
         int size = args.optint(3, 1024);

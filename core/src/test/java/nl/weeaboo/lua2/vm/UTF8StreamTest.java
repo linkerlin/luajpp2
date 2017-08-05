@@ -37,7 +37,7 @@ public class UTF8StreamTest {
 
     @Before
     public void before() throws LuaException {
-        lrs = LuaRunState.newInstance();
+        lrs = LuaRunState.create();
     }
 
     @Test

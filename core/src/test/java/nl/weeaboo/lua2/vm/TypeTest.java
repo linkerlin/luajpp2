@@ -85,7 +85,7 @@ public class TypeTest {
 
     @Before
     public void before() throws LuaException {
-        LuaRunState lrs = LuaRunState.newInstance();
+        LuaRunState lrs = LuaRunState.create();
         thread = new LuaThread(lrs, null);
     }
 
