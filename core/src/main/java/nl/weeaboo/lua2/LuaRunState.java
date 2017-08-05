@@ -36,7 +36,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     private boolean destroyed;
     private boolean debugEnabled = true;
-    private int instructionCountLimit = 1000000;
+    private int instructionCountLimit = 10 * 1000 * 1000;
 
     private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 

@@ -1161,11 +1161,11 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
      *
      * @return value for maxn
      */
-    public int maxn() {
-        int max = 0;
+    public double maxn() {
+        double max = 0;
         for (LuaValue key : keys()) {
-            if (key.isint()) {
-                max = Math.max(max, key.toint());
+            if (key.type() == LuaConstants.TNUMBER) {
+                max = Math.max(max, key.todouble());
             }
         }
         return max;
