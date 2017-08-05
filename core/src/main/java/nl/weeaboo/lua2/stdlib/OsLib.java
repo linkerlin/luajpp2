@@ -2,6 +2,7 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
+import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -21,8 +23,12 @@ public final class OsLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
 
-    OsLib() {
+    private final ILuaIoImpl ioImpl;
+
+    OsLib(ILuaIoImpl ioImpl) {
         super("os");
+
+        this.ioImpl = ioImpl;
     }
 
     /**
@@ -76,11 +82,16 @@ public final class OsLib extends LuaModule {
      *        <ol>
      *        <li>filename
      *        </ol>
-     * @throws IOException if it fails
      */
     @LuaBoundFunction
-    public Varargs remove(Varargs args) throws IOException {
-        throw new IOException("remove() is not supported");
+    public Varargs remove(Varargs args) {
+        String filename = args.checkjstring(1);
+        try {
+            ioImpl.deleteFile(filename);
+            return LuaBoolean.TRUE;
+        } catch (IOException e) {
+            return varargsOf(NIL, valueOf(e.toString()), valueOf(1));
+        }
     }
 
     /**
@@ -95,7 +106,14 @@ public final class OsLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs rename(Varargs args) throws IOException {
-        throw new IOException("rename() is not supported");
+        String oldFilename = args.checkjstring(1);
+        String newFilename = args.checkjstring(2);
+        try {
+            ioImpl.renameFile(oldFilename, newFilename);
+            return LuaBoolean.TRUE;
+        } catch (IOException e) {
+            return varargsOf(NIL, valueOf(e.toString()), valueOf(1));
+        }
     }
 
     /**
@@ -118,7 +136,8 @@ public final class OsLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs setlocale(Varargs args) {
-        if (args.isnil(1)) {
+        String newLocale = args.optjstring(1, "");
+        if (newLocale.length() == 0 || newLocale.equals("C")) {
             return valueOf("C");
         }
         return NIL;

@@ -34,8 +34,9 @@ public final class StandardLibrary {
         new StringLib().register();
         new CoroutineLib().register();
         new MathLib().register();
-        new IoLib(createIoImpl()).register();
-        new OsLib().register();
+        ILuaIoImpl ioImpl = createIoImpl();
+        new IoLib(ioImpl).register();
+        new OsLib(ioImpl).register();
         globals.load(new LuajavaLib());
         new ThreadLib().register();
 

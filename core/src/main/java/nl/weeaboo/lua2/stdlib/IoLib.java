@@ -10,9 +10,10 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -20,6 +21,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.stdlib.FileLib.LinesIterFunction;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
@@ -44,14 +46,28 @@ public final class IoLib extends LuaModule {
     private LuaFileHandle stdOutHandle;
     private LuaFileHandle stdErrHandle;
 
-    private LuaFileHandle currentInput;
-    private LuaFileHandle currentOutput;
-
+    // These values use custom serialization, see
+    private transient WeakReference<LuaFileHandle> currentInput;
+    private transient WeakReference<LuaFileHandle> currentOutput;
 
     IoLib(ILuaIoImpl impl) {
         super("io");
 
         this.impl = impl;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+
+        out.writeObject(getCurrentInput());
+        out.writeObject(getCurrentOutput());
+    }
+
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+
+        setCurrentInput((LuaFileHandle)in.readObject());
+        setCurrentOutput((LuaFileHandle)in.readObject());
     }
 
     @Override
@@ -67,10 +83,34 @@ public final class IoLib extends LuaModule {
         // Initialize file handles
         LuaTable fileTable = getFileTable();
         stdInHandle = new StdInFileHandle(fileTable);
-        currentInput = stdInHandle;
+        setCurrentInput(stdInHandle);
         stdOutHandle = new StdOutFileHandle(fileTable, false);
-        currentOutput = stdOutHandle;
+        setCurrentOutput(stdOutHandle);
         stdErrHandle = new StdOutFileHandle(fileTable, true);
+    }
+
+    private LuaFileHandle getCurrentInput() {
+        LuaFileHandle result = null;
+        if (currentInput != null) {
+            result = currentInput.get();
+        }
+        return (result != null ? result : stdInHandle);
+    }
+
+    private void setCurrentInput(LuaFileHandle file) {
+        currentInput = new WeakReference<LuaFileHandle>(file);
+    }
+
+    private LuaFileHandle getCurrentOutput() {
+        LuaFileHandle result = null;
+        if (currentOutput != null) {
+            result = currentOutput.get();
+        }
+        return (result != null ? result : stdOutHandle);
+    }
+
+    private void setCurrentOutput(LuaFileHandle file) {
+        currentOutput = new WeakReference<LuaFileHandle>(file);
     }
 
     static LuaTable getFileTable() {
@@ -81,7 +121,7 @@ public final class IoLib extends LuaModule {
     /** io.close([file]) -> void */
     @LuaBoundFunction
     public Varargs close(Varargs args) throws IOException {
-        LuaFileHandle f = args.isnil(1) ? stdOutHandle : checkfile(args.arg1());
+        LuaFileHandle f = args.isnil(1) ? getCurrentOutput() : checkfile(args.arg1());
         checkopen(f);
         return doClose(f);
     }
@@ -92,8 +132,9 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs flush(Varargs args) throws IOException {
-        checkopen(currentOutput);
-        currentOutput.flush();
+        LuaFileHandle file = getCurrentOutput();
+        checkopen(file);
+        file.flush();
         return TRUE;
     }
 
@@ -103,13 +144,13 @@ public final class IoLib extends LuaModule {
     @LuaBoundFunction
     public Varargs input(Varargs args) throws IOException {
         if (args.isnil(1)) {
-            currentInput = stdInHandle;
+            // Do nothing, just return the current value
         } else if (args.isstring(1)) {
-            currentInput = doOpenFile(args.checkjstring(1), "r");
+            setCurrentInput(doOpenFile(args.checkjstring(1), "r"));
         } else {
-            currentInput = checkfile(args.arg(1));
+            setCurrentInput(checkfile(args.arg(1)));
         }
-        return currentInput;
+        return getCurrentInput();
     }
 
     /**
@@ -118,13 +159,13 @@ public final class IoLib extends LuaModule {
     @LuaBoundFunction
     public Varargs output(Varargs args) throws IOException {
         if (args.isnil(1)) {
-            currentOutput = stdOutHandle;
+            // Do nothing, just return the current value
         } else if (args.isstring(1)) {
-            stdOutHandle = doOpenFile(args.checkjstring(1), "w");
+            setCurrentOutput(doOpenFile(args.checkjstring(1), "w"));
         } else {
-            stdOutHandle = checkfile(args.arg(1));
+            setCurrentOutput(checkfile(args.arg(1)));
         }
-        return stdOutHandle;
+        return getCurrentOutput();
     }
 
     /**
@@ -132,20 +173,26 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs lines(Varargs args) throws IOException {
-        LuaFileHandle file = (args.isstring(1) ? doOpenFile(args.checkjstring(1), "r") : currentInput);
+        LuaFileHandle file = (args.isstring(1) ? doOpenFile(args.checkjstring(1), "r") : getCurrentInput());
         checkopen(file);
-        return lines(file);
+
+        return new LinesIterFunction(file);
     }
 
     /**
      * io.open(filename, [mode]) -> file | nil,err
      */
     @LuaBoundFunction
-    public Varargs open(Varargs args) throws IOException {
+    public Varargs open(Varargs args) {
         String filename = args.checkjstring(1);
         String mode = args.optjstring(2, "r");
 
-        return doOpenFile(filename, mode);
+        try {
+            return doOpenFile(filename, mode);
+        } catch (IOException e) {
+            String message = "Error opening file (" + filename + "): " + e.toString();
+            return varargsOf(NIL, valueOf(message), valueOf(0));
+        }
     }
 
     /**
@@ -158,15 +205,14 @@ public final class IoLib extends LuaModule {
         return impl.openProgram(program, mode);
     }
 
-
-
     /**
      * io.read(...) -> (...)
      */
     @LuaBoundFunction
     public Varargs read(Varargs args) throws IOException {
-        checkopen(currentInput);
-        return doRead(currentInput, args);
+        LuaFileHandle file = getCurrentInput();
+        checkopen(file);
+        return doRead(file, args);
     }
 
     static Varargs doRead(LuaFileHandle f, Varargs args) throws IOException {
@@ -220,8 +266,9 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs write(Varargs args) throws IOException {
-        checkopen(currentOutput);
-        return doWrite(currentOutput, args);
+        LuaFileHandle file = getCurrentOutput();
+        checkopen(file);
+        return doWrite(file, args);
     }
 
     static Varargs doWrite(LuaFileHandle f, Varargs args) throws IOException {
@@ -251,7 +298,7 @@ public final class IoLib extends LuaModule {
         return (f.isclosed() ? CLOSED_FILE : FILE);
     }
 
-    private static LuaFileHandle optfile(LuaValue val) {
+    static LuaFileHandle optfile(LuaValue val) {
         return (val instanceof LuaFileHandle) ? (LuaFileHandle)val : null;
     }
 
@@ -265,7 +312,7 @@ public final class IoLib extends LuaModule {
     }
 
     private static LuaFileHandle checkopen(LuaFileHandle file) {
-        if (file.isclosed()) {
+        if (file == null || file.isclosed()) {
             throw new LuaError("attempt to use a closed file");
         }
         return file;
@@ -277,26 +324,7 @@ public final class IoLib extends LuaModule {
             return isreadmode ? stdInHandle : stdOutHandle;
         }
 
-        boolean isappend = mode.startsWith("a");
-        boolean isupdate = mode.indexOf("+") > 0;
-        boolean isbinary = mode.endsWith("b");
-        return openFile(filename, isreadmode, isappend, isupdate, isbinary);
-    }
-
-    /**
-     * Open a file in a particular mode.
-     *
-     * @param readMode true if opening in read mode
-     * @param appendMode true if opening in append mode
-     * @param updateMode true if opening in update mode
-     * @param binaryMode true if opening in binary mode
-     * @return File object if successful
-     * @throws IOException if could not be opened
-     */
-    protected LuaFileHandle openFile(String filename, boolean readMode, boolean appendMode,
-            boolean updateMode, boolean binaryMode) throws IOException {
-
-        throw new FileNotFoundException(filename);
+        return impl.openFile(filename, FileOpenMode.fromString(mode));
     }
 
     static Varargs doClose(LuaFileHandle f) throws IOException {
@@ -316,8 +344,7 @@ public final class IoLib extends LuaModule {
         return varargsOf(NIL, valueOf(errortext));
     }
 
-
-    public static LuaValue freadbytes(LuaFileHandle f, int count) throws IOException {
+    static LuaValue freadbytes(LuaFileHandle f, int count) throws IOException {
         byte[] b = new byte[count];
         int r;
         if ((r = f.read(b, 0, b.length)) < 0) {
@@ -326,44 +353,43 @@ public final class IoLib extends LuaModule {
         return LuaString.valueOf(b, 0, r);
     }
 
-    public static LuaValue freaduntil(LuaFileHandle f, boolean lineonly) throws IOException {
+    static LuaValue freaduntil(LuaFileHandle f, boolean lineonly) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int c;
-        try {
-            if (lineonly) {
-                loop: while ((c = f.read()) > 0) {
-                    switch (c) {
-                    case '\r':
-                        break;
-                    case '\n':
-                        break loop;
-                    default:
-                        baos.write(c);
-                        break;
-                    }
-                }
-            } else {
-                while ((c = f.read()) > 0) {
+        if (lineonly) {
+            loop:
+            while ((c = f.read()) > 0) {
+                switch (c) {
+                case '\r':
+                    break;
+                case '\n':
+                    break loop;
+                default:
                     baos.write(c);
+                    break;
                 }
             }
-        } catch (EOFException e) {
-            c = -1;
+        } else {
+            while ((c = f.read()) > 0) {
+                baos.write(c);
+            }
         }
 
-
         if (c < 0 && baos.size() == 0) {
+            if (!f.isstdfile()) {
+                f.close();
+            }
             return NIL;
         } else {
             return LuaString.valueOf(baos.toByteArray());
         }
     }
 
-    public static LuaValue freadline(LuaFileHandle f) throws IOException {
+    static LuaValue freadline(LuaFileHandle f) throws IOException {
         return freaduntil(f, true);
     }
 
-    public static LuaValue freadall(LuaFileHandle f) throws IOException {
+    static LuaValue freadall(LuaFileHandle f) throws IOException {
         int n = f.remaining();
         if (n >= 0) {
             return freadbytes(f, n);
@@ -372,7 +398,7 @@ public final class IoLib extends LuaModule {
         }
     }
 
-    public static LuaValue freadnumber(LuaFileHandle f) throws IOException {
+    static LuaValue freadnumber(LuaFileHandle f) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         freadchars(f, " \t\r\n", null);
         freadchars(f, "-+", baos);

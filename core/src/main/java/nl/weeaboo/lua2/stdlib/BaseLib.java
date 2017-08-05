@@ -70,7 +70,16 @@ public final class BaseLib extends LuaLib {
     public Varargs collectgarbage(Varargs args) {
         String opt = args.optjstring(1, "collect");
         if ("collect".equals(opt)) {
-            System.gc();
+            // Attempt to force a full GC
+            for (int n = 0; n < 5; n++) {
+                System.gc();
+                System.runFinalization();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    // Ignore
+                }
+            }
             return LuaInteger.valueOf(0);
         } else if ("count".equals(opt)) {
             Runtime rt = Runtime.getRuntime();

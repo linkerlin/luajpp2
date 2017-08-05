@@ -25,4 +25,22 @@ interface ILuaIoImpl extends Serializable {
      */
     LuaFileHandle createTempFile() throws IOException;
 
+    /**
+     * Open a file in a particular mode.
+     *
+     * @return File object if successful
+     * @throws IOException if could not be opened
+     */
+    LuaFileHandle openFile(String filename, FileOpenMode mode) throws IOException;
+
+    /**
+     * Deletes a file
+     */
+    void deleteFile(String filename) throws IOException;
+
+    /**
+     * Renames a file.
+     */
+    void renameFile(String oldFilename, String newFilename) throws IOException;
+
 }

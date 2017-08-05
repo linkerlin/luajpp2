@@ -1,6 +1,5 @@
 package nl.weeaboo.lua2.lib;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -74,7 +73,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
     /**
      * Peek ahead one character
      *
-     * @throws EOFException If the file contains no further data.
+     * @return The next unsigned byte, or {@code -1} if the end of the file has been reached.
      */
     public int peek() throws IOException {
         throw new IOException("peek not supported");
@@ -132,6 +131,9 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
     @Override
     public String tojstring() {
         // displays as "file" type
+        if (isclosed()) {
+            return "file (closed)";
+        }
         return "file: " + Integer.toHexString(hashCode());
     }
 

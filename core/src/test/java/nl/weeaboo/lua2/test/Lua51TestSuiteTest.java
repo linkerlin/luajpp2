@@ -93,11 +93,6 @@ public final class Lua51TestSuiteTest extends AbstractLuaTest {
     }
 
     @Test
-    public void testMain() {
-        runScript("main.lua");
-    }
-
-    @Test
     public void testMath() {
         runScript("math.lua");
     }

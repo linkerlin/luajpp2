@@ -26,7 +26,35 @@ final class UnsafeIo implements ILuaIoImpl {
         tempFile.deleteOnExit();
 
         RandomAccessFile rfile = new RandomAccessFile(tempFile, "rw");
-        return new UnsafeLuaFileHandle(fileTable, rfile);
+        return new UnsafeLuaFileHandle(fileTable, rfile, FileOpenMode.fromString("r+"));
+    }
+
+    @Override
+    public LuaFileHandle openFile(String filename, FileOpenMode mode) throws IOException {
+        LuaTable fileTable = IoLib.getFileTable();
+
+        RandomAccessFile rfile = new RandomAccessFile(filename, mode.isWritable() ? "rw" : "r");
+        if (mode.isTruncate()) {
+            rfile.setLength(0);
+        }
+        return new UnsafeLuaFileHandle(fileTable, rfile, mode);
+    }
+
+    @Override
+    public void deleteFile(String filename) throws IOException {
+        File file = new File(filename);
+        if (!file.delete()) {
+            throw new IOException("Delete of " + filename + " failed");
+        }
+    }
+
+    @Override
+    public void renameFile(String oldFilename, String newFilename) throws IOException {
+        File oldFile = new File(oldFilename);
+        File newFile = new File(newFilename);
+        if (!oldFile.renameTo(newFile)) {
+            throw new IOException("Rename of " + oldFile + " to " + newFile + " failed");
+        }
     }
 
 }

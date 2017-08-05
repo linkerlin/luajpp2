@@ -1,8 +1,12 @@
 package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.stdlib.IoLib.checkfile;
+import static nl.weeaboo.lua2.stdlib.IoLib.optfile;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
+import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.IOException;
 
@@ -40,7 +44,11 @@ public final class FileLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs close(Varargs args) throws IOException {
-        return IoLib.doClose(checkfile(args.arg1()));
+        LuaFileHandle file = optfile(args.arg1());
+        if (file == null) {
+            return NONE;
+        }
+        return IoLib.doClose(file);
     }
 
     /**
@@ -90,26 +98,34 @@ public final class FileLib extends LuaLib {
      * file:read(...) -> (...)
      */
     @LuaBoundFunction
-    public Varargs read(Varargs args) throws IOException {
+    public Varargs read(Varargs args) {
         LuaFileHandle file = checkfile(args.arg1());
         Varargs subargs = args.subargs(2);
 
-        return IoLib.doRead(file, subargs);
+        try {
+            return IoLib.doRead(file, subargs);
+        } catch (IOException e) {
+            return varargsOf(NIL, valueOf(e.toString()), valueOf(1));
+        }
     }
 
     /**
      * file:write(...) -> void
      */
     @LuaBoundFunction
-    public Varargs write(Varargs args) throws IOException {
+    public Varargs write(Varargs args) {
         LuaFileHandle file = checkfile(args.arg1());
         Varargs subargs = args.subargs(2);
 
-        return IoLib.doWrite(file, subargs);
+        try {
+            return IoLib.doWrite(file, subargs);
+        } catch (IOException e) {
+            return varargsOf(NIL, valueOf(e.toString()), valueOf(1));
+        }
     }
 
     @LuaSerializable
-    private static class LinesIterFunction extends VarArgFunction {
+    static class LinesIterFunction extends VarArgFunction {
 
         private static final long serialVersionUID = 1L;
 
@@ -123,8 +139,13 @@ public final class FileLib extends LuaLib {
         @Override
         public Varargs invoke(Varargs args) {
             try {
-                return IoLib.freadline(checkfile(file));
+                return IoLib.freadline(file);
             } catch (IOException ioe) {
+                try {
+                    file.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
                 throw new LuaError("I/O error from lines iterator for: " + file, ioe);
             }
         }
