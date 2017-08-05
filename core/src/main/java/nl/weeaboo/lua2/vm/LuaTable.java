@@ -985,7 +985,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
      *
      * @param comparator {@link LuaValue} to be called to compare elements.
      */
-    public void sort(LuaValue comparator) {
+    public void sort(final LuaValue comparator) {
         if (metatable != null && metatable.useWeakValues()) {
             dropWeakArrayValues();
         }
@@ -1000,27 +1000,43 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     private void heapSort(int count, LuaValue cmpfunc) {
         heapify(count, cmpfunc);
-        for (int end = count - 1; end > 0;) {
+
+        int end = count - 1;
+        while (end > 0) {
             swap(end, 0);
-            siftDown(0, --end, cmpfunc);
+
+            end--;
+            siftDown(0, end, cmpfunc);
         }
+
     }
 
     private void heapify(int count, LuaValue cmpfunc) {
-        for (int start = count / 2 - 1; start >= 0; --start) {
+        int start = (count - 2) / 2;
+        while (start >= 0) {
             siftDown(start, count - 1, cmpfunc);
+            start--;
         }
     }
 
     private void siftDown(int start, int end, LuaValue cmpfunc) {
-        for (int root = start; root * 2 + 1 <= end;) {
-            int child = root * 2 + 1;
-            if (child < end && compare(child, child + 1, cmpfunc)) {
-                ++child;
+        int root = start;
+        while (true) {
+            int swap = root;
+            int leftChild = root * 2 + 1;
+            int rightChild = leftChild + 1;
+
+            if (leftChild <= end && compare(swap, leftChild, cmpfunc)) {
+                swap = leftChild;
             }
-            if (compare(root, child, cmpfunc)) {
-                swap(root, child);
-                root = child;
+
+            if (rightChild <= end && compare(swap, rightChild, cmpfunc)) {
+                swap = rightChild;
+            }
+
+            if (swap != root) {
+                swap(swap, root);
+                root = swap;
             } else {
                 return;
             }

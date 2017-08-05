@@ -14,7 +14,6 @@ import java.util.UUID;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -168,7 +167,7 @@ public final class OsLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs clock(Varargs args) {
-        throw new LuaError("clock() is not supported");
+        return valueOf(0); // Not implemented
     }
 
     /**

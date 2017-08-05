@@ -1,6 +1,10 @@
 package nl.weeaboo.lua2.test;
 
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
 import nl.weeaboo.lua2.LuaException;
@@ -8,6 +12,9 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 
 public final class Lua51TestSuiteTest extends AbstractLuaTest {
+
+    @Rule
+    public Timeout timeout = new Timeout(60, TimeUnit.SECONDS);
 
     @Override
     public void initLuaRunState() throws LuaException {
