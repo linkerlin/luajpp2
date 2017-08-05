@@ -108,7 +108,12 @@ public abstract class LuaLib implements ILuaLib {
         }
 
         private String createErrorMessage(Varargs args, Throwable cause) {
-            String error = "Error invoking Java method: " + javaMethodName + args;
+            String error = "Error invoking Java method: " + javaMethodName;
+            if (args.narg() > 1) {
+                error += args;
+            } else {
+                error += "(" + args + ")";
+            }
             if (cause != null) {
                 error += " :: " + cause;
             }

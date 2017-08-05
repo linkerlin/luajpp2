@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
@@ -14,6 +17,8 @@ import nl.weeaboo.lua2.vm.LuaValue;
 /** DebugState is associated with a Thread. */
 @LuaSerializable
 final class DebugState implements Externalizable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DebugState.class);
 
     // --- Uses manual serialization, don't add variables ---
     private LuaThread thread;
@@ -99,6 +104,10 @@ final class DebugState implements Externalizable {
     }
 
     public void popInfo(int calls) {
+        if (debugCalls <= calls) {
+            LOG.debug("No-op popInfo call: currentDepth={}, targetDepth={}");
+        }
+
         while (debugCalls > calls) {
             DebugInfo di = debugInfo[--debugCalls];
             di.clear();

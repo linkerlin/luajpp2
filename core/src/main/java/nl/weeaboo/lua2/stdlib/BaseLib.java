@@ -77,10 +77,24 @@ public final class BaseLib extends LuaLib {
         } else if ("step".equals(opt)) {
             System.gc();
             return TRUE;
+        } else if ("stop".equals(opt)) {
+            // Not implemented
+        } else if ("restart".equals(opt)) {
+            // Not implemented
+        } else if ("setpause".equals(opt)) {
+            // Not implemented
+        } else if ("setstepmul".equals(opt)) {
+            // Not implemented
         } else {
             argerror(1, "gc op");
         }
         return NIL;
+    }
+
+    @Deprecated
+    @LuaBoundFunction
+    public Varargs gcinfo(Varargs args) {
+        return collectgarbage(valueOf("count"));
     }
 
     /**
@@ -254,7 +268,7 @@ public final class BaseLib extends LuaLib {
             Varargs funcResult = func.invoke(args);
             return varargsOf(TRUE, funcResult);
         } catch (LuaError le) {
-            LOG.debug("Error in pcall: {} {}", func, args, le);
+            LOG.trace("Error in pcall: {} {}", func, args, le);
             String m = le.getMessage();
             return varargsOf(FALSE, m != null ? valueOf(m) : NIL);
         } catch (Exception e) {
