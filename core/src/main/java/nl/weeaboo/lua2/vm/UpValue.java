@@ -63,6 +63,13 @@ public final class UpValue implements Externalizable {
         this.index = index;
     }
 
+    static UpValue newSealedInstance() {
+        UpValue upValue = new UpValue();
+        upValue.index = -1;
+        upValue.sealed = LuaNil.NIL;
+        return upValue;
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         if (sealed != null) {

@@ -101,14 +101,14 @@ public final class LuaClosure extends LuaFunction {
         super(env);
 
         this.p = p;
-        this.upValues = (p.nups > 0 ? new UpValue[p.nups] : UpValue.NOUPVALUES);
-    }
-
-    protected LuaClosure(int nupvalues, LuaValue env) {
-        super(env);
-
-        this.p = null;
-        this.upValues = (nupvalues > 0 ? new UpValue[nupvalues] : UpValue.NOUPVALUES);
+        if (p.nups == 0) {
+            upValues = UpValue.NOUPVALUES;
+        } else {
+            upValues = new UpValue[p.nups];
+            for (int n = 0; n < p.nups; n++) {
+                upValues[n] = UpValue.newSealedInstance();
+            }
+        }
     }
 
     @Override
@@ -159,16 +159,8 @@ public final class LuaClosure extends LuaFunction {
         return upValues;
     }
 
-    public LuaValue getUpvalue(int i) {
-        return upValues[i].getValue();
-    }
-
     public int getUpValueCount() {
         return upValues.length;
-    }
-
-    public void setUpvalue(int i, LuaValue v) {
-        upValues[i].setValue(v);
     }
 
     @Override

@@ -15,12 +15,12 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 final class StackFrame implements Externalizable {
 
     enum Status {
-        FRESH, RUNNING, PAUSED, DEAD
+        FRESH, RUNNING, DEAD
     }
 
     // --- Uses manual serialization, don't add variables ---
     Status status;
-    LuaClosure c;      //The closure that's being called
+    LuaFunction func;  //The function that's being called
     Varargs args;      //The args given
     Varargs varargs;   //The varargs part of the arguments given
 
@@ -40,11 +40,11 @@ final class StackFrame implements Externalizable {
     public StackFrame() {
     }
 
-    public static StackFrame newInstance(LuaClosure c, Varargs args, StackFrame parent, int returnBase,
+    public static StackFrame newInstance(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
             int returnCount) {
 
         StackFrame frame = new StackFrame();
-        frame.prepareCall(c, args, parent, returnBase, returnCount);
+        frame.prepareCall(func, args, parent, returnBase, returnCount);
         return frame;
     }
 
@@ -60,7 +60,7 @@ final class StackFrame implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(status);
-        out.writeObject(c);
+        out.writeObject(func);
         out.writeObject(args);
         out.writeObject(varargs);
 
@@ -79,7 +79,7 @@ final class StackFrame implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         status = (Status)in.readObject();
-        c = (LuaClosure)in.readObject();
+        func = (LuaClosure)in.readObject();
         args = (Varargs)in.readObject();
         varargs = (Varargs)in.readObject();
 
@@ -141,62 +141,85 @@ final class StackFrame implements Externalizable {
                 return null;
             }
         }
-        return sf.c;
+        return sf.func;
     }
 
-    public final void prepareCall(LuaClosure c, Varargs args, StackFrame parent, int returnBase,
+    private static Prototype getPrototype(LuaFunction func) {
+        if (func.isclosure()) {
+            return func.checkclosure().getPrototype();
+        } else {
+            return null;
+        }
+    }
+
+    public final void prepareCall(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
             int returnCount) {
 
-        final Prototype p = c.getPrototype();
+        final Prototype p = getPrototype(func);
 
         this.status = Status.FRESH;
-        this.c = c;
+        this.func = func;
         this.args = args;
-        this.varargs = (p.isVararg != 0 ? args.subargs(p.numparams + 1) : NONE);
+        this.varargs = extractVarargs(p, args);
 
         this.parent = parent;
         this.parentCount = (parent != null ? parent.size() : 0);
         this.returnBase = returnBase;
         this.returnCount = returnCount;
 
-        resetExecutionState(p.maxstacksize, p.p.length);
+        if (p == null) {
+            resetExecutionState(0, 0);
+        } else {
+            resetExecutionState(p.maxstacksize, p.p.length);
 
-        //Push params on stack
-        for (int i = 0; i < p.numparams; i++) {
-            stack[i] = args.arg(i + 1);
-        }
-        if (p.isVararg >= Lua.VARARG_NEEDSARG) {
-            stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
+            //Push params on stack
+            for (int i = 0; i < p.numparams; i++) {
+                stack[i] = args.arg(i + 1);
+            }
+            if (p.isVararg >= Lua.VARARG_NEEDSARG) {
+                stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
+            }
         }
     }
 
-    public final void prepareTailcall(LuaClosure c, Varargs args) {
+    public final void prepareTailcall(LuaFunction func, Varargs args) {
         closeUpValues(); //We're clobbering the stack, save the upvalues first
 
-        final Prototype p = c.getPrototype();
+        final Prototype p = getPrototype(func);
 
         //Don't change status
 
-        this.c = c;
+        this.func = func;
         this.args = args;
-        this.varargs = (p.isVararg != 0 ? args.subargs(p.numparams + 1) : NONE);
+        this.varargs = extractVarargs(p, args);
 
         //Don't change parent
 
-        resetExecutionState(p.maxstacksize, p.p.length);
+        if (p == null) {
+            resetExecutionState(0, 0);
+        } else {
+            resetExecutionState(p.maxstacksize, p.p.length);
 
-        //Push params on stack
-        for (int i = 0; i < p.numparams; i++) {
-            stack[top + i] = args.arg(i + 1);
+            //Push params on stack
+            for (int i = 0; i < p.numparams; i++) {
+                stack[top + i] = args.arg(i + 1);
+            }
+            if (p.isVararg >= Lua.VARARG_NEEDSARG) {
+                stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
+            }
         }
-        if (p.isVararg >= Lua.VARARG_NEEDSARG) {
-            stack[p.numparams] = new LuaTable(args.subargs(p.numparams + 1));
+    }
+
+    private static Varargs extractVarargs(Prototype p, Varargs args) {
+        if (p == null || p.isVararg == 0) {
+            return NONE;
         }
+        return args.subargs(p.numparams + 1);
     }
 
     @Override
     public String toString() {
-        return "StackFrame[" + c + ", args=" + args + "]";
+        return "StackFrame[" + func + ", args=" + args + "]";
     }
 
 }

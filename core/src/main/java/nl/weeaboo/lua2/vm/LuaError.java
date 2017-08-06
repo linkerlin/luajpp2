@@ -31,12 +31,15 @@ public class LuaError extends RuntimeException {
     }
 
     public LuaError(String message, Throwable c, int level) {
-        super(message, c);
+        super();
 
         this.message = message;
         this.cause = c;
 
-        if (level >= 0) {
+        if (c instanceof LuaError) {
+            cause = null;
+            setStackTrace(c.getStackTrace());
+        } else if (level >= 0) {
             StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
             if (c != null) {
                 stack = prefixLuaStackTrace(c, stack);
@@ -45,12 +48,6 @@ public class LuaError extends RuntimeException {
             }
             setStackTrace(stack);
         }
-    }
-
-    public LuaError(LuaError lee) {
-        this(lee.message, lee.cause, -1);
-
-        setStackTrace(lee.getStackTrace());
     }
 
     //Functions
@@ -70,6 +67,11 @@ public class LuaError extends RuntimeException {
         System.arraycopy(luaStack, 0, newStack, joff, luaStack.length);
         System.arraycopy(javaStack, joff, newStack, joff + luaStack.length, javaStack.length - joff);
         return newStack;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 
     @Override

@@ -105,7 +105,7 @@ final class DebugState implements Externalizable {
 
     public void popInfo(int calls) {
         if (debugCalls <= calls) {
-            LOG.debug("No-op popInfo call: currentDepth={}, targetDepth={}");
+            LOG.debug("No-op popInfo call: currentDepth={}, targetDepth={}", debugCalls, calls);
         }
 
         while (debugCalls > calls) {

@@ -31,6 +31,7 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
+import nl.weeaboo.lua2.vm.UpValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
@@ -156,7 +157,8 @@ public final class DebugLib extends LuaModule {
             LuaClosure c = (LuaClosure)func;
             LuaString name = findupvalue(c, up);
             if (name != null) {
-                return varargsOf(name, c.getUpvalue(up - 1));
+                UpValue[] upValues = c.getUpValues();
+                return varargsOf(name, upValues[up - 1].getValue());
             }
         }
         return NIL;
@@ -172,7 +174,8 @@ public final class DebugLib extends LuaModule {
             LuaClosure c = (LuaClosure)func;
             LuaString name = findupvalue(c, up);
             if (name != null) {
-                c.setUpvalue(up - 1, value);
+                UpValue[] upValues = c.getUpValues();
+                upValues[up - 1].setValue(value);
                 return name;
             }
         }
@@ -244,9 +247,9 @@ public final class DebugLib extends LuaModule {
         if (func.isnumber()) {
             int level = func.checkint();
             if (level > 0) {
-                di = ds.getDebugInfo(level);
+                di = ds.getDebugInfo(level + 1);
             } else {
-                di = new DebugInfo(thread.getCallstackFunction(0));
+                di = new DebugInfo(thread.getCallstackFunction(1));
             }
         } else {
             di = ds.findDebugInfo(func.checkfunction());
@@ -289,7 +292,7 @@ public final class DebugLib extends LuaModule {
             }
             case 'n': {
                 LuaString[] kind = di.getfunckind();
-                info.set(NAME, kind != null ? kind[0] : QMARK);
+                info.set(NAME, kind != null ? kind[0] : NIL);
                 info.set(NAMEWHAT, kind != null ? kind[1] : EMPTYSTRING);
                 break;
             }
@@ -298,13 +301,19 @@ public final class DebugLib extends LuaModule {
                 break;
             }
             case 'L': {
+                /*
+                 * pushes onto the stack a table whose indices are the numbers of the lines that are valid on
+                 * the function. (A valid line is a line with some associated code, that is, a line where you
+                 * can put a break point. Non-valid lines include empty lines and comments.)
+                 */
                 LuaTable lines = new LuaTable();
+                if (c != null) {
+                    int[] lineinfo = c.getPrototype().lineinfo;
+                    for (int line : lineinfo) {
+                        lines.rawset(line, LuaBoolean.TRUE);
+                    }
+                }
                 info.set(ACTIVELINES, lines);
-                // if ( di.luainfo != null ) {
-                // int line = di.luainfo.currentline();
-                // if ( line >= 0 )
-                // lines.set(1, IntValue.valueOf(line));
-                // }
                 break;
             }
             }
@@ -331,13 +340,36 @@ public final class DebugLib extends LuaModule {
     }
 
     private static String sourceshort(Prototype p) {
+        int maxChars = 60;
+
         String name = p.source.tojstring();
         if (name.startsWith("@") || name.startsWith("=")) {
-            return name.substring(1);
+            name = name.substring(1);
+            if (name.length() > maxChars) {
+                return "..." + name.substring(name.length() - (maxChars - 3), name.length());
+            } else {
+                return name;
+            }
         } else if (name.startsWith("\033")) {
             return "binary string";
         } else {
-            return name;
+            maxChars -= 14;
+
+            StringBuilder sb = new StringBuilder("[string \"");
+            int newlineIndex = name.indexOf('\n');
+            if (name.length() <= maxChars && newlineIndex < 0) {
+                sb.append(name);
+            } else {
+                int to = name.length();
+                // Break at the first newline (if it exists)
+                if (newlineIndex >= 0) {
+                    to = newlineIndex;
+                }
+                sb.append(name, 0, to);
+                sb.append("...");
+            }
+            sb.append("\"]");
+            return sb.toString();
         }
     }
 

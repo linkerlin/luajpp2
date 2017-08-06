@@ -30,12 +30,13 @@ final class LuaInterpreter {
             StackFrame sf = thread.callstack;
             if (sf.status == Status.FRESH) {
                 startCall(thread, sf);
+                sf.status = Status.RUNNING;
             }
 
             try {
                 result = resume(thread, sf);
             } finally {
-                if (sf.status != Status.PAUSED /* && thread.callstack == sf */) {
+                if (sf.status == Status.DEAD) {
                     finishCall(thread, sf, result);
                 }
             }
@@ -45,7 +46,11 @@ final class LuaInterpreter {
     }
 
     private static Varargs resume(LuaThread thread, StackFrame sf) {
-        final LuaClosure closure = sf.c;
+        if (sf.status != Status.RUNNING) {
+            throw new LuaError("StackFrame isn't running: " + sf);
+        }
+
+        final LuaClosure closure = sf.func.checkclosure();
         final Prototype p = closure.getPrototype();
         final int[] code = p.code;
         final LuaValue[] k = p.k;
@@ -253,11 +258,7 @@ final class LuaInterpreter {
 
                     LuaValue f = stack[a];
                     if (f.isclosure()) {
-                        // Push new entry on callstack
                         thread.pushPending(f.checkclosure(), v, a, c - 1);
-
-                        // Yield
-                        sf.status = Status.PAUSED;
                         return NONE;
                     }
 
@@ -308,7 +309,6 @@ final class LuaInterpreter {
                         // sf
                         startCall(thread, sf);
 
-                        sf.status = Status.PAUSED;
                         return NONE;
                     }
 
@@ -340,6 +340,8 @@ final class LuaInterpreter {
 
                 case Lua.OP_RETURN: /* A B return R(A), ... ,R(A+B-2) (see note) */
                     b = i >>> 23;
+
+                    sf.status = Status.DEAD;
                     switch (b) {
                     case 0:
                         return copyArgs(stack, a, top - v.narg() - a, v); // Important: copies args
@@ -474,8 +476,6 @@ final class LuaInterpreter {
             // Yield
             if (thread.isDead() || thread.isEndCall()) {
                 sf.status = Status.DEAD;
-            } else {
-                sf.status = Status.PAUSED;
             }
             return NONE;
         } finally {

@@ -72,7 +72,7 @@ public abstract class LuaFunction extends LuaValue implements Serializable {
     }
 
     @Override
-    public LuaValue checkfunction() {
+    public LuaFunction checkfunction() {
         return this;
     }
 

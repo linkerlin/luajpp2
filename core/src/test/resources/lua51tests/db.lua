@@ -23,7 +23,7 @@ end
 
 do
   local a = debug.getinfo(print)
-  assert(a.what == "C" and a.short_src == "[C]")
+  assert(a.what == "Java") -- and a.short_src == "[Java]")
   local b = debug.getinfo(test, "SfL")
   assert(b.name == nil and b.what == "Lua" and b.linedefined == 11 and
          b.lastlinedefined == b.linedefined + 10 and
@@ -179,7 +179,7 @@ function f(a,b)
   local _, y = debug.getlocal(1, 2)
   assert(x == a and y == b)
   assert(debug.setlocal(2, 3, "pera") == "AA".."AA")
-  assert(debug.setlocal(2, 4, "maçã") == "B")
+  assert(debug.setlocal(2, 4, "maï¿½ï¿½") == "B")
   x = debug.getinfo(2)
   assert(x.func == g and x.what == "Lua" and x.name == 'g' and
          x.nups == 0 and string.find(x.source, "^@.*db%.lua"))
@@ -206,9 +206,9 @@ assert(debug.getinfo(1, "l").currentline == L+11)  -- check count of lines
 function g(...)
   do local a,b,c; a=math.sin(40); end
   local feijao
-  local AAAA,B = "xuxu", "mamão"
+  local AAAA,B = "xuxu", "mamï¿½o"
   f(AAAA,B)
-  assert(AAAA == "pera" and B == "maçã")
+  assert(AAAA == "pera" and B == "maï¿½ï¿½")
   do
      local B = 13
      local x,y = debug.getlocal(1,5)

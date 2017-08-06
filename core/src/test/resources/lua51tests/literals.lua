@@ -44,7 +44,7 @@ assert(string.len(b) == 960)
 prog = [=[
 print('+')
 
-a1 = [["isto e' um string com várias 'aspas'"]]
+a1 = [["isto e' um string com---rias 'aspas'"]]
 a2 = "'aspas'"
 
 assert(string.find(a1, a2) == 31)
@@ -114,7 +114,9 @@ return debug.getinfo(1).currentline
 
 for _, n in pairs{"\n", "\r", "\n\r", "\r\n"} do
   local prog, nn = string.gsub(prog, "\n", n)
-  assert(dostring(prog) == nn)
+  local result = dostring(prog)
+  print(result, nn)
+  assert(result == nn)
   assert(_G.x == "hi\n" and _G.y == "\nhello\r\n\n")
 end
 

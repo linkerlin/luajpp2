@@ -70,16 +70,7 @@ public final class BaseLib extends LuaLib {
     public Varargs collectgarbage(Varargs args) {
         String opt = args.optjstring(1, "collect");
         if ("collect".equals(opt)) {
-            // Attempt to force a full GC
-            for (int n = 0; n < 5; n++) {
-                System.gc();
-                System.runFinalization();
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    // Ignore
-                }
-            }
+            fullGC();
             return LuaInteger.valueOf(0);
         } else if ("count".equals(opt)) {
             Runtime rt = Runtime.getRuntime();
@@ -87,6 +78,7 @@ public final class BaseLib extends LuaLib {
             return valueOf(used / 1024.0);
         } else if ("step".equals(opt)) {
             System.gc();
+            System.runFinalization();
             return TRUE;
         } else if ("stop".equals(opt)) {
             // Not implemented
@@ -100,6 +92,19 @@ public final class BaseLib extends LuaLib {
             argerror(1, "gc op");
         }
         return NIL;
+    }
+
+    private void fullGC() {
+        // Attempt to force a full GC
+        for (int n = 0; n < 5; n++) {
+            System.gc();
+            System.runFinalization();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
     }
 
     @Deprecated
@@ -218,7 +223,7 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs loadstring(Varargs args) {
         LuaString script = args.checkstring(1);
-        String chunkname = args.optjstring(2, "string");
+        String chunkname = args.optjstring(2, script.tojstring());
         return LuaScriptLoader.loadStream(script.toInputStream(), chunkname);
     }
 

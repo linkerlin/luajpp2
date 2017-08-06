@@ -56,7 +56,7 @@ public final class StringLib extends LuaModule {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            DumpState.dump(f.getPrototype(), baos, true);
+            DumpState.dump(f.getPrototype(), baos, false);
             return LuaString.valueOf(baos.toByteArray());
         } catch (IOException e) {
             // This should never happen -- ByteArrayOutputStream doesn't throw these.

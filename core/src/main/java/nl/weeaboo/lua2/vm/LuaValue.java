@@ -710,7 +710,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError if not a function
      * @see #checkclosure()
      */
-    public LuaValue checkfunction() {
+    public LuaFunction checkfunction() {
         argerror("function");
         return null;
     }
