@@ -24,16 +24,16 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.ADD;
-import static nl.weeaboo.lua2.vm.LuaConstants.CONCAT;
-import static nl.weeaboo.lua2.vm.LuaConstants.DIV;
-import static nl.weeaboo.lua2.vm.LuaConstants.EQ;
-import static nl.weeaboo.lua2.vm.LuaConstants.LE;
-import static nl.weeaboo.lua2.vm.LuaConstants.LT;
-import static nl.weeaboo.lua2.vm.LuaConstants.MOD;
-import static nl.weeaboo.lua2.vm.LuaConstants.MUL;
-import static nl.weeaboo.lua2.vm.LuaConstants.POW;
-import static nl.weeaboo.lua2.vm.LuaConstants.SUB;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_ADD;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_CONCAT;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_DIV;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_EQ;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LE;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LT;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MOD;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MUL;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_POW;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_SUB;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.lang.reflect.InvocationTargetException;
@@ -291,17 +291,17 @@ public class UnaryBinaryOperatorsTest {
         LuaValue smt = LuaString.s_metatable;
         try {
             // always return nil0
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, });
-            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, });
-            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, });
-            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
-            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
-            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
+            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
+            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
+            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
             udb.setmetatable(uda.getmetatable());
-            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
+            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
             // diff metatag function
-            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
-            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
+            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
 
             // primitive types or same valu do not invoke metatag as per C implementation
             Assert.assertEquals(tru, tru.eq(tru));
@@ -345,17 +345,17 @@ public class UnaryBinaryOperatorsTest {
             Assert.assertEquals(fal, uda3.eq(uda));
 
             // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, });
-            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, });
-            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, });
-            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
-            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
-            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
+            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
+            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
+            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
             udb.setmetatable(uda.getmetatable());
-            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_ONE, }));
+            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
             // diff metatag function
-            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
-            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { EQ, RETURN_NIL, }));
+            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
 
             // primitive types or same value do not invoke metatag as per C implementation
             Assert.assertEquals(tru, tru.eq(tru));
@@ -647,7 +647,7 @@ public class UnaryBinaryOperatorsTest {
             }
 
             // always use left argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { ADD, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_LHS, });
             Assert.assertEquals(tru, tru.add(fal));
             Assert.assertEquals(tru, tru.add(tbl));
             Assert.assertEquals(tbl, tbl.add(tru));
@@ -664,7 +664,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { SUB, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_LHS, });
             Assert.assertEquals(tru, tru.sub(fal));
             Assert.assertEquals(tru, tru.sub(tbl));
             Assert.assertEquals(tbl, tbl.sub(tru));
@@ -681,7 +681,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MUL, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_LHS, });
             Assert.assertEquals(tru, tru.mul(fal));
             Assert.assertEquals(tru, tru.mul(tbl));
             Assert.assertEquals(tbl, tbl.mul(tru));
@@ -698,7 +698,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { DIV, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_LHS, });
             Assert.assertEquals(tru, tru.div(fal));
             Assert.assertEquals(tru, tru.div(tbl));
             Assert.assertEquals(tbl, tbl.div(tru));
@@ -715,7 +715,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { POW, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_LHS, });
             Assert.assertEquals(tru, tru.pow(fal));
             Assert.assertEquals(tru, tru.pow(tbl));
             Assert.assertEquals(tbl, tbl.pow(tru));
@@ -732,7 +732,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MOD, RETURN_LHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_LHS, });
             Assert.assertEquals(tru, tru.mod(fal));
             Assert.assertEquals(tru, tru.mod(tbl));
             Assert.assertEquals(tbl, tbl.mod(tru));
@@ -750,7 +750,7 @@ public class UnaryBinaryOperatorsTest {
             }
 
             // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { ADD, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_RHS, });
             Assert.assertEquals(fal, tru.add(fal));
             Assert.assertEquals(tbl, tru.add(tbl));
             Assert.assertEquals(tru, tbl.add(tru));
@@ -767,7 +767,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { SUB, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_RHS, });
             Assert.assertEquals(fal, tru.sub(fal));
             Assert.assertEquals(tbl, tru.sub(tbl));
             Assert.assertEquals(tru, tbl.sub(tru));
@@ -784,7 +784,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MUL, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_RHS, });
             Assert.assertEquals(fal, tru.mul(fal));
             Assert.assertEquals(tbl, tru.mul(tbl));
             Assert.assertEquals(tru, tbl.mul(tru));
@@ -801,7 +801,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { DIV, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_RHS, });
             Assert.assertEquals(fal, tru.div(fal));
             Assert.assertEquals(tbl, tru.div(tbl));
             Assert.assertEquals(tru, tbl.div(tru));
@@ -818,7 +818,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { POW, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_RHS, });
             Assert.assertEquals(fal, tru.pow(fal));
             Assert.assertEquals(tbl, tru.pow(tbl));
             Assert.assertEquals(tru, tbl.pow(tru));
@@ -835,7 +835,7 @@ public class UnaryBinaryOperatorsTest {
                 // Expected
             }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { MOD, RETURN_RHS, });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_RHS, });
             Assert.assertEquals(fal, tru.mod(fal));
             Assert.assertEquals(tbl, tru.mod(tbl));
             Assert.assertEquals(tru, tbl.mod(tru));
@@ -874,7 +874,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { ADD, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.add(zero));
         Assert.assertEquals(one, zero.add(tbl));
 
@@ -890,7 +890,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { SUB, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.sub(zero));
         Assert.assertEquals(one, zero.sub(tbl));
 
@@ -906,7 +906,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { MUL, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.mul(zero));
         Assert.assertEquals(one, zero.mul(tbl));
 
@@ -922,7 +922,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { DIV, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.div(zero));
         Assert.assertEquals(one, zero.div(tbl));
 
@@ -938,7 +938,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { POW, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.pow(zero));
         Assert.assertEquals(one, zero.pow(tbl));
 
@@ -954,7 +954,7 @@ public class UnaryBinaryOperatorsTest {
         } catch (LuaError le) {
             // Expected
         }
-        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { MOD, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_ONE, }));
         Assert.assertEquals(one, tbl.mod(zero));
         Assert.assertEquals(one, zero.mod(tbl));
     }
@@ -1135,7 +1135,7 @@ public class UnaryBinaryOperatorsTest {
         LuaValue tbl3 = new LuaTable();
         try {
             // always use left argument
-            LuaValue mt = LuaValue.tableOf(new LuaValue[] { LT, RETURN_LHS, LE, RETURN_RHS, });
+            LuaValue mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_LHS, META_LE, RETURN_RHS, });
             LuaBoolean.s_metatable = mt;
             tbl.setmetatable(mt);
             tbl2.setmetatable(mt);
@@ -1153,7 +1153,7 @@ public class UnaryBinaryOperatorsTest {
             Assert.assertEquals(tbl, tbl3.lteq(tbl));
 
             // always use right argument
-            mt = LuaValue.tableOf(new LuaValue[] { LT, RETURN_RHS, LE, RETURN_LHS });
+            mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_RHS, META_LE, RETURN_LHS });
             LuaBoolean.s_metatable = mt;
             tbl.setmetatable(mt);
             tbl2.setmetatable(mt);
@@ -1419,7 +1419,7 @@ public class UnaryBinaryOperatorsTest {
         LuaValue uda = new LuaUserdata(new Object());
         try {
             // always use left argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { CONCAT, RETURN_LHS });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_LHS });
             Assert.assertEquals(tru, tru.concat(tbl));
             Assert.assertEquals(tbl, tbl.concat(tru));
             Assert.assertEquals(tru, tru.concat(tbl));
@@ -1466,7 +1466,7 @@ public class UnaryBinaryOperatorsTest {
             }
 
             // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { CONCAT, RETURN_RHS });
+            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_RHS });
             Assert.assertEquals(tbl, tru.concat(tbl));
             Assert.assertEquals(tru, tbl.concat(tru));
             Assert.assertEquals(tbl, tru.concat(tbl.buffer()).value());

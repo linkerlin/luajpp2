@@ -190,6 +190,10 @@ public final class LuaThread extends LuaValue implements Serializable {
 
             DebugLib.debugOnReturn(this, calls);
         }
+
+        if (callstack == null) {
+            LOG.info("Final stack frame popped: {}", sf);
+        }
     }
 
     public void pushPending(LuaClosure func, Varargs args) {
@@ -201,6 +205,9 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     public LuaFunction getCallstackFunction(int level) {
+        if (callstack == null) {
+            return null;
+        }
         return callstack.getCallstackFunction(level);
     }
 
@@ -280,9 +287,22 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     private void popStackFrames() {
         // Note: maxDepth may be negative
-        while (callstack != null && callstackSize() >= callstackMin) {
+        while (callstack != null && callstackSize() > callstackMin) {
             popStackFrame();
         }
+    }
+
+    void popStackFrame() {
+        final StackFrame sf = callstack;
+
+        // Pop from call stack
+        callstack = callstack.parent;
+
+        // Close stack frame
+        sf.close();
+
+        // Notify debuglib that we've returned from our current call
+        postReturn(sf, callstack != null ? callstack.size() : 0);
     }
 
     public static Varargs execute(LuaClosure c, Varargs args) {
@@ -306,19 +326,6 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     public void setSleep(int frames) {
         sleep = frames;
-    }
-
-    void popStackFrame() {
-        final StackFrame sf = callstack;
-
-        // Pop from call stack
-        callstack = callstack.parent;
-
-        // Close stack frame
-        sf.close();
-
-        // Notify debuglib that we've returned from our current call
-        postReturn(sf, callstack != null ? callstack.size() : 0);
     }
 
 }

@@ -21,7 +21,7 @@
  ******************************************************************************/
 package nl.weeaboo.lua2.scriptengine;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TNIL;
 import static nl.weeaboo.lua2.vm.LuaConstants.TNUMBER;
@@ -244,7 +244,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
         public ClientBindings(Bindings b) {
             this.b = b;
             this.env = new LuaTable();
-            env.setmetatable(LuaValue.tableOf(new LuaValue[] { INDEX, _G }));
+            env.setmetatable(LuaValue.tableOf(new LuaValue[] { META_INDEX, _G }));
             this.copyBindingsToGlobals();
         }
 

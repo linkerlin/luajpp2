@@ -196,12 +196,6 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
         return o instanceof LuaDouble ? ((LuaDouble)o).value == value : false;
     }
 
-    // equality w/ metatable processing
-    @Override
-    public LuaValue eq(LuaValue val) {
-        return val.raweq(value) ? TRUE : FALSE;
-    }
-
     @Override
     public boolean eq_b(LuaValue val) {
         return val.raweq(value);

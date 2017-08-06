@@ -24,12 +24,6 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.ADD;
-import static nl.weeaboo.lua2.vm.LuaConstants.DIV;
-import static nl.weeaboo.lua2.vm.LuaConstants.MOD;
-import static nl.weeaboo.lua2.vm.LuaConstants.MUL;
-import static nl.weeaboo.lua2.vm.LuaConstants.POW;
-import static nl.weeaboo.lua2.vm.LuaConstants.SUB;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.ByteArrayInputStream;
@@ -247,15 +241,24 @@ public final class LuaString extends LuaValue implements Externalizable {
     // unary operators
     @Override
     public LuaValue neg() {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? super.neg() : valueOf(-d);
+        LuaValue numVal = tonumber();
+        if (numVal.isnil()) {
+            return super.neg();
+        } else {
+            return numVal.neg();
+        }
     }
 
     // basic binary arithmetic
     @Override
     public LuaValue add(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(ADD, rhs) : rhs.add(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.add(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return valueOf(val + rhs.checkdouble());
+        }
     }
 
     @Override
@@ -270,8 +273,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue sub(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(SUB, rhs) : rhs.subFrom(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.sub(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return valueOf(val - rhs.checkdouble());
+        }
     }
 
     @Override
@@ -291,8 +299,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue mul(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(MUL, rhs) : rhs.mul(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.mul(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return valueOf(val * rhs.checkdouble());
+        }
     }
 
     @Override
@@ -307,8 +320,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue pow(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(POW, rhs) : rhs.powWith(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.pow(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return valueOf(LuaDouble.dpow(val, rhs.checkdouble()));
+        }
     }
 
     @Override
@@ -333,8 +351,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue div(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(DIV, rhs) : rhs.divInto(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.div(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return valueOf(val / rhs.checkdouble());
+        }
     }
 
     @Override
@@ -354,8 +377,13 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue mod(LuaValue rhs) {
-        double d = scannumber(10);
-        return Double.isNaN(d) ? arithmt(MOD, rhs) : rhs.modFrom(d);
+        double val = scannumber(10);
+        if (Double.isNaN(val) || !rhs.isnumber()) {
+            return super.mod(rhs);
+        } else {
+            // Special case: both operands are convertible to numbers
+            return LuaDouble.dmod(val, rhs.checkdouble());
+        }
     }
 
     @Override
@@ -716,12 +744,6 @@ public final class LuaString extends LuaValue implements Externalizable {
             }
         }
         return true;
-    }
-
-    // equality w/ metatable processing
-    @Override
-    public LuaValue eq(LuaValue val) {
-        return val.raweq(this) ? TRUE : FALSE;
     }
 
     @Override

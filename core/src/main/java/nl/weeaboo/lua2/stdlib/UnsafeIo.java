@@ -43,7 +43,7 @@ final class UnsafeIo implements ILuaIoImpl {
     @Override
     public void deleteFile(String filename) throws IOException {
         File file = new File(filename);
-        if (!file.delete()) {
+        if (file.exists() && !file.delete()) {
             throw new IOException("Delete of " + filename + " failed");
         }
     }

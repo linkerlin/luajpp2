@@ -24,7 +24,7 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
@@ -162,7 +162,7 @@ public class LuaOperationsTest {
         LuaValue eee = valueOf("eee");
         LuaTable newenv = LuaValue
                 .tableOf(new LuaValue[] { valueOf("a"), valueOf("aaa"), valueOf("b"), valueOf("bbb"), });
-        LuaTable mt = LuaValue.tableOf(new LuaValue[] { INDEX, globals });
+        LuaTable mt = LuaValue.tableOf(new LuaValue[] { META_INDEX, globals });
         newenv.setmetatable(mt);
         globals.set("a", aaa);
         newenv.set("a", eee);

@@ -22,7 +22,7 @@
 
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.MODE;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MODE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTABLE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TTHREAD;
@@ -82,7 +82,7 @@ final class WeakTable implements IMetatable, Serializable {
             return LuaTable.tableOf();
         }
         LuaTable table = LuaTable.tableOf();
-        LuaTable mt = LuaTable.tableOf(new LuaValue[] { MODE, mode });
+        LuaTable mt = LuaTable.tableOf(new LuaValue[] { META_MODE, mode });
         table.setmetatable(mt);
         return table;
     }

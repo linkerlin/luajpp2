@@ -75,7 +75,7 @@ public final class IoLib extends LuaModule {
         super.registerAdditional(globals, libTable);
 
         libTable.setmetatable(tableOf(new LuaValue[] {
-                LuaConstants.INDEX, new IoIndexFunction()
+                LuaConstants.META_INDEX, new IoIndexFunction()
         }));
 
         new FileLib().register();

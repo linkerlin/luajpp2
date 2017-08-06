@@ -2,8 +2,8 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.INEXT;
-import static nl.weeaboo.lua2.vm.LuaConstants.METATABLE;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INEXT;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_METATABLE;
 import static nl.weeaboo.lua2.vm.LuaConstants.NEXT;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
@@ -30,6 +30,7 @@ import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -182,7 +183,7 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs getmetatable(Varargs args) {
         LuaValue mt = args.checkvalue(1).getmetatable();
-        return (mt != null ? mt.rawget(METATABLE).optvalue(mt) : NIL);
+        return (mt != null ? mt.rawget(META_METATABLE).optvalue(mt) : NIL);
     }
 
     /**
@@ -368,7 +369,7 @@ public final class BaseLib extends LuaLib {
     public Varargs setmetatable(Varargs args) {
         final LuaValue t = args.arg1();
         final LuaValue mt0 = t.getmetatable();
-        if (mt0 != null && !mt0.rawget(METATABLE).isnil()) {
+        if (mt0 != null && !mt0.rawget(META_METATABLE).isnil()) {
             throw new LuaError("cannot change a protected metatable");
         }
         final LuaValue mt = args.checkvalue(2);
@@ -381,7 +382,7 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs tostring(Varargs args) {
         LuaValue arg = args.checkvalue(1);
-        LuaValue h = arg.metatag(TOSTRING);
+        LuaValue h = arg.metatag(LuaConstants.META_TOSTRING);
         if (!h.isnil()) {
             return h.call(arg);
         }
@@ -423,7 +424,7 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs ipairs(Varargs args) {
-        LuaValue inext = getGlobals().get(INEXT);
+        LuaValue inext = getGlobals().get(META_INEXT);
         return varargsOf(inext, args.checktable(1), LuaInteger.valueOf(0));
     }
 
@@ -458,6 +459,32 @@ public final class BaseLib extends LuaLib {
         LuaValue f = running.getCallstackFunction(level);
         arg.argcheck(f != null, 1, "invalid level");
         return f;
+    }
+
+    /**
+     * This method is undocumented in Lua 5.1
+     * <p>
+     * Creates a blank userdata with an empty metatable.
+     */
+    @Deprecated
+    @LuaBoundFunction
+    public Varargs newproxy(Varargs args) {
+        LuaUserdata userdata = LuaUserdata.userdataOf(Proxy.INSTANCE);
+        if (!args.toboolean(1)) {
+            return userdata;
+        }
+
+        if (args.type(1) == LuaConstants.TBOOLEAN) {
+            userdata.setmetatable(new LuaTable());
+        } else {
+            LuaValue metatable = args.arg(1).getmetatable();
+            userdata.setmetatable(metatable);
+        }
+        return userdata;
+    }
+
+    private enum Proxy {
+        INSTANCE;
     }
 
 }

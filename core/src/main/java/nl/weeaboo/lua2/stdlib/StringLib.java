@@ -41,7 +41,7 @@ public final class StringLib extends LuaModule {
 
         libTable.rawset("gfind", libTable.rawget("gmatch"));
 
-        LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.INDEX, libTable });
+        LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.META_INDEX, libTable });
     }
 
     /**

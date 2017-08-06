@@ -22,10 +22,8 @@
 
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
-import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.LEN;
-import static nl.weeaboo.lua2.vm.LuaConstants.NEWINDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LEN;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_NEWINDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.NOVALS;
 import static nl.weeaboo.lua2.vm.LuaConstants.TBOOLEAN;
@@ -411,7 +409,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     /** caller must ensure key is not nil. */
     @Override
     public void set(LuaValue key, LuaValue value) {
-        if (!key.isvalidkey() && !metatag(NEWINDEX).isfunction()) {
+        if (!key.isvalidkey() && !metatag(META_NEWINDEX).isfunction()) {
             typerror("table index");
         }
         if (metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
@@ -508,7 +506,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     @Override
     public LuaValue len() {
-        final LuaValue h = metatag(LEN);
+        final LuaValue h = metatag(META_LEN);
         if (h.toboolean()) {
             return h.call(this);
         }
@@ -1094,11 +1092,6 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     }
 
     // equality w/ metatable processing
-    @Override
-    public LuaValue eq(LuaValue val) {
-        return eq_b(val) ? TRUE : FALSE;
-    }
-
     @Override
     public boolean eq_b(LuaValue val) {
         if (this == val) {

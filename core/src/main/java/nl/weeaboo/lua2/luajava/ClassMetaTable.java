@@ -1,8 +1,8 @@
 package nl.weeaboo.lua2.luajava;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
-import static nl.weeaboo.lua2.vm.LuaConstants.LEN;
-import static nl.weeaboo.lua2.vm.LuaConstants.NEWINDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LEN;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_NEWINDEX;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.ObjectStreamException;
@@ -38,10 +38,10 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     ClassMetaTable(ClassInfo ci) {
         classInfo = ci;
 
-        rawset(INDEX, newMetaFunction(classInfo, this, true));
-        rawset(NEWINDEX, newMetaFunction(classInfo, this, false));
+        rawset(META_INDEX, newMetaFunction(classInfo, this, true));
+        rawset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
         if (ci.isArray()) {
-            rawset(LEN, ARRAY_LENGTH_FUNCTION);
+            rawset(META_LEN, ARRAY_LENGTH_FUNCTION);
         }
 
         seal = true;

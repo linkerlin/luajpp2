@@ -2,7 +2,7 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.listOf;
@@ -75,7 +75,7 @@ public final class PackageLib extends LuaModule {
             t.setmetatable(m = tableOf());
         }
         LuaThread running = LuaThread.getRunning();
-        m.set(INDEX, running.getfenv());
+        m.set(META_INDEX, running.getfenv());
         return NONE;
     }
 

@@ -6,8 +6,8 @@ interface IArith {
      * Unary minus: return negative value {@code (-this)} as defined by lua unary minus operator
      *
      * @return boolean inverse as {@link LuaBoolean} if boolean or nil, numeric inverse as {@LuaNumber} if
-     *         numeric, or metatag processing result if {@link LuaConstants#UNM} metatag is defined
-     * @throws LuaError if {@code this} is not a table or string, and has no {@link LuaConstants#UNM} metatag
+     *         numeric, or metatag processing result if {@link LuaConstants#META_UNM} metatag is defined
+     * @throws LuaError if {@code this} is not a table or string, and has no {@link LuaConstants#META_UNM} metatag
      */
     public LuaValue neg();
 
@@ -21,7 +21,7 @@ interface IArith {
      * @return value of {@code (this + rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#ADD} metatag defined
+     *         {@link LuaConstants#META_ADD} metatag defined
      */
     LuaValue add(LuaValue rhs);
 
@@ -66,7 +66,7 @@ interface IArith {
      * @return value of {@code (this - rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#SUB} metatag defined
+     *         {@link LuaConstants#META_SUB} metatag defined
      */
     LuaValue sub(LuaValue rhs);
 
@@ -146,7 +146,7 @@ interface IArith {
      * @return value of {@code (this * rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#MUL} metatag defined
+     *         {@link LuaConstants#META_MUL} metatag defined
      */
     LuaValue mul(LuaValue rhs);
 
@@ -191,7 +191,7 @@ interface IArith {
      * @return value of {@code (this ^ rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#POW} metatag defined
+     *         {@link LuaConstants#META_POW} metatag defined
      */
     LuaValue pow(LuaValue rhs);
 
@@ -270,7 +270,7 @@ interface IArith {
      * @return value of {@code (this / rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#DIV} metatag defined
+     *         {@link LuaConstants#META_DIV} metatag defined
      */
     LuaValue div(LuaValue rhs);
 
@@ -332,7 +332,7 @@ interface IArith {
      * @return value of {@code (this % rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
      * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
-     *         {@link LuaConstants#MOD} metatag defined
+     *         {@link LuaConstants#META_MOD} metatag defined
      */
     LuaValue mod(LuaValue rhs);
 

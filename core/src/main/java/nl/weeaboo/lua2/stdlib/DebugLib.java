@@ -2,7 +2,7 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.CALL;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TBOOLEAN;
@@ -407,7 +407,7 @@ public final class DebugLib extends LuaModule {
         di.setfunction(func);
 
         if (!ds.inhook && ds.hookcall) {
-            ds.callHookFunc(CALL, NIL);
+            ds.callHookFunc(META_CALL, NIL);
         }
     }
 

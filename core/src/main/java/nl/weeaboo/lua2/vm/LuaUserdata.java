@@ -22,8 +22,6 @@
 
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
-import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.IOException;
@@ -169,11 +167,6 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     // equality w/ metatable processing
     @Override
-    public LuaValue eq(LuaValue val) {
-        return eq_b(val) ? TRUE : FALSE;
-    }
-
-    @Override
     public boolean eq_b(LuaValue val) {
         if (val.raweq(this)) {
             return true;
@@ -194,14 +187,5 @@ public class LuaUserdata extends LuaValue implements Serializable {
     @Override
     public boolean raweq(LuaUserdata val) {
         return this == val || (metatable == val.metatable && userdata.equals(val.userdata));
-    }
-
-    // __eq metatag processing
-    public boolean eqmt(LuaValue val) {
-        if (metatable != null && val.isuserdata()) {
-            return LuaValue.eqmtcall(this, metatable, val, val.getmetatable());
-        } else {
-            return false;
-        }
     }
 }

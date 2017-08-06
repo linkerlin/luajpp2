@@ -192,9 +192,9 @@ final class LuaInterpreter {
                     b = i >>> 23;
                     c = (i >> 14) & 0x1ff;
                     if (c > b + 1) {
-                        Buffer buffer = stack[b].buffer();
-                        for (int s = b + 1; s <= c; s++) {
-                            buffer.append(stack[s]);
+                        Buffer buffer = stack[c].buffer();
+                        while (--c >= b) {
+                            buffer = stack[c].concat(buffer);
                         }
                         stack[a] = buffer.value();
                     } else {

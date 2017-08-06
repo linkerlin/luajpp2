@@ -24,23 +24,23 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.ADD;
-import static nl.weeaboo.lua2.vm.LuaConstants.CALL;
-import static nl.weeaboo.lua2.vm.LuaConstants.CONCAT;
-import static nl.weeaboo.lua2.vm.LuaConstants.DIV;
-import static nl.weeaboo.lua2.vm.LuaConstants.EQ;
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
-import static nl.weeaboo.lua2.vm.LuaConstants.LE;
-import static nl.weeaboo.lua2.vm.LuaConstants.LEN;
-import static nl.weeaboo.lua2.vm.LuaConstants.LT;
-import static nl.weeaboo.lua2.vm.LuaConstants.MOD;
-import static nl.weeaboo.lua2.vm.LuaConstants.MODE;
-import static nl.weeaboo.lua2.vm.LuaConstants.MUL;
-import static nl.weeaboo.lua2.vm.LuaConstants.NEWINDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_ADD;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_CONCAT;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_DIV;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_EQ;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LE;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LEN;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_LT;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MOD;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MODE;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_MUL;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_NEWINDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_POW;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_SUB;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_UNM;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
-import static nl.weeaboo.lua2.vm.LuaConstants.POW;
-import static nl.weeaboo.lua2.vm.LuaConstants.SUB;
-import static nl.weeaboo.lua2.vm.LuaConstants.UNM;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.LuaRunState;
@@ -134,10 +134,10 @@ import nl.weeaboo.lua2.compiler.LoadState;
  * {@link LuaConstants#TUSERDATA}, {@link LuaConstants#TTHREAD}, and extended lua type constants
  * {@link LuaConstants#TINT}, {@link LuaConstants#TNONE}, {@link LuaConstants#TVALUE}
  * <p>
- * Predefined constants exist for all strings used as metatags: {@link #INDEX}, {@link #NEWINDEX},
- * {@link #CALL}, {@link #MODE}, {@link LuaConstants#METATABLE}, {@link #ADD}, {@link #SUB}, {@link #DIV},
- * {@link #MUL}, {@link #POW}, {@link #MOD}, {@link #UNM}, {@link #LEN}, {@link #EQ}, {@link #LT}, {@link #LE}
- * , {@link LuaConstants#TOSTRING}, and {@link #CONCAT}.
+ * Predefined constants exist for all strings used as metatags: {@link #META_INDEX}, {@link #META_NEWINDEX},
+ * {@link #META_CALL}, {@link #META_MODE}, {@link LuaConstants#META_METATABLE}, {@link #META_ADD}, {@link #META_SUB}, {@link #META_DIV},
+ * {@link #META_MUL}, {@link #META_POW}, {@link #META_MOD}, {@link #META_UNM}, {@link #META_LEN}, {@link #META_EQ}, {@link #META_LT}, {@link #META_LE}
+ * , {@link LuaConstants#META_TOSTRING}, and {@link #META_CONCAT}.
  *
  * @see LoadState
  * @see Varargs
@@ -986,11 +986,11 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Get a value in a table including metatag processing using {@link #INDEX}.
+     * Get a value in a table including metatag processing using {@link #META_INDEX}.
      *
      * @param key the key to look up, must not be {@link #NIL} or null
      * @return {@link LuaValue} for that key, or {@link #NIL} if not found and no metatag
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #INDEX} metatag, or key is
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_INDEX} metatag, or key is
      *         {@link #NIL}
      * @see #get(int)
      * @see #get(String)
@@ -1001,11 +1001,11 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Get a value in a table including metatag processing using {@link #INDEX}.
+     * Get a value in a table including metatag processing using {@link #META_INDEX}.
      *
      * @param key the key to look up
      * @return {@link LuaValue} for that key, or {@link #NIL} if not found
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #INDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_INDEX} metatag
      * @see #get(LuaValue)
      * @see #rawget(int)
      */
@@ -1014,11 +1014,11 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Get a value in a table including metatag processing using {@link #INDEX}.
+     * Get a value in a table including metatag processing using {@link #META_INDEX}.
      *
      * @param key the key to look up, must not be null
      * @return {@link LuaValue} for that key, or {@link #NIL} if not found
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #INDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_INDEX} metatag
      * @see #get(LuaValue)
      * @see #rawget(String)
      */
@@ -1027,78 +1027,78 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use, must not be {@link #NIL} or null
      * @param value the value to use, can be {@link #NIL}, must not be null
      * @throws LuaError if {@code this} is not a table, or key is {@link #NIL}, or there is no
-     *         {@link #NEWINDEX} metatag
+     *         {@link #META_NEWINDEX} metatag
      */
     public void set(LuaValue key, LuaValue value) {
         settable(this, key, value);
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use
      * @param value the value to use, can be {@link #NIL}, must not be null
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(int key, LuaValue value) {
         set(LuaInteger.valueOf(key), value);
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use
      * @param value the value to use, must not be null
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(int key, String value) {
         set(key, valueOf(value));
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use, must not be {@link #NIL} or null
      * @param value the value to use, can be {@link #NIL}, must not be null
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(String key, LuaValue value) {
         set(valueOf(key), value);
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use, must not be null
      * @param value the value to use
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(String key, double value) {
         set(valueOf(key), valueOf(value));
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use, must not be null
      * @param value the value to use
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(String key, int value) {
         set(valueOf(key), valueOf(value));
     }
 
     /**
-     * Set a value in a table without metatag processing using {@link #NEWINDEX}.
+     * Set a value in a table without metatag processing using {@link #META_NEWINDEX}.
      *
      * @param key the key to use, must not be null
      * @param value the value to use, must not be null
-     * @throws LuaError if {@code this} is not a table, or there is no {@link #NEWINDEX} metatag
+     * @throws LuaError if {@code this} is not a table, or there is no {@link #META_NEWINDEX} metatag
      */
     public void set(String key, String value) {
         set(valueOf(key), valueOf(value));
@@ -1402,13 +1402,13 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Call this with 0 arguments, including metatag processing, and return only the first return value.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return only its first return value, dropping any
-     * others. Otherwise, look for the {@link #CALL} metatag and call that.
+     * others. Otherwise, look for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
      *
      * @return First return value {@code (this())}, or {@link #NIL} if there were none.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call(LuaValue)
      * @see #call(LuaValue,LuaValue)
@@ -1423,14 +1423,14 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Call this with 1 argument, including metatag processing, and return only the first return value.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return only its first return value, dropping any
-     * others. Otherwise, look for the {@link #CALL} metatag and call that.
+     * others. Otherwise, look for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
      *
      * @param arg First argument to supply to the called function
      * @return First return value {@code (this(arg))}, or {@link #NIL} if there were none.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #call(LuaValue,LuaValue)
@@ -1445,7 +1445,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Call this with 2 arguments, including metatag processing, and return only the first return value.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return only its first return value, dropping any
-     * others. Otherwise, look for the {@link #CALL} metatag and call that.
+     * others. Otherwise, look for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1453,7 +1453,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param arg1 First argument to supply to the called function
      * @param arg2 Second argument to supply to the called function
      * @return First return value {@code (this(arg1,arg2))}, or {@link #NIL} if there were none.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #call(LuaValue)
@@ -1468,7 +1468,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Call this with 3 arguments, including metatag processing, and return only the first return value.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return only its first return value, dropping any
-     * others. Otherwise, look for the {@link #CALL} metatag and call that.
+     * others. Otherwise, look for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1477,7 +1477,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param arg2 Second argument to supply to the called function
      * @param arg3 Second argument to supply to the called function
      * @return First return value {@code (this(arg1,arg2,arg3))}, or {@link #NIL} if there were none.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #call(LuaValue)
@@ -1494,7 +1494,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument. and return only its first return value, dropping any others. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1503,7 +1503,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @param name Name of the method to look up for invocation
      * @return All values returned from {@code this:name()} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke()
@@ -1521,7 +1521,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return only its first return value, dropping any others. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1530,7 +1530,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @param name Name of the method to look up for invocation
      * @return All values returned from {@code this:name()} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke()
@@ -1548,7 +1548,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up <code>this[name]</code> and if it is a {@link LuaFunction}, call it inserting this as an
      * additional first argument, and return only its first return value, dropping any others. Otherwise, look
-     * for the {@link #CALL} metatag and call that.
+     * for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1558,7 +1558,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param name Name of the method to look up for invocation
      * @param arg Argument to supply to the method
      * @return All values returned from {@code this:name(arg)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call(LuaValue)
      * @see #invoke(LuaValue, Varargs)
@@ -1576,7 +1576,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up <code>this[name]</code> and if it is a {@link LuaFunction}, call it inserting this as an
      * additional first argument, and return only its first return value, dropping any others. Otherwise, look
-     * for the {@link #CALL} metatag and call that.
+     * for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1586,7 +1586,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param name Name of the method to look up for invocation
      * @param arg Argument to supply to the method
      * @return All values returned from {@code this:name(arg)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call(LuaValue)
      * @see #invoke(LuaValue, Varargs)
@@ -1604,7 +1604,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up <code>this[name]</codE> and if it is a {@link LuaFunction}, call it inserting this as an
      * additional first argument, and return only its first return value, dropping any others. Otherwise, look
-     * for the {@link #CALL} metatag and call that.
+     * for the {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1615,7 +1615,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param arg1 First argument to supply to the method
      * @param arg2 Second argument to supply to the method
      * @return All values returned from {@code this:name(arg1,arg2)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call(LuaValue,LuaValue)
      * @see #invoke(LuaValue,Varargs)
@@ -1632,7 +1632,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return only its first return value, dropping any others. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * If the return value is a {@link Varargs}, only the 1st value will be returned. To get multiple values,
      * use {@link #invoke()} instead.
@@ -1643,7 +1643,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param arg1 First argument to supply to the method
      * @param arg2 Second argument to supply to the method
      * @return All values returned from {@code this:name(arg1,arg2)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call(LuaValue,LuaValue)
      * @see #invoke(LuaValue,Varargs)
@@ -1659,12 +1659,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke(Varargs)
@@ -1678,13 +1678,13 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
      * @param args Varargs containing the arguments to supply to the called function
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #varargsOf(LuaValue[])
      * @see #call(LuaValue)
@@ -1700,14 +1700,14 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
      * @param arg The first argument to supply to the called function
      * @param varargs Varargs containing the remaining arguments to supply to the called function
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #varargsOf(LuaValue[])
      * @see #call(LuaValue,LuaValue)
@@ -1722,7 +1722,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
@@ -1730,7 +1730,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param arg2 The second argument to supply to the called function
      * @param varargs Varargs containing the remaining arguments to supply to the called function
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #varargsOf(LuaValue[])
      * @see #call(LuaValue,LuaValue,LuaValue)
@@ -1745,13 +1745,13 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
      * @param args Array of arguments to supply to the called function
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #varargsOf(LuaValue[])
      * @see #call(LuaValue,LuaValue,LuaValue)
@@ -1766,14 +1766,14 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * {@link Varargs}.
      * <p>
      * If {@code this} is a {@link LuaFunction}, call it, and return all values. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      *
      * @param args Array of arguments to supply to the called function
      * @param varargs Varargs containing additional arguments to supply to the called function
      * @return All return values as a {@link Varargs} instance.
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #varargsOf(LuaValue[])
      * @see #call(LuaValue,LuaValue,LuaValue)
@@ -1789,7 +1789,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1797,7 +1797,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @param name Name of the method to look up for invocation
      * @return All values returned from {@code this:name()} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke()
@@ -1815,7 +1815,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1823,7 +1823,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @param name Name of the method to look up for invocation
      * @return All values returned from {@code this:name()} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke()
@@ -1841,7 +1841,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1850,7 +1850,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param name Name of the method to look up for invocation
      * @param args {@link Varargs} containing arguments to supply to the called function after {@code this}
      * @return All values returned from {@code this:name(args)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke(Varargs)
@@ -1868,7 +1868,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1877,7 +1877,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param name Name of the method to look up for invocation
      * @param args {@link Varargs} containing arguments to supply to the called function after {@code this}
      * @return All values returned from {@code this:name(args)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke(Varargs)
@@ -1895,7 +1895,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1905,7 +1905,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param args Array of {@link LuaValue} containing arguments to supply to the called function after
      *        {@code this}
      * @return All values returned from {@code this:name(args)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke(Varargs)
@@ -1924,7 +1924,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * <p>
      * Look up {@code this[name]} and if it is a {@link LuaFunction}, call it inserting this as an additional
      * first argument, and return all return values as a {@link Varargs} instance. Otherwise, look for the
-     * {@link #CALL} metatag and call that.
+     * {@link #META_CALL} metatag and call that.
      * <p>
      * To get a particular return value, us {@link Varargs#arg(int)}
      * <p>
@@ -1934,7 +1934,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param args Array of {@link LuaValue} containing arguments to supply to the called function after
      *        {@code this}
      * @return All values returned from {@code this:name(args)} as a {@link Varargs} instance
-     * @throws LuaError if not a function and {@link #CALL} is not defined, or the invoked function throws a
+     * @throws LuaError if not a function and {@link #META_CALL} is not defined, or the invoked function throws a
      *         {@link LuaError} or the invoked closure throw a lua {@code error}
      * @see #call()
      * @see #invoke(Varargs)
@@ -1948,13 +1948,13 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Get the metatag value for the {@link #CALL} metatag, if it exists.
+     * Get the metatag value for the {@link #META_CALL} metatag, if it exists.
      *
      * @return {@link LuaValue} value if metatag is defined
-     * @throws LuaError if {@link #CALL} metatag is not defined.
+     * @throws LuaError if {@link #META_CALL} metatag is not defined.
      */
     protected LuaValue callmt() {
-        return checkmetatag(CALL, "attempt to call ");
+        return checkmetatag(META_CALL, "attempt to call ");
     }
 
     /**
@@ -1968,17 +1968,17 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue neg() {
-        return checkmetatag(UNM, "attempt to perform arithmetic on ").call(this);
+        return checkmetatag(META_UNM, "attempt to perform arithmetic on ").call(this);
     }
 
     /**
      * Length operator: return lua length of object {@code (#this)} including metatag processing as java int.
      *
      * @return length as defined by the lua # operator or metatag processing result
-     * @throws LuaError if {@code this} is not a table or string, and has no {@link #LEN} metatag
+     * @throws LuaError if {@code this} is not a table or string, and has no {@link #META_LEN} metatag
      */
     public LuaValue len() {
-        return checkmetatag(LEN, "attempt to get length of ").call(this);
+        return checkmetatag(META_LEN, "attempt to get length of ").call(this);
     }
 
     /**
@@ -1986,7 +1986,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @return length as defined by the lua # operator or metatag processing result converted to java int
      *         using {@link #toint()}
-     * @throws LuaError if {@code this} is not a table or string, and has no {@link #LEN} metatag
+     * @throws LuaError if {@code this} is not a table or string, and has no {@link #META_LEN} metatag
      */
     public int length() {
         return len().toint();
@@ -2003,8 +2003,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     @Override
-    public LuaValue eq(LuaValue val) {
-        return this == val ? TRUE : FALSE;
+    public final LuaValue eq(LuaValue val) {
+        return eq_b(val) ? TRUE : FALSE;
     }
 
     @Override
@@ -2032,7 +2032,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #raweq(LuaString)
      * @see #raweq(double)
      * @see #raweq(int)
-     * @see #EQ
+     * @see #META_EQ
      */
     public boolean raweq(LuaValue val) {
         return this == val;
@@ -2082,7 +2082,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     }
 
     /**
-     * Perform equality testing metatag processing.
+     * Perform equality metatag processing.
      *
      * @param lhs left-hand-side of equality expression
      * @param lhsmt metatag value for left-hand-side
@@ -2093,21 +2093,24 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #equals(Object)
      * @see #eq(LuaValue)
      * @see #raweq(LuaValue)
-     * @see #EQ
      */
-    public static final boolean eqmtcall(LuaValue lhs, LuaValue lhsmt, LuaValue rhs, LuaValue rhsmt) {
-        LuaValue h = lhsmt.rawget(EQ);
-        return h.isnil() || h != rhsmt.rawget(EQ) ? false : h.call(lhs, rhs).toboolean();
+    static final boolean eqmtcall(LuaValue lhs, LuaValue lhsmt, LuaValue rhs, LuaValue rhsmt) {
+        LuaValue compareMethod = lhsmt.rawget(META_EQ);
+        if (compareMethod.isnil() || !compareMethod.raweq(rhsmt.rawget(META_EQ))) {
+            // Metamethod missing or different for the two operands
+            return false;
+        }
+        return compareMethod.call(lhs, rhs).toboolean();
     }
 
     @Override
     public LuaValue add(LuaValue rhs) {
-        return arithmt(ADD, rhs);
+        return arithmt(META_ADD, rhs);
     }
 
     @Override
     public LuaValue add(double rhs) {
-        return arithmtwith(ADD, rhs);
+        return arithmtwith(META_ADD, rhs);
     }
 
     @Override
@@ -2117,7 +2120,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue sub(LuaValue rhs) {
-        return arithmt(SUB, rhs);
+        return arithmt(META_SUB, rhs);
     }
 
     @Override
@@ -2132,7 +2135,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue subFrom(double lhs) {
-        return arithmtwith(SUB, lhs);
+        return arithmtwith(META_SUB, lhs);
     }
 
     @Override
@@ -2142,12 +2145,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue mul(LuaValue rhs) {
-        return arithmt(MUL, rhs);
+        return arithmt(META_MUL, rhs);
     }
 
     @Override
     public LuaValue mul(double rhs) {
-        return arithmtwith(MUL, rhs);
+        return arithmtwith(META_MUL, rhs);
     }
 
     @Override
@@ -2157,7 +2160,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue pow(LuaValue rhs) {
-        return arithmt(POW, rhs);
+        return arithmt(META_POW, rhs);
     }
 
     @Override
@@ -2172,7 +2175,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue powWith(double lhs) {
-        return arithmtwith(POW, lhs);
+        return arithmtwith(META_POW, lhs);
     }
 
     @Override
@@ -2182,7 +2185,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue div(LuaValue rhs) {
-        return arithmt(DIV, rhs);
+        return arithmt(META_DIV, rhs);
     }
 
     @Override
@@ -2197,12 +2200,12 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue divInto(double lhs) {
-        return arithmtwith(DIV, lhs);
+        return arithmtwith(META_DIV, lhs);
     }
 
     @Override
     public LuaValue mod(LuaValue rhs) {
-        return arithmt(MOD, rhs);
+        return arithmt(META_MOD, rhs);
     }
 
     @Override
@@ -2217,7 +2220,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue modFrom(double lhs) {
-        return arithmtwith(MOD, lhs);
+        return arithmtwith(META_MOD, lhs);
     }
 
     /**
@@ -2276,7 +2279,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue lt(LuaValue rhs) {
-        return comparemt(LT, rhs);
+        return comparemt(META_LT, rhs);
     }
 
     @Override
@@ -2291,7 +2294,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public boolean lt_b(LuaValue rhs) {
-        return comparemt(LT, rhs).toboolean();
+        return comparemt(META_LT, rhs).toboolean();
     }
 
     @Override
@@ -2308,7 +2311,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue lteq(LuaValue rhs) {
-        return comparemt(LE, rhs);
+        return comparemt(META_LE, rhs);
     }
 
     @Override
@@ -2323,7 +2326,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public boolean lteq_b(LuaValue rhs) {
-        return comparemt(LE, rhs).toboolean();
+        return comparemt(META_LE, rhs).toboolean();
     }
 
     @Override
@@ -2340,7 +2343,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue gt(LuaValue rhs) {
-        return rhs.comparemt(LE, this);
+        return rhs.comparemt(META_LE, this);
     }
 
     @Override
@@ -2355,7 +2358,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public boolean gt_b(LuaValue rhs) {
-        return rhs.comparemt(LE, this).toboolean();
+        return rhs.comparemt(META_LE, this).toboolean();
     }
 
     @Override
@@ -2372,7 +2375,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public LuaValue gteq(LuaValue rhs) {
-        return rhs.comparemt(LT, this);
+        return rhs.comparemt(META_LT, this);
     }
 
     @Override
@@ -2387,7 +2390,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     @Override
     public boolean gteq_b(LuaValue rhs) {
-        return rhs.comparemt(LT, this).toboolean();
+        return rhs.comparemt(META_LT, this).toboolean();
     }
 
     @Override
@@ -2417,14 +2420,19 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #lt(LuaValue)
      * @see #lteq(LuaValue)
      */
-    public LuaValue comparemt(LuaValue tag, LuaValue op1) {
-        LuaValue h;
-        if (!(h = metatag(tag)).isnil() || !(h = op1.metatag(tag)).isnil()) {
-            return h.call(this, op1);
+    private LuaValue comparemt(LuaValue tag, LuaValue op1) {
+        LuaValue compareMethod = metatag(tag);
+        if (!compareMethod.isnil() && compareMethod.raweq(op1.metatag(tag))) {
+            // Tag is defined (and the same) for both operands
+            return compareMethod.call(this, op1);
         }
-        if (LE.raweq(tag) && (!(h = metatag(LT)).isnil() || !(h = op1.metatag(LT)).isnil())) {
-            return h.call(op1, this).not();
+
+        LuaString otherTag = (META_LE.raweq(tag) ? META_LT : META_LE);
+        compareMethod = metatag(otherTag);
+        if (!compareMethod.isnil() && compareMethod.raweq(op1.metatag(otherTag))) {
+            return compareMethod.call(op1, this).not();
         }
+
         return error("attempt to compare " + tag + " on " + typename() + " and " + op1.typename());
     }
 
@@ -2531,15 +2539,15 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     /**
      * Perform metatag processing for concatenation operations.
      * <p>
-     * Finds the {@link #CONCAT} metatag value and invokes it, or throws {@link LuaError} if it doesn't exist.
+     * Finds the {@link #META_CONCAT} metatag value and invokes it, or throws {@link LuaError} if it doesn't exist.
      *
      * @param rhs The right-hand-side value to perform the operation with
-     * @return {@link LuaValue} resulting from metatag processing for {@link #CONCAT} metatag.
+     * @return {@link LuaValue} resulting from metatag processing for {@link #META_CONCAT} metatag.
      * @throws LuaError if metatag was not defined for either operand
      */
     public LuaValue concatmt(LuaValue rhs) {
-        LuaValue h = metatag(CONCAT);
-        if (h.isnil() && (h = rhs.metatag(CONCAT)).isnil()) {
+        LuaValue h = metatag(META_CONCAT);
+        if (h.isnil() && (h = rhs.metatag(META_CONCAT)).isnil()) {
             error("attempt to concatenate " + typename() + " and " + rhs.typename());
         }
         return h.call(this, rhs);
@@ -2812,7 +2820,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Return value for field reference including metatag processing, or {@link LuaNil#NIL} if it doesn't exist.
      *
      * @param t {@link LuaValue} on which field is being referenced, typically a table or something with the metatag
-     *        {@link LuaConstants#INDEX} defined
+     *        {@link LuaConstants#META_INDEX} defined
      * @param key {@link LuaValue} naming the field to reference
      * @return {@link LuaValue} for the {@code key} if it exists, or {@link LuaNil#NIL}
      * @throws LuaError if there is a loop in metatag processing
@@ -2823,10 +2831,10 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         do {
             if (t.istable()) {
                 LuaValue res = t.rawget(key);
-                if ((!res.isnil()) || (tm = t.metatag(INDEX)).isnil()) {
+                if ((!res.isnil()) || (tm = t.metatag(META_INDEX)).isnil()) {
                     return res;
                 }
-            } else if ((tm = t.metatag(INDEX)).isnil()) {
+            } else if ((tm = t.metatag(META_INDEX)).isnil()) {
                 t.indexerror();
             }
             if (tm.isfunction()) {
@@ -2842,7 +2850,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * Perform field assignment including metatag processing.
      *
      * @param t {@link LuaValue} on which value is being set, typically a table or something with the metatag
-     *        {@link LuaConstants#NEWINDEX} defined
+     *        {@link LuaConstants#META_NEWINDEX} defined
      * @param key {@link LuaValue} naming the field to assign
      * @param value {@link LuaValue} the new value to assign to {@code key}
      * @return true if assignment or metatag processing succeeded, false otherwise
@@ -2853,11 +2861,11 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         int loop = 0;
         do {
             if (t.istable()) {
-                if ((!t.rawget(key).isnil()) || (tm = t.metatag(NEWINDEX)).isnil()) {
+                if ((!t.rawget(key).isnil()) || (tm = t.metatag(META_NEWINDEX)).isnil()) {
                     t.rawset(key, value);
                     return true;
                 }
-            } else if ((tm = t.metatag(NEWINDEX)).isnil()) {
+            } else if ((tm = t.metatag(META_NEWINDEX)).isnil()) {
                 t.typerror("index");
             }
             if (tm.isfunction()) {
@@ -2873,8 +2881,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     /**
      * Get particular metatag, or return {@link LuaNil#NIL} if it doesn't exist.
      *
-     * @param tag Metatag name to look up, typically a string such as {@link LuaConstants#INDEX} or
-     *        {@link LuaConstants#NEWINDEX}
+     * @param tag Metatag name to look up, typically a string such as {@link LuaConstants#META_INDEX} or
+     *        {@link LuaConstants#META_NEWINDEX}
      * @return {@link LuaValue} for tag {@code reason}, or {@link LuaNil#NIL}
      */
     public LuaValue metatag(LuaValue tag) {
@@ -2888,8 +2896,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     /**
      * Get particular metatag, or throw {@link LuaError} if it doesn't exist
      *
-     * @param tag Metatag name to look up, typically a string such as {@link LuaConstants#INDEX} or
-     *        {@link LuaConstants#NEWINDEX}
+     * @param tag Metatag name to look up, typically a string such as {@link LuaConstants#META_INDEX} or
+     *        {@link LuaConstants#META_NEWINDEX}
      * @param reason Description of error when tag lookup fails.
      * @return {@link LuaValue} that can be called
      * @throws LuaError when the lookup fails.
@@ -2914,7 +2922,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     /** Construct a Metatable instance from the given LuaValue. */
     protected static IMetatable metatableOf(LuaValue mt) {
         if (mt != null && mt.istable()) {
-            LuaValue mode = mt.rawget(MODE);
+            LuaValue mode = mt.rawget(META_MODE);
             if (mode.isstring()) {
                 String m = mode.tojstring();
                 boolean weakkeys = m.indexOf('k') >= 0;

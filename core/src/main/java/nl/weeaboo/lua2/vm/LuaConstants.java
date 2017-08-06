@@ -70,27 +70,27 @@ public final class LuaConstants {
     /** LuaValue array constant with no values. */
     public static final LuaValue[] NOVALS = {};
 
-    public static final LuaString INDEX = valueOf("__index");
-    public static final LuaString NEWINDEX = valueOf("__newindex");
-    public static final LuaString CALL = valueOf("__call");
-    public static final LuaString MODE = valueOf("__mode");
-    public static final LuaString METATABLE = valueOf("__metatable");
-    public static final LuaString ADD = valueOf("__add");
-    public static final LuaString SUB = valueOf("__sub");
-    public static final LuaString DIV = valueOf("__div");
-    public static final LuaString MUL = valueOf("__mul");
-    public static final LuaString POW = valueOf("__pow");
-    public static final LuaString MOD = valueOf("__mod");
-    public static final LuaString UNM = valueOf("__unm");
-    public static final LuaString LEN = valueOf("__len");
-    public static final LuaString EQ = valueOf("__eq");
-    public static final LuaString LT = valueOf("__lt");
-    public static final LuaString LE = valueOf("__le");
-    public static final LuaString TOSTRING = valueOf("__tostring");
-    public static final LuaString CONCAT = valueOf("__concat");
+    public static final LuaString META_INDEX = valueOf("__index");
+    public static final LuaString META_NEWINDEX = valueOf("__newindex");
+    public static final LuaString META_CALL = valueOf("__call");
+    public static final LuaString META_MODE = valueOf("__mode");
+    public static final LuaString META_METATABLE = valueOf("__metatable");
+    public static final LuaString META_ADD = valueOf("__add");
+    public static final LuaString META_SUB = valueOf("__sub");
+    public static final LuaString META_DIV = valueOf("__div");
+    public static final LuaString META_MUL = valueOf("__mul");
+    public static final LuaString META_POW = valueOf("__pow");
+    public static final LuaString META_MOD = valueOf("__mod");
+    public static final LuaString META_UNM = valueOf("__unm");
+    public static final LuaString META_LEN = valueOf("__len");
+    public static final LuaString META_EQ = valueOf("__eq");
+    public static final LuaString META_LT = valueOf("__lt");
+    public static final LuaString META_LE = valueOf("__le");
+    public static final LuaString META_TOSTRING = valueOf("__tostring");
+    public static final LuaString META_CONCAT = valueOf("__concat");
     public static final LuaString EMPTYSTRING = valueOf("");
     public static final LuaString NEXT = valueOf("next");
-    public static final LuaString INEXT = valueOf("__inext");
+    public static final LuaString META_INEXT = valueOf("__inext");
 
     /** Limit on lua stack size. */
     public static final int MAXSTACK = 250;

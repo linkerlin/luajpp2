@@ -22,7 +22,7 @@
 
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.TNUMBER;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
@@ -116,7 +116,7 @@ public class TableHashTest {
         // set basic values
         t.set("ppp", "abc");
         t.set(123, "def");
-        mt.set(INDEX, fb);
+        mt.set(META_INDEX, fb);
         fb.set("qqq", "ghi");
         fb.set(456, "jkl");
 
@@ -183,7 +183,7 @@ public class TableHashTest {
         // set basic values
         t.set("ppp", "abc");
         t.set(123, "def");
-        mt.set(INDEX, fb);
+        mt.set(META_INDEX, fb);
 
         // check before setting metatable
         Assert.assertEquals("abc", t.get("ppp").tojstring());

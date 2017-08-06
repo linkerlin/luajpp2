@@ -22,8 +22,8 @@
 
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.INDEX;
-import static nl.weeaboo.lua2.vm.LuaConstants.NEWINDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_NEWINDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
@@ -178,7 +178,7 @@ public class MetatableTest {
 
         // plain metatable
         LuaValue abc = LuaValue.valueOf("abc");
-        mt.set(INDEX, LuaValue.listOf(new LuaValue[] { abc }));
+        mt.set(META_INDEX, LuaValue.listOf(new LuaValue[] { abc }));
         Assert.assertEquals(abc, table.get(1));
         Assert.assertEquals(abc, userdata.get(1));
         Assert.assertEquals(abc, NIL.get(1));
@@ -189,7 +189,7 @@ public class MetatableTest {
         Assert.assertEquals(abc, thread.get(1));
 
         // plain metatable
-        mt.set(INDEX, new TwoArgFunction() {
+        mt.set(META_INDEX, new TwoArgFunction() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -224,7 +224,7 @@ public class MetatableTest {
         // plain metatable
         final LuaValue fallback = LuaValue.tableOf();
         LuaValue abc = LuaValue.valueOf("abc");
-        mt.set(NEWINDEX, fallback);
+        mt.set(META_NEWINDEX, fallback);
         table.set(2, abc);
         userdata.set(3, abc);
         NIL.set(4, abc);
@@ -243,7 +243,7 @@ public class MetatableTest {
         Assert.assertEquals(abc, fallback.get(9));
 
         // metatable with function call
-        mt.set(NEWINDEX, new ThreeArgFunction() {
+        mt.set(META_NEWINDEX, new ThreeArgFunction() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -301,8 +301,8 @@ public class MetatableTest {
     public void testRawsetMetatableSet() {
         // set up tables
         LuaValue m = makeTable("aa", "aaa", "bb", "bbb");
-        m.set(INDEX, m);
-        m.set(NEWINDEX, m);
+        m.set(META_INDEX, m);
+        m.set(META_NEWINDEX, m);
         LuaValue s = makeTable("cc", "ccc", "dd", "ddd");
         LuaValue t = makeTable("cc", "ccc", "dd", "ddd");
         t.setmetatable(m);
@@ -368,7 +368,7 @@ public class MetatableTest {
         checkTable(m, aaa, bbb, NIL, NIL, NIL, rrr, ttt, aaa, bbb, NIL, NIL, NIL, rrr, ttt);
 
         // make s fall back to t
-        s.setmetatable(LuaValue.tableOf(new LuaValue[] { INDEX, t, NEWINDEX, t }));
+        s.setmetatable(LuaValue.tableOf(new LuaValue[] { META_INDEX, t, META_NEWINDEX, t }));
         checkTable(s, www, yyy, qqq, ddd, ppp, rrr, ttt, www, NIL, qqq, ddd, ppp, NIL, NIL);
         checkTable(t, aaa, yyy, ccc, sss, NIL, rrr, ttt, NIL, yyy, ccc, sss, NIL, NIL, NIL);
         checkTable(m, aaa, bbb, NIL, NIL, NIL, rrr, ttt, aaa, bbb, NIL, NIL, NIL, rrr, ttt);
