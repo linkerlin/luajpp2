@@ -890,7 +890,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue argerror(String expected) {
-        throw new LuaError("bad argument: " + expected + " expected, got " + debugName());
+        throw new LuaError("bad argument: " + expected + " expected, got " + debugName() + " (a "
+                + typename() + ")");
     }
 
     /**

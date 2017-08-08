@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import nl.weeaboo.lua2.lib.LuaFileHandle;
+import nl.weeaboo.lua2.vm.LuaTable;
 
 interface ILuaIoImpl extends Serializable {
 
@@ -23,7 +24,7 @@ interface ILuaIoImpl extends Serializable {
      * @return File object if successful
      * @throws IOException if could not be opened
      */
-    LuaFileHandle createTempFile() throws IOException;
+    LuaFileHandle createTempFile(LuaTable fileTable) throws IOException;
 
     /**
      * Open a file in a particular mode.
@@ -31,7 +32,7 @@ interface ILuaIoImpl extends Serializable {
      * @return File object if successful
      * @throws IOException if could not be opened
      */
-    LuaFileHandle openFile(String filename, FileOpenMode mode) throws IOException;
+    LuaFileHandle openFile(LuaTable fileTable, String filename, FileOpenMode mode) throws IOException;
 
     /**
      * Deletes a file

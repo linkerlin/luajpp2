@@ -19,9 +19,7 @@ final class UnsafeIo implements ILuaIoImpl {
     }
 
     @Override
-    public LuaFileHandle createTempFile() throws IOException {
-        LuaTable fileTable = IoLib.getFileTable();
-
+    public LuaFileHandle createTempFile(LuaTable fileTable) throws IOException {
         File tempFile = File.createTempFile("luaj", ".tmp");
         tempFile.deleteOnExit();
 
@@ -30,9 +28,7 @@ final class UnsafeIo implements ILuaIoImpl {
     }
 
     @Override
-    public LuaFileHandle openFile(String filename, FileOpenMode mode) throws IOException {
-        LuaTable fileTable = IoLib.getFileTable();
-
+    public LuaFileHandle openFile(LuaTable fileTable, String filename, FileOpenMode mode) throws IOException {
         RandomAccessFile rfile = new RandomAccessFile(filename, mode.isWritable() ? "rw" : "r");
         if (mode.isTruncate()) {
             rfile.setLength(0);

@@ -42,6 +42,7 @@ public final class IoLib extends LuaModule {
 
     private final ILuaIoImpl impl;
 
+    private LuaTable fileTable;
     private LuaFileHandle stdInHandle;
     private LuaFileHandle stdOutHandle;
     private LuaFileHandle stdErrHandle;
@@ -81,7 +82,7 @@ public final class IoLib extends LuaModule {
         new FileLib().register();
 
         // Initialize file handles
-        LuaTable fileTable = getFileTable();
+        fileTable = getFileTable();
         stdInHandle = new StdInFileHandle(fileTable);
         setCurrentInput(stdInHandle);
         stdOutHandle = new StdOutFileHandle(fileTable, false);
@@ -284,7 +285,7 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs tmpfile(Varargs args) throws IOException {
-        return impl.createTempFile();
+        return impl.createTempFile(fileTable);
     }
 
     /** io.type(obj) -> "file" | "closed file" | nil */
@@ -324,7 +325,7 @@ public final class IoLib extends LuaModule {
             return isreadmode ? stdInHandle : stdOutHandle;
         }
 
-        return impl.openFile(filename, FileOpenMode.fromString(mode));
+        return impl.openFile(fileTable, filename, FileOpenMode.fromString(mode));
     }
 
     static Varargs doClose(LuaFileHandle f) throws IOException {

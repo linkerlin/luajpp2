@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
+import nl.weeaboo.lua2.vm.LuaTable;
 
 @LuaSerializable
 final class SafeIo implements ILuaIoImpl {
@@ -17,12 +18,12 @@ final class SafeIo implements ILuaIoImpl {
     }
 
     @Override
-    public LuaFileHandle createTempFile() throws IOException {
+    public LuaFileHandle createTempFile(LuaTable fileTable) throws IOException {
         throw new IOException("createTempFile() is not allowed");
     }
 
     @Override
-    public LuaFileHandle openFile(String filename, FileOpenMode mode) throws IOException {
+    public LuaFileHandle openFile(LuaTable fileTable, String filename, FileOpenMode mode) throws IOException {
         throw new FileNotFoundException("openFile() is not allowed");
     }
 

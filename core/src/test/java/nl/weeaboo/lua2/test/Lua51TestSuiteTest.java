@@ -1,5 +1,8 @@
 package nl.weeaboo.lua2.test;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
@@ -9,6 +12,8 @@ import org.junit.rules.Timeout;
 import nl.weeaboo.lua2.AbstractLuaTest;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
+import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 
 public final class Lua51TestSuiteTest extends AbstractLuaTest {
@@ -16,12 +21,29 @@ public final class Lua51TestSuiteTest extends AbstractLuaTest {
     @Rule
     public Timeout timeout = new Timeout(300, TimeUnit.SECONDS);
 
+    @SuppressWarnings("serial")
     @Override
     public void initLuaRunState() throws LuaException {
         StandardLibrary stdlib = new StandardLibrary();
         stdlib.setUnsafeIo(true); // Unsafe I/O functions are required for this test
         luaRunState = LuaRunState.create(stdlib);
         luaRunState.setLuaPath("lua51tests/?.lua");
+        luaRunState.setResourceFinder(new ClassLoaderResourceFinder() {
+            @Override
+            public LuaResource findResource(final String filename) {
+                LuaResource resource = super.findResource(filename);
+                if (resource == null) {
+                    // Load from file if not found as a class resource
+                    resource = new LuaResource(filename) {
+                        @Override
+                        public InputStream open() throws IOException {
+                            return new FileInputStream(filename);
+                        }
+                    };
+                }
+                return resource;
+            }
+        });
     }
 
     @Test
