@@ -119,7 +119,7 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs error(Varargs args) {
-        String message = args.optjstring(1, "");
+        String message = args.optjstring(1, null);
         throw new LuaError(message, null, args.optint(2, 1));
     }
 

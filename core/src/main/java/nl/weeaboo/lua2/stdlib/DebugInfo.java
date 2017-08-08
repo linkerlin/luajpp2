@@ -85,15 +85,22 @@ final class DebugInfo implements Externalizable {
     }
 
     public LuaString[] getfunckind() {
-        if (closure == null || pc < 0) {
+        int stackpos = getStackPos();
+        if (stackpos < 0) {
             return null;
+        }
+        return DebugTrace.getobjname(this, stackpos);
+    }
+
+    int getStackPos() {
+        if (closure == null || pc < 0) {
+            return -1;
         }
         int[] code = closure.getPrototype().code;
         if (pc >= code.length) {
-            return null;
+            return -1;
         }
-        int stackpos = (code[pc] >> 6) & 0xff;
-        return DebugTrace.getobjname(this, stackpos);
+        return (code[pc] >> 6) & 0xff;
     }
 
     public String source() {

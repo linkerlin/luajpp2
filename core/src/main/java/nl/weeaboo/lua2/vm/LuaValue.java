@@ -45,6 +45,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 
 /**
  * Base class for all concrete lua type values.
@@ -889,7 +890,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue argerror(String expected) {
-        throw new LuaError("bad argument: " + expected + " expected, got " + typename());
+        throw new LuaError("bad argument: " + expected + " expected, got " + debugName());
     }
 
     /**
@@ -910,7 +911,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue typerror(String expected) {
-        throw new LuaError(expected + " expected, got " + typename());
+        throw new LuaError(expected + " expected, got " + debugName());
     }
 
     /**
@@ -919,7 +920,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue unimplemented(String fun) {
-        throw new LuaError("'" + fun + "' not implemented for " + typename());
+        throw new LuaError("'" + fun + "' not implemented for " + debugName());
     }
 
     /**
@@ -938,7 +939,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue lenerror() {
-        throw new LuaError("attempt to get length of " + typename());
+        throw new LuaError("attempt to get length of " + debugName());
     }
 
     /**
@@ -948,7 +949,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue aritherror() {
-        throw new LuaError("attempt to perform arithmetic on " + typename());
+        throw new LuaError("attempt to perform arithmetic on " + debugName());
     }
 
     /**
@@ -959,7 +960,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue aritherror(String fun) {
-        throw new LuaError("attempt to perform arithmetic '" + fun + "' on " + typename());
+        throw new LuaError("attempt to perform arithmetic '" + fun + "' on " + debugName());
     }
 
     /**
@@ -971,7 +972,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue compareerror(String rhs) {
-        throw new LuaError("attempt to compare " + typename() + " with " + rhs);
+        throw new LuaError("attempt to compare " + debugName() + " with " + rhs);
     }
 
     /**
@@ -982,7 +983,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError in all cases
      */
     protected LuaValue compareerror(LuaValue rhs) {
-        throw new LuaError("attempt to compare " + typename() + " with " + rhs.typename());
+        throw new LuaError("attempt to compare " + debugName() + " with " + rhs.debugName());
     }
 
     /**
@@ -2245,8 +2246,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         if (h.isnil()) {
             h = op2.metatag(tag);
             if (h.isnil()) {
-                error("attempt to perform arithmetic " + tag + " on " + typename() + " and "
-                        + op2.typename());
+                error("attempt to perform arithmetic " + tag + " on " + debugName() + " and "
+                        + op2.debugName());
             }
         }
         return h.call(this, op2);
@@ -2272,7 +2273,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     protected LuaValue arithmtwith(LuaValue tag, double op1) {
         LuaValue h = metatag(tag);
         if (h.isnil()) {
-            error("attempt to perform arithmetic " + tag + " on number and " + typename());
+            error("attempt to perform arithmetic " + tag + " on number and " + debugName());
         }
         return h.call(LuaValue.valueOf(op1), this);
     }
@@ -2433,18 +2434,18 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
             return compareMethod.call(op1, this).not();
         }
 
-        return error("attempt to compare " + tag + " on " + typename() + " and " + op1.typename());
+        return error("attempt to compare " + tag + " on " + debugName() + " and " + op1.debugName());
     }
 
     @Override
     public int strcmp(LuaValue rhs) {
-        error("attempt to compare " + typename());
+        error("attempt to compare " + debugName());
         return 0;
     }
 
     @Override
     public int strcmp(LuaString rhs) {
-        error("attempt to compare " + typename());
+        error("attempt to compare " + debugName());
         return 0;
     }
 
@@ -2548,7 +2549,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     public LuaValue concatmt(LuaValue rhs) {
         LuaValue h = metatag(META_CONCAT);
         if (h.isnil() && (h = rhs.metatag(META_CONCAT)).isnil()) {
-            error("attempt to concatenate " + typename() + " and " + rhs.typename());
+            error("attempt to concatenate " + debugName() + " and " + rhs.debugName());
         }
         return h.call(this, rhs);
     }
@@ -2905,9 +2906,20 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     protected LuaValue checkmetatag(LuaValue tag, String reason) {
         LuaValue h = this.metatag(tag);
         if (h.isnil()) {
-            throw new LuaError(reason + typename());
+            throw new LuaError(reason + debugName());
         }
         return h;
+    }
+
+    /** Returns a string description of this object for use in error messages. */
+    private String debugName() {
+        LuaString[] name = DebugTrace.getobjname(this);
+
+        if (name == null || name[0].raweq(valueOf("?"))) {
+            return typename();
+        } else {
+            return name[1] + " '" + name[0] + "'";
+        }
     }
 
     /**
@@ -2916,7 +2928,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @throws LuaError when called.
      */
     private void indexerror() {
-        error("attempt to index ? (a " + typename() + " value)");
+        error("attempt to index " + debugName());
     }
 
     /** Construct a Metatable instance from the given LuaValue. */

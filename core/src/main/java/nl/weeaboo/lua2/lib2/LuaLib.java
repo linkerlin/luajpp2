@@ -100,8 +100,7 @@ public abstract class LuaLib implements ILuaLib {
                             + (result != null ? result.getClass().getName() : "null"));
                 }
             } catch (InvocationTargetException ite) {
-                Throwable cause = ite.getCause();
-                throw new LuaError(createErrorMessage(args, cause), cause);
+                throw new LuaError(ite.getCause());
             } catch (Exception e) {
                 throw new LuaError(createErrorMessage(args, e), e);
             }

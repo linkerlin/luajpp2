@@ -173,9 +173,10 @@ public final class LuaThread extends LuaValue implements Serializable {
         return (callstack != null ? callstack.size() : 0);
     }
 
-    public void preCall(StackFrame sf, int calls) {
+    public void preCall(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
-            DebugLib.debugOnCall(this, calls, sf.getCallstackFunction(0));
+            DebugLib.debugSetupCall(this, sf.args, sf.stack);
+            DebugLib.debugOnCall(this, sf.func);
 
             LOG.trace(">>({}) {}", sf.size(), sf);
         }
@@ -184,11 +185,11 @@ public final class LuaThread extends LuaValue implements Serializable {
     /**
      * @param sf The stack frame that was just popped from the callstack.
      */
-    public void postReturn(StackFrame sf, int calls) {
+    public void postReturn(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
             LOG.trace("<<({}) {}", sf.size(), sf);
 
-            DebugLib.debugOnReturn(this, calls);
+            DebugLib.debugOnReturn(this);
         }
 
         if (callstack == null) {
@@ -302,7 +303,7 @@ public final class LuaThread extends LuaValue implements Serializable {
         sf.close();
 
         // Notify debuglib that we've returned from our current call
-        postReturn(sf, callstack != null ? callstack.size() : 0);
+        postReturn(sf);
     }
 
     public static Varargs execute(LuaClosure c, Varargs args) {

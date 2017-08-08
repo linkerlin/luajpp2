@@ -298,7 +298,7 @@ final class LuaInterpreter {
                     if (f.isclosure()) {
                         // System.out.println("CLOSURE");
 
-                        thread.postReturn(sf, sf.size() - 1);
+                        thread.postReturn(sf);
 
                         sf.prepareTailcall(f.checkclosure(), v);
                         top = sf.top;
@@ -315,7 +315,7 @@ final class LuaInterpreter {
                     sf.top = top;
                     sf.pc = pc;
                     sf.v = v;
-                    thread.postReturn(sf, sf.size() - 1);
+                    thread.postReturn(sf);
                     // Hack to make recursive calls have the correct callstack size when I remove sf later
                     sf.parentCount--;
                     v = f.invoke(v);
@@ -486,10 +486,7 @@ final class LuaInterpreter {
     }
 
     private static void startCall(LuaThread thread, StackFrame sf) {
-        if (DebugLib.isDebugEnabled()) {
-            DebugLib.debugSetupCall(thread, sf.args, sf.stack);
-        }
-        thread.preCall(sf, sf.size());
+        thread.preCall(sf);
     }
 
     private static void finishCall(LuaThread thread, StackFrame sf, Varargs retval) {

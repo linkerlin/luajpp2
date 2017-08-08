@@ -306,7 +306,8 @@ final class LexState {
         String cid = chunkid(source.tojstring());
         luaC.pushfstring(cid + ":" + linenumber + ": " + msg);
         if (token != 0) {
-            luaC.pushfstring("syntax error: " + msg + " near " + txtToken(token));
+            msg += " near '" + txtToken(token) + "'";
+            luaC.pushfstring("syntax error: " + msg);
         }
         throw new LuaError(cid + ":" + linenumber + ": " + msg);
     }

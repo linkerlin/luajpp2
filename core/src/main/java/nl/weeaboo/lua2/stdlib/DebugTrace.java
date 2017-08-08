@@ -10,6 +10,7 @@ import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
 
 public final class DebugTrace {
@@ -116,12 +117,45 @@ public final class DebugTrace {
     }
 
     /**
-     *
+     * @return StrValue[] { name, namewhat } if found, null if not
+     */
+    public static LuaString[] getobjname(LuaValue value) {
+        LuaThread thread = LuaThread.getRunning();
+        DebugState ds = DebugLib.getDebugState(thread);
+        if (ds == null) {
+            return null;
+        }
+
+        DebugInfo di = ds.getDebugInfo();
+        if (di == null) {
+            return null;
+        }
+
+        // Search the stack for this object. If not found, search at the current stack pos.
+        int stackPos = di.getStackPos();
+        if (!value.isnil()) {
+            /*
+             * In the C implementation of Lua, 'objects' are actually passed along as pointers to the stack.
+             * As a result, every objects corresponds to a unique stack index. In this Java implementation,
+             * every NIL is the same instance. That's good for performance, but it also means that at this
+             * point in the code we can no longer distinguish between different NIL instances.
+             */
+            for (int n = 0; n < di.stack.length; n++) {
+                if (di.stack[n] == value) {
+                    stackPos = n;
+                    break;
+                }
+            }
+        }
+        return getobjname(di, stackPos);
+    }
+
+    /**
      * @return StrValue[] { name, namewhat } if found, null if not
      */
     static LuaString[] getobjname(DebugInfo di, int stackpos) {
-        if (di.closure == null) {
-            return null; // Not a Lua function
+        if (di.closure == null || stackpos < 0) {
+            return null; // Not a Lua function or stack pos invalid
         }
 
         Prototype p = di.closure.getPrototype();

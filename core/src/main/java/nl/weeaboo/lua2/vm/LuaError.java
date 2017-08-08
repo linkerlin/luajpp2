@@ -37,7 +37,9 @@ public class LuaError extends RuntimeException {
         this.cause = c;
 
         if (c instanceof LuaError) {
-            cause = null;
+            // Wrap existing exception
+            this.message = c.getMessage();
+            this.cause = null;
             setStackTrace(c.getStackTrace());
         } else if (level >= 0) {
             StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);

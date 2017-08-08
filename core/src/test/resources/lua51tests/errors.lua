@@ -9,7 +9,9 @@ end
 
 
 function checkmessage (prog, msg)
-  assert(string.find(doit(prog), msg, 1, true))
+  local result = doit(prog)
+  print(result)
+  assert(string.find(result, msg, 1, true))
 end
 
 function checksyntax (prog, extra, token, line)
@@ -17,6 +19,7 @@ function checksyntax (prog, extra, token, line)
   token = string.gsub(token, "(%p)", "%%%1")
   local pt = string.format([[^%%[string ".*"%%]:%d: .- near '%s'$]],
                            line, token)
+  print(msg)
   assert(string.find(msg, pt))
   assert(string.find(msg, msg, 1, true))
 end

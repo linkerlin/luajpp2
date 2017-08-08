@@ -2,8 +2,8 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
-import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
+import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TBOOLEAN;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
@@ -41,7 +41,6 @@ public final class DebugLib extends LuaModule {
 
     private static final LuaString LUA = valueOf("Lua");
     private static final LuaString JAVA = valueOf("Java");
-    private static final LuaString QMARK = valueOf("?");
     private static final LuaString FUNC = valueOf("func");
     private static final LuaString NAME = valueOf("name");
     private static final LuaString LINE = valueOf("line");
@@ -397,13 +396,12 @@ public final class DebugLib extends LuaModule {
      * Called by Closures and recursing java functions on entry
      *
      * @param thread the thread for the call
-     * @param calls the number of calls in the call stack
      * @param func the function called
      */
-    public static void debugOnCall(LuaThread thread, int calls, LuaFunction func) {
+    public static void debugOnCall(LuaThread thread, LuaFunction func) {
         DebugState ds = getDebugState(thread);
 
-        DebugInfo di = ds.pushInfo(calls);
+        DebugInfo di = ds.pushInfo();
         di.setfunction(func);
 
         if (!ds.inhook && ds.hookcall) {
@@ -415,16 +413,15 @@ public final class DebugLib extends LuaModule {
      * Called by Closures and recursing java functions on return
      *
      * @param thread the thread for the call
-     * @param calls the number of calls in the call stack
      */
-    public static void debugOnReturn(LuaThread thread, int calls) {
+    public static void debugOnReturn(LuaThread thread) {
         DebugState ds = getDebugState(thread);
         try {
             if (!ds.inhook && ds.hookrtrn) {
                 ds.callHookFunc(RETURN, NIL);
             }
         } finally {
-            getDebugState(thread).popInfo(calls);
+            getDebugState(thread).popInfo();
         }
     }
 

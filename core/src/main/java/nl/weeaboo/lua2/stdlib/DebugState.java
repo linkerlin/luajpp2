@@ -92,26 +92,25 @@ final class DebugState implements Externalizable {
         return di;
     }
 
-    public DebugInfo pushInfo(int calls) {
-        if (calls > LuaThread.MAX_CALLSTACK) {
-            throw new LuaError("Stack overflow: " + calls);
+    public DebugInfo pushInfo() {
+        if (debugCalls >= LuaThread.MAX_CALLSTACK) {
+            throw new LuaError("Stack overflow: " + (debugCalls + 1));
         }
-        while (debugCalls < calls) {
-            nextInfo();
-            ++debugCalls;
-        }
+
+        nextInfo();
+        ++debugCalls;
+
         return debugInfo[debugCalls - 1];
     }
 
-    public void popInfo(int calls) {
-        if (debugCalls <= calls) {
-            LOG.debug("No-op popInfo call: currentDepth={}, targetDepth={}", debugCalls, calls);
+    public void popInfo() {
+        if (debugCalls <= 0) {
+            LOG.warn("No debug info left to pop");
+            return;
         }
 
-        while (debugCalls > calls) {
-            DebugInfo di = debugInfo[--debugCalls];
-            di.clear();
-        }
+        DebugInfo di = debugInfo[--debugCalls];
+        di.clear();
     }
 
     void callHookFunc(LuaString type, LuaValue arg) {
