@@ -41,6 +41,8 @@ Changes:
    enum switches shouldn't have a default case, because then the static analysis can warn you when a new enum
    constant is added and it isn't explicitly handled. If you add a default case throwing an error, you'll get
    a runtime exception instead.
+ [2017-09-02]
+ * Changed ParameterName check to be compatible with Checkstyle 8
 -->
 
 <module name = "Checker">
@@ -130,14 +132,7 @@ Changes:
              value="Member name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="ParameterName">
-            <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
-            <property name="excludeScope" value="public"/>
-            <message key="name.invalidPattern"
-             value="Parameter name ''{0}'' must match pattern ''{1}''."/>
-        </module>
-        <module name="ParameterName">
             <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
-            <property name="scope" value="public"/>
             <message key="name.invalidPattern"
              value="Parameter name ''{0}'' must match pattern ''{1}''."/>
         </module>
