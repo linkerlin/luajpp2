@@ -20,9 +20,9 @@ import nl.weeaboo.lua2.vm.Prototype;
 /**
  * Compiler for lua files to lua bytecode.
  */
-public class LC {
+final class LC {
 
-    private static final String usage = "usage: java -cp luajpp2.jar luac [options] [filenames].\n"
+    private static final String usage = "usage: java -cp luajpp2.jar LC [options] [filenames].\n"
             + "Available options are:\n"
             + "  -        process stdin\n"
             + "  -l       list\n"
@@ -32,12 +32,8 @@ public class LC {
             + "  -s       strip debug information\n"
             + "  -e       little endian format for numbers\n"
             + "  -i<n>    number format 'n', (n=0,1 or 4, default=" + DumpState.NUMBER_FORMAT_DEFAULT + ")\n"
-            + "  -v       show version information\n" + "  --       stop handling options\n";
-
-    private static void usageExit() {
-        System.out.println(usage);
-        System.exit(1);
-    }
+            + "  -v       show version information\n"
+            + "  --       stop handling options\n";
 
     private boolean list;
     private String output;
@@ -49,27 +45,14 @@ public class LC {
     private boolean processing;
     private boolean multiwrite;
 
-    private List<Throwable> errors;
+    private final List<String> args = new ArrayList<String>();
+    private final List<Exception> errors = new ArrayList<Exception>();
 
     private LC() {
-        errors = new ArrayList<Throwable>();
-
-        reset0();
+        reset();
     }
 
-    /**
-     * Main entrypoint for running the Lua compiler as a standalone application.
-     */
-    public static void main(String[] args) throws LuaException {
-        LC lc = new LC();
-        lc.run(args);
-    }
-
-    protected void reset() {
-        reset0();
-    }
-
-    private void reset0() {
+    private void reset() {
         list = false;
         output = "luac.out";
         parseonly = false;
@@ -80,64 +63,65 @@ public class LC {
         processing = true;
         multiwrite = false;
 
+        args.clear();
         errors.clear();
     }
 
-    private void run(String[] args) throws LuaException {
-        reset();
-
-        // process args
-        try {
-            // get stateful args
-            for (int i = 0; i < args.length; i++) {
-                if (!processing || !args[i].startsWith("-")) {
-                    // input file - defer to next stage
-                } else if (args[i].length() <= 1) {
-                    // input file - defer to next stage
-                } else {
-                    switch (args[i].charAt(1)) {
-                    case 'l':
-                        list = true;
-                        break;
-                    case 'o':
-                        if (++i >= args.length) {
-                            usageExit();
-                        }
-                        output = args[i];
-                        break;
-                    case 'w':
-                        multiwrite = true;
-                        break;
-                    case 'p':
-                        parseonly = true;
-                        break;
-                    case 's':
-                        stripdebug = true;
-                        break;
-                    case 'e':
-                        littleendian = true;
-                        break;
-                    case 'i':
-                        if (args[i].length() <= 2) {
-                            usageExit();
-                        }
-                        numberformat = Integer.parseInt(args[i].substring(2));
-                        break;
-                    case 'v':
-                        versioninfo = true;
-                        break;
-                    case '-':
-                        if (args[i].length() > 2) {
-                            usageExit();
-                        }
-                        processing = false;
-                        break;
-                    default:
+    private void setArgs(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (!processing || !args[i].startsWith("-")) {
+                // input file - defer to next stage
+            } else if (args[i].length() <= 1) {
+                // input file - defer to next stage
+            } else {
+                switch (args[i].charAt(1)) {
+                case 'l':
+                    list = true;
+                    break;
+                case 'o':
+                    if (++i >= args.length) {
                         usageExit();
-                        break;
                     }
+                    output = args[i];
+                    break;
+                case 'w':
+                    multiwrite = true;
+                    break;
+                case 'p':
+                    parseonly = true;
+                    break;
+                case 's':
+                    stripdebug = true;
+                    break;
+                case 'e':
+                    littleendian = true;
+                    break;
+                case 'i':
+                    if (args[i].length() <= 2) {
+                        usageExit();
+                    }
+                    numberformat = Integer.parseInt(args[i].substring(2));
+                    break;
+                case 'v':
+                    versioninfo = true;
+                    break;
+                case '-':
+                    if (args[i].length() > 2) {
+                        usageExit();
+                    }
+                    processing = false;
+                    break;
+                default:
+                    usageExit();
+                    break;
                 }
             }
+        }
+    }
+
+    private void run() throws LuaException {
+        // process args
+        try {
 
             // echo version
             if (versioninfo) {
@@ -150,13 +134,15 @@ public class LC {
             LuaRunState lrs = LuaRunState.create();
             OutputStream fos = null;
             try {
-                for (int i = 0; i < args.length; i++) {
-                    boolean isFileInput = !processing || !args[i].startsWith("-");
-                    boolean isStdIn = !isFileInput && args[i].length() <= 1;
+                for (int i = 0; i < args.size(); i++) {
+                    String currentArg = args.get(i);
+
+                    boolean isFileInput = !processing || !currentArg.startsWith("-");
+                    boolean isStdIn = !isFileInput && currentArg.length() <= 1;
 
                     InputStream in = null;
                     if (isFileInput) {
-                        File file = new File(args[i]);
+                        File file = new File(currentArg);
                         byte[] data = new byte[(int)file.length()];
                         in = new FileInputStream(file);
                         int read = 0;
@@ -180,20 +166,20 @@ public class LC {
 
                         String fn = output;
                         if (multiwrite && isFileInput) {
-                            fn = args[i];
+                            fn = currentArg;
                         }
                         fos = new BufferedOutputStream(new FileOutputStream(fn));
                     }
 
                     if (isFileInput) {
-                        String chunkname = args[i].substring(0, args[i].length() - 4);
+                        String chunkname = currentArg.substring(0, currentArg.length() - 4);
                         System.out.println("Compiling Lua: " + chunkname);
                         processScript(in, chunkname, fos);
                     } else if (isStdIn) {
                         System.out.println("Compiling Lua: stdin");
                         processScript(System.in, "=stdin", fos);
                     } else {
-                        switch (args[i].charAt(1)) {
+                        switch (currentArg.charAt(1)) {
                         case 'o':
                             ++i;
                             break;
@@ -253,4 +239,20 @@ public class LC {
             script.close();
         }
     }
+
+    private static void usageExit() {
+        System.out.println(usage);
+        System.exit(1);
+    }
+
+
+    /**
+     * Main entrypoint for running the Lua compiler as a standalone application.
+     */
+    public static void main(String[] args) throws LuaException {
+        LC lc = new LC();
+        lc.setArgs(args);
+        lc.run();
+    }
+
 }
