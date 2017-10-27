@@ -28,15 +28,16 @@ public final class PackageLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
 
-    private static final LuaString _M = valueOf("_M");
-    private static final LuaString _NAME = valueOf("_NAME");
-    private static final LuaString _PACKAGE = valueOf("_PACKAGE");
-    private static final LuaString _DOT = valueOf(".");
-    private static final LuaString _LOADERS = valueOf("loaders");
-    private static final LuaString _LOADED = valueOf("loaded");
-    private static final LuaString _PRELOAD = valueOf("preload");
-    private static final LuaString _PATH = valueOf("path");
-    private static final LuaString _SENTINEL = valueOf("\u0001");
+    private static final LuaString S_M = valueOf("_M");
+    private static final LuaString S_NAME = valueOf("_NAME");
+    private static final LuaString S_PACKAGE = valueOf("_PACKAGE");
+    private static final LuaString S_DOT = valueOf(".");
+    private static final LuaString S_LOADERS = valueOf("loaders");
+    private static final LuaString S_LOADED = valueOf("loaded");
+    private static final LuaString S_PRELOAD = valueOf("preload");
+    private static final LuaString S_PATH = valueOf("path");
+    private static final LuaString S_CPATH = valueOf("cpath");
+    private static final LuaString S_SENTINEL = valueOf("\u0001");
 
     public LuaTable loadedTable = new LuaTable();
     public LuaTable packageTable;
@@ -50,11 +51,12 @@ public final class PackageLib extends LuaModule {
         super.registerAdditional(globals, libTable);
 
         packageTable = libTable;
-        packageTable.rawset(_LOADED, loadedTable);
-        packageTable.rawset(_PRELOAD, new LuaTable());
-        packageTable.rawset(_PATH, valueOf("?.lua"));
+        packageTable.rawset(S_LOADED, loadedTable);
+        packageTable.rawset(S_PRELOAD, new LuaTable());
+        packageTable.rawset(S_PATH, valueOf("?.lua"));
+        packageTable.rawset(S_CPATH, valueOf(""));
 
-        packageTable.rawset(_LOADERS, listOf(new LuaValue[] {
+        packageTable.rawset(S_LOADERS, listOf(new LuaValue[] {
                 new LuaLoader(packageTable)
         }));
 
@@ -108,14 +110,14 @@ public final class PackageLib extends LuaModule {
         LuaString name = args.checkstring(1);
         LuaValue loaded = loadedTable.get(name);
         if (loaded.toboolean()) {
-            if (loaded == _SENTINEL) {
+            if (loaded == S_SENTINEL) {
                 throw new LuaError("loop or previous error loading module '" + name + "'");
             }
             return loaded;
         }
 
         /* else must load it; iterate over available loaders */
-        LuaTable tbl = packageTable.get(_LOADERS).checktable();
+        LuaTable tbl = packageTable.get(S_LOADERS).checktable();
         StringBuffer sb = new StringBuffer();
         LuaValue chunk = null;
         for (int i = 1; true; i++) {
@@ -135,11 +137,11 @@ public final class PackageLib extends LuaModule {
         }
 
         // load the module using the loader
-        loadedTable.set(name, _SENTINEL);
+        loadedTable.set(name, S_SENTINEL);
         LuaValue result = chunk.call(name);
         if (!result.isnil()) {
             loadedTable.set(name, result);
-        } else if ((result = loadedTable.get(name)) == _SENTINEL) {
+        } else if ((result = loadedTable.get(name)) == S_SENTINEL) {
             loadedTable.set(name, result = TRUE);
         }
         return result;
@@ -185,12 +187,12 @@ public final class PackageLib extends LuaModule {
         }
 
         /* check whether table already has a _NAME field */
-        LuaValue name = module.get(_NAME);
+        LuaValue name = module.get(S_NAME);
         if (name.isnil()) {
-            module.set(_M, module);
-            int e = modname.lastIndexOf(_DOT);
-            module.set(_NAME, modname);
-            module.set(_PACKAGE, (e < 0 ? EMPTYSTRING : modname.substring(0, e + 1)));
+            module.set(S_M, module);
+            int e = modname.lastIndexOf(S_DOT);
+            module.set(S_NAME, modname);
+            module.set(S_PACKAGE, (e < 0 ? EMPTYSTRING : modname.substring(0, e + 1)));
         }
 
         // set the environment of the current function
@@ -221,7 +223,7 @@ public final class PackageLib extends LuaModule {
         int b;
         int e = -1;
         do {
-            e = fname.indexOf(_DOT, b = e + 1);
+            e = fname.indexOf(S_DOT, b = e + 1);
             if (e < 0) {
                 e = fname.length();
             }
@@ -256,7 +258,7 @@ public final class PackageLib extends LuaModule {
             String name = args.checkjstring(1);
 
             // get package path
-            LuaValue pp = packageTable.get(_PATH);
+            LuaValue pp = packageTable.get(S_PATH);
             if (!pp.isstring()) {
                 return valueOf("package.path is not a string");
             }
