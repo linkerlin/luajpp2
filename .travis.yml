@@ -1,5 +1,11 @@
 
 language: java
 
+# Java 6 must be installed explicitly: https://github.com/travis-ci/travis-ci/issues/8199
+addons:
+  apt:
+    packages:
+      - openjdk-6-jdk
+
 jdk:
   - openjdk6
