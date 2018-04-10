@@ -2423,15 +2423,25 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #lteq(LuaValue)
      */
     private LuaValue comparemt(LuaValue tag, LuaValue op1) {
+        // Try to get metatag from LHS of the comparison, and if nil, try RHS
         LuaValue compareMethod = metatag(tag);
-        if (!compareMethod.isnil() && compareMethod.raweq(op1.metatag(tag))) {
-            // Tag is defined (and the same) for both operands
+        if (compareMethod.isnil()) {
+            compareMethod = op1.metatag(tag);
+        }
+
+        if (!compareMethod.isnil()) {
             return compareMethod.call(this, op1);
         }
 
+        // If the operator is LE, fall back to LT assuming: a <= b === !(b < a)
+        // Try to get metatag from LHS of the comparison, and if nil, try RHS
         LuaString otherTag = (META_LE.raweq(tag) ? META_LT : META_LE);
         compareMethod = metatag(otherTag);
-        if (!compareMethod.isnil() && compareMethod.raweq(op1.metatag(otherTag))) {
+        if (compareMethod.isnil()) {
+            compareMethod = op1.metatag(otherTag);
+        }
+
+        if (!compareMethod.isnil()) {
             return compareMethod.call(op1, this).not();
         }
 
