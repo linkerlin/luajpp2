@@ -6,7 +6,7 @@ plugins {
 allprojects {
     apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
-    version = '2.3.15'
+    version = '2.4.0'
 
     repositories {
         mavenCentral()
