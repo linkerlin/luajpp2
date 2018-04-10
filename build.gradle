@@ -1,7 +1,13 @@
-
-plugins {
-    id "com.jfrog.bintray" version "1.6"
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
 }
+
+apply plugin: 'com.jfrog.bintray'
 
 allprojects {
     apply plugin: "maven-publish"
