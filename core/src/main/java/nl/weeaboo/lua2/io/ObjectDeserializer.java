@@ -14,13 +14,12 @@ import org.slf4j.LoggerFactory;
 public class ObjectDeserializer extends ObjectInputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectDeserializer.class);
-    private static final int STACK_DEPTH_WARN_LIMIT = 100;
 
     private final Environment env;
     private final ExecutorService executor;
 
     private boolean collectStats = true;
-    private int maxDepth = 0;
+    private int depthWarnLimit = 100;
 
     protected ObjectDeserializer(InputStream in, Environment e) throws IOException {
         super(in);
@@ -79,9 +78,9 @@ public class ObjectDeserializer extends ObjectInputStream {
             StackTraceElement[] stackTrace = dummy.getStackTrace();
 
             int depth = stackTrace.length;
-            maxDepth = Math.max(maxDepth, depth);
-            if (depth >= STACK_DEPTH_WARN_LIMIT) {
-                LOG.warn("Max stack depth exceeded ({}) while reading {}", depth, clazz.getName(), dummy);
+            if (depth >= depthWarnLimit) {
+                LOG.warn("Max stack depth exceeded ({}/{}) while reading {}", depth, depthWarnLimit,
+                        clazz.getName(), dummy);
             } else {
                 LOG.trace("Stack depth ({}) while reading {}", depth, clazz);
             }
@@ -103,6 +102,14 @@ public class ObjectDeserializer extends ObjectInputStream {
             collectStats = enable;
             updateEnableReplace();
         }
+    }
+
+    public int getDepthWarnLimit() {
+        return depthWarnLimit;
+    }
+
+    public void setDepthWarnLimit(int limit) {
+        depthWarnLimit = limit;
     }
 
 }
