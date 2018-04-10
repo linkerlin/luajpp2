@@ -136,11 +136,17 @@ public class LuaLink extends AbstractLuaLink {
     private Varargs doCall(LuaClosure func, Varargs args) throws LuaException {
         Varargs result = NONE;
 
+        int oldSleep = thread.getSleep();
         try {
             doPushCall(func, args);
+
+            // Run only the supplied function (and ignore sleep)
+            thread.setSleep(0);
             result = thread.resume(1);
         } catch (RuntimeException e) {
             handleThreadException("Error calling function: " + func, e);
+        } finally {
+            thread.setSleep(oldSleep);
         }
 
         return result;
