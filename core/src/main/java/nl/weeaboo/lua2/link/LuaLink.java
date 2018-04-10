@@ -227,4 +227,14 @@ public class LuaLink extends AbstractLuaLink {
         persistent = p;
     }
 
+    @Override
+    public void setWait(int w) {
+        thread.setSleep(w);
+    }
+
+    @Override
+    public int getWait() {
+        return thread.getSleep();
+    }
+
 }

@@ -329,4 +329,8 @@ public final class LuaThread extends LuaValue implements Serializable {
         sleep = frames;
     }
 
+    public int getSleep() {
+        return sleep;
+    }
+
 }

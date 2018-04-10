@@ -13,6 +13,8 @@ public class LuaLinkStub extends AbstractLuaLink {
     private int callCount;
     private boolean destroyed;
 
+    private int wait;
+
     public LuaLinkStub() {
         this(1);
     }
@@ -24,6 +26,12 @@ public class LuaLinkStub extends AbstractLuaLink {
     @Override
     public boolean update() throws LuaException {
         callCount++;
+
+        if (getWait() != 0) {
+            decreaseWait(1);
+            return false;
+        }
+
         if (instructionsLeft > 0) {
             instructionsLeft--;
             return true;
@@ -67,6 +75,16 @@ public class LuaLinkStub extends AbstractLuaLink {
     @Override
     public Varargs call(LuaClosure func, Object... args) throws LuaException {
         return LuaConstants.NONE;
+    }
+
+    @Override
+    public int getWait() {
+        return wait;
+    }
+
+    @Override
+    public void setWait(int wait) {
+        this.wait = wait;
     }
 
 }
