@@ -97,7 +97,7 @@ public final class BaseLib extends LuaLib {
 
     private void fullGC() {
         // Attempt to force a full GC
-        for (int n = 0; n < 5; n++) {
+        for (int n = 0; n < 10; n++) {
             System.gc();
             System.runFinalization();
             try {
