@@ -145,4 +145,9 @@ final class DebugInfo implements Externalizable {
         return tracename() + " " + sourceline();
     }
 
+    @Override
+    public String toString() {
+        return tojstring();
+    }
+
 }

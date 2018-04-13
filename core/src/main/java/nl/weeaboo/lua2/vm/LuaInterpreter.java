@@ -293,11 +293,7 @@ final class LuaInterpreter {
                     }
 
                     LuaValue f = stack[a];
-                    // System.out.println("TAILCALL: " + f);
-
                     if (f.isclosure()) {
-                        // System.out.println("CLOSURE");
-
                         thread.postReturn(sf);
 
                         sf.prepareTailcall(f.checkclosure(), v);
@@ -305,17 +301,18 @@ final class LuaInterpreter {
                         pc = sf.pc;
                         v = sf.v;
 
-                        // thread.postReturn(sf, sf.size()-1); //No regular finishCall(), that would close()
-                        // sf
                         startCall(thread, sf);
-
                         return NONE;
                     }
 
                     sf.top = top;
                     sf.pc = pc;
                     sf.v = v;
+
+                    // Call hooks as if we returned from the current function, then jump into the tail-called function
                     thread.postReturn(sf);
+                    startCall(thread, sf);
+
                     // Hack to make recursive calls have the correct callstack size when I remove sf later
                     sf.parentCount--;
                     v = f.invoke(v);

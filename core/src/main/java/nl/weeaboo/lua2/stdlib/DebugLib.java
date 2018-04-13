@@ -15,6 +15,9 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
@@ -38,6 +41,7 @@ import nl.weeaboo.lua2.vm.Varargs;
 public final class DebugLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(DebugLib.class);
 
     private static final LuaString LUA = valueOf("Lua");
     private static final LuaString JAVA = valueOf("Java");
@@ -404,6 +408,8 @@ public final class DebugLib extends LuaModule {
         DebugInfo di = ds.pushInfo();
         di.setfunction(func);
 
+        LOG.trace("debugOnCall: {}", di);
+
         if (!ds.inhook && ds.hookcall) {
             ds.callHookFunc(META_CALL, NIL);
         }
@@ -416,12 +422,15 @@ public final class DebugLib extends LuaModule {
      */
     public static void debugOnReturn(LuaThread thread) {
         DebugState ds = getDebugState(thread);
+
+        LOG.trace("debugOnReturn: {}", ds.getDebugInfo());
+
         try {
             if (!ds.inhook && ds.hookrtrn) {
                 ds.callHookFunc(RETURN, NIL);
             }
         } finally {
-            getDebugState(thread).popInfo();
+            ds.popInfo();
         }
     }
 
