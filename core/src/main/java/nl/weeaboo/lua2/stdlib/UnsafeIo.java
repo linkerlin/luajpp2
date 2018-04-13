@@ -24,7 +24,7 @@ final class UnsafeIo implements ILuaIoImpl {
         tempFile.deleteOnExit();
 
         RandomAccessFile rfile = new RandomAccessFile(tempFile, "rw");
-        return new UnsafeLuaFileHandle(fileTable, rfile, FileOpenMode.fromString("r+"));
+        return new UnsafeLuaFileHandle(fileTable, tempFile.getAbsolutePath(), rfile, FileOpenMode.fromString("r+"));
     }
 
     @Override
@@ -33,13 +33,18 @@ final class UnsafeIo implements ILuaIoImpl {
         if (mode.isTruncate()) {
             rfile.setLength(0);
         }
-        return new UnsafeLuaFileHandle(fileTable, rfile, mode);
+        return new UnsafeLuaFileHandle(fileTable, filename, rfile, mode);
     }
 
     @Override
-    public void deleteFile(String filename) throws IOException {
+    public boolean deleteFile(String filename) throws IOException {
         File file = new File(filename);
-        if (file.exists() && !file.delete()) {
+
+        if (!file.exists()) {
+            return false;
+        } else if (file.delete()) {
+            return true;
+        } else {
             throw new IOException("Delete of " + filename + " failed");
         }
     }

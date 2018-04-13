@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicReference;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -47,9 +47,9 @@ public final class IoLib extends LuaModule {
     private LuaFileHandle stdOutHandle;
     private LuaFileHandle stdErrHandle;
 
-    // These values use custom serialization, see
-    private transient WeakReference<LuaFileHandle> currentInput;
-    private transient WeakReference<LuaFileHandle> currentOutput;
+    // These values use custom serialization, see readObject/writeObject
+    private transient AtomicReference<LuaFileHandle> currentInput;
+    private transient AtomicReference<LuaFileHandle> currentOutput;
 
     IoLib(ILuaIoImpl impl) {
         super("io");
@@ -99,7 +99,7 @@ public final class IoLib extends LuaModule {
     }
 
     private void setCurrentInput(LuaFileHandle file) {
-        currentInput = new WeakReference<LuaFileHandle>(file);
+        currentInput = new AtomicReference<LuaFileHandle>(file);
     }
 
     private LuaFileHandle getCurrentOutput() {
@@ -111,7 +111,7 @@ public final class IoLib extends LuaModule {
     }
 
     private void setCurrentOutput(LuaFileHandle file) {
-        currentOutput = new WeakReference<LuaFileHandle>(file);
+        currentOutput = new AtomicReference<LuaFileHandle>(file);
     }
 
     static LuaTable getFileTable() {
@@ -174,10 +174,18 @@ public final class IoLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs lines(Varargs args) throws IOException {
-        LuaFileHandle file = (args.isstring(1) ? doOpenFile(args.checkjstring(1), "r") : getCurrentInput());
+        LuaFileHandle file;
+        boolean shouldClose;
+        if (args.isstring(1)) {
+            file = doOpenFile(args.checkjstring(1), "r");
+            shouldClose = true;
+        } else {
+            file = getCurrentInput();
+            shouldClose = false;
+        }
         checkopen(file);
 
-        return new LinesIterFunction(file);
+        return new LinesIterFunction(file, shouldClose);
     }
 
     /**
@@ -235,8 +243,19 @@ public final class IoLib extends LuaModule {
                 break;
             case TSTRING:
                 LuaString fmt = ai.checkstring();
-                if (fmt.length() == 2 && fmt.luaByte(0) == '*') {
-                    switch (fmt.luaByte(1)) {
+                if (fmt.length() > 0) {
+                    int fmtCharIndex = 0;
+
+                    // '*' prefix is optional
+                    if (fmt.luaByte(0) == '*') {
+                        fmtCharIndex++;
+                    }
+
+                    if (fmt.length() <= fmtCharIndex) {
+                        return argerror(i + 1, "(invalid format)");
+                    }
+
+                    switch (fmt.luaByte(fmtCharIndex)) {
                     case 'n':
                         vi = freadnumber(f);
                         break;
@@ -245,6 +264,10 @@ public final class IoLib extends LuaModule {
                         break;
                     case 'a':
                         vi = freadall(f);
+                        // '*a' ignores end-of-file and always succeeds
+                        if (vi.isnil()) {
+                            vi = LuaConstants.EMPTYSTRING;
+                        }
                         break;
                     default:
                         return argerror(i + 1, "(invalid format)");
@@ -346,6 +369,15 @@ public final class IoLib extends LuaModule {
     }
 
     static LuaValue freadbytes(LuaFileHandle f, int count) throws IOException {
+        if (count == 0) {
+            if (f.peek() == -1) {
+                // End of file reached
+                return NIL;
+            } else {
+                return LuaConstants.EMPTYSTRING;
+            }
+        }
+
         byte[] b = new byte[count];
         int r;
         if ((r = f.read(b, 0, b.length)) < 0) {
@@ -377,9 +409,6 @@ public final class IoLib extends LuaModule {
         }
 
         if (c < 0 && baos.size() == 0) {
-            if (!f.isstdfile()) {
-                f.close();
-            }
             return NIL;
         } else {
             return LuaString.valueOf(baos.toByteArray());
@@ -403,16 +432,19 @@ public final class IoLib extends LuaModule {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         freadchars(f, " \t\r\n", null);
         freadchars(f, "-+", baos);
-        // freadchars(f,"0",baos);
-        // freadchars(f,"xX",baos);
+        freadchars(f, "0", baos);
+        freadchars(f, "xX", baos);
         freadchars(f, "0123456789", baos);
         freadchars(f, ".", baos);
         freadchars(f, "0123456789", baos);
-        // freadchars(f,"eEfFgG",baos);
-        // freadchars(f,"+-",baos);
-        // freadchars(f,"0123456789",baos);
-        String s = baos.toString();
-        return s.length() > 0 ? valueOf(Double.parseDouble(s)) : NIL;
+        freadchars(f, "eEfFgG", baos);
+        freadchars(f, "+-", baos);
+        freadchars(f, "0123456789", baos);
+
+        if (baos.size() == 0) {
+            return NIL;
+        }
+        return valueOf(Double.parseDouble(baos.toString("ASCII")));
     }
 
     private static void freadchars(LuaFileHandle f, String chars, ByteArrayOutputStream baos)

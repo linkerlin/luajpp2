@@ -2,6 +2,9 @@ package nl.weeaboo.lua2.stdlib;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,25 +18,35 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(UnsafeLuaFileHandle.class);
 
+    private static final Set<String> openFiles = new CopyOnWriteArraySet<String>();
+
+    private final String fileName;
     private final FileOpenMode mode;
+
+    private FileBufferMode bufferMode = FileBufferMode.NO;
+    private transient ByteBuffer buffer; // Must have a backing array
 
     // Mark file as transient so it 'auto-closes' during serialization
     private transient RandomAccessFile file;
 
-    public UnsafeLuaFileHandle(LuaTable fileMethods, RandomAccessFile file, FileOpenMode mode) {
+    public UnsafeLuaFileHandle(LuaTable fileMethods, String fileName, RandomAccessFile file, FileOpenMode mode) {
         super(fileMethods);
 
+        this.fileName = fileName;
         this.file = file;
         this.mode = mode;
+
+        openFiles.add(fileName);
+        LOG.debug("Opening file: {}", fileName);
     }
 
     @Override
     protected void finalize() throws Throwable {
         try {
             if (file != null) {
-                file.close();
+                doClose();
 
-                LOG.warn("File handle leak closed by finalizer");
+                LOG.warn("File handle leak closed by finalizer: {}", fileName);
             }
         } finally {
             super.finalize();
@@ -60,10 +73,21 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
 
     @Override
     public void close() throws IOException {
+        flushBuffer();
+
         super.close();
 
         if (file != null) {
+            doClose();
+        }
+    }
+
+    private void doClose() throws IOException {
+        LOG.debug("Closing file: {}", fileName);
+        openFiles.remove(fileName);
+        try {
             file.close();
+        } finally {
             file = null;
         }
     }
@@ -76,6 +100,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     @Override
     public int seek(String whence, int bytecount) throws IOException {
         checkOpen();
+        flushBuffer();
 
         if (whence.equals("set")) {
             file.seek(bytecount);
@@ -97,13 +122,20 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     @Override
     public void setvbuf(String mode, int size) throws IOException {
         checkOpen();
+        flushBuffer();
 
-        // Not implemented yet
+        bufferMode = FileBufferMode.fromString(mode);
+        if (bufferMode == FileBufferMode.NO || size == 0) {
+            buffer = null;
+        } else {
+            buffer = ByteBuffer.allocate(size);
+        }
     }
 
     @Override
     public int remaining() throws IOException {
         checkOpen();
+        flushBuffer(); // Not strictly necessary, but it saves us a bit of complexity here.
 
         return (int)Math.min(Integer.MAX_VALUE, file.length() - file.getFilePointer());
     }
@@ -112,6 +144,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     public int peek() throws IOException {
         checkOpen();
         checkReadable();
+        flushBuffer();
 
         long oldpos = file.getFilePointer();
         int r = file.read();
@@ -123,6 +156,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     public int read() throws IOException {
         checkOpen();
         checkReadable();
+        flushBuffer();
 
         return file.read();
     }
@@ -131,6 +165,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     public int read(byte[] bytes, int offset, int length) throws IOException {
         checkOpen();
         checkReadable();
+        flushBuffer();
 
         return file.read(bytes, offset, length);
     }
@@ -140,6 +175,44 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
         checkOpen();
         checkWritable();
 
+        if (buffer == null) {
+            writeToFile(string);
+        } else {
+            writeToBuffer(string);
+        }
+    }
+
+    private void writeToBuffer(LuaString string) throws IOException {
+        for (int n = 0; n < string.rawlen(); n++) {
+            int b = string.luaByte(n);
+            buffer.put((byte)b);
+
+            if (buffer.remaining() == 0 || (bufferMode == FileBufferMode.LINE && b == '\n')) {
+                flushBuffer();
+            }
+        }
+    }
+
+    private void flushBuffer() throws IOException {
+        if (buffer == null || buffer.position() == 0) {
+            return;
+        }
+
+        if (mode.isAppend()) {
+            final long oldpos = file.getFilePointer();
+            file.seek(file.length());
+            try {
+                file.write(buffer.array(), buffer.arrayOffset(), buffer.position());
+            } finally {
+                file.seek(oldpos);
+            }
+        } else {
+            file.write(buffer.array(), buffer.arrayOffset(), buffer.position());
+        }
+        buffer.rewind();
+    }
+
+    private void writeToFile(LuaString string) throws IOException {
         if (mode.isAppend()) {
             final long oldpos = file.getFilePointer();
             file.seek(file.length());

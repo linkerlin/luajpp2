@@ -38,8 +38,8 @@ assert(io.output():seek("end") == string.len("alo joao"))
 
 assert(io.output():seek("set") == 0)
 
-assert(io.write('"álo"', "{a}\n", "second line\n", "third line \n"))
-assert(io.write('çfourth_line'))
+assert(io.write('"Ã¡lo"', "{a}\n", "second line\n", "third line \n"))
+assert(io.write('Ã§fourth_line'))
 io.output(io.stdout)
 collectgarbage()  -- file should be closed by GC
 assert(io.input() == io.stdin and rawequal(io.output(), io.stdout))
@@ -49,7 +49,7 @@ print('+')
 collectgarbage()
 for i=1,120 do
   for i=1,5 do
-    io.input(file)
+    --io.input(file) -- CHANGED for luajpp2 - this file handle is leaked, causing a future os.remove() to fail on Windows because the file is still open
     assert(io.open(file, 'r'))
     io.lines(file)
   end
@@ -84,8 +84,10 @@ assert(not pcall(io.close, f))   -- error trying to close again
 assert(tostring(f) == "file (closed)")
 assert(io.type(f) == "closed file")
 io.input(file)
-f = io.open(otherfile):lines()
+local f2 = io.open(otherfile)
+f = f2:lines()
 for l in io.lines() do assert(l == f()) end
+f2:close() -- ADDED for luajpp2: This line was missing, causing os.remove() to fail on Windows (file still open)
 assert(os.remove(otherfile))
 
 io.input(file)
@@ -94,14 +96,14 @@ do  -- test error returns
   assert(not a and type(b) == "string" and type(c) == "number")
 end
 assert(io.read(0) == "")   -- not eof
-assert(io.read(5, '*l') == '"álo"')
+assert(io.read(6, '*l') == '"Ã¡lo"') -- CHANGED for luajpp2 - we use UTF-8, which is requires multiple bytes for the Ã¡ character
 assert(io.read(0) == "")
 assert(io.read() == "second line")
 local x = io.input():seek()
 assert(io.read() == "third line ")
 assert(io.input():seek("set", x))
 assert(io.read('*l') == "third line ")
-assert(io.read(1) == "ç")
+assert(io.read(2) == "Ã§") -- CHANGED for luajpp2 - we use UTF-8, which is requires multiple bytes for the Ã§ character
 assert(io.read(string.len"fourth_line") == "fourth_line")
 assert(io.input():seek("cur", -string.len"fourth_line"))
 assert(io.read() == "fourth_line")

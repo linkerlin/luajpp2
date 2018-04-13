@@ -22,6 +22,11 @@ final class FileOpenMode implements Serializable {
      * @param mode File mode string compatible with {@code fopen} in C.
      */
     public static FileOpenMode fromString(String mode) throws IOException {
+        // Ignore explicit 'binary mode' -- we open all files in binary mode
+        if (mode.contains("b")) {
+            mode = mode.replaceAll("b", "");
+        }
+
         FileOpenMode result = new FileOpenMode();
         if (mode.equals("r")) {
             result.readable = true;

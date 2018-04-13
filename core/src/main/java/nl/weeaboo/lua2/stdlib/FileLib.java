@@ -10,6 +10,9 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -19,12 +22,15 @@ import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.lib2.LuaLib;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
 public final class FileLib extends LuaLib {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(FileLib.class);
 
     FileLib() {
     }
@@ -79,7 +85,7 @@ public final class FileLib extends LuaLib {
     @LuaBoundFunction
     public Varargs lines(Varargs args) {
         LuaFileHandle file = checkfile(args.arg1());
-        return new LinesIterFunction(file);
+        return new LinesIterFunction(file, false);
     }
 
     /**
@@ -130,23 +136,37 @@ public final class FileLib extends LuaLib {
         private static final long serialVersionUID = 1L;
 
         private final LuaFileHandle file;
+        private final boolean shouldClose;
 
-        public LinesIterFunction(LuaFileHandle file) {
+        public LinesIterFunction(LuaFileHandle file, boolean shouldClose) {
             this.file = file;
+            this.shouldClose = shouldClose;
         }
 
         /** lines iterator(s,var) -> var'. */
         @Override
         public Varargs invoke(Varargs args) {
             try {
-                return IoLib.freadline(file);
+                LuaValue line = IoLib.freadline(file);
+                if (line.isnil()) {
+                    closeFileIfNeeded();
+                }
+                return line;
             } catch (IOException ioe) {
+                closeFileIfNeeded();
+                throw new LuaError("I/O error from lines iterator for: " + file, ioe);
+            }
+        }
+
+        private void closeFileIfNeeded() {
+            if (shouldClose && !file.isstdfile()) {
+                LOG.debug("Closing file after lines() iterator finished: {}", file);
+
                 try {
                     file.close();
                 } catch (IOException e) {
                     // Ignore
                 }
-                throw new LuaError("I/O error from lines iterator for: " + file, ioe);
             }
         }
 

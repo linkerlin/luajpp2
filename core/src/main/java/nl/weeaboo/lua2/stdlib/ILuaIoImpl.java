@@ -36,8 +36,11 @@ interface ILuaIoImpl extends Serializable {
 
     /**
      * Deletes a file
+     *
+     * @return {@code true} if a file existed and was deleted, {@code false} if the file didn't exist.
+     * @throws IOException If the file exists and can't be deleted.
      */
-    void deleteFile(String filename) throws IOException;
+    boolean deleteFile(String filename) throws IOException;
 
     /**
      * Renames a file.

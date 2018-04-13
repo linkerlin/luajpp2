@@ -28,7 +28,7 @@ final class SafeIo implements ILuaIoImpl {
     }
 
     @Override
-    public void deleteFile(String filename) throws IOException {
+    public boolean deleteFile(String filename) throws IOException {
         throw new IOException("deleteFile() is not allowed");
     }
 

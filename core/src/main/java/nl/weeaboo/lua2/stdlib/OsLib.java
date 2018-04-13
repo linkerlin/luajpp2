@@ -6,9 +6,9 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -74,8 +74,7 @@ public final class OsLib extends LuaModule {
     }
 
     /**
-     * Deletes the file or directory with the given name. Directories must be empty to be removed. If this
-     * function fails, it throws and IOException
+     * Deletes the file or directory with the given name. Directories must be empty to be removed.
      *
      * @param args
      *        <ol>
@@ -86,8 +85,11 @@ public final class OsLib extends LuaModule {
     public Varargs remove(Varargs args) {
         String filename = args.checkjstring(1);
         try {
-            ioImpl.deleteFile(filename);
-            return LuaBoolean.TRUE;
+            if (ioImpl.deleteFile(filename)) {
+                return LuaBoolean.TRUE;
+            } else {
+                return NIL;
+            }
         } catch (IOException e) {
             return varargsOf(NIL, valueOf(e.toString()), valueOf(1));
         }
@@ -189,19 +191,27 @@ public final class OsLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs date(Varargs args) {
-        String format = args.optjstring(1, null);
+        String format = args.optjstring(1, "%c"); // Default format: Date and time representation
+
+        TimeZone timeZone;
+        if (format.startsWith("!")) {
+            format = format.substring(1);
+            timeZone = TimeZone.getTimeZone("UTC");
+        } else {
+            timeZone = TimeZone.getDefault();
+        }
 
         Date date;
         if (args.isnil(2)) {
             date = new Date();
         } else {
-            date = new Date(args.checklong(2));
+            date = new Date(args.checklong(2) * 1000L);
         }
 
         if ("*t".equals(format)) {
-            Calendar c = Calendar.getInstance();
+            Calendar c = Calendar.getInstance(timeZone);
             LuaTable t = new LuaTable();
-            t.rawset("year", valueOf(String.format("%04d", c.get(Calendar.YEAR))));
+            t.rawset("year", c.get(Calendar.YEAR));
             t.rawset("month", 1 + c.get(Calendar.MONTH));
             t.rawset("day", c.get(Calendar.DAY_OF_MONTH));
             t.rawset("hour", c.get(Calendar.HOUR_OF_DAY));
@@ -212,8 +222,8 @@ public final class OsLib extends LuaModule {
             t.rawset("isdst", valueOf(c.get(Calendar.DST_OFFSET) != 0));
             return t;
         } else {
-            SimpleDateFormat df = new SimpleDateFormat();
-            return valueOf(df.format(date));
+            DateTimeFormatter formatter = new DateTimeFormatter();
+            return valueOf(formatter.strftime(format, date, timeZone));
         }
     }
 
@@ -225,25 +235,40 @@ public final class OsLib extends LuaModule {
      * @param args <ol>
      *             <li>table
      *             </ol>
-     * @return long value for the time
+     * @return long value for the time (in seconds since the Unix epoch)
      */
     @LuaBoundFunction
     public Varargs time(Varargs args) {
-        // TODO: Support table arg
-        return valueOf(System.currentTimeMillis());
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.MILLISECOND, 0);
+        if (args.istable(1)) {
+            LuaTable t = args.checktable(1);
+            c.set(Calendar.YEAR, t.get("year").checkint());
+            c.set(Calendar.MONTH, t.get("month").checkint() - 1);
+            c.set(Calendar.DAY_OF_MONTH, t.get("day").checkint());
+            c.set(Calendar.HOUR_OF_DAY, t.get("hour").optint(0));
+            c.set(Calendar.MINUTE, t.get("min").optint(0));
+            c.set(Calendar.SECOND, t.get("sec").optint(0));
+            // isdst isn't supported
+        }
+        return valueOf(c.getTimeInMillis() / 1000);
     }
 
     /**
      * Returns the number of seconds from time t1 to time t2. In POSIX, Windows, and some other systems, this
      * value is exactly t2-t1.
      *
+     * @param args <ol>
+     *             <li>t2
+     *             <li>t1
+     *             </ol>
      * @return time difference in seconds
      */
     @LuaBoundFunction
     public Varargs difftime(Varargs args) {
-        long a = args.checklong(1);
-        long b = args.optlong(2, 0);
-        return valueOf(b - a);
+        long t2 = args.checklong(1);
+        long t1 = args.optlong(2, 0);
+        return valueOf(t2 - t1);
     }
 
 }
