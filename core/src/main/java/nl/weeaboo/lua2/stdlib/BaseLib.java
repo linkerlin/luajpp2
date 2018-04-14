@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.compiler.LuaScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
@@ -75,12 +76,16 @@ public final class BaseLib extends LuaLib {
             return LuaInteger.valueOf(0);
         } else if ("count".equals(opt)) {
             Runtime rt = Runtime.getRuntime();
+            rt.gc();
             long used = rt.totalMemory() - rt.freeMemory();
             return valueOf(used / 1024.0);
         } else if ("step".equals(opt)) {
-            System.gc();
-            System.runFinalization();
-            return TRUE;
+            Runtime rt = Runtime.getRuntime();
+            long initialUsed = rt.totalMemory() - rt.freeMemory();
+            rt.gc();
+            rt.runFinalization();
+            // Returns true if a GC-step occurred
+            return valueOf(rt.totalMemory() - rt.freeMemory() < initialUsed);
         } else if ("stop".equals(opt)) {
             // Not implemented
         } else if ("restart".equals(opt)) {

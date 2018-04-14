@@ -187,8 +187,8 @@ final class WeakTable implements IMetatable, Serializable {
 
         @Override
         public int arraykey(int max) {
-            // Integer keys can never be weak.
-            return 0;
+            IStrongSlot first = first();
+            return (first != null ? first.arraykey(max) : 0);
         }
 
         @Override

@@ -435,7 +435,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     /** Set an array element. */
     private boolean arrayset(int key, LuaValue value) {
         if (key > 0 && key <= array.length) {
-            array[key - 1] = value.isnil() ? null : (metatable != null ? metatable.wrap(value) : value);
+            array[key - 1] = value.isnil() ? null : wrap(value);
             return true;
         }
         return false;
@@ -643,7 +643,8 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
                 }
                 index = hashSlot(key);
             }
-            ISlot entry = (metatable != null) ? metatable.entry(key, value) : defaultEntry(key, value);
+
+            ISlot entry = entry(key, value);
             hash[index] = (hash[index] != null) ? hash[index].add(entry) : entry;
             ++hashEntries;
         }
@@ -863,6 +864,29 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             }
         }
 
+        System.out.print("1: ");
+        for (int n = 0; n < array.length; n++) {
+            System.out.print(" ");
+            System.out.print(array[n]);
+        }
+        System.out.println();
+
+        System.out.print("2: ");
+        for (int n = 0; n < hash.length; n++) {
+            System.out.print(" ");
+            if (hash[n] == null) {
+                System.out.print("null");
+            } else {
+                ISlot node = hash[n];
+                while (node != null) {
+                    if (node.first() != null) {
+                        System.out.print(node.first());
+                    }
+                    node = node.rest();
+                }
+            }
+        }
+        System.out.println();
         final LuaValue[] oldArray = array;
         final ISlot[] oldHash = hash;
         final LuaValue[] newArray;
@@ -913,7 +937,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
                 if ((k = slot.arraykey(newArraySize)) > 0) {
                     IStrongSlot entry = slot.first();
                     if (entry != null) {
-                        newArray[k - 1] = entry.value();
+                        newArray[k - 1] = wrap(entry.value());
                     }
                 } else {
                     int j = slot.keyindex(newHashMask);
@@ -943,10 +967,37 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         hash = newHash;
         array = newArray;
         hashEntries -= movingToArray;
+
+        System.out.print("3: ");
+        for (int n = 0; n < array.length; n++) {
+            System.out.print(" ");
+            System.out.print(array[n]);
+        }
+        System.out.println();
+
+        System.out.print("4: ");
+        for (int n = 0; n < hash.length; n++) {
+            System.out.print(" ");
+            if (hash[n] == null) {
+                System.out.print("null");
+            } else {
+                ISlot node = hash[n];
+                while (node != null) {
+                    if (node.first() != null) {
+                        System.out.print(node.first());
+                    }
+                    node = node.rest();
+                }
+            }
+        }
+        System.out.println();
     }
 
     @Override
     public ISlot entry(LuaValue key, LuaValue value) {
+        if (metatable != null) {
+            return metatable.entry(key, value);
+        }
         return defaultEntry(key, value);
     }
 
@@ -1155,6 +1206,9 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     @Override
     public LuaValue wrap(LuaValue value) {
+        if (metatable != null) {
+            return metatable.wrap(value);
+        }
         return value;
     }
 

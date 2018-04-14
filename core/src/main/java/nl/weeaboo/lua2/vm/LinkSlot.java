@@ -24,7 +24,7 @@ final class LinkSlot implements IStrongSlot, Externalizable {
 
     public LinkSlot(Entry entry, ISlot next) {
         this.entry = entry;
-        this.next = next;
+        setNext(next);
     }
 
     @Override
@@ -90,13 +90,13 @@ final class LinkSlot implements IStrongSlot, Externalizable {
             entry = entry.set(value);
             return this;
         } else {
-            return setnext(next.set(target, value));
+            return setNext(next.set(target, value));
         }
     }
 
     @Override
     public ISlot add(ISlot entry) {
-        return setnext(next.add(entry));
+        return setNext(next.add(entry));
     }
 
     @Override
@@ -104,7 +104,7 @@ final class LinkSlot implements IStrongSlot, Externalizable {
         if (this == target) {
             return new DeadSlot(key(), next);
         } else {
-            this.next = next.remove(target);
+            setNext(next.remove(target));
         }
         return this;
     }
@@ -116,7 +116,11 @@ final class LinkSlot implements IStrongSlot, Externalizable {
     }
 
     // this method ensures that this.next is never set to null.
-    private ISlot setnext(ISlot next) {
+    private ISlot setNext(ISlot next) {
+        if (next == this) {
+            throw new IllegalArgumentException("Attempt to link a slot to itself: " + next);
+        }
+
         if (next != null) {
             this.next = next;
             return this;

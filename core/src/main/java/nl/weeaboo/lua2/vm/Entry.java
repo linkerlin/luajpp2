@@ -35,7 +35,8 @@ abstract class Entry extends Varargs implements IStrongSlot, Externalizable {
 
     @Override
     public int arraykey(int max) {
-        return 0;
+        int intKey = key().toint();
+        return (intKey >= 1 && intKey <= max) ? intKey : 0;
     }
 
     @Override
