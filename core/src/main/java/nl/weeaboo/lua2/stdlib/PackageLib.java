@@ -279,12 +279,8 @@ public final class PackageLib extends LuaModule {
                 }
                 String template = path.substring(b, e);
 
-                // create filename
-                int q = template.indexOf('?');
-                String filename = template;
-                if (q >= 0) {
-                    filename = template.substring(0, q) + name + template.substring(q + 1);
-                }
+                // create filename by replacing wildcards
+                String filename = template.replace("?", name);
 
                 // try loading the file
                 Varargs v = LuaScriptLoader.loadFile(filename);

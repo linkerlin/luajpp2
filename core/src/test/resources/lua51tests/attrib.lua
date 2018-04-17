@@ -16,7 +16,9 @@ assert(type(package.loaded) == "table")
 assert(type(package.preload) == "table")
 
 
-local DIR = "libs/"
+-- Modified for luajpp2 - output to temp folder instead of local folder
+local DIR = os.tmpname():match("(.*[\\/])")
+print(DIR)
 
 local function createfiles (files, preextras, posextras)
   for n,c in pairs(files) do
