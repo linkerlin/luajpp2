@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
@@ -29,6 +29,13 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import nl.weeaboo.lua2.vm.LuaInteger;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.TableTester;
+import nl.weeaboo.lua2.vm.Varargs;
 
 public class TableTest {
 
@@ -54,10 +61,10 @@ public class TableTest {
         }
 
         // Ensure capacities make sense
-        Assert.assertEquals(0, t.getHashLength());
+        Assert.assertEquals(0, TableTester.getHashLength(t));
 
-        Assert.assertTrue(t.getArrayLength() >= 32);
-        Assert.assertTrue(t.getArrayLength() <= 64);
+        Assert.assertTrue(TableTester.getArrayLength(t) >= 32);
+        Assert.assertTrue(TableTester.getArrayLength(t) <= 64);
 
     }
 
@@ -77,9 +84,9 @@ public class TableTest {
             Assert.assertEquals(LuaInteger.valueOf(i), t.get(i));
         }
 
-        Assert.assertTrue(t.getArrayLength() >= 3);
-        Assert.assertTrue(t.getArrayLength() <= 12);
-        Assert.assertTrue(t.getHashLength() <= 3);
+        Assert.assertTrue(TableTester.getArrayLength(t) >= 3);
+        Assert.assertTrue(TableTester.getArrayLength(t) <= 12);
+        Assert.assertTrue(TableTester.getHashLength(t) <= 3);
     }
 
     @Test
@@ -96,8 +103,8 @@ public class TableTest {
         }
 
         // Ensure capacities make sense
-        Assert.assertEquals(32, t.getArrayLength());
-        Assert.assertEquals(0, t.getHashLength());
+        Assert.assertEquals(32, TableTester.getArrayLength(t));
+        Assert.assertEquals(0, TableTester.getHashLength(t));
     }
 
     @Test
@@ -110,10 +117,11 @@ public class TableTest {
             t.set(str, LuaInteger.valueOf(i));
         }
 
-        Assert.assertTrue(t.getArrayLength() >= 8); // 1, 2, ..., 9
-        Assert.assertTrue(t.getArrayLength() <= 16);
-        Assert.assertTrue(t.getHashLength() >= 11); // 0, "0", "1", ..., "9"
-        Assert.assertTrue(t.getHashLength() <= 33);
+        Assert.assertTrue(TableTester.getArrayLength(t) >= 8); // 1, 2, ..., 9
+        Assert.assertTrue(TableTester.getArrayLength(t) <= 16);
+        Assert.assertTrue("was: " + TableTester.getHashLength(t),
+                TableTester.getHashLength(t) >= 11); // 0, "0", "1", ..., "9"
+        Assert.assertTrue(TableTester.getHashLength(t) <= 33);
 
         LuaValue[] keys = t.keys();
 
@@ -235,9 +243,9 @@ public class TableTest {
         t.set("cc", "ccc");
         t.set("dd", "ddd");
 
-        Assert.assertEquals(4, t.getArrayLength());
-        Assert.assertTrue(t.getHashLength() < 10);
-        Assert.assertEquals(5, t.hashEntries);
+        Assert.assertEquals(4, TableTester.getArrayLength(t));
+        Assert.assertTrue(TableTester.getHashLength(t) < 10);
+        Assert.assertEquals(5, TableTester.getHashEntries(t));
         Assert.assertEquals("one", t.get(1).tojstring());
         Assert.assertEquals("two", t.get(2).tojstring());
         Assert.assertEquals(NIL, t.get(3));

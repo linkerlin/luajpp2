@@ -1,20 +1,25 @@
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.TableTester;
+
 public class WeakValueTableTest extends WeakTableTest {
 
     @Override
     protected LuaTable newTable() {
-        return WeakTable.make(false, true);
+        return TableTester.newWeakTable(false, true);
     }
 
     @Override
     protected LuaTable newTable(int narray, int nhash) {
-        return WeakTable.make(false, true);
+        return TableTester.newWeakTable(false, true);
     }
 
     @Test
@@ -31,8 +36,8 @@ public class WeakValueTableTest extends WeakTableTest {
         t.set("string", stringValue);
         t.set("string2", LuaValue.valueOf("another string"));
         t.set(1, tableValue2);
-        Assert.assertTrue("table must have at least 4 elements", t.getHashLength() >= 4);
-        Assert.assertTrue("array part must have 1 element", t.getArrayLength() >= 1);
+        Assert.assertTrue("table must have at least 4 elements", TableTester.getHashLength(t) >= 4);
+        Assert.assertTrue("array part must have 1 element", TableTester.getArrayLength(t) >= 1);
 
         // check that table can be used to get elements
         Assert.assertEquals(tableValue, t.get("table"));

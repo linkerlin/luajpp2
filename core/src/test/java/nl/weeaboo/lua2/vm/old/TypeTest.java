@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
@@ -36,6 +36,17 @@ import org.junit.Test;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaFunction;
+import nl.weeaboo.lua2.vm.LuaInteger;
+import nl.weeaboo.lua2.vm.LuaNumber;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaUserdata;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Prototype;
 
 public class TypeTest {
 
@@ -931,7 +942,7 @@ public class TypeTest {
             Assert.fail("did not throw bad type error");
             Assert.assertTrue(o instanceof MyData);
         } catch (LuaError le) {
-            Assert.assertEquals("nl.weeaboo.lua2.vm.TypeTest$MyData expected, got userdata", le.getMessage());
+            Assert.assertEquals(MyData.class.getName() + " expected, got userdata", le.getMessage());
         }
     }
 
@@ -1293,7 +1304,7 @@ public class TypeTest {
             Assert.fail("did not throw bad type error");
             Assert.assertTrue(o instanceof MyData);
         } catch (LuaError le) {
-            Assert.assertEquals("nl.weeaboo.lua2.vm.TypeTest$MyData expected, got userdata", le.getMessage());
+            Assert.assertEquals(MyData.class.getName() + " expected, got userdata", le.getMessage());
         }
     }
 

@@ -864,29 +864,6 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             }
         }
 
-        System.out.print("1: ");
-        for (int n = 0; n < array.length; n++) {
-            System.out.print(" ");
-            System.out.print(array[n]);
-        }
-        System.out.println();
-
-        System.out.print("2: ");
-        for (int n = 0; n < hash.length; n++) {
-            System.out.print(" ");
-            if (hash[n] == null) {
-                System.out.print("null");
-            } else {
-                ISlot node = hash[n];
-                while (node != null) {
-                    if (node.first() != null) {
-                        System.out.print(node.first());
-                    }
-                    node = node.rest();
-                }
-            }
-        }
-        System.out.println();
         final LuaValue[] oldArray = array;
         final ISlot[] oldHash = hash;
         final LuaValue[] newArray;
@@ -967,30 +944,6 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         hash = newHash;
         array = newArray;
         hashEntries -= movingToArray;
-
-        System.out.print("3: ");
-        for (int n = 0; n < array.length; n++) {
-            System.out.print(" ");
-            System.out.print(array[n]);
-        }
-        System.out.println();
-
-        System.out.print("4: ");
-        for (int n = 0; n < hash.length; n++) {
-            System.out.print(" ");
-            if (hash[n] == null) {
-                System.out.print("null");
-            } else {
-                ISlot node = hash[n];
-                while (node != null) {
-                    if (node.first() != null) {
-                        System.out.print(node.first());
-                    }
-                    node = node.rest();
-                }
-            }
-        }
-        System.out.println();
     }
 
     @Override
@@ -1267,4 +1220,35 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return NIL;
     }
 
+    @Override
+    public String tojstring() {
+        // TODO: This is for debugging only, remove it
+        return toDetailString();
+    }
+
+    public String toDetailString() {
+        StringBuilder sb = new StringBuilder(super.tojstring());
+
+        sb.append(" {\n array =");
+        for (int n = 0; n < array.length; n++) {
+            sb.append(" ").append(array[n]);
+        }
+
+        sb.append("\n  hash =");
+        for (int n = 0; n < hash.length; n++) {
+            sb.append(" ");
+            if (hash[n] == null) {
+                sb.append("null");
+            } else {
+                sb.append(hash[n]);
+            }
+        }
+        sb.append("\n}");
+
+        if (length() >= 2) {
+            System.out.println(" > " + sb);
+        }
+
+        return sb.toString();
+    }
 }

@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
 import static nl.weeaboo.lua2.vm.LuaConstants.TNUMBER;
@@ -33,6 +33,11 @@ import org.junit.Test;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.TableTester;
+import nl.weeaboo.lua2.vm.Varargs;
 
 /**
  * Tests for tables used as lists.
@@ -56,7 +61,7 @@ public class TableHashTest {
     public void testSetRemove() {
         LuaTable t = new_Table();
 
-        Assert.assertEquals(0, t.getHashLength());
+        Assert.assertEquals(0, TableTester.getHashLength(t));
         Assert.assertEquals(0, t.length());
         Assert.assertEquals(0, t.keyCount());
 
@@ -64,13 +69,13 @@ public class TableHashTest {
                 "hi", "jk", "lm", "no", "pq", "rs", };
         int[] capacities = { 0, 2, 2, 4, 4, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 32, 32, 32 };
         for (int i = 0; i < keys.length; ++i) {
-            Assert.assertEquals(capacities[i], t.getHashLength());
+            Assert.assertEquals(capacities[i], TableTester.getHashLength(t));
             String si = "Test Value! " + i;
             t.set(keys[i], si);
             Assert.assertEquals(0, t.length());
             Assert.assertEquals(i + 1, t.keyCount());
         }
-        Assert.assertEquals(capacities[keys.length], t.getHashLength());
+        Assert.assertEquals(capacities[keys.length], TableTester.getHashLength(t));
         for (int i = 0; i < keys.length; ++i) {
             LuaValue vi = LuaString.valueOf("Test Value! " + i);
             Assert.assertEquals(vi, t.get(keys[i]));
@@ -84,7 +89,7 @@ public class TableHashTest {
             t.set(keys[i], LuaString.valueOf("Replacement Value! " + i));
             Assert.assertEquals(0, t.length());
             Assert.assertEquals(keys.length, t.keyCount());
-            Assert.assertEquals(capacities[keys.length], t.getHashLength());
+            Assert.assertEquals(capacities[keys.length], TableTester.getHashLength(t));
         }
         for (int i = 0; i < keys.length; ++i) {
             LuaValue vi = LuaString.valueOf("Replacement Value! " + i);
@@ -97,9 +102,9 @@ public class TableHashTest {
             Assert.assertEquals(0, t.length());
             Assert.assertEquals(keys.length - i - 1, t.keyCount());
             if (i < keys.length - 1) {
-                Assert.assertEquals(capacities[keys.length], t.getHashLength());
+                Assert.assertEquals(capacities[keys.length], TableTester.getHashLength(t));
             } else {
-                Assert.assertTrue(0 <= t.getHashLength());
+                Assert.assertTrue(0 <= TableTester.getHashLength(t));
             }
         }
         for (int i = 0; i < keys.length; ++i) {

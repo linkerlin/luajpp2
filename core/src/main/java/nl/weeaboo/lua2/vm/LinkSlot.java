@@ -112,7 +112,7 @@ final class LinkSlot implements IStrongSlot, Externalizable {
     @Override
     public ISlot relink(ISlot rest) {
         // This method is (only) called during rehash, so it must not change this.next.
-        return (rest != null) ? new LinkSlot(entry, rest) : (ISlot)entry;
+        return (rest != null) ? new LinkSlot(entry, rest) : entry;
     }
 
     // this method ensures that this.next is never set to null.

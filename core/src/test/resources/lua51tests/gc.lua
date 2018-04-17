@@ -193,16 +193,17 @@ a[string.rep('$', 11)] = string.rep('$', 11)
 for i=4,lim do a[i] = {} end
 for i=1,lim do a[{}] = i end
 for i=1,lim do local t={}; a[t]=t end
-a[{}] = 999 *** The last table key I use will for some reason not be garbage collected. Is it leaked on the stack?
 collectgarbage()
 assert(next(a) ~= nil)
 local i = 0
 for k,v in pairs(a) do
+    print(i, k, v)
   assert((k == 1 and v == x) or
          (k == 2 and v == y) or
-         (k == 3 and v == z) or k==v);
+         (k == 3 and v == z) or k==v)
   i = i+1
 end
+print(a)
 assert(i == 4)
 x,y,z=nil
 collectgarbage()

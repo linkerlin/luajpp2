@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import nl.weeaboo.lua2.vm.LuaString;
 
 public class StringTest {
 

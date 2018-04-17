@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
@@ -7,21 +7,25 @@ import java.lang.ref.WeakReference;
 import org.junit.Assert;
 import org.junit.Test;
 
+import nl.weeaboo.lua2.vm.LuaTable;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.TableTester;
+
 public class WeakKeyValueTableTest extends WeakTableTest {
 
     @Override
     protected LuaTable newTable() {
-        return WeakTable.make(true, true);
+        return TableTester.newWeakTable(true, true);
     }
 
     @Override
     protected LuaTable newTable(int narray, int nhash) {
-        return WeakTable.make(true, true);
+        return TableTester.newWeakTable(true, true);
     }
 
     @Test
     public void testWeakKeysValuesTable() {
-        LuaTable t = WeakTable.make(true, true);
+        LuaTable t = TableTester.newWeakTable(true, true);
 
         LuaValue key = LuaValue.userdataOf(new MyData(111));
         LuaValue val = LuaValue.userdataOf(new MyData(222));
@@ -75,7 +79,7 @@ public class WeakKeyValueTableTest extends WeakTableTest {
 
     @Test
     public void testReplace() {
-        LuaTable t = WeakTable.make(true, true);
+        LuaTable t = TableTester.newWeakTable(true, true);
 
         LuaValue key = LuaValue.userdataOf(new MyData(111));
         LuaValue val = LuaValue.userdataOf(new MyData(222));
