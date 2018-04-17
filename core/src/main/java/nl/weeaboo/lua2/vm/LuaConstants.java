@@ -87,6 +87,7 @@ public final class LuaConstants {
     public static final LuaString META_LT = valueOf("__lt");
     public static final LuaString META_LE = valueOf("__le");
     public static final LuaString META_TOSTRING = valueOf("__tostring");
+    public static final LuaValue META_GC = valueOf("__gc");
     public static final LuaString META_CONCAT = valueOf("__concat");
     public static final LuaString EMPTYSTRING = valueOf("");
     public static final LuaString NEXT = valueOf("next");
@@ -94,6 +95,7 @@ public final class LuaConstants {
 
     /** Limit on lua stack size. */
     public static final int MAXSTACK = 250;
+
 
     private LuaConstants() {
     }

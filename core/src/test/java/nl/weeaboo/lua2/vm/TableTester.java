@@ -18,4 +18,17 @@ public final class TableTester {
         return table.hashEntries;
     }
 
+    public static void collectGarbage() {
+        // Attempt to force a full GC
+        for (int n = 0; n < 10; n++) {
+            System.gc();
+            System.runFinalization();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
+    }
+
 }
