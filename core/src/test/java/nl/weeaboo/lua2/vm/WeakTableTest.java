@@ -1,62 +1,55 @@
-/*******************************************************************************
- * Copyright (c) 2009 Luaj.org. All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- ******************************************************************************/
-
 package nl.weeaboo.lua2.vm;
 
-public abstract class WeakTableTest extends TableTest {
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-    public static class MyData {
-        public final int value;
+public final class WeakTableTest {
 
-        public MyData(int value) {
-            this.value = value;
-        }
+    private LuaTable table;
 
-        @Override
-        public int hashCode() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return (o instanceof MyData) && ((MyData)o).value == value;
-        }
-
-        @Override
-        public String toString() {
-            return "mydata-" + value;
-        }
+    @Before
+    public void before() {
+        table = TableTester.newWeakTable(true, true);
     }
 
-    static void collectGarbage() {
-        Runtime rt = Runtime.getRuntime();
-        rt.gc();
-        try {
-            Thread.sleep(20);
-            rt.gc();
-            Thread.sleep(20);
-        } catch (Exception e) {
-            e.printStackTrace();
+    /**
+     * Check that weak values are garbage collected, and that when they're garbage collected they actually
+     * disappear from the table.
+     */
+    @Test
+    public void testWeakValueAutoGC() {
+        LuaInteger i1 = LuaInteger.valueOf(1);
+        LuaInteger i2 = LuaInteger.valueOf(2);
+        LuaInteger i3 = LuaInteger.valueOf(3);
+        LuaTable a = new LuaTable();
+        LuaTable b = new LuaTable();
+        LuaTable c = new LuaTable();
+        LuaString s = LuaString.valueOf("short-string");
+        table.set(i1, a);
+        table.set(i2, b);
+        table.set(i3, c);
+        table.set(s, s);
+
+        for (int i = 4; i < 10; i++) {
+            // Collectible value
+            table.set(i, new LuaTable());
+
+            // Collectible key
+            table.set(new LuaTable(), LuaInteger.valueOf(i));
+
+            // Collectible key+value
+            LuaTable t = new LuaTable();
+            table.set(t, t);
         }
-        rt.gc();
+
+        TableTester.collectGarbage();
+
+        /*
+         * Only key/value combinations remaining are where both key and value are still available as local
+         * variables in this method.
+         */
+        Assert.assertArrayEquals(new LuaValue[] {i1, i2, i3, s}, table.keys());
     }
+
 }

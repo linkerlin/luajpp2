@@ -20,13 +20,17 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Varargs;
 
 /**
  * Tests of basic unary and binary operators on main value types.
@@ -50,15 +54,15 @@ public class VarargsTest {
     static Varargs E_G = LuaValue.varargsOf(new LuaValue[] { E, F, G });
     static Varargs FG = LuaValue.varargsOf(new LuaValue[] { F, G });
     static LuaValue[] Z_H_array = {Z, A, B, C, D, E, F, G, H };
-    static Varargs A_G_alt = new ArrayPartVarargs(Z_H_array, 1, 7);
-    static Varargs B_E_alt = new ArrayPartVarargs(Z_H_array, 2, 4);
-    static Varargs C_G_alt = new ArrayPartVarargs(Z_H_array, 3, 5);
-    static Varargs C_E_alt = new ArrayPartVarargs(Z_H_array, 3, 3);
+    static Varargs A_G_alt = LuaValue.varargsOf(Z_H_array, 1, 7);
+    static Varargs B_E_alt = LuaValue.varargsOf(Z_H_array, 2, 4);
+    static Varargs C_G_alt = LuaValue.varargsOf(Z_H_array, 3, 5);
+    static Varargs C_E_alt = LuaValue.varargsOf(Z_H_array, 3, 3);
     static Varargs C_E_alt2 = LuaValue.varargsOf(C, D, E);
-    static Varargs DE_alt = new PairVarargs(D,E);
-    static Varargs DE_alt2 = LuaValue.varargsOf(D,E);
-    static Varargs E_G_alt = new ArrayPartVarargs(Z_H_array, 5, 3);
-    static Varargs FG_alt = new PairVarargs(F, G);
+    static Varargs DE_alt = LuaValue.varargsOf(D, E);
+    static Varargs DE_alt2 = LuaValue.varargsOf(D, E);
+    static Varargs E_G_alt = LuaValue.varargsOf(Z_H_array, 5, 3);
+    static Varargs FG_alt = LuaValue.varargsOf(F, G);
 
     static void expectEquals(Varargs x, Varargs y) {
         Assert.assertEquals(x.narg(), y.narg());
@@ -175,29 +179,29 @@ public class VarargsTest {
 
     @Test
     public void testPairVarargsMore() {
-        Varargs ag = new PairVarargs(A,
-                    new PairVarargs(B,
-                    new PairVarargs(C,
-                    new PairVarargs(D,
-                    new PairVarargs(E,
-                    new PairVarargs(F, G))))));
+        Varargs ag = LuaValue.varargsOf(A,
+                    LuaValue.varargsOf(B,
+                    LuaValue.varargsOf(C,
+                    LuaValue.varargsOf(D,
+                    LuaValue.varargsOf(E,
+                    LuaValue.varargsOf(F, G))))));
         standardTestsA_G(ag);
     }
 
     @Test
     public void testArrayPartMore() {
         Varargs ag;
-        ag = new ArrayPartVarargs(Z_H_array, 1, 1, new ArrayPartVarargs(Z_H_array, 2, 6));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 1, LuaValue.varargsOf(Z_H_array, 2, 6));
         standardTestsA_G(ag);
-        ag = new ArrayPartVarargs(Z_H_array, 1, 2, new ArrayPartVarargs(Z_H_array, 3, 5));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 2, LuaValue.varargsOf(Z_H_array, 3, 5));
         standardTestsA_G(ag);
-        ag = new ArrayPartVarargs(Z_H_array, 1, 3, new ArrayPartVarargs(Z_H_array, 4, 4));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 3, LuaValue.varargsOf(Z_H_array, 4, 4));
         standardTestsA_G(ag);
-        ag = new ArrayPartVarargs(Z_H_array, 1, 4, new ArrayPartVarargs(Z_H_array, 5, 3));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 4, LuaValue.varargsOf(Z_H_array, 5, 3));
         standardTestsA_G(ag);
-        ag = new ArrayPartVarargs(Z_H_array, 1, 5, new ArrayPartVarargs(Z_H_array, 6, 2));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 5, LuaValue.varargsOf(Z_H_array, 6, 2));
         standardTestsA_G(ag);
-        ag = new ArrayPartVarargs(Z_H_array, 1, 6, new ArrayPartVarargs(Z_H_array, 7, 1));
+        ag = LuaValue.varargsOf(Z_H_array, 1, 6, LuaValue.varargsOf(Z_H_array, 7, 1));
         standardTestsA_G(ag);
     }
 

@@ -187,8 +187,8 @@ final class WeakTable implements IMetatable, Serializable {
 
         @Override
         public int arraykey(int max) {
-            // Integer keys can never be weak.
-            return 0;
+            IStrongSlot first = first();
+            return (first != null ? first.arraykey(max) : 0);
         }
 
         @Override
@@ -237,6 +237,13 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         protected abstract WeakSlot copy(ISlot next);
+
+        @Override
+        public String toString() {
+            return String.format("%s[value=%s, next=%s]",
+                    getClass().getSimpleName(), value, next);
+        }
+
     }
 
     @LuaSerializable
@@ -248,6 +255,7 @@ final class WeakTable implements IMetatable, Serializable {
 
         protected WeakKeySlot(LuaValue key, LuaValue value, ISlot next) {
             super(weaken(key), value, next);
+
             keyhash = key.hashCode();
         }
 

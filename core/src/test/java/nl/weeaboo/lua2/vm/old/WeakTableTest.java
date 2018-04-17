@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Luaj.org. All rights reserved.
+ * Copyright (c) 2009 Luaj.org. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,36 +20,43 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2.vm.old;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+public abstract class WeakTableTest extends TableTest {
 
-import nl.weeaboo.lua2.LuaException;
-import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaUtil;
-import nl.weeaboo.lua2.link.LuaLink;
+    public static class MyData {
+        public final int value;
 
-public class UTF8StreamTest {
+        public MyData(int value) {
+            this.value = value;
+        }
 
-    private LuaRunState lrs;
+        @Override
+        public int hashCode() {
+            return value;
+        }
 
-    @Before
-    public void before() throws LuaException {
-        lrs = LuaRunState.create();
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof MyData) && ((MyData)o).value == value;
+        }
+
+        @Override
+        public String toString() {
+            return "mydata-" + value;
+        }
     }
 
-    @Test
-    public void testUtf8CharsInStream() throws LuaException {
-        String value = "98\u00b0: today's temp!"; // \u00b0 is the degree sign
-        String script = "x = \"" + value + "\"\n"
-                + "print('x = ', x)\n"
-                + "return x";
-
-        LuaLink link = new LuaLink(lrs);
-        String str = LuaUtil.eval(link, script).tojstring(1);
-        Assert.assertEquals(value, str);
+    static void collectGarbage() {
+        Runtime rt = Runtime.getRuntime();
+        rt.gc();
+        try {
+            Thread.sleep(20);
+            rt.gc();
+            Thread.sleep(20);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        rt.gc();
     }
-
 }

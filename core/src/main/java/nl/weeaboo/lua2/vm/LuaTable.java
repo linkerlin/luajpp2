@@ -435,7 +435,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     /** Set an array element. */
     private boolean arrayset(int key, LuaValue value) {
         if (key > 0 && key <= array.length) {
-            array[key - 1] = value.isnil() ? null : (metatable != null ? metatable.wrap(value) : value);
+            array[key - 1] = value.isnil() ? null : wrap(value);
             return true;
         }
         return false;
@@ -643,7 +643,8 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
                 }
                 index = hashSlot(key);
             }
-            ISlot entry = (metatable != null) ? metatable.entry(key, value) : defaultEntry(key, value);
+
+            ISlot entry = entry(key, value);
             hash[index] = (hash[index] != null) ? hash[index].add(entry) : entry;
             ++hashEntries;
         }
@@ -913,7 +914,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
                 if ((k = slot.arraykey(newArraySize)) > 0) {
                     IStrongSlot entry = slot.first();
                     if (entry != null) {
-                        newArray[k - 1] = entry.value();
+                        newArray[k - 1] = wrap(entry.value());
                     }
                 } else {
                     int j = slot.keyindex(newHashMask);
@@ -947,6 +948,9 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     @Override
     public ISlot entry(LuaValue key, LuaValue value) {
+        if (metatable != null) {
+            return metatable.entry(key, value);
+        }
         return defaultEntry(key, value);
     }
 
@@ -1155,6 +1159,9 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     @Override
     public LuaValue wrap(LuaValue value) {
+        if (metatable != null) {
+            return metatable.wrap(value);
+        }
         return value;
     }
 
@@ -1213,4 +1220,35 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return NIL;
     }
 
+    @Override
+    public String tojstring() {
+        // TODO: This is for debugging only, remove it
+        return toDetailString();
+    }
+
+    public String toDetailString() {
+        StringBuilder sb = new StringBuilder(super.tojstring());
+
+        sb.append(" {\n array =");
+        for (int n = 0; n < array.length; n++) {
+            sb.append(" ").append(array[n]);
+        }
+
+        sb.append("\n  hash =");
+        for (int n = 0; n < hash.length; n++) {
+            sb.append(" ");
+            if (hash[n] == null) {
+                sb.append("null");
+            } else {
+                sb.append(hash[n]);
+            }
+        }
+        sb.append("\n}");
+
+        if (length() >= 2) {
+            System.out.println(" > " + sb);
+        }
+
+        return sb.toString();
+    }
 }

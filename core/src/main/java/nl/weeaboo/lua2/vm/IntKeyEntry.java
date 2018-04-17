@@ -38,7 +38,7 @@ final class IntKeyEntry extends Entry {
 
     @Override
     public LuaValue key() {
-        return LuaTable.valueOf(key);
+        return LuaInteger.valueOf(key);
     }
 
     @Override
