@@ -95,7 +95,8 @@ removefiles(files)
 
 
 -- testing require of sub-packages
-
+-- Disabled for luajpp2 - unable to create folder structure in temp folder
+--[[
 package.path = string.gsub("D/?.lua;D/?/init.lua", "D/", DIR)
 
 files = {
@@ -120,7 +121,7 @@ assert(require"P1" == P1)
 assert(P1.xuxu._PACKAGE == "P1.")
 assert(P1.AA == 10 and P1._PACKAGE == "")
 assert(P1._G == _G and P1.xuxu._G == _G)
-
+]]
 
 
 removefiles(files)

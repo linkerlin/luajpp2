@@ -57,6 +57,7 @@ public final class PackageLib extends LuaModule {
         packageTable.rawset(S_CPATH, valueOf(""));
 
         packageTable.rawset(S_LOADERS, listOf(new LuaValue[] {
+                new PreloadLoader(packageTable),
                 new LuaLoader(packageTable)
         }));
 
@@ -240,6 +241,36 @@ public final class PackageLib extends LuaModule {
             }
         } while (e < fname.length());
         return table;
+    }
+
+    @LuaSerializable
+    private static final class PreloadLoader extends VarArgFunction {
+
+        private static final long serialVersionUID = 1L;
+
+        private final LuaTable packageTable;
+
+        public PreloadLoader(LuaTable packageTable) {
+            this.packageTable = packageTable;
+        }
+
+        @Override
+        public Varargs invoke(Varargs args) {
+            LuaString name = args.checkstring(1);
+
+            LuaValue preloadTable = packageTable.get(S_PRELOAD);
+            if (!preloadTable.istable()) {
+                throw new LuaError("'package.preload' must be a table");
+            }
+
+            LuaValue entry = preloadTable.get(name);
+            if (entry.isnil()) {
+                return valueOf("no field package.preload['" + name + "']");
+            } else {
+                return entry;
+            }
+        }
+
     }
 
     @LuaSerializable
