@@ -250,7 +250,7 @@ public final class DebugLib extends LuaModule {
         if (func.isnumber()) {
             int level = func.checkint();
             if (level > 0) {
-                di = ds.getDebugInfo(level + 1);
+                di = ds.getDebugInfo(level);
             } else {
                 di = new DebugInfo(thread.getCallstackFunction(1));
             }
