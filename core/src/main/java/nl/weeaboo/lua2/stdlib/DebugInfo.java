@@ -85,11 +85,7 @@ final class DebugInfo implements Externalizable {
     }
 
     public LuaString[] getfunckind() {
-        int stackpos = getStackPos();
-        if (stackpos < 0) {
-            return null;
-        }
-        return DebugTrace.getobjname(this, stackpos);
+        return DebugTrace.getobjname(this, getStackPos());
     }
 
     int getStackPos() {
@@ -124,9 +120,6 @@ final class DebugInfo implements Externalizable {
     }
 
     public String tracename() {
-        // if ( func != null )
-        // return func.tojstring();
-
         LuaString[] kind = getfunckind();
         if (kind == null || kind.length <= 0) {
             return "function ?";

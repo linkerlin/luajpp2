@@ -242,15 +242,17 @@ public final class DebugLib extends LuaModule {
         int a = 1;
         LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
         LuaValue func = args.arg(a++);
-        String what = args.optjstring(a++, "nSluf");
+        final String what = args.optjstring(a++, "nSluf");
 
         // find the stack info
         DebugState ds = getDebugState(thread);
         DebugInfo di = null;
+        LuaString[] namewhat = null;
         if (func.isnumber()) {
             int level = func.checkint();
             if (level > 0) {
-                di = ds.getDebugInfo(level + 1);
+                di = ds.getDebugInfo(level);
+                namewhat = ds.getDebugInfo(level + 1).getfunckind();
             } else {
                 di = new DebugInfo(thread.getCallstackFunction(1));
             }
@@ -294,9 +296,8 @@ public final class DebugLib extends LuaModule {
                 break;
             }
             case 'n': {
-                LuaString[] kind = di.getfunckind();
-                info.set(NAME, kind != null ? kind[0] : NIL);
-                info.set(NAMEWHAT, kind != null ? kind[1] : EMPTYSTRING);
+                info.set(NAME, namewhat != null ? namewhat[0] : NIL);
+                info.set(NAMEWHAT, namewhat != null ? namewhat[1] : EMPTYSTRING);
                 break;
             }
             case 'f': {
