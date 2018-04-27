@@ -252,7 +252,11 @@ public final class DebugLib extends LuaModule {
             int level = func.checkint();
             if (level > 0) {
                 di = ds.getDebugInfo(level);
-                namewhat = ds.getDebugInfo(level + 1).getfunckind();
+
+                DebugInfo parentInfo = ds.getDebugInfo(level + 1);
+                if (parentInfo != null) {
+                    namewhat = parentInfo.getfunckind();
+                }
             } else {
                 di = new DebugInfo(thread.getCallstackFunction(1));
             }

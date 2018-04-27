@@ -8,10 +8,10 @@ public class LuaError extends RuntimeException {
 
     private static final long serialVersionUID = 1657137595545123245L;
 
-    private static final String DEFAULT_MESSAGE = "Lua error";
+    private static final LuaString DEFAULT_MESSAGE = LuaString.valueOf("Lua error");
     private static final int MAX_LEVELS = 8;
 
-    private String message;
+    private LuaValue message;
     private Throwable cause;
 
     public LuaError() {
@@ -19,6 +19,10 @@ public class LuaError extends RuntimeException {
     }
 
     public LuaError(String message) {
+        this(LuaString.valueOf(message));
+    }
+
+    public LuaError(LuaValue message) {
         this(message, null, 0);
     }
 
@@ -27,18 +31,22 @@ public class LuaError extends RuntimeException {
     }
 
     public LuaError(String message, Throwable c) {
+        this(LuaString.valueOf(message), c);
+    }
+
+    public LuaError(LuaValue message, Throwable c) {
         this(message, c, 0);
     }
 
-    public LuaError(String message, Throwable c, int level) {
+    public LuaError(LuaValue message, Throwable c, int level) {
         super();
 
-        this.message = message;
+        this.message = (message != null ? message : LuaNil.NIL);
         this.cause = c;
 
         if (c instanceof LuaError) {
             // Wrap existing exception
-            this.message = c.getMessage();
+            this.message = ((LuaError)c).getMessageObject();
             this.cause = null;
             setStackTrace(c.getStackTrace());
         } else if (level >= 0) {
@@ -73,6 +81,10 @@ public class LuaError extends RuntimeException {
 
     @Override
     public String getMessage() {
+        return String.valueOf(message);
+    }
+
+    public LuaValue getMessageObject() {
         return message;
     }
 

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.compiler.LuaScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
@@ -124,8 +123,7 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs error(Varargs args) {
-        String message = args.optjstring(1, null);
-        throw new LuaError(message, null, args.optint(2, 1));
+        throw new LuaError(args.arg(1), null, args.optint(2, 1));
     }
 
     /**
@@ -251,8 +249,7 @@ public final class BaseLib extends LuaLib {
             return varargsOf(TRUE, funcResult);
         } catch (LuaError le) {
             LOG.trace("Error in pcall: {} {}", func, args, le);
-            String m = le.getMessage();
-            return varargsOf(FALSE, m != null ? valueOf(m) : NIL);
+            return varargsOf(FALSE, le.getMessageObject());
         } catch (Exception e) {
             LOG.debug("Error in pcall: {} {}", func, args, e);
             String m = e.getMessage();

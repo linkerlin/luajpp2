@@ -47,7 +47,7 @@ public final class CoroutineLib extends LuaModule {
             return varargsOf(LuaBoolean.TRUE, result);
         } catch (LuaError e) {
             LOG.trace("Unable to resume coroutine: {}", t, e);
-            return varargsOf(LuaBoolean.FALSE, valueOf(e.getMessage()));
+            return varargsOf(LuaBoolean.FALSE, e.getMessageObject());
         }
     }
 

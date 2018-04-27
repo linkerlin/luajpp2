@@ -320,6 +320,11 @@ final class LuaInterpreter {
                         sf.parentCount++;
 
                         pc = sf.pc;
+
+                        if (thread.isSuspended()) {
+                            return v; // Yield
+                        }
+
                         pushReturnValues(sf, v, a, c);
                         top = sf.top;
                         v = sf.v;
