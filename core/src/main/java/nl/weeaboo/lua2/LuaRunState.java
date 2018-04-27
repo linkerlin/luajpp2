@@ -14,6 +14,7 @@ import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
+import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -32,7 +33,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     private final LuaTable globals = new LuaTable();
     private final LuaTable registry = new LuaTable();
     private final DestructibleElemList<LuaThreadGroup> threadGroups;
-    private final LuaThread mainThread;
+    private final LuaLink mainThread;
 
     private boolean destroyed;
     private boolean debugEnabled = true;
@@ -45,8 +46,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
 
     private LuaRunState() {
         threadGroups = new DestructibleElemList<LuaThreadGroup>();
-        mainThread = LuaThread.createMainThread(this, globals);
-        newThreadGroup();
+
+        LuaThreadGroup mainGroup = newThreadGroup();
+        mainThread = new LuaLink(this, LuaThread.createMainThread(this, globals));
+        mainGroup.add(mainThread);
     }
 
     public static LuaRunState create() throws LuaException {
@@ -166,8 +169,12 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return findFirstThreadGroup();
     }
 
+    public LuaLink getMainThread() {
+        return mainThread;
+    }
+
     public LuaThread getRunningThread() {
-        return (currentThread != null ? currentThread : mainThread);
+        return (currentThread != null ? currentThread : mainThread.getThread());
     }
 
     public LuaTable getGlobalEnvironment() {

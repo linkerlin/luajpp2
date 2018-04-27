@@ -37,22 +37,14 @@ import nl.weeaboo.lua2.stdlib.DebugLib;
 public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
-    private static final long serialVersionUID = -5915771649511060629L;
-
-    private static final String[] STATUS_NAMES = { "suspended", "running", "normal", "dead", "endcall" };
-    public static final int STATUS_SUSPENDED = 0;
-    public static final int STATUS_RUNNING = 1;
-    public static final int STATUS_NORMAL = 2;
-    public static final int STATUS_DEAD = 3;
-    public static final int STATUS_ERROR = 4;
-    public static final int STATUS_END_CALL = 5;
+    private static final long serialVersionUID = 2L;
 
     public static final int MAX_CALLSTACK = 512;
     public static LuaValue s_metatable;
 
     private LuaRunState luaRunState;
     private LuaValue env;
-    private int status = STATUS_SUSPENDED;
+    private LuaThreadStatus status = LuaThreadStatus.INITIAL;
     private int callstackMin;
     private boolean isMainThread;
     private int sleep;
@@ -94,7 +86,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public void reset() {
         StackFrame.releaseCallstack(callstack);
 
-        status = STATUS_SUSPENDED;
+        status = LuaThreadStatus.INITIAL;
         callstackMin = 0;
         callstack = null;
         debugState = null;
@@ -145,8 +137,12 @@ public final class LuaThread extends LuaValue implements Serializable {
         this.env = env;
     }
 
+    public LuaThreadStatus getStatus() {
+        return status;
+    }
+
     public boolean isRunning() {
-        return (isMainThread && !isDead()) || status == STATUS_RUNNING;
+        return status == LuaThreadStatus.RUNNING;
     }
 
     public boolean isFinished() {
@@ -154,19 +150,19 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     public boolean isDead() {
-        return status == STATUS_DEAD;
+        return status == LuaThreadStatus.DEAD;
     }
 
     public boolean isEndCall() {
-        return status == STATUS_END_CALL;
+        return status == LuaThreadStatus.END_CALL;
     }
 
-    public String getStatus() {
-        return STATUS_NAMES[status];
+    public boolean isSuspended() {
+        return status == LuaThreadStatus.SUSPENDED;
     }
 
     public void destroy() {
-        status = STATUS_DEAD;
+        status = LuaThreadStatus.DEAD;
     }
 
     public int callstackSize() {
@@ -220,25 +216,25 @@ public final class LuaThread extends LuaValue implements Serializable {
         return lrs.getRunningThread();
     }
 
+    public boolean isMainThread() {
+        return isMainThread;
+    }
+
     /**
      * Yield this thread with arguments.
      */
     public Varargs yield(Varargs args) {
         if (!isRunning()) {
             error(this + " not running");
-        } else if (isMainThread) {
-            error("Main thread can't yield");
-        } /*else if (puritySwitches > 1) {
-            error(this + " cannot yield when called through non-Lua code");
-        }*/
+        }
 
-        status = STATUS_SUSPENDED;
+        status = LuaThreadStatus.SUSPENDED;
         return args;
     }
 
     public Varargs endCall(Varargs args) {
         args = yield(args);
-        status = STATUS_END_CALL;
+        status = LuaThreadStatus.END_CALL;
         return args;
     }
 
@@ -258,10 +254,10 @@ public final class LuaThread extends LuaValue implements Serializable {
         final LuaThread prior = luaRunState.getRunningThread();
         Varargs result;
         try {
-            if (prior.status == STATUS_RUNNING) {
-                prior.status = STATUS_NORMAL;
+            if (prior.status == LuaThreadStatus.RUNNING) {
+                prior.status = LuaThreadStatus.SUSPENDED;
             }
-            status = STATUS_RUNNING;
+            status = LuaThreadStatus.RUNNING;
             luaRunState.setRunningThread(this);
 
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
@@ -274,13 +270,17 @@ public final class LuaThread extends LuaValue implements Serializable {
             throw new LuaError("Runtime error :: " + e, e);
         } finally {
             callstackMin = oldCallstackMin;
-            if (status == STATUS_RUNNING) {
-                status = STATUS_NORMAL;
-            }
-            if (prior.status == STATUS_NORMAL) {
-                prior.status = STATUS_RUNNING;
-            }
             luaRunState.setRunningThread(prior);
+
+            if (!isMainThread && callstack == null) {
+                status = LuaThreadStatus.DEAD;
+            } else if (status == LuaThreadStatus.RUNNING) {
+                status = LuaThreadStatus.SUSPENDED;
+            }
+
+            if (prior.status == LuaThreadStatus.SUSPENDED) {
+                prior.status = LuaThreadStatus.RUNNING;
+            }
         }
 
         return result;
@@ -331,6 +331,19 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     public int getSleep() {
         return sleep;
+    }
+
+    public void setArgs(Varargs args) {
+        callstack.setArgs(args);
+    }
+
+    public Varargs getArgs() {
+        // TODO: Append varargs
+        return callstack.args;
+    }
+
+    public void setReturnedValues(Varargs args) {
+        callstack.setReturnedValues(args);
     }
 
 }

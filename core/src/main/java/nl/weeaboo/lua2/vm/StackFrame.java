@@ -159,8 +159,6 @@ final class StackFrame implements Externalizable {
 
         this.status = Status.FRESH;
         this.func = func;
-        this.args = args;
-        this.varargs = extractVarargs(p, args);
 
         this.parent = parent;
         this.parentCount = (parent != null ? parent.size() : 0);
@@ -171,7 +169,18 @@ final class StackFrame implements Externalizable {
             resetExecutionState(0, 0);
         } else {
             resetExecutionState(p.maxstacksize, p.p.length);
+        }
 
+        setArgs(args);
+    }
+
+    public void setArgs(Varargs args) {
+        final Prototype p = getPrototype(func);
+
+        this.args = args;
+        this.varargs = extractVarargs(p, args);
+
+        if (p != null) {
             //Push params on stack
             for (int i = 0; i < p.numparams; i++) {
                 stack[i] = args.arg(i + 1);
@@ -220,6 +229,28 @@ final class StackFrame implements Externalizable {
     @Override
     public String toString() {
         return "StackFrame[" + func + ", args=" + args + "]";
+    }
+
+    public void setReturnedValues(Varargs args) {
+        // Push args on the stack
+        LuaClosure closure = func.checkclosure();
+        Prototype p = closure.getPrototype();
+        if (pc < 0) {
+            v = args;
+            return;
+        }
+
+        int i = p.code[pc - 1];
+        int opcode = (i & 0x3f);
+        if (opcode != Lua.OP_CALL && opcode != Lua.OP_TAILCALL) {
+            v = args;
+            return;
+        }
+
+        // Yielded from a Lua function call -- push return values on the stack
+        int a = ((i >> 6) & 0xff);
+        int c = (i >> 14) & 0x1ff;
+        LuaInterpreter.pushReturnValues(this, args, a, c);
     }
 
 }

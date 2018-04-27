@@ -46,11 +46,11 @@ public abstract class LuaLib implements ILuaLib {
                         + luaMethodName + " :: " + targetTable.rawget(luaMethodName));
             }
 
-            targetTable.rawset(luaMethodName, wrapFunction(method));
+            targetTable.rawset(luaMethodName, wrapFunction(method, luaMethodName));
         }
     }
 
-    private VarArgFunction wrapFunction(Method method) throws LuaException {
+    private VarArgFunction wrapFunction(Method method, String luaMethodName) throws LuaException {
         Class<?> returnType = method.getReturnType();
         if (!returnType.equals(Varargs.class) && !returnType.equals(Void.TYPE)) {
             throw new LuaException("Return type must be Varargs or void");
@@ -61,7 +61,7 @@ public abstract class LuaLib implements ILuaLib {
             throw new LuaException("Method must have a single parameter of type Varargs");
         }
 
-        FunctionWrapper functionWrapper = new FunctionWrapper(this, method.getName(), parameterTypes);
+        FunctionWrapper functionWrapper = new FunctionWrapper(this, luaMethodName, method.getName(), parameterTypes);
         functionWrapper.setfenv(LuaRunState.getCurrent().getGlobalEnvironment());
         return functionWrapper;
     }
@@ -77,9 +77,11 @@ public abstract class LuaLib implements ILuaLib {
 
         private transient Method method;
 
-        public FunctionWrapper(LuaLib object, String methodName, Class<?>[] parameterTypes) {
+        public FunctionWrapper(LuaLib object, String luaMethodName, String javaMethodName, Class<?>[] parameterTypes) {
+            name = luaMethodName;
+
             this.object = object;
-            this.javaMethodName = methodName;
+            this.javaMethodName = javaMethodName;
             this.parameterTypes = parameterTypes.clone();
         }
 

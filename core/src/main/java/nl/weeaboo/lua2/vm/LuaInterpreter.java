@@ -270,15 +270,13 @@ final class LuaInterpreter {
                     top = sf.top;
                     pc = sf.pc;
 
-                    // Push return values on the stack
-                    if (c > 0) {
-                        while (--c > 0) {
-                            stack[a + c - 1] = v.arg(c);
-                        }
-                        v = NONE;
-                    } else {
-                        top = a + v.narg();
+                    if (thread.isSuspended()) {
+                        return v; // Yield
                     }
+
+                    pushReturnValues(sf, v, a, c);
+                    top = sf.top;
+                    v = sf.v;
                     continue;
                 }
 
@@ -321,16 +319,10 @@ final class LuaInterpreter {
                         // Java function didn't do anything to the callstack, recover.
                         sf.parentCount++;
 
-                        top = sf.top;
                         pc = sf.pc;
-                        if (c > 0) {
-                            while (--c > 0) {
-                                stack[a + c - 1] = v.arg(c);
-                            }
-                            v = NONE;
-                        } else {
-                            top = a + v.narg();
-                        }
+                        pushReturnValues(sf, v, a, c);
+                        top = sf.top;
+                        v = sf.v;
                     }
                     continue;
                 }
@@ -509,6 +501,23 @@ final class LuaInterpreter {
             thread.popStackFrame();
         } else {
             sf.close();
+        }
+    }
+
+    static void pushReturnValues(StackFrame sf, int a, int c) {
+        pushReturnValues(sf, sf.v, a, c);
+    }
+
+    static void pushReturnValues(StackFrame sf, Varargs returnValues, int a, int c) {
+        // Push return values on the stack
+        if (c > 0) {
+            while (--c > 0) {
+                sf.stack[a + c - 1] = returnValues.arg(c);
+            }
+            sf.v = NONE;
+        } else {
+            sf.top = a + returnValues.narg();
+            sf.v = returnValues;
         }
     }
 

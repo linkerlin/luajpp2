@@ -1220,12 +1220,6 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return NIL;
     }
 
-    @Override
-    public String tojstring() {
-        // TODO: This is for debugging only, remove it
-        return toDetailString();
-    }
-
     public String toDetailString() {
         StringBuilder sb = new StringBuilder(super.tojstring());
 

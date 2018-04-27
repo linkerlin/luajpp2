@@ -25,6 +25,7 @@ package nl.weeaboo.lua2.lib;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.BaseLib;
 import nl.weeaboo.lua2.stdlib.TableLib;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
@@ -145,7 +146,11 @@ public abstract class LibFunction extends LuaFunction {
 
     @Override
     public String tojstring() {
-        return name != null ? name : super.tojstring();
+        if (name != null) {
+            return typename() + ":" + name;
+        } else {
+            return super.tojstring();
+        }
     }
 
     /**

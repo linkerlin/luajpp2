@@ -39,9 +39,12 @@ public class LuaLink extends AbstractLuaLink {
     }
 
     public LuaLink(LuaRunState lrs, LuaValue environment) {
-        luaRunState = lrs;
+        this(lrs, new LuaThread(lrs, environment));
+    }
 
-        thread = new LuaThread(luaRunState, environment);
+    public LuaLink(LuaRunState lrs, LuaThread thread) {
+        this.luaRunState = lrs;
+        this.thread = thread;
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {

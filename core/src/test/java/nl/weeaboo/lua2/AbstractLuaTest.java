@@ -53,7 +53,9 @@ public abstract class AbstractLuaTest {
         if (loadResult.isnil(1)) {
             throw new LuaError(loadResult.tojstring(2));
         }
-        return luaRunState.newThread(loadResult.checkclosure(1), LuaConstants.NONE);
+        LuaLink mainThread = luaRunState.getMainThread();
+        mainThread.pushCall(loadResult.checkclosure(1), LuaConstants.NONE);
+        return mainThread;
     }
 
     /**
