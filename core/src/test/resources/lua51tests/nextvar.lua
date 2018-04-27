@@ -297,8 +297,13 @@ local n = 0
 for k, v in pairs( t ) do
   n = n+1
   assert(t[k] == v)
-  t[k] = nil
-  collectgarbage()
+  t[k] = nil  
+  for i=1,5 do
+    collectgarbage()
+    if (t[k] == nil) then
+      break
+    end
+  end
   assert(t[k] == nil)
 end
 assert(n == 5)
