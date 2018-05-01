@@ -12,9 +12,9 @@ import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
-public final class LuaScriptLoader {
+public final class ScriptLoader {
 
-    private LuaScriptLoader() {
+    private ScriptLoader() {
     }
 
     /**

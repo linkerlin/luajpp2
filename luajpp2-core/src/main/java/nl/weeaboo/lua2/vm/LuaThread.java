@@ -240,7 +240,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     public Varargs resume(int maxDepth) {
         if (isDead()) {
-            return valueOf("cannot resume dead thread");
+            throw new LuaError("cannot resume dead thread");
         }
 
         if (sleep != 0) {
@@ -272,8 +272,8 @@ public final class LuaThread extends LuaValue implements Serializable {
             callstackMin = oldCallstackMin;
             luaRunState.setRunningThread(prior);
 
-            if (!isMainThread && callstack == null) {
-                status = LuaThreadStatus.DEAD;
+            if (callstack == null) {
+                status = LuaThreadStatus.FINISHED;
             } else if (status == LuaThreadStatus.RUNNING) {
                 status = LuaThreadStatus.SUSPENDED;
             }

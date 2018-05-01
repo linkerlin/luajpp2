@@ -204,11 +204,18 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     }
 
     /**
+     * The load path for Lua's 'require' function.
+     * @return The load path, or an empty string if none is set.
+     */
+    public String getLuaPath() {
+        return globals.get("package").get("path").optjstring("");
+    }
+
+    /**
      * Sets the load path for Lua's 'require' function.
      */
     public void setLuaPath(String path) {
         globals.get("package").set("path", path);
-
     }
 
     /**

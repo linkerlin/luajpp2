@@ -133,11 +133,16 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     }
 
     @Override
-    public int remaining() throws IOException {
-        checkOpen();
-        flushBuffer(); // Not strictly necessary, but it saves us a bit of complexity here.
+    public int remaining() {
+        try {
+            checkOpen();
+            flushBuffer(); // Not strictly necessary, but it saves us a bit of complexity here.
 
-        return (int)Math.min(Integer.MAX_VALUE, file.length() - file.getFilePointer());
+            return (int)Math.min(Integer.MAX_VALUE, file.length() - file.getFilePointer());
+        } catch (IOException ioe) {
+            LOG.trace("Unable to determine remaining bytes for {} due to an I/O error", this, ioe);
+            return -1;
+        }
     }
 
     @Override

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.compiler.LuaScriptLoader;
+import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.lib2.LuaLib;
@@ -112,6 +112,9 @@ public final class BaseLib extends LuaLib {
         }
     }
 
+    /**
+     * @param args Not used.
+     */
     @Deprecated
     @LuaBoundFunction
     public Varargs gcinfo(Varargs args) {
@@ -159,9 +162,9 @@ public final class BaseLib extends LuaLib {
     public Varargs dofile(Varargs args) {
         Varargs v;
         if (args.isnil(1)) {
-            v = LuaScriptLoader.loadStream(STDIN, "=stdin");
+            v = ScriptLoader.loadStream(STDIN, "=stdin");
         } else {
-            v = LuaScriptLoader.loadFile(args.checkjstring(1));
+            v = ScriptLoader.loadFile(args.checkjstring(1));
         }
 
         if (v.isnil(1)) {
@@ -199,7 +202,7 @@ public final class BaseLib extends LuaLib {
 
         StringInputStream in = new StringInputStream(func);
         try {
-            return LuaScriptLoader.loadStream(in, chunkname);
+            return ScriptLoader.loadStream(in, chunkname);
         } finally {
             try {
                 in.close();
@@ -215,9 +218,9 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs loadfile(Varargs args) {
         if (args.isnil(1)) {
-            return LuaScriptLoader.loadStream(STDIN, "stdin");
+            return ScriptLoader.loadStream(STDIN, "stdin");
         } else {
-            return LuaScriptLoader.loadFile(args.checkjstring(1));
+            return ScriptLoader.loadFile(args.checkjstring(1));
         }
     }
 
@@ -228,7 +231,7 @@ public final class BaseLib extends LuaLib {
     public Varargs loadstring(Varargs args) {
         LuaString script = args.checkstring(1);
         String chunkname = args.optjstring(2, script.tojstring());
-        return LuaScriptLoader.loadStream(script.toInputStream(), chunkname);
+        return ScriptLoader.loadStream(script.toInputStream(), chunkname);
     }
 
     /**

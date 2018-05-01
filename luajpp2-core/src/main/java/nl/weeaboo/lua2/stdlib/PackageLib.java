@@ -11,7 +11,7 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import nl.weeaboo.lua2.LuaException;
-import nl.weeaboo.lua2.compiler.LuaScriptLoader;
+import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
@@ -314,7 +314,7 @@ public final class PackageLib extends LuaModule {
                 String filename = template.replace("?", name);
 
                 // try loading the file
-                Varargs v = LuaScriptLoader.loadFile(filename);
+                Varargs v = ScriptLoader.loadFile(filename);
                 if (v.arg1().isfunction()) {
                     return v.arg1();
                 }

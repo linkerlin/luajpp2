@@ -58,6 +58,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      *        <li>"line": Buffer until a line ending is output, or input is received from a terminal device.
      *        </ul>
      * @param size Buffer size
+     * @throws IOException If something goes wrong
      */
     public void setvbuf(String mode, int size) throws IOException {
         throw new LuaError("setvbuf not supported");
@@ -66,7 +67,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
     /**
      * Get length remaining to read, or {@code -1} if unknown.
      */
-    public int remaining() throws IOException {
+    public int remaining() {
         return -1;
     }
 

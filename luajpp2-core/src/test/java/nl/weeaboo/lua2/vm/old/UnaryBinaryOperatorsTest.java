@@ -1142,7 +1142,7 @@ public class UnaryBinaryOperatorsTest {
         LuaValue fal = FALSE;
         LuaValue tbl = new LuaTable();
         LuaValue tbl2 = new LuaTable();
-        LuaValue tbl3 = new LuaTable();
+//        LuaValue tbl3 = new LuaTable();
         try {
             // always use left argument
             LuaValue mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_LHS, META_LE, RETURN_RHS, });

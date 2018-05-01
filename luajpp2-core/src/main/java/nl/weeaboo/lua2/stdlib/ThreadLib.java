@@ -4,7 +4,7 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaThreadGroup;
-import nl.weeaboo.lua2.compiler.LuaScriptLoader;
+import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.link.LuaLink;
@@ -103,7 +103,7 @@ public final class ThreadLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs jump(Varargs args) {
-        Varargs v = LuaScriptLoader.loadFile(args.checkjstring(1));
+        Varargs v = ScriptLoader.loadFile(args.checkjstring(1));
         if (v.isnil(1)) {
             throw new LuaError(v.tojstring(2));
         }

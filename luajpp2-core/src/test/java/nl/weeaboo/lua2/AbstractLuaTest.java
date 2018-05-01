@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import nl.weeaboo.lua2.compiler.LuaScriptLoader;
+import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -49,7 +49,7 @@ public abstract class AbstractLuaTest {
     }
 
     protected LuaLink loadScript(String filename) {
-        Varargs loadResult = LuaScriptLoader.loadFile(filename);
+        Varargs loadResult = ScriptLoader.loadFile(filename);
         if (loadResult.isnil(1)) {
             throw new LuaError(loadResult.tojstring(2));
         }

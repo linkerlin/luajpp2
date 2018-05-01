@@ -76,6 +76,8 @@ public final class CoroutineLib extends LuaModule {
             return "suspended";
         case RUNNING:
             return "running";
+        case FINISHED:
+            return (thread.isMainThread() ? "suspended" : "dead");
         case DEAD:
             return "dead";
         default:
