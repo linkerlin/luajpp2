@@ -37,7 +37,7 @@ public final class StandardLibrary {
         ILuaIoImpl ioImpl = createIoImpl();
         new IoLib(ioImpl).register();
         new OsLib(ioImpl).register();
-        globals.load(new LuajavaLib());
+        new LuajavaLib().register();
         new ThreadLib().register();
 
         if (debugEnabled) {

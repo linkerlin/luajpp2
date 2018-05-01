@@ -32,145 +32,125 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib.VarArgFunction;
+import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.stdlib.LuaModule;
+import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
-import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public class LuajavaLib extends VarArgFunction {
+public final class LuajavaLib extends LuaModule {
 
-    private static final long serialVersionUID = 1089400343490554068L;
+    private static final long serialVersionUID = 1L;
 
-    static final int INIT = 0;
-    static final int BINDCLASS = 1;
-    static final int NEWINSTANCE = 2;
-    static final int NEW = 3;
-    static final int CREATEPROXY = 4;
-    static final int LOADLIB = 5;
-
-    static final String[] NAMES = { "bindClass", "newInstance", "new", "createProxy", "loadLib", };
-
-    static final int METHOD_MODIFIERS_VARARGS = 0x80;
+    private static final int METHOD_MODIFIERS_VARARGS = 0x80;
 
     private static final Map<Class<?>, ClassInfo> classInfoMap = new HashMap<Class<?>, ClassInfo>();
 
     public LuajavaLib() {
+        super("luajava");
     }
 
-    @Override
-    public Varargs invoke(Varargs args) {
-        try {
-            switch (opcode) {
-            case INIT: {
-                LuaTable t = new LuaTable();
-                bind(t, LuajavaLib.class, NAMES, BINDCLASS);
-                env.set("luajava", t);
-                LuaRunState.getCurrent().setPackageLoaded("luajava", t);
-                return t;
-            }
-            case BINDCLASS: {
-                final Class<?> clazz = Class.forName(args.checkjstring(1));
-                return toUserdata(clazz, clazz);
-            }
-            case NEWINSTANCE:
-            case NEW: {
-                final LuaValue c = args.checkvalue(1);
-                final Class<?> clazz;
-                if (c.isuserdata(Class.class)) {
-                    clazz = c.checkuserdata(Class.class);
-                } else {
-                    clazz = Class.forName(c.tojstring());
-                }
-                ClassInfo info = getClassInfo(clazz);
-                Object javaObject = info.newInstance(args.subargs(2));
-                return LuaUserdata.userdataOf(javaObject, info.getMetatable());
-            }
-            case CREATEPROXY: {
-                final int niface = args.narg() - 1;
-                if (niface <= 0) {
-                    throw new LuaError("no interfaces");
-                }
-                final LuaValue lobj = args.checktable(niface + 1);
+    @LuaBoundFunction
+    public Varargs bindClass(Varargs args) throws ClassNotFoundException {
+        Class<?> clazz = Class.forName(args.checkjstring(1));
+        return toUserdata(clazz, clazz);
+    }
 
-                // get the interfaces
-                final Class<?>[] ifaces = new Class<?>[niface];
-                for (int i = 0; i < niface; i++) {
-                    ifaces[i] = Class.forName(args.checkjstring(i + 1));
+    @LuaBoundFunction
+    public Varargs newInstance(Varargs args) throws Exception {
+        final LuaValue c = args.checkvalue(1);
+        final Class<?> clazz;
+        if (c.isuserdata(Class.class)) {
+            clazz = c.checkuserdata(Class.class);
+        } else {
+            clazz = Class.forName(c.tojstring());
+        }
+        ClassInfo info = getClassInfo(clazz);
+        Object javaObject = info.newInstance(args.subargs(2));
+        return LuaUserdata.userdataOf(javaObject, info.getMetatable());
+    }
+
+    @LuaBoundFunction(luaName="new")
+    public Varargs new_(Varargs args) throws Exception {
+        return newInstance(args);
+    }
+
+    @LuaBoundFunction
+    public Varargs createProxy(Varargs args) throws ClassNotFoundException {
+        final int niface = args.narg() - 1;
+        if (niface <= 0) {
+            throw new LuaError("no interfaces");
+        }
+        final LuaValue lobj = args.checktable(niface + 1);
+
+        // get the interfaces
+        final Class<?>[] ifaces = new Class<?>[niface];
+        for (int i = 0; i < niface; i++) {
+            ifaces[i] = Class.forName(args.checkjstring(i + 1));
+        }
+
+        // create the invocation handler
+        InvocationHandler handler = new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                String name = method.getName();
+                LuaValue func = lobj.get(name);
+                if (func.isnil()) {
+                    return null;
                 }
 
-                // create the invocation handler
-                InvocationHandler handler = new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        String name = method.getName();
-                        LuaValue func = lobj.get(name);
-                        if (func.isnil()) {
-                            return null;
+                boolean isvarargs = ((method.getModifiers() & METHOD_MODIFIERS_VARARGS) != 0);
+
+                LuaValue[] luaArgs = LuaConstants.NOVALS;
+                if (args != null) {
+                    int n = args.length;
+                    if (isvarargs) {
+                        Object obj = args[--n];
+                        int m = Array.getLength(obj);
+                        luaArgs = new LuaValue[n + m];
+                        for (int i = 0; i < n; i++) {
+                            luaArgs[i] = CoerceJavaToLua.coerce(args[i]);
                         }
-
-                        boolean isvarargs = ((method.getModifiers() & METHOD_MODIFIERS_VARARGS) != 0);
-
-                        LuaValue[] v;
-                        if (args == null) {
-                            v = new LuaValue[0];
-                        } else {
-                            int n = args.length;
-                            if (isvarargs) {
-                                Object o = args[--n];
-                                int m = Array.getLength(o);
-                                v = new LuaValue[n + m];
-                                for (int i = 0; i < n; i++) {
-                                    v[i] = CoerceJavaToLua.coerce(args[i]);
-                                }
-                                for (int i = 0; i < m; i++) {
-                                    v[i + n] = CoerceJavaToLua.coerce(Array.get(o, i));
-                                }
-                            } else {
-                                v = new LuaValue[n];
-                                for (int i = 0; i < n; i++) {
-                                    v[i] = CoerceJavaToLua.coerce(args[i]);
-                                }
-                            }
+                        for (int i = 0; i < m; i++) {
+                            luaArgs[i + n] = CoerceJavaToLua.coerce(Array.get(obj, i));
                         }
-                        LuaValue result = func.invoke(v).arg1();
-                        return CoerceLuaToJava.coerceArg(result, method.getReturnType());
+                    } else {
+                        luaArgs = new LuaValue[n];
+                        for (int i = 0; i < n; i++) {
+                            luaArgs[i] = CoerceJavaToLua.coerce(args[i]);
+                        }
                     }
-                };
-
-                // create the proxy object
-                Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), ifaces, handler);
-
-                // return the proxy
-                return LuaValue.userdataOf(proxy);
-            }
-            case LOADLIB: {
-                // get constructor
-                String classname = args.checkjstring(1);
-                String methodname = args.checkjstring(2);
-                Class<?> clazz = Class.forName(classname);
-                Method method = clazz.getMethod(methodname, new Class[] {});
-                Object result = method.invoke(clazz, new Object[] {});
-                if (result instanceof LuaValue) {
-                    return (LuaValue)result;
-                } else {
-                    return NIL;
                 }
+
+                LuaValue result = func.invoke(luaArgs).arg1();
+                return CoerceLuaToJava.coerceArg(result, method.getReturnType());
             }
-            default:
-                throw new LuaError("not yet supported: " + this);
-            }
-        } catch (LuaError e) {
-            throw e;
-        } catch (InvocationTargetException ite) {
-            throw new LuaError("Error invoking LuajavaLib." + NAMES[opcode], ite.getCause());
-        } catch (Exception e) {
-            throw new LuaError("Error invoking LuajavaLib." + NAMES[opcode], e);
+        };
+
+        // create the proxy object
+        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), ifaces, handler);
+
+        // return the proxy
+        return LuaValue.userdataOf(proxy);
+    }
+
+    @LuaBoundFunction
+    public Varargs loadLib(Varargs args) throws Exception {
+        // get constructor
+        String classname = args.checkjstring(1);
+        String methodname = args.checkjstring(2);
+        Class<?> clazz = Class.forName(classname);
+        Method method = clazz.getMethod(methodname, new Class[] {});
+        Object result = method.invoke(clazz, new Object[] {});
+        if (result instanceof LuaValue) {
+            return (LuaValue)result;
+        } else {
+            return NIL;
         }
     }
 
