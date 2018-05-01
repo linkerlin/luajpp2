@@ -63,14 +63,10 @@ subprojects {
         reports {
             xml.enabled true
         }
-    }
-    
-    eclipse.project {
-        name = "luajpp2-${project.name}"
-    }
+    }    
 }
 
-project(':core') {
+project(':luajpp2-core') {
     dependencies {
         compile "org.slf4j:slf4j-api:$slf4jVersion"
 
@@ -87,18 +83,16 @@ project(':core') {
     }
 }
 
-project(':plugin') {
+project(':luajpp2-plugin') {
     dependencies {
-        compile project(':core')
+        compile project(':luajpp2-core')
     }
 }
 
 publishing {
     publications {
         core(MavenPublication) {
-            artifactId = 'luajpp2-core'
-
-            def proj = project(":core")
+            def proj = project(":luajpp2-core")
             from proj.components.java            
             artifact(proj.sourceJar)
 
@@ -107,15 +101,13 @@ publishing {
             }  
         }
         plugin(MavenPublication) {
-            artifactId = 'luajpp2-plugin'
-
-            def proj = project(":plugin")
+            def proj = project(":luajpp2-plugin")
             from proj.components.java            
             artifact(proj.sourceJar)
 
             pom.withXml {
                 asNode().children().last() + proj.ext.pomLicenseConfig
-            }  
+            }
         }
     }
 }
