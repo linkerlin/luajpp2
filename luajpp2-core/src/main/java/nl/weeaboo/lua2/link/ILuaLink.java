@@ -11,6 +11,7 @@ public interface ILuaLink extends Serializable, IDestructible {
 
     /**
      * @return {@code true} if the thread was updated.
+     * @throws LuaException If an exception is thrown while running the thread.
      */
     boolean update() throws LuaException;
 
@@ -53,9 +54,15 @@ public interface ILuaLink extends Serializable, IDestructible {
 
     /**
      * @see #call(LuaClosure, Object...)
+     * @throws LuaException If something goes wrong while trying to call the given function.
      */
     Varargs call(String funcName, Object... args) throws LuaException;
 
+    /**
+     * Calls the given function.
+     *
+     * @throws LuaException If something goes wrong while trying to call the given function.
+     */
     Varargs call(LuaClosure func, Object... args) throws LuaException;
 
 }

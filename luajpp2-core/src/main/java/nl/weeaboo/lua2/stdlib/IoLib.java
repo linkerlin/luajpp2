@@ -18,9 +18,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.stdlib.FileLib.LinesIterFunction;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -319,7 +319,7 @@ public final class IoLib extends LuaModule {
             return NIL;
         }
 
-        return (f.isclosed() ? CLOSED_FILE : FILE);
+        return (f.isClosed() ? CLOSED_FILE : FILE);
     }
 
     static LuaFileHandle optfile(LuaValue val) {
@@ -336,7 +336,7 @@ public final class IoLib extends LuaModule {
     }
 
     private static LuaFileHandle checkopen(LuaFileHandle file) {
-        if (file == null || file.isclosed()) {
+        if (file == null || file.isClosed()) {
             throw new LuaError("attempt to use a closed file");
         }
         return file;
@@ -352,7 +352,7 @@ public final class IoLib extends LuaModule {
     }
 
     static Varargs doClose(LuaFileHandle f) throws IOException {
-        if (f.isstdfile()) {
+        if (f.isStdFile()) {
             return errorresult("cannot close standard file");
         } else {
             f.close();

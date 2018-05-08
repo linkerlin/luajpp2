@@ -6,7 +6,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;

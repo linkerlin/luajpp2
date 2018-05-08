@@ -2,6 +2,11 @@ package nl.weeaboo.lua2.io;
 
 public interface DelayedReader {
 
-    public void onRead(Object obj);
-    
+    /**
+     * This method is called when a 'delayed' object is read.
+     *
+     * @see LuaSerializer#writeDelayed(Object)
+     */
+    void onRead(Object obj);
+
 }

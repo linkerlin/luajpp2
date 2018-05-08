@@ -4,15 +4,15 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 
 @LuaSerializable
-public class LuaError extends RuntimeException {
+public final class LuaError extends RuntimeException {
 
     private static final long serialVersionUID = 1657137595545123245L;
 
     private static final LuaString DEFAULT_MESSAGE = LuaString.valueOf("Lua error");
     private static final int MAX_LEVELS = 8;
 
-    private LuaValue message;
-    private Throwable cause;
+    private final LuaValue message;
+    private final Throwable cause;
 
     public LuaError() {
         this(DEFAULT_MESSAGE, null, 0);
@@ -41,22 +41,24 @@ public class LuaError extends RuntimeException {
     public LuaError(LuaValue message, Throwable c, int level) {
         super();
 
-        this.message = (message != null ? message : LuaNil.NIL);
-        this.cause = c;
-
         if (c instanceof LuaError) {
             // Wrap existing exception
             this.message = ((LuaError)c).getMessageObject();
             this.cause = null;
             setStackTrace(c.getStackTrace());
-        } else if (level >= 0) {
-            StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
-            if (c != null) {
-                stack = prefixLuaStackTrace(c, stack);
-            } else {
-                stack = prefixLuaStackTrace(this, stack);
+        } else {
+            this.message = (message != null ? message : LuaNil.NIL);
+            this.cause = c;
+
+            if (level >= 0) {
+                StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
+                if (c != null) {
+                    stack = prefixLuaStackTrace(c, stack);
+                } else {
+                    stack = prefixLuaStackTrace(this, stack);
+                }
+                setStackTrace(stack);
             }
-            setStackTrace(stack);
         }
     }
 

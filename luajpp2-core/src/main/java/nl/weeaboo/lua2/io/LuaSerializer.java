@@ -28,18 +28,34 @@ public class LuaSerializer {
         return previous;
     }
 
+    /**
+     * Returns the {@link LuaSerializer} that's in use on the current thread.
+     */
     public static LuaSerializer getCurrent() {
         return CURRENT.get();
     }
 
+    /**
+     * Schedules an object for delayed writing. Delayed objects are written at the end of the stream. This can
+     * greatly reduce the required stack size for (de)serializing large object graphs.
+     */
     public void writeDelayed(Object obj) {
         writeDelayed.add(obj);
     }
 
+    /**
+     * Adds a callback to be notified when its matching 'delayed write' object is deserialized. Delayed
+     * reads/writes are matched on order -- the order of calls to {@link #readDelayed(DelayedReader)} must
+     * match those of {@link #writeDelayed(Object)}.
+     */
     public void readDelayed(DelayedReader reader) {
         readDelayed.add(reader);
     }
 
+    /**
+     * Creates a new serializer.
+     * @throws IOException If an I/O error occurs while initializing the serializer.
+     */
     public ObjectSerializer openSerializer(OutputStream out) throws IOException {
         final LuaSerializer previous = makeCurrent();
 
@@ -87,6 +103,10 @@ public class LuaSerializer {
         return oout;
     }
 
+    /**
+     * Creates a new deserializer.
+     * @throws IOException If an I/O error occurs while initializing the deserializer.
+     */
     public ObjectDeserializer openDeserializer(InputStream in) throws IOException {
         final LuaSerializer previous = makeCurrent();
 
@@ -137,6 +157,7 @@ public class LuaSerializer {
         return oin;
     }
 
+    /** Returns the serialization environment. */
     public Environment getEnvironment() {
         return env;
     }

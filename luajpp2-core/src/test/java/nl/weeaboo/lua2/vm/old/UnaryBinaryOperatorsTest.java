@@ -1142,7 +1142,7 @@ public class UnaryBinaryOperatorsTest {
         LuaValue fal = FALSE;
         LuaValue tbl = new LuaTable();
         LuaValue tbl2 = new LuaTable();
-//        LuaValue tbl3 = new LuaTable();
+        //LuaValue tbl3 = new LuaTable();
         try {
             // always use left argument
             LuaValue mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_LHS, META_LE, RETURN_RHS, });
@@ -1153,14 +1153,14 @@ public class UnaryBinaryOperatorsTest {
             Assert.assertEquals(fal, fal.lt(tru));
             Assert.assertEquals(tbl, tbl.lt(tbl2));
             Assert.assertEquals(tbl2, tbl2.lt(tbl));
-//            Assert.assertEquals(tbl, tbl.lt(tbl3));
-//            Assert.assertEquals(tbl3, tbl3.lt(tbl));
+            //Assert.assertEquals(tbl, tbl.lt(tbl3));
+            //Assert.assertEquals(tbl3, tbl3.lt(tbl));
             Assert.assertEquals(fal, tru.lteq(fal));
             Assert.assertEquals(tru, fal.lteq(tru));
             Assert.assertEquals(tbl2, tbl.lteq(tbl2));
             Assert.assertEquals(tbl, tbl2.lteq(tbl));
-//            Assert.assertEquals(tbl3, tbl.lteq(tbl3));
-//            Assert.assertEquals(tbl, tbl3.lteq(tbl));
+            //Assert.assertEquals(tbl3, tbl.lteq(tbl3));
+            //Assert.assertEquals(tbl, tbl3.lteq(tbl));
 
             // always use right argument
             mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_RHS, META_LE, RETURN_LHS });
@@ -1171,14 +1171,14 @@ public class UnaryBinaryOperatorsTest {
             Assert.assertEquals(tru, fal.lt(tru));
             Assert.assertEquals(tbl2, tbl.lt(tbl2));
             Assert.assertEquals(tbl, tbl2.lt(tbl));
-//            Assert.assertEquals(tbl3, tbl.lt(tbl3));
-//            Assert.assertEquals(tbl, tbl3.lt(tbl));
+            //Assert.assertEquals(tbl3, tbl.lt(tbl3));
+            //Assert.assertEquals(tbl, tbl3.lt(tbl));
             Assert.assertEquals(tru, tru.lteq(fal));
             Assert.assertEquals(fal, fal.lteq(tru));
             Assert.assertEquals(tbl, tbl.lteq(tbl2));
             Assert.assertEquals(tbl2, tbl2.lteq(tbl));
-//            Assert.assertEquals(tbl, tbl.lteq(tbl3));
-//            Assert.assertEquals(tbl3, tbl3.lteq(tbl));
+            //Assert.assertEquals(tbl, tbl.lteq(tbl3));
+            //Assert.assertEquals(tbl3, tbl3.lteq(tbl));
 
         } finally {
             LuaBoolean.s_metatable = null;

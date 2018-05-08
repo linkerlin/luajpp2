@@ -18,9 +18,7 @@ public final class ScriptLoader {
     }
 
     /**
-     * Load from a named file, returning the chunk or nil,error of can't load.
-     *
-     * @return Varargs containing chunk, or NIL,error-text on error
+     * Load from a named file, returning the loaded chunk or {@code nil,error} if unable to load.
      */
     public static Varargs loadFile(String filename) {
         LuaRunState lrs = LuaRunState.getCurrent();
@@ -41,6 +39,9 @@ public final class ScriptLoader {
         }
     }
 
+    /**
+     * Load from an unnamed input stream, returning the loaded chunk or {@code nil,error} if unable to load.
+     */
     public static Varargs loadStream(InputStream is, String chunkname) {
         try {
             if (is == null) {

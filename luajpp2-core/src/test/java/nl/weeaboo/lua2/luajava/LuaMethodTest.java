@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
-import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.luajava.test.PublicClass;
@@ -30,7 +29,7 @@ public class LuaMethodTest extends AbstractLuaTest {
      * Call a method that's overridden in a subclass.
      */
     @Test
-    public void callOverridden() throws LuaException {
+    public void callOverridden() {
         loadScript("luajava/override.lua");
         runToCompletion();
 
@@ -47,7 +46,7 @@ public class LuaMethodTest extends AbstractLuaTest {
      * https://bugs.openjdk.java.net/browse/JDK-4283544
      */
     @Test
-    public void callOverriddenPrivate() throws LuaException {
+    public void callOverriddenPrivate() {
         LuaTable globals = luaRunState.getGlobalEnvironment();
         PublicClass object = new PublicClass();
         globals.rawset("object", LuajavaLib.toUserdata(object, object.getClass()));
@@ -63,7 +62,7 @@ public class LuaMethodTest extends AbstractLuaTest {
      * Serialize a userdata object.
      */
     @Test
-    public void serialize() throws IOException, LuaException {
+    public void serialize() throws IOException {
         instance.value = 3;
         Assert.assertEquals(3, instance.value);
         loadScript("luajava/serialize.lua");

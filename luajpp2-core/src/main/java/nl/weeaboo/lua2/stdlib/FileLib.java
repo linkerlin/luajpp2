@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
+import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
-import nl.weeaboo.lua2.lib2.LuaLib;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -159,7 +159,7 @@ public final class FileLib extends LuaLib {
         }
 
         private void closeFileIfNeeded() {
-            if (shouldClose && !file.isstdfile()) {
+            if (shouldClose && !file.isStdFile()) {
                 LOG.debug("Closing file after lines() iterator finished: {}", file);
 
                 try {

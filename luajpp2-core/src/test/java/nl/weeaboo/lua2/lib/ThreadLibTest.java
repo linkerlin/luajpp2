@@ -24,7 +24,7 @@ public class ThreadLibTest extends AbstractLuaTest {
     }
 
     @Test
-    public void testNewThread() throws LuaException {
+    public void testNewThread() {
         loadScript("lib/thread/newthread.lua");
 
         runToCompletion();
@@ -33,7 +33,7 @@ public class ThreadLibTest extends AbstractLuaTest {
     }
 
     @Test
-    public void testJump() throws LuaException {
+    public void testJump() {
         loadScript("lib/thread/jump1.lua");
 
         runToCompletion();
@@ -43,14 +43,14 @@ public class ThreadLibTest extends AbstractLuaTest {
     }
 
     @Test(expected = LuaException.class)
-    public void invalidJump() throws LuaException {
+    public void invalidJump() {
         loadScript("lib/thread/jumpinvalid.lua");
 
         runToCompletion();
     }
 
     @Test
-    public void testEndCall() throws LuaException {
+    public void testEndCall() {
         loadScript("lib/thread/endcall.lua");
 
         runToCompletion();

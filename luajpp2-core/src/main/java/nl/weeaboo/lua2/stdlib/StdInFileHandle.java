@@ -17,7 +17,7 @@ final class StdInFileHandle extends LuaFileHandle {
     }
 
     @Override
-    public boolean isstdfile() {
+    public boolean isStdFile() {
         return true;
     }
 
@@ -26,7 +26,7 @@ final class StdInFileHandle extends LuaFileHandle {
     }
 
     @Override
-    public boolean isclosed() {
+    public boolean isClosed() {
         return false;
     }
 

@@ -43,6 +43,11 @@ Changes:
    a runtime exception instead.
  [2017-09-02]
  * Changed ParameterName check to be compatible with Checkstyle 8
+ [2017-12-21]
+ * Removed maxLineLength from LeftCurly (attribute no longer supported by Checkstyle)
+ * Removed FileContentsHolder element (no longer supported by Checkstyle)
+ [2018-05-01]
+ * Allow suppression using @SuppressWarnings annotation
 -->
 
 <module name = "Checker">
@@ -80,9 +85,7 @@ Changes:
             <property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
         </module>
         <module name="NeedBraces"/>
-        <module name="LeftCurly">
-            <property name="maxLineLength" value="120"/>
-        </module>
+        <module name="LeftCurly"/>
         <module name="RightCurly"/>
         <module name="RightCurly">
             <property name="option" value="alone"/>
@@ -216,10 +219,8 @@ Changes:
             <property name="max" value="6"/>
         </module>
         <module name="MutableException" />
-        
-        <!-- Make comments visible to suppression comment filter -->
-        <module name="FileContentsHolder"/>
+        <module name="SuppressWarningsHolder" />
     </module>
     
-    <module name="SuppressionCommentFilter" />
+    <module name="SuppressWarningsFilter" />
 </module>

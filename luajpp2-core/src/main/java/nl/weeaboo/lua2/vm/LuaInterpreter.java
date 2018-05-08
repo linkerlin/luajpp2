@@ -1,6 +1,6 @@
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.LuaUtil.copyArgs;
+import static nl.weeaboo.lua2.internal.LuaArgsUtil.copyArgs;
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;

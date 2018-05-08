@@ -23,9 +23,9 @@ import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class ClassInfo implements IWriteReplaceSerializable {
+final class ClassInfo implements IWriteReplaceSerializable {
 
-	private static final Comparator<Method> methodSorter = new MethodSorter();
+    private static final Comparator<Method> methodSorter = new MethodSorter();
 
     private final Class<?> clazz;
     private final boolean isArray;
@@ -179,7 +179,7 @@ public final class ClassInfo implements IWriteReplaceSerializable {
         }
     }
 
-	private static class MethodSorter implements Comparator<Method> {
+    private static class MethodSorter implements Comparator<Method> {
 
         @Override
         public int compare(Method m1, Method m2) {

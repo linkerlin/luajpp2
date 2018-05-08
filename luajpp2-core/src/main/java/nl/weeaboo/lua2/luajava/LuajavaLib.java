@@ -22,20 +22,13 @@
 
 package nl.weeaboo.lua2.luajava;
 
-import static nl.weeaboo.lua2.vm.LuaNil.NIL;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.stdlib.LuaModule;
-import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaUserdata;
@@ -45,20 +38,41 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 public final class LuajavaLib extends LuaModule {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final int METHOD_MODIFIERS_VARARGS = 0x80;
+    private static final long serialVersionUID = 2L;
 
     private static final Map<Class<?>, ClassInfo> classInfoMap = new HashMap<Class<?>, ClassInfo>();
+
+    private boolean allowUnsafeClassLoading;
 
     public LuajavaLib() {
         super("luajava");
     }
 
+    /**
+     * Enables or disables class loading.
+     */
+    public void setAllowUnsafeClassLoading(boolean allow) {
+        allowUnsafeClassLoading = allow;
+    }
+
+    /**
+     * Loads a Java class.
+     *
+     * @param args
+     *        <ol>
+     *        <li>Fully qualified name of the Java class to load.
+     *        </ol>
+     * @throws LuaError If the class isn't allowed to be loaded.
+     * @throws ClassNotFoundException If the class isn't found.
+     */
     @LuaBoundFunction
     public Varargs bindClass(Varargs args) throws ClassNotFoundException {
+        if (!allowUnsafeClassLoading) {
+            throw new LuaError("Class loading is not allowed");
+        }
+
         Class<?> clazz = Class.forName(args.checkjstring(1));
-        return toUserdata(clazz, clazz);
+        return toUserdata(clazz, Class.class);
     }
 
     @LuaBoundFunction
@@ -70,96 +84,22 @@ public final class LuajavaLib extends LuaModule {
         } else {
             clazz = Class.forName(c.tojstring());
         }
+
         ClassInfo info = getClassInfo(clazz);
         Object javaObject = info.newInstance(args.subargs(2));
         return LuaUserdata.userdataOf(javaObject, info.getMetatable());
     }
 
-    @LuaBoundFunction(luaName="new")
-    public Varargs new_(Varargs args) throws Exception {
-        return newInstance(args);
-    }
-
-    @LuaBoundFunction
-    public Varargs createProxy(Varargs args) throws ClassNotFoundException {
-        final int niface = args.narg() - 1;
-        if (niface <= 0) {
-            throw new LuaError("no interfaces");
-        }
-        final LuaValue lobj = args.checktable(niface + 1);
-
-        // get the interfaces
-        final Class<?>[] ifaces = new Class<?>[niface];
-        for (int i = 0; i < niface; i++) {
-            ifaces[i] = Class.forName(args.checkjstring(i + 1));
-        }
-
-        // create the invocation handler
-        InvocationHandler handler = new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                String name = method.getName();
-                LuaValue func = lobj.get(name);
-                if (func.isnil()) {
-                    return null;
-                }
-
-                boolean isvarargs = ((method.getModifiers() & METHOD_MODIFIERS_VARARGS) != 0);
-
-                LuaValue[] luaArgs = LuaConstants.NOVALS;
-                if (args != null) {
-                    int n = args.length;
-                    if (isvarargs) {
-                        Object obj = args[--n];
-                        int m = Array.getLength(obj);
-                        luaArgs = new LuaValue[n + m];
-                        for (int i = 0; i < n; i++) {
-                            luaArgs[i] = CoerceJavaToLua.coerce(args[i]);
-                        }
-                        for (int i = 0; i < m; i++) {
-                            luaArgs[i + n] = CoerceJavaToLua.coerce(Array.get(obj, i));
-                        }
-                    } else {
-                        luaArgs = new LuaValue[n];
-                        for (int i = 0; i < n; i++) {
-                            luaArgs[i] = CoerceJavaToLua.coerce(args[i]);
-                        }
-                    }
-                }
-
-                LuaValue result = func.invoke(luaArgs).arg1();
-                return CoerceLuaToJava.coerceArg(result, method.getReturnType());
-            }
-        };
-
-        // create the proxy object
-        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), ifaces, handler);
-
-        // return the proxy
-        return LuaValue.userdataOf(proxy);
-    }
-
-    @LuaBoundFunction
-    public Varargs loadLib(Varargs args) throws Exception {
-        // get constructor
-        String classname = args.checkjstring(1);
-        String methodname = args.checkjstring(2);
-        Class<?> clazz = Class.forName(classname);
-        Method method = clazz.getMethod(methodname, new Class[] {});
-        Object result = method.invoke(clazz, new Object[] {});
-        if (result instanceof LuaValue) {
-            return (LuaValue)result;
-        } else {
-            return NIL;
-        }
-    }
-
-    public static LuaUserdata toUserdata(Object obj, Class<?> clazz) {
+    /**
+     * Returns a Lua userdata object wrapping the given object, giving Lua access to the public methods
+     * defined in {@code clazz}.
+     */
+    public static LuaUserdata toUserdata(Object object, Class<?> clazz) {
         ClassInfo info = getClassInfo(clazz);
-        return LuaUserdata.userdataOf(obj, info.getMetatable());
+        return LuaUserdata.userdataOf(object, info.getMetatable());
     }
 
-    public static ClassInfo getClassInfo(Class<?> clazz) {
+    static ClassInfo getClassInfo(Class<?> clazz) {
         ClassInfo info = classInfoMap.get(clazz);
         if (info == null) {
             info = new ClassInfo(clazz);
@@ -168,12 +108,19 @@ public final class LuajavaLib extends LuaModule {
         return info;
     }
 
+    /**
+     * Returns a Lua function that calls a constructor of the given Java class.
+     */
+    public static LuaFunction getConstructor(Class<?> javaClass) {
+        return new ConstrFunction(javaClass);
+    }
+
     @LuaSerializable
-    public static class ConstrFunction extends LuaFunction {
+    private static final class ConstrFunction extends LuaFunction {
 
         private static final long serialVersionUID = 6459092255782515933L;
 
-        private ClassInfo ci;
+        private final ClassInfo ci;
 
         public ConstrFunction(Class<?> c) {
             ci = getClassInfo(c);

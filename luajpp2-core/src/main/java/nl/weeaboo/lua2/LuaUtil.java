@@ -3,7 +3,6 @@ package nl.weeaboo.lua2;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
-import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,26 +45,31 @@ public final class LuaUtil {
      * @param clazz Java type to register.
      * @param tableName Name of the class table.
      */
-    public static void registerClass(LuaValue globals, Class<?> clazz, String tableName) {
+    public static <T> void registerClass(LuaValue globals, Class<T> clazz, String tableName) {
         LuaTable table = new LuaTable();
         if (clazz.isEnum()) {
-            for (Object val : clazz.getEnumConstants()) {
+            for (T val : clazz.getEnumConstants()) {
                 Enum<?> e = (Enum<?>)val;
                 table.rawset(e.name(), LuajavaLib.toUserdata(e, clazz));
             }
         } else {
-            table.rawset(NEW, new LuajavaLib.ConstrFunction(clazz));
+            table.rawset(NEW, LuajavaLib.getConstructor(clazz));
         }
         globals.rawset(tableName, table);
     }
 
     /**
      * Compiles and runs a piece of Lua code in the given thread.
+     * @throws LuaException If an error occurs while trying to compare or run the code.
      */
     public static Varargs eval(LuaLink thread, String code) throws LuaException {
         return thread.call(compileForEval(code, thread.getThread().getCallEnv()));
     }
 
+    /**
+     * Compiles a snippet of Lua code as a runnable closure.
+     * @throws LuaException If an error occurs while trying to compile the code.
+     */
     public static LuaClosure compileForEval(String code, LuaValue env) throws LuaException {
         final String chunkName = "(eval)";
         try {
@@ -91,12 +95,16 @@ public final class LuaUtil {
     }
 
     /**
-     * @return The current call stack of the active Lua thread, or an empty list if no thread is active.
+     * Returns the current call stack of the active Lua thread, or an empty list if no thread is active.
+     * @see #getLuaStack()
      */
     public static List<String> getLuaStack() {
         return getLuaStack(LuaThread.getRunning());
     }
 
+    /**
+     * Returns the call stack of the given thread.
+     */
     public static List<String> getLuaStack(LuaThread thread) {
         if (thread == null) {
             return Collections.emptyList();
@@ -113,74 +121,6 @@ public final class LuaUtil {
         return Collections.unmodifiableList(result);
     }
 
-    public static Varargs concatVarargs(Varargs firstArgs, Varargs secondArgs) {
-        if (firstArgs == null || firstArgs.narg() == 0) {
-            return secondArgs;
-        }
-        if (secondArgs == null || secondArgs.narg() == 0) {
-            return firstArgs;
-        }
-
-        int firstCount = firstArgs.narg();
-        int secondCount = secondArgs.narg();
-
-        LuaValue[] merged = new LuaValue[firstCount + secondCount];
-        for (int n = 0; n < firstCount; n++) {
-            merged[n] = firstArgs.arg(1 + n);
-        }
-        for (int n = 0; n < secondCount; n++) {
-            merged[firstCount + n] = secondArgs.arg(1 + n);
-        }
-        return LuaValue.varargsOf(merged);
-    }
-
-    public static Varargs copyArgs(LuaValue[] stack, int offset, int length) {
-        if (length <= 0) {
-            return NONE;
-        }
-
-        LuaValue[] array = new LuaValue[length];
-        for (int n = 0; n < length; n++) {
-            array[n] = stack[offset + n];
-        }
-        return varargsOf(array);
-    }
-
-    public static Varargs copyArgs(LuaValue[] stack, int offset, int length, Varargs extra) {
-        if (length <= 0) {
-            return copyArgs(extra);
-        }
-
-        if (extra == null) {
-            extra = NONE;
-        }
-        int extraL = extra.narg();
-
-        LuaValue[] array = new LuaValue[length + extraL];
-        for (int n = 0; n < length; n++) {
-            array[n] = stack[offset + n];
-        }
-        for (int n = 0; n < extraL; n++) {
-            array[length + n] = extra.arg(1 + n);
-        }
-        return varargsOf(array);
-    }
-
-    public static Varargs copyArgs(Varargs in) {
-        if (in == null) {
-            return null;
-        }
-        final int inL = in.narg();
-        if (inL == 0) {
-            return NONE;
-        }
-
-        LuaValue[] array = new LuaValue[inL];
-        for (int n = 0; n < array.length; n++) {
-            array[n] = in.arg(1 + n);
-        }
-        return LuaValue.varargsOf(array);
-    }
 
     /**
      * Turns the given string containing Lua source code declaring a simple
@@ -213,6 +153,25 @@ public final class LuaUtil {
         return NIL;
     }
 
+    /**
+     * Returns an independent copy of a {@link Varargs}.
+     */
+    public static Varargs copyArgs(Varargs in) {
+        if (in == null) {
+            return null;
+        }
+        final int inL = in.narg();
+        if (inL == 0) {
+            return NONE;
+        }
+
+        LuaValue[] array = new LuaValue[inL];
+        for (int n = 0; n < array.length; n++) {
+            array[n] = in.arg(1 + n);
+        }
+        return LuaValue.varargsOf(array);
+    }
+
     private static final char[] escapeList = {
         '\"', '\"',
         '\'', '\'',
@@ -226,13 +185,18 @@ public final class LuaUtil {
         'v', '\u000B',
     };
 
+    /**
+     * Escapes special characters (such as '\n') like they would be in a Lua string.
+     * @return A string with the special characters replaced.
+     * @see #escape(StringBuilder, String)
+     */
     public static String escape(String s) {
         StringBuilder sb = new StringBuilder(s.length());
         escape(sb, s);
         return sb.toString();
     }
 
-    public static void escape(StringBuilder out, String s) {
+    private static void escape(StringBuilder out, String s) {
         for (int n = 0; n < s.length(); n++) {
             char c = s.charAt(n);
 
@@ -250,6 +214,12 @@ public final class LuaUtil {
         }
     }
 
+    /**
+     * Performs the inverse operation of {@link #escape(String)}, replacing escaped special characters with
+     * their non-escaped counterparts.
+     *
+     * @see #unescape(char)
+     */
     public static String unescape(String s) {
         char[] chars = new char[s.length()];
         s.getChars(0, chars.length, chars, 0);
@@ -267,6 +237,13 @@ public final class LuaUtil {
         return new String(chars, 0, t);
     }
 
+    /**
+     * Performs the inverse operation of {@link #escape(String)}, replacing an escaped special character with
+     * their non-escaped counterparts.
+     *
+     * @param c The character following the '\\' in the escaped sequence.
+     * @see #unescape(String)
+     */
     public static char unescape(char c) {
         for (int n = 0; n < escapeList.length; n += 2) {
             if (c == escapeList[n]) {

@@ -22,7 +22,7 @@ public class StdStreamsTest extends AbstractLuaTest {
     }
 
     @Test
-    public void accessStdOut() throws LuaException, IOException {
+    public void accessStdOut() throws IOException {
         redir.writeToStdIn("stdin\n");
 
         loadScript("lib/io/stdfile.lua");

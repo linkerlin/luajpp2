@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaUtil;
+import nl.weeaboo.lua2.internal.LuaArgsUtil;
 import nl.weeaboo.lua2.io.DelayedReader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.io.LuaSerializer;
@@ -114,13 +114,20 @@ public class LuaLink extends AbstractLuaLink {
         return NONE;
     }
 
+    /**
+     * @see #pushCall(LuaClosure, Varargs)
+     * @throws LuaException If an error occurs while trying to set up the function call.
+     */
     public void pushCall(String funcName, Object... args) throws LuaException {
-        Varargs mergedArgs = LuaUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
+        Varargs mergedArgs = LuaArgsUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
         doPushCall(getFunction(funcName), mergedArgs);
     }
 
+    /**
+     * Pushes a function call on the thread's call stack.
+     */
     public void pushCall(LuaClosure func, Varargs args) {
-        doPushCall(func, LuaUtil.concatVarargs(getImplicitArgs(), args));
+        doPushCall(func, LuaArgsUtil.concatVarargs(getImplicitArgs(), args));
     }
 
     private void doPushCall(LuaClosure func, Varargs args) {
@@ -132,7 +139,7 @@ public class LuaLink extends AbstractLuaLink {
      */
     @Override
     public Varargs call(LuaClosure func, Object... args) throws LuaException {
-        Varargs mergedArgs = LuaUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
+        Varargs mergedArgs = LuaArgsUtil.concatVarargs(getImplicitArgs(), CoerceJavaToLua.coerceArgs(args));
         return doCall(func, mergedArgs);
     }
 
@@ -204,6 +211,9 @@ public class LuaLink extends AbstractLuaLink {
         doPushCall(func, args);
     }
 
+    /**
+     * @return {@code true} if this thread can still be used to run code.
+     */
     public boolean isRunnable() {
         if (!inited) {
             return true;
@@ -225,6 +235,9 @@ public class LuaLink extends AbstractLuaLink {
         return (persistent ? thread.isDead() : thread.isFinished());
     }
 
+    /**
+     * Returns the thread wrapped by this {@link LuaLink}.
+     */
     public LuaThread getThread() {
         return thread;
     }

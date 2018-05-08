@@ -13,7 +13,7 @@ import java.io.IOException;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.Buffer;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;

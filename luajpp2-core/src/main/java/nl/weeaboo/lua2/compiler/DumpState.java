@@ -239,6 +239,7 @@ public final class DumpState {
      * Dump Lua function as precompiled chunk.
      *
      * @see #dump(Prototype, OutputStream, boolean, int, boolean)
+     * @throws IOException If an I/O error occurs while trying to write the dump to the given output stream.
      */
     public static void dump(Prototype f, OutputStream w, boolean strip) throws IOException {
         DumpState d = new DumpState(w, strip);
@@ -256,6 +257,7 @@ public final class DumpState {
      *        NUMBER_FORMAT_NUM_PATCH_INT32
      * @param littleendian true to use little endian for numbers, false for big endian
      * @throws IllegalArgumentException if the number format it not supported
+     * @throws IOException If an I/O error occurs while trying to write the dump to the given output stream.
      */
     public static void dump(Prototype f, OutputStream w, boolean stripDebug, int numberFormat,
             boolean littleendian) throws IOException {

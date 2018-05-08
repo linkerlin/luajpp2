@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
-import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.vm.LuaTable;
 
@@ -33,7 +32,7 @@ public class JavaArrayTest extends AbstractLuaTest {
      * Access values from a covariant Java array.
      */
     @Test
-    public void accessArray() throws LuaException {
+    public void accessArray() {
         loadScript("luajava/array.lua");
         runToCompletion();
 

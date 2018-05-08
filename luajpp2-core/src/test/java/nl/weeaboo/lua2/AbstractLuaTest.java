@@ -61,7 +61,7 @@ public abstract class AbstractLuaTest {
     /**
      * Runs Lua code until all threads are finished.
      */
-    public void runToCompletion() throws LuaException {
+    public void runToCompletion() {
         for (int n = 0; n < 1000; n++) {
             luaRunState.update();
 

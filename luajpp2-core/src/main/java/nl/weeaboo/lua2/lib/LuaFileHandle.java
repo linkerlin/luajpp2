@@ -21,17 +21,27 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
         this.fileMethods = fileMethods;
     }
 
-    public boolean isstdfile() {
+    /**
+     * @return {@code true} if this is one of the standard (unclosable) streams -- stdin, stdout, stderr.
+     */
+    public boolean isStdFile() {
         return false;
     }
 
+    /**
+     * Closes the file handle.
+     * @throws IOException If the file handle can't be closed.
+     */
     public void close() throws IOException {
-        if (isstdfile()) {
-            throw new IOException("stdfile instances can't be closed");
+        if (isStdFile()) {
+            throw new IOException("StdFile instances can't be closed");
         }
     }
 
-    public boolean isclosed() {
+    /**
+     * @return {@code true} if this file handle is closed (not open).
+     */
+    public boolean isClosed() {
         return false;
     }
 
@@ -44,6 +54,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      *               </ul>
      * @param bytecount Skip relative by this number of bytes.
      * @returns The new position
+     * @throws IOException If seeking isn't supported, or this seek operation failed for some other reason.
      */
     public int seek(String whence, int bytecount) throws IOException {
         throw new IOException("seek not supported");
@@ -75,6 +86,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      * Peek ahead one character
      *
      * @return The next unsigned byte, or {@code -1} if the end of the file has been reached.
+     * @throws IOException If this operation isn't supported, or the file is no longer accessible.
      */
     public int peek() throws IOException {
         throw new IOException("peek not supported");
@@ -82,6 +94,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
 
     /**
      * return char if read, -1 if eof, throw IOException on other exception.
+     * @throws IOException If the file isn't readable.
      */
     public int read() throws IOException {
         throw new IOException("read not supported");
@@ -100,6 +113,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
 
     /**
      * @param string The string to write
+     * @throws IOException If writing fails.
      */
     public void write(LuaString string) throws IOException {
         throw new IOException("write not supported");
@@ -132,7 +146,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
     @Override
     public String tojstring() {
         // displays as "file" type
-        if (isclosed()) {
+        if (isClosed()) {
             return "file (closed)";
         }
         return "file: " + Integer.toHexString(hashCode());

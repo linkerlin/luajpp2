@@ -64,26 +64,32 @@ public final class LuaC extends Lua implements ILuaCompiler {
     static final int LUAI_MAXUPVALUES = 60;
     static final int LUAI_MAXVARS = 200;
 
-    private Map<LuaString, LuaString> strings = new HashMap<LuaString, LuaString>();
+    private final Map<LuaString, LuaString> strings = new HashMap<LuaString, LuaString>();
+
     int nCcalls;
 
     public LuaC() {
     }
 
-    /**
-     * Load into a Closure or LuaFunction, with the supplied initial environment.
-     */
     @Override
     public LuaClosure load(InputStream stream, String name, LuaValue env) throws IOException {
         Prototype p = compile(stream, name);
         return new LuaClosure(p, env);
     }
 
+    /**
+     * @throws IOException If an I/O error occurs.
+     * @see #compile(InputStream, String)
+     */
     public static Prototype compile(String source, String name) throws IOException {
         return compile(new ByteArrayInputStream(source.getBytes("UTF-8")), name);
     }
 
-    /** Compile a prototype or load as a binary chunk. */
+    /**
+     * Compile a prototype or load as a binary chunk.
+     *
+     * @throws IOException If an I/O error occurs.
+     */
     public static Prototype compile(InputStream stream, String name) throws IOException {
         int firstByte = stream.read();
         if (firstByte == '\033') {
@@ -114,7 +120,7 @@ public final class LuaC extends Lua implements ILuaCompiler {
     }
 
     /** Look up and keep at most one copy of each string. */
-    public LuaString newTString(byte[] bytes, int offset, int len) {
+    LuaString newTString(byte[] bytes, int offset, int len) {
         LuaString tmp = LuaString.valueOf(bytes, offset, len);
         LuaString v = strings.get(tmp);
         if (v == null) {
@@ -129,7 +135,7 @@ public final class LuaC extends Lua implements ILuaCompiler {
         return v;
     }
 
-    public String pushfstring(String string) {
+    String pushfstring(String string) {
         return string;
     }
 

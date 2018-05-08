@@ -129,16 +129,9 @@ import nl.weeaboo.lua2.stdlib.DebugTrace;
  * <li>{@link #tableOf(LuaValue[], LuaValue[], Varargs)} for mixtures</li>
  * </ul>
  * <p>
- * Predefined constants exist for the standard lua type constants {@link LuaConstants#TNIL},
- * {@link LuaConstants#TBOOLEAN}, {@link LuaConstants#TLIGHTUSERDATA}, {@link LuaConstants#TNUMBER},
- * {@link LuaConstants#TSTRING}, {@link LuaConstants#TTABLE}, {@link LuaConstants#TFUNCTION},
- * {@link LuaConstants#TUSERDATA}, {@link LuaConstants#TTHREAD}, and extended lua type constants
- * {@link LuaConstants#TINT}, {@link LuaConstants#TNONE}, {@link LuaConstants#TVALUE}
+ * Predefined constants exist for the standard lua type constants and extended lua type constants.
  * <p>
- * Predefined constants exist for all strings used as metatags: {@link #META_INDEX}, {@link #META_NEWINDEX},
- * {@link #META_CALL}, {@link #META_MODE}, {@link LuaConstants#META_METATABLE}, {@link #META_ADD}, {@link #META_SUB}, {@link #META_DIV},
- * {@link #META_MUL}, {@link #META_POW}, {@link #META_MOD}, {@link #META_UNM}, {@link #META_LEN}, {@link #META_EQ}, {@link #META_LT}, {@link #META_LE}
- * , {@link LuaConstants#META_TOSTRING}, and {@link #META_CONCAT}.
+ * Predefined constants exist for all strings used as metatags.
  *
  * @see LoadState
  * @see Varargs

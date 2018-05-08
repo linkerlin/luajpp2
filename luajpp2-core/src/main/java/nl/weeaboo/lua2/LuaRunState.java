@@ -15,6 +15,7 @@ import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.link.LuaFunctionLink;
 import nl.weeaboo.lua2.link.LuaLink;
+import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -52,10 +53,21 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         mainGroup.add(mainThread);
     }
 
+    /**
+     * Creates a new instance using the stoch standard library.
+     *
+     * @throws LuaException If no run state could be created.
+     * @see #create(StandardLibrary)
+     */
     public static LuaRunState create() throws LuaException {
         return create(new StandardLibrary());
     }
 
+    /**
+     * Creates a new instance using the supplied standard library.
+     *
+     * @throws LuaException If no run state could be created.
+     */
     public static LuaRunState create(StandardLibrary stdlib) throws LuaException {
         LuaRunState runState = new LuaRunState();
         runState.registerOnThread();
@@ -87,6 +99,9 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         }
     }
 
+    /**
+     * Sets this {@link LuaRunState} as the active Lua context for the current thread.
+     */
     public void registerOnThread() {
         if (threadInstance.get() != this) {
             threadInstance.set(this);
@@ -103,6 +118,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return null;
     }
 
+    /**
+     * Creates a new Lua thread running the supplied function called with the supplied arguments.
+     * @see LuaThreadGroup#newThread(LuaClosure, Varargs)
+     */
     public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
         LuaThreadGroup group = getDefaultThreadGroup();
         if (group == null) {
@@ -111,6 +130,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return group.newThread(func, args);
     }
 
+    /**
+     * Creates a new Lua thread running the supplied function called with the supplied arguments.
+     * @see LuaThreadGroup#newThread(String, Object...)
+     */
     public LuaFunctionLink newThread(String func, Object... args) {
         LuaThreadGroup group = getDefaultThreadGroup();
         if (group == null) {
@@ -119,13 +142,19 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return group.newThread(func, args);
     }
 
+    /**
+     * Creates a new Lua thread group.
+     */
     public LuaThreadGroup newThreadGroup() {
         LuaThreadGroup tg = new LuaThreadGroup(this);
         threadGroups.add(tg);
         return tg;
     }
 
-    public boolean update() throws LuaException {
+    /**
+     * Runs all threads.
+     */
+    public boolean update() {
         if (destroyed) {
             LOG.debug("Attempted to update a destroyed LuaRunState");
             return false;
@@ -144,6 +173,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
      * Called by the interpreter on every instruction (if {@link LuaRunState#isDebugEnabled()}).
      *
      * @param pc The current program counter
+     * @throws LuaError If an internal assertion fails.
      */
     public void onInstruction(int pc) throws LuaError {
         instructionCount++;
@@ -152,6 +182,9 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         }
     }
 
+    /**
+     * Returns the {@link LuaRunState} that's registered on the current thread, or {@code null} if none is registered.
+     */
     public static LuaRunState getCurrent() {
         return threadInstance.get();
     }
@@ -161,38 +194,67 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return destroyed;
     }
 
+    /**
+     * Returns {@code true} if debug mode is enabled (switches on some assertions as well as the {@link DebugLib}).
+     */
     public boolean isDebugEnabled() {
         return debugEnabled;
     }
 
+    /**
+     * Returns the default thread group used for new threads.
+     */
     public LuaThreadGroup getDefaultThreadGroup() {
         return findFirstThreadGroup();
     }
 
+    /**
+     * Returns the main thread for this Lua context.
+     */
     public LuaLink getMainThread() {
         return mainThread;
     }
 
+    /**
+     * Returns the currently running thread, or if no thread is running, the main thread.
+     */
     public LuaThread getRunningThread() {
         return (currentThread != null ? currentThread : mainThread.getThread());
     }
 
+    /**
+     * The Lua globals table {@code _G}.
+     */
     public LuaTable getGlobalEnvironment() {
         return globals;
     }
 
+    /**
+     * The Lua registry table.
+     */
     public LuaTable getRegistry() {
         return registry;
     }
 
+    /**
+     * Returns the single-invocation instruction limit. If a threads runs more than this number of instructions
+     * without yielding, an error is thrown.
+     */
     public int getInstructionCountLimit() {
         return instructionCountLimit;
     }
 
+    /**
+     * @see #getInstructionCountLimit()
+     */
     public void setInstructionCountLimit(int lim) {
         instructionCountLimit = lim;
     }
 
+    /**
+     * @deprecated Meant for internal use only.
+     */
+    @Deprecated
     public void setRunningThread(LuaThread t) {
         if (currentThread == t) {
             return;
@@ -230,6 +292,9 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return resourceFinder.findResource(filename);
     }
 
+    /**
+     * Sets the {@link ILuaResourceFinder} used to load script files.
+     */
     public void setResourceFinder(ILuaResourceFinder resourceFinder) {
         this.resourceFinder = resourceFinder;
     }

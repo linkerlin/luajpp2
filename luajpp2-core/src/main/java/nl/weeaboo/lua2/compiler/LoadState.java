@@ -332,6 +332,7 @@ public final class LoadState {
      *
      * @param p name of the source
      * @return {@link Prototype} instance that was loaded
+     * @throws IOException If an I/O error occurs.
      */
     public Prototype loadFunction(LuaString p) throws IOException {
         Prototype f = new Prototype();
@@ -367,6 +368,10 @@ public final class LoadState {
         luacNumberFormat = is.readByte();
     }
 
+    /**
+     * @throws IOException If an I/O error occurs.
+     * @see #load(InputStream, String, LuaValue)
+     */
     public static LuaFunction load(String source, String name, LuaValue env) throws IOException {
         return load(new ByteArrayInputStream(source.getBytes("UTF-8")), name, env);
     }

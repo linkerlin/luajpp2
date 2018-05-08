@@ -40,8 +40,10 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
         LOG.debug("Opening file: {}", fileName);
     }
 
+    @SuppressWarnings("checkstyle:NoFinalizer")
     @Override
     protected void finalize() throws Throwable {
+
         try {
             if (file != null) {
                 doClose();
@@ -54,7 +56,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     }
 
     private void checkOpen() throws IOException {
-        if (isclosed()) {
+        if (isClosed()) {
             throw new IOException("File is closed");
         }
     }
@@ -93,7 +95,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     }
 
     @Override
-    public boolean isclosed() {
+    public boolean isClosed() {
         return file == null;
     }
 

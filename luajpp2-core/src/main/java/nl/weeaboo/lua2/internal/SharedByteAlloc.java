@@ -37,10 +37,16 @@ public final class SharedByteAlloc {
         return result;
     }
 
+    /**
+     * Returns the backing array of the chunk previously reserver using {@link #reserve(int)}.
+     */
     public byte[] getReserved() {
         return current;
     }
 
+    /**
+     * Returns a thread-local instance.
+     */
     public static SharedByteAlloc getInstance() {
         return alloc.get();
     }

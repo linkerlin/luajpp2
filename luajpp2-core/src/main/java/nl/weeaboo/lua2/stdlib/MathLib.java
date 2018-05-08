@@ -9,7 +9,7 @@ import java.util.Random;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -150,7 +150,7 @@ public final class MathLib extends LuaModule {
             m = Math.min(m, args.checkdouble(i));
         }
         return valueOf(m);
-     }
+    }
 
     @LuaBoundFunction
     public Varargs fmod(Varargs args) {

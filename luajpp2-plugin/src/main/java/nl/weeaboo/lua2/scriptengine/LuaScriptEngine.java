@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
+
 package nl.weeaboo.lua2.scriptengine;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.META_INDEX;
@@ -74,11 +75,11 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 
     private ScriptContext defaultContext;
 
-    private final LuaValue _G;
+    private final LuaValue globalEnv;
 
     public LuaScriptEngine(LuaRunState lrs) {
         // create globals
-        _G = lrs.getGlobalEnvironment();
+        globalEnv = lrs.getGlobalEnvironment();
 
         // set up context
         ScriptContext ctx = new SimpleScriptContext();
@@ -212,13 +213,14 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             } finally {
                 ris.close();
             }
-        } catch (Throwable t) {
-            throw new ScriptException("eval threw " + t.toString());
+        } catch (Exception e) {
+            throw new ScriptException("eval threw " + e.toString());
         }
     }
 
-    abstract protected class CompiledScriptImpl extends CompiledScript {
-        abstract protected LuaFunction newFunctionInstance() throws ScriptException;
+    protected abstract class CompiledScriptImpl extends CompiledScript {
+
+        protected abstract LuaFunction newFunctionInstance() throws ScriptException;
 
         @Override
         public ScriptEngine getEngine() {
@@ -244,7 +246,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
         public ClientBindings(Bindings b) {
             this.b = b;
             this.env = new LuaTable();
-            env.setmetatable(LuaValue.tableOf(new LuaValue[] { META_INDEX, _G }));
+            env.setmetatable(LuaValue.tableOf(new LuaValue[] { META_INDEX, globalEnv }));
             this.copyBindingsToGlobals();
         }
 
@@ -309,9 +311,15 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
 
         @Override
         public int read() throws IOException {
-            if (n > 0) return buf[--n];
+            if (n > 0) {
+                return buf[--n];
+            }
+
             int c = r.read();
-            if (c < 0x80) return c;
+            if (c < 0x80) {
+                return c;
+            }
+
             n = 0;
             if (c < 0x800) {
                 buf[n++] = (0x80 | (c & 0x3f));

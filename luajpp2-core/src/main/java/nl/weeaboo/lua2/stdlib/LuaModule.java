@@ -2,7 +2,7 @@ package nl.weeaboo.lua2.stdlib;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.lib2.LuaLib;
+import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.vm.LuaTable;
 
 public abstract class LuaModule extends LuaLib {

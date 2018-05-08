@@ -19,6 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
+
 package nl.weeaboo.lua2.scriptengine;
 
 import java.util.Arrays;
@@ -36,24 +37,12 @@ import nl.weeaboo.lua2.vm.LuaError;
  */
 public class LuaScriptEngineFactory implements ScriptEngineFactory {
 
-     private static final String [] EXTENSIONS = {
-         "lua",
-         ".lua",
-     };
+    private static final String[] EXTENSIONS = { "lua", ".lua", };
+    private static final String[] MIMETYPES = { "text/plain", "text/lua", "application/lua" };
+    private static final String[] NAMES = { "lua", "luaj", };
 
-    private static final String [] MIMETYPES = {
-        "text/plain",
-        "text/lua",
-        "application/lua"
-    };
+    private static final ThreadLocal<ScriptEngine> engines = new ThreadLocal<ScriptEngine>();
 
-    private static final String [] NAMES = {
-        "lua",
-        "luaj",
-    };
-
-    private static final ThreadLocal<ScriptEngine> engines
-        = new ThreadLocal<ScriptEngine>();
     private List<String> extensions;
     private List<String> mimeTypes;
     private List<String> names;

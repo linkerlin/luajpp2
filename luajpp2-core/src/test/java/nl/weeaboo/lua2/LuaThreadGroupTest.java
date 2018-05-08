@@ -35,7 +35,7 @@ public final class LuaThreadGroupTest {
      * Test suspend/resume behavior of the thread group.
      */
     @Test
-    public void suspendResume() throws LuaException {
+    public void suspendResume() {
         LuaLinkStub link = new LuaLinkStub();
         threadGroup.add(link);
 
@@ -58,7 +58,7 @@ public final class LuaThreadGroupTest {
      * Check that finished threads are automatically removed from the thread group.
      */
     @Test
-    public void finishedThreadsRemoved() throws LuaException {
+    public void finishedThreadsRemoved() {
         LuaLinkStub link = new LuaLinkStub(1);
         threadGroup.add(link);
         Assert.assertEquals(true, threadGroup.update());
@@ -69,7 +69,7 @@ public final class LuaThreadGroupTest {
      * Destroying the thread group also destroys all attached threads.
      */
     @Test
-    public void destroyGroup() throws LuaException {
+    public void destroyGroup() {
         @SuppressWarnings("serial")
         LuaLinkStub link = new LuaLinkStub() {
             @Override

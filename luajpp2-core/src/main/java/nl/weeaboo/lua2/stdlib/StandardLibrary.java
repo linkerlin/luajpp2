@@ -8,20 +8,26 @@ import nl.weeaboo.lua2.vm.LuaTable;
 public final class StandardLibrary {
 
     private final PackageLib packageLib;
+    private final LuajavaLib luajavaLib;
 
     private boolean debugEnabled = true;
     private boolean unsafeIo;
 
     public StandardLibrary() {
         packageLib = new PackageLib();
+        luajavaLib = new LuajavaLib();
     }
 
     public void setDebugEnabled(boolean enable) {
         debugEnabled = enable;
     }
 
-    public void setUnsafeIo(boolean allowUnsafeIo) {
-        unsafeIo = allowUnsafeIo;
+    public void setAllowUnsafeIO(boolean allow) {
+        unsafeIo = allow;
+    }
+
+    public void setAllowUnsafeClassLoading(boolean allow) {
+        luajavaLib.setAllowUnsafeClassLoading(allow);
     }
 
     public void register() throws LuaException {
@@ -37,7 +43,7 @@ public final class StandardLibrary {
         ILuaIoImpl ioImpl = createIoImpl();
         new IoLib(ioImpl).register();
         new OsLib(ioImpl).register();
-        new LuajavaLib().register();
+        luajavaLib.register();
         new ThreadLib().register();
 
         if (debugEnabled) {

@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.lib2.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
@@ -49,6 +49,23 @@ public final class CoroutineLib extends LuaModule {
             LOG.trace("Unable to resume coroutine: {}", t, e);
             return varargsOf(LuaBoolean.FALSE, e.getMessageObject());
         }
+    }
+
+    private static Varargs resume(LuaThread thread, Varargs args) {
+        LuaThreadStatus status = thread.getStatus();
+
+        if (status == LuaThreadStatus.INITIAL) {
+            thread.setArgs(args);
+            thread.setSleep(0);
+        } else if (status == LuaThreadStatus.SUSPENDED) {
+            // Resume coroutine
+            // Place args on the thread's stack as though it was returned from the call that yielded
+            thread.setReturnedValues(args);
+        } else {
+            throw new LuaError("Unable to resume coroutine: " + thread + ", status=" + getCoroutineStatus(thread));
+        }
+
+        return thread.resume(-1);
     }
 
     /**
@@ -103,22 +120,6 @@ public final class CoroutineLib extends LuaModule {
         return new WrappedFunction(thread);
     }
 
-    private static Varargs resume(LuaThread thread, Varargs args) {
-        LuaThreadStatus status = thread.getStatus();
-
-        if (status == LuaThreadStatus.INITIAL) {
-            thread.setArgs(args);
-            thread.setSleep(0);
-        } else if (status == LuaThreadStatus.SUSPENDED) {
-            // Resume coroutine
-            // Place args on the thread's stack as though it was returned from the call that yielded
-            thread.setReturnedValues(args);
-        } else {
-            throw new LuaError("Unable to resume coroutine: " + thread + ", status=" + getCoroutineStatus(thread));
-        }
-
-        return thread.resume(-1);
-    }
 
     @LuaSerializable
     private static final class WrappedFunction extends VarArgFunction {

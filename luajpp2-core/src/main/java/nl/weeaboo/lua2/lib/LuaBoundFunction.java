@@ -1,4 +1,4 @@
-package nl.weeaboo.lua2.lib2;
+package nl.weeaboo.lua2.lib;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

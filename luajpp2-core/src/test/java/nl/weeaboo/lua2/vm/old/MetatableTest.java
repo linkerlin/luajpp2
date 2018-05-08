@@ -283,6 +283,7 @@ public class MetatableTest {
         Assert.assertEquals(via, fallback.get(19));
     }
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     private void checkTable(LuaValue t, LuaValue aa, LuaValue bb, LuaValue cc, LuaValue dd, LuaValue ee,
             LuaValue ff, LuaValue gg, LuaValue ra, LuaValue rb, LuaValue rc, LuaValue rd, LuaValue re,
             LuaValue rf, LuaValue rg) {

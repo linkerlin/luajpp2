@@ -13,10 +13,12 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
-public class CoerceJavaToLua {
+public final class CoerceJavaToLua {
 
-    public static interface Coercion {
-        public LuaValue coerce(Object javaValue);
+    interface Coercion {
+
+        LuaValue coerce(Object javaValue);
+
     }
 
     private static Map<Class<?>, Coercion> COERCIONS = new HashMap<Class<?>, Coercion>();
@@ -83,6 +85,9 @@ public class CoerceJavaToLua {
         COERCIONS.put(String.class, stringCoercion);
     }
 
+    private CoerceJavaToLua() {
+    }
+
     /** Converts a sequence of values to an equivalent LuaTable. */
     public static <T> LuaTable toTable(Iterable<? extends T> values, Class<T> type) {
         LuaTable table = new LuaTable();
@@ -94,6 +99,10 @@ public class CoerceJavaToLua {
         return table;
     }
 
+    /**
+     * Coerces multiple Java objects to their equivalent Lua values (automatically tries to deduce their types).
+     * @see #coerce(Object)
+     */
     public static Varargs coerceArgs(Object[] values) {
         LuaValue[] luaArgs = new LuaValue[values.length];
         for (int n = 0; n < luaArgs.length; n++) {
@@ -102,6 +111,10 @@ public class CoerceJavaToLua {
         return LuaValue.varargsOf(luaArgs);
     }
 
+    /**
+     * Coerces a single Java object to its equivalent Lua value (automatically tries to deduce a type).
+     * @see #coerce(Object, Class)
+     */
     public static LuaValue coerce(Object obj) {
         if (obj == null) {
             return NIL;
@@ -109,6 +122,14 @@ public class CoerceJavaToLua {
         return coerce(obj, obj.getClass());
     }
 
+    /**
+     * Coerces a Java objects to its equivalent Lua value.
+     *
+     * @param declaredType This determines which interface/class methods are available to Lua. This can be
+     *        used to avoid accidentally too many methods to Lua. For example, when a Java method returns an
+     *        interface you'd want Lua to only have access to the methods in that interface and not also all
+     *        methods available in whatever the runtime type of the returned value is.
+     */
     public static LuaValue coerce(Object obj, Class<?> declaredType) {
         if (obj == null) {
             return NIL;

@@ -56,6 +56,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         threads.destroyAll();
     }
 
+    /** Calls the given function (with the supplied arguments) in a new thread */
     public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
         checkDestroyed();
 
@@ -64,6 +65,7 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         return thread;
     }
 
+    /** Calls the given function (with the supplied arguments) in a new thread */
     public LuaFunctionLink newThread(String func, Object... args) {
         checkDestroyed();
 
@@ -72,25 +74,25 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         return thread;
     }
 
-    public void addAll(LuaThreadGroup tg) {
-        for (ILuaLink thread : tg.getThreads()) {
-            add(thread);
-        }
-    }
-
+    /** Adds a thread to this thread group */
     public void add(ILuaLink link) {
         checkDestroyed();
 
         threads.add(link);
     }
 
-    public boolean update() throws LuaException {
+    /** Runs all threads in this thread group */
+    public boolean update() {
         checkDestroyed();
 
         boolean changed = false;
         for (ILuaLink thread : getThreads()) {
             if (!suspended) {
-                changed |= thread.update();
+                try {
+                    changed |= thread.update();
+                } catch (LuaException e) {
+                    LOG.warn("Error running thread: {}", thread, e);
+                }
             }
             if (isDestroyed()) {
                 break;
@@ -99,15 +101,14 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         return changed;
     }
 
-    public boolean isSuspended() {
-        return suspended;
-    }
-
     @Override
     public boolean isDestroyed() {
         return destroyed;
     }
 
+    /**
+     * Returns a snapshots of the non-finished threads currently attached to this thread group.
+     */
     public Collection<ILuaLink> getThreads() {
         for (ILuaLink thread : threads) {
             if (thread.isFinished()) {
@@ -118,14 +119,33 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
         return threads.getSnapshot();
     }
 
+    /**
+     * Suspends this thread group.
+     * @see #setSuspended(boolean)
+     */
     public void suspend() {
         setSuspended(true);
     }
 
+    /**
+     * Resume this thread group.
+     * @see #setSuspended(boolean)
+     */
     public void resume() {
         setSuspended(false);
     }
 
+    /**
+     * @see #setSuspended(boolean)
+     */
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    /**
+     * Sets the suspend-state for this thread group. A suspended thread group doesn't run its threads even
+     * when {@link #update()} is called.
+     */
     public void setSuspended(boolean s) {
         checkDestroyed();
 

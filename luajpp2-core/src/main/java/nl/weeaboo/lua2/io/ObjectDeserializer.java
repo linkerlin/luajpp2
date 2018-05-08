@@ -49,6 +49,13 @@ public class ObjectDeserializer extends ObjectInputStream {
         }
     }
 
+    /**
+     * Calls {@link ObjectInputStream#readObject()} on a new thread and returns the result.
+     * <p>
+     * This method can be used to avoid stack space issues when deserializing large object graphs.
+     *
+     * @throws IOException If the thread throws an exception, or if the wait for the thread's result is interrupted.
+     */
     public Object readObjectOnNewThread() throws IOException {
         Future<Object> future = executor.submit(createAsyncReadTask());
         try {
@@ -93,10 +100,17 @@ public class ObjectDeserializer extends ObjectInputStream {
         return obj;
     }
 
+    /**
+     * If {@code true}, tracks various statistics during use and warns if certain values (primarily stack
+     * depth) become dangerously large.
+     */
     public boolean getCollectStats() {
         return collectStats;
     }
 
+    /**
+     * @see #getCollectStats()
+     */
     public void setCollectStats(boolean enable) {
         if (collectStats != enable) {
             collectStats = enable;
@@ -104,10 +118,17 @@ public class ObjectDeserializer extends ObjectInputStream {
         }
     }
 
+    /**
+     * The stack depth limit at which to generate warnings.
+     * @see #getCollectStats()
+     */
     public int getDepthWarnLimit() {
         return depthWarnLimit;
     }
 
+    /**
+     * @see #getDepthWarnLimit()
+     */
     public void setDepthWarnLimit(int limit) {
         depthWarnLimit = limit;
     }

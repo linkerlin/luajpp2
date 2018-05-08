@@ -26,7 +26,7 @@ public final class Lua51TestSuiteTest extends AbstractLuaTest {
     @Override
     public void initLuaRunState() throws LuaException {
         StandardLibrary stdlib = new StandardLibrary();
-        stdlib.setUnsafeIo(true); // Unsafe I/O functions are required for this test
+        stdlib.setAllowUnsafeIO(true); // Unsafe I/O functions are required for this test
         luaRunState = LuaRunState.create(stdlib);
         luaRunState.setLuaPath("lua51tests/?.lua");
         luaRunState.setResourceFinder(new ClassLoaderResourceFinder() {
@@ -161,11 +161,7 @@ public final class Lua51TestSuiteTest extends AbstractLuaTest {
 
     private void runScript(String filename) {
         loadScript("lua51tests/" + filename);
-        try {
-            runToCompletion();
-        } catch (LuaException e) {
-            throw new AssertionError(e);
-        }
+        runToCompletion();
     }
 
 }

@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
-import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -17,7 +16,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
 public final class SerializeTest extends AbstractLuaTest {
 
     @Test
-    public void serialize1() throws IOException, LuaException {
+    public void serialize1() throws IOException {
         loadScript("io/serialize1.lua");
         runToCompletion();
 
@@ -31,7 +30,7 @@ public final class SerializeTest extends AbstractLuaTest {
      * Test serialization of weak tables.
      */
     @Test
-    public void testWeakTable() throws IOException, LuaException {
+    public void testWeakTable() throws IOException {
         loadScript("io/serialize1.lua");
         runToCompletion();
 

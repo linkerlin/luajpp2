@@ -14,6 +14,9 @@ public final class Environment {
     private final Map<String, Object> idObjMap = new HashMap<String, Object>();
     private final IdentityHashMap<Object, String> objIdMap = new IdentityHashMap<Object, String>();
 
+    /**
+     * Adds a named object to the environment. A particular object instance may only have one name.
+     */
     public void add(String id, Object object) {
         if (id == null) {
             throw new IllegalArgumentException("Id may not be null");
@@ -28,19 +31,31 @@ public final class Environment {
         objIdMap.put(object, id);
     }
 
+    /**
+     * Removes a named object from the environment.
+     */
     public void remove(String id, Object obj) {
         idObjMap.remove(id);
         objIdMap.remove(obj);
     }
 
+    /**
+     * Returns the named object with the given ID, or {@code null} if not found.
+     */
     public Object getObject(String id) {
         return idObjMap.get(id);
     }
 
+    /**
+     * Returns the identifier
+     */
     public String getId(Object obj) {
         return objIdMap.get(obj);
     }
 
+    /**
+     * The number of objects in the environment.
+     */
     public int size() {
         return objIdMap.size();
     }

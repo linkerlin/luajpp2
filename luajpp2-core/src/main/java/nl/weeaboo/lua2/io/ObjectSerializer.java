@@ -181,6 +181,13 @@ public class ObjectSerializer extends ObjectOutputStream {
         return false;
     }
 
+    /**
+     * Calls {@link ObjectOutputStream#writeObject(Object)} on a new thread.
+     * <p>
+     * This method can be used to avoid stack space issues when serializing large object graphs.
+     *
+     * @throws IOException If the thread throws an exception, or if the wait for the thread to finish is interrupted.
+     */
     public void writeObjectOnNewThread(final Object obj) throws IOException {
         Future<?> future = executor.submit(createAsyncWriteTask(obj));
         try {
@@ -237,10 +244,18 @@ public class ObjectSerializer extends ObjectOutputStream {
         }
     }
 
+    /**
+     * Determines the behavior when a non-allowed class is written.
+     * @see #setAllowedPackages(Collection)
+     * @see #setAllowedClasses(Collection)
+     */
     public ErrorLevel getPackageErrorLevel() {
         return packageErrorLevel;
     }
 
+    /**
+     * @see #getPackageErrorLevel()
+     */
     public void setPackageErrorLevel(ErrorLevel el) {
         if (packageErrorLevel != el) {
             packageErrorLevel = el;
@@ -249,22 +264,47 @@ public class ObjectSerializer extends ObjectOutputStream {
         }
     }
 
+    /**
+     * Defines a set of packages that may be written.
+     * <p>
+     * Every class serialized must belong to either an allowed package, be an allowed class, or have the
+     * {@link LuaSerializable} annotation.
+     *
+     * @see #setAllowedClasses(Collection)
+     * @see #getPackageErrorLevel()
+     */
     public void setAllowedPackages(Collection<String> packages) {
         resetValidPackages();
 
         validPackages.addAll(packages);
     }
 
+    /**
+     * Defines a set of classes that may be written.
+     * <p>
+     * Every class serialized must belong to either an allowed package, be an allowed class, or have the
+     * {@link LuaSerializable} annotation.
+     *
+     * @see #setAllowedPackages(Collection)
+     * @see #getPackageErrorLevel()
+     */
     public void setAllowedClasses(Collection<Class<?>> classes) {
         resetValidClasses();
 
         validClasses.addAll(classes);
     }
 
+    /**
+     * If {@code true}, tracks various statistics during use and warns if certain values (primarily stack
+     * depth) become dangerously large.
+     */
     public boolean getCollectStats() {
         return collectStats;
     }
 
+    /**
+     * @see #getCollectStats()
+     */
     public void setCollectStats(boolean enable) {
         if (collectStats != enable) {
             collectStats = enable;

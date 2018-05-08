@@ -11,6 +11,9 @@ public abstract class LuaResource {
         this.canonicalName = canonicalName;
     }
 
+    /**
+     * The name of the resource.
+     */
     public String getCanonicalName() {
         return canonicalName;
     }

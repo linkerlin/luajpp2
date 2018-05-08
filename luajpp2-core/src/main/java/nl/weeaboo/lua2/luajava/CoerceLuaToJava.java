@@ -16,12 +16,14 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
-public class CoerceLuaToJava {
+public final class CoerceLuaToJava {
 
-    public interface Coercion {
-        public Object coerce(LuaValue value);
+    interface Coercion {
 
-        public int score(LuaValue value);
+        Object coerce(LuaValue value);
+
+        int score(LuaValue value);
+
     }
 
     private static Map<Class<?>, Coercion> COERCIONS = new HashMap<Class<?>, Coercion>();
@@ -250,6 +252,9 @@ public class CoerceLuaToJava {
         COERCIONS.put(Double.class, doubleCoercion);
         COERCIONS.put(String.class, stringCoercion);
         COERCIONS.put(Object.class, objectCoercion);
+    }
+
+    private CoerceLuaToJava() {
     }
 
     static void coerceArgs(Object[] out, Varargs luaArgs, Class<?>[] javaParams) {

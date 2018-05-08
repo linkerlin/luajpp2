@@ -18,6 +18,8 @@ public interface ILuaCompiler {
 
     /**
      * Load into a Closure or LuaFunction from a Stream and initializes the environment.
+     *
+     * @throws IOException If an I/O error occurs while reading from the input stream.
      */
     LuaClosure load(InputStream stream, String filename, LuaValue env) throws IOException;
 
