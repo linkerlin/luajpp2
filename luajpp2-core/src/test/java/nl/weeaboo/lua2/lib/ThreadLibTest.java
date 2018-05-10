@@ -42,11 +42,14 @@ public class ThreadLibTest extends AbstractLuaTest {
         LuaTestUtil.assertGlobal("jump2Finished", true);
     }
 
-    @Test(expected = LuaException.class)
+    @Test
     public void invalidJump() {
         loadScript("lib/thread/jumpinvalid.lua");
 
         runToCompletion();
+
+        LuaLink mainThread = luaRunState.getMainThread();
+        Assert.assertEquals(true, mainThread.isFinished());
     }
 
     @Test
