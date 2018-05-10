@@ -11,7 +11,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-public final class StdStreamsRedirect implements TestRule {
+final class StdStreamsRedirect implements TestRule {
 
     private final PipedOutputStream inFeeder;
     private final ByteArrayOutputStream outBuffer;

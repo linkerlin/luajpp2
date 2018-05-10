@@ -350,7 +350,7 @@ public final class StringLib extends LuaModule {
         LuaString p = args.checkstring(2);
         LuaValue repl = args.arg(3);
         int maxS = args.optint(4, srclen + 1);
-        final boolean anchor = p.length() > 0 && p.charAt(0) == '^';
+        final boolean anchor = p.length() > 0 && p.luaByte(0) == '^';
 
         Buffer lbuf = new Buffer(srclen);
         MatchState ms = new MatchState(args, src, p);

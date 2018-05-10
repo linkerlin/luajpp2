@@ -40,6 +40,7 @@ public class LuaLinkStub extends AbstractLuaLink {
         }
     }
 
+    /** Reads and resets the internal call counter. */
     public int consumeCallCount() {
         int result = callCount;
         callCount = 0;

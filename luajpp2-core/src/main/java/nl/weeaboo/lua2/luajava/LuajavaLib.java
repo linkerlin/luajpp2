@@ -75,6 +75,18 @@ public final class LuajavaLib extends LuaModule {
         return toUserdata(clazz, Class.class);
     }
 
+    /**
+     * Instantiates a new Java object. Any additionaly arguments are passed to the class constructor.
+     *
+     * @param args
+     *        <ol>
+     *        <li>class. This can be either a class object (see {@link #bindClass(Varargs)}), or a string with
+     *        the full Java class name.
+     *        <li>args...
+     *        </ol>
+     * @return A userdata object.
+     * @throws Exception If class loading fails, or the constructor raised an exception.
+     */
     @LuaBoundFunction
     public Varargs newInstance(Varargs args) throws Exception {
         final LuaValue c = args.checkvalue(1);
@@ -82,6 +94,9 @@ public final class LuajavaLib extends LuaModule {
         if (c.isuserdata(Class.class)) {
             clazz = c.checkuserdata(Class.class);
         } else {
+            if (!allowUnsafeClassLoading) {
+                throw new LuaError("Class loading is not allowed");
+            }
             clazz = Class.forName(c.tojstring());
         }
 

@@ -101,29 +101,33 @@ public class Lua {
     public static final int MASK_NOT_C  = ~MASK_C;
     public static final int MASK_NOT_Bx = ~MASK_Bx;
 
-    /*
-    ** the following macros help to manipulate instructions
-    */
+
+    /** Extracts the opcode from an instruction */
     public static int getOpcode(int i) {
         return (i >> POS_OP) & MAX_OP;
     }
 
+    /** Extracts the A-arg from an instruction */
     public static int getArgA(int i) {
         return (i >> POS_A) & MAXARG_A;
     }
 
+    /** Extracts the B-arg from an instruction */
     public static int getArgB(int i) {
         return (i >> POS_B) & MAXARG_B;
     }
 
+    /** Extracts the C-arg from an instruction */
     public static int getArgC(int i) {
         return (i >> POS_C) & MAXARG_C;
     }
 
+    /** Extracts the Bx-arg from an instruction */
     public static int getArgBx(int i) {
         return (i >> POS_Bx) & MAXARG_Bx;
     }
 
+    /** Extracts the SBx-arg from an instruction */
     public static int getArgSBx(int i) {
         return ((i >> POS_Bx) & MAXARG_Bx) - MAXARG_sBx;
     }
@@ -314,22 +318,27 @@ public class Lua {
             (0 << 7) | (1 << 6) | (OpArgU << 4) | (OpArgN << 2) | (iABC), /* OP_VARARG */
     };
 
+    /** Returns Op mode for the instruction */
     public static int getOpMode(int m) {
         return luaP_opmodes[m] & 3;
     }
 
+    /** Returns the B-arg mode for the instruction */
     public static int getBMode(int m) {
         return (luaP_opmodes[m] >> 4) & 3;
     }
 
+    /** Returns the C-arg mode for the instruction */
     public static int getCMode(int m) {
         return (luaP_opmodes[m] >> 2) & 3;
     }
 
+    /** instruction set register A */
     public static boolean testAMode(int m) {
         return 0 != (luaP_opmodes[m] & (1 << 6));
     }
 
+    /** operator is a test */
     public static boolean testTMode(int m) {
         return 0 != (luaP_opmodes[m] & (1 << 7));
     }

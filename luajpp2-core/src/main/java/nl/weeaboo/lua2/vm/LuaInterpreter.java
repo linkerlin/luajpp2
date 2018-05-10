@@ -270,7 +270,7 @@ final class LuaInterpreter {
                     top = sf.top;
                     pc = sf.pc;
 
-                    if (thread.isSuspended()) {
+                    if (thread.getStatus() == LuaThreadStatus.SUSPENDED) {
                         return v; // Yield
                     }
 
@@ -321,7 +321,7 @@ final class LuaInterpreter {
 
                         pc = sf.pc;
 
-                        if (thread.isSuspended()) {
+                        if (thread.getStatus() == LuaThreadStatus.SUSPENDED) {
                             return v; // Yield
                         }
 
@@ -468,7 +468,7 @@ final class LuaInterpreter {
             }
 
             // Yield
-            if (thread.isDead() || thread.isEndCall()) {
+            if (thread.isDead() || thread.getStatus() == LuaThreadStatus.END_CALL) {
                 sf.status = Status.DEAD;
             }
             return NONE;

@@ -14,7 +14,6 @@ import java.util.List;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.compiler.LuaC;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.Print;
 import nl.weeaboo.lua2.vm.Prototype;
 
 /**

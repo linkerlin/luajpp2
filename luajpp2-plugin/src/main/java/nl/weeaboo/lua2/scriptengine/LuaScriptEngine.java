@@ -250,6 +250,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             this.copyBindingsToGlobals();
         }
 
+        /** Copy values from bindings to Lua globals. */
         public void copyBindingsToGlobals() {
             for (Iterator<String> i = b.keySet().iterator(); i.hasNext();) {
                 String key = i.next();
@@ -271,10 +272,9 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             }
         }
 
+        /** Copy values from Lua globals to bindings. */
         public void copyGlobalsToBindings() {
-            LuaValue[] keys = env.keys();
-            for (int i = 0; i < keys.length; i++) {
-                LuaValue luakey = keys[i];
+            for (LuaValue luakey : env.keys()) {
                 LuaValue luaval = env.get(luakey);
                 String key = luakey.tojstring();
                 Object val = toJava(luaval);

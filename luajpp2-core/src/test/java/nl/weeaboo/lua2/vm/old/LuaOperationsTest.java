@@ -151,7 +151,7 @@ public class LuaOperationsTest {
         throwsLuaError("length", userdatacls);
     }
 
-    public Prototype createPrototype(String script, String name) {
+    private Prototype createPrototype(String script, String name) {
         try {
             return LuaC.compile(script, name);
         } catch (Exception e) {

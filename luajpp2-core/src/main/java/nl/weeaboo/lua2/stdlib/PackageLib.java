@@ -64,12 +64,21 @@ public final class PackageLib extends LuaModule {
         loadedTable.rawset("package", packageTable);
     }
 
+    /**
+     * This method is not implemented.
+     */
     @LuaBoundFunction
     public Varargs loadlib(Varargs args) {
         args.checkstring(1);
         return varargsOf(NIL, valueOf("dynamic libraries not enabled"), valueOf("absent"));
     }
 
+    /**
+     * package.seeall (module)
+     * <p>
+     * Sets a metatable for module with its __index field referring to the global environment, so that this
+     * module inherits values from the global environment. To be used as an option to function module.
+     */
     @LuaBoundFunction
     public Varargs seeall(Varargs args) {
         LuaTable t = args.checktable(1);

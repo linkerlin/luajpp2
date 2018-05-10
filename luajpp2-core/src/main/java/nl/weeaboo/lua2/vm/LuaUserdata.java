@@ -36,8 +36,8 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = -2825288508171353992L;
 
-    public final Object userdata;
-    public LuaValue metatable;
+    private final Object userdata;
+    private LuaValue metatable;
 
     public LuaUserdata(Object obj) {
         this(obj, null);
@@ -80,6 +80,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
         return userdata.hashCode();
     }
 
+    /** The wrapped Java object */
     public Object userdata() {
         return userdata;
     }

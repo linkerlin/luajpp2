@@ -202,7 +202,7 @@ public final class CoerceLuaToJava {
             @Override
             public Object coerce(LuaValue value) {
                 if (value instanceof LuaUserdata) {
-                    return ((LuaUserdata) value).userdata;
+                    return ((LuaUserdata) value).userdata();
                 }
                 if (value instanceof LuaString) {
                     return value.tojstring();
@@ -306,7 +306,7 @@ public final class CoerceLuaToJava {
 
         // The lua arg is a Java object
         if (lv instanceof LuaUserdata) {
-            Object obj = ((LuaUserdata) lv).userdata;
+            Object obj = ((LuaUserdata) lv).userdata();
             if (c.isAssignableFrom(obj.getClass())) {
                 return c.cast(obj);
             }
@@ -399,7 +399,7 @@ public final class CoerceLuaToJava {
 
         //The lua arg is a Java object
         if (a instanceof LuaUserdata) {
-            Object o = ((LuaUserdata) a).userdata;
+            Object o = ((LuaUserdata) a).userdata();
             if (c.isAssignableFrom(o.getClass())) {
                 return 0; //Perfect match
             }

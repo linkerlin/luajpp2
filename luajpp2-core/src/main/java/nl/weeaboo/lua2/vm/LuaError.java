@@ -86,6 +86,7 @@ public final class LuaError extends RuntimeException {
         return String.valueOf(message);
     }
 
+    /** Retuns the error message for this exception as a Lua object. */
     public LuaValue getMessageObject() {
         return message;
     }

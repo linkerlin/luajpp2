@@ -61,6 +61,7 @@ public final class LuaBoolean extends LuaValue implements Serializable {
         this.bool = b;
     }
 
+    /** Converts from a Java boolean to a Lua boolean object. */
     public static LuaBoolean valueOf(boolean b) {
         return b ? TRUE : FALSE;
     }

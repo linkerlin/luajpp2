@@ -60,6 +60,7 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
         }
     }
 
+    /** Converts from a Java integer to a Lua integer. */
     public static LuaInteger valueOf(int i) {
         if (i <= 255 && i >= -256) {
             return intValues[i + 256];

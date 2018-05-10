@@ -20,10 +20,18 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2.vm;
+package nl.weeaboo.lua2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import nl.weeaboo.lua2.vm.Lua;
+import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaValue;
+import nl.weeaboo.lua2.vm.Prototype;
+import nl.weeaboo.lua2.vm.Varargs;
 
 /**
  * Debug helper class to pretty-print lua bytecodes.
@@ -31,7 +39,7 @@ import java.io.PrintStream;
  * @see Prototype
  * @see LuaClosure
  */
-public class Print extends Lua {
+final class Print extends Lua {
 
     private static final String STRING_FOR_NULL = "null";
     public static PrintStream ps = System.out;

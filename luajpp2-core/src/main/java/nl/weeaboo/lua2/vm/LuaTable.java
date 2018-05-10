@@ -285,7 +285,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         }
     }
 
-    public void presize(int narray, int nhash) {
+    private void presize(int narray, int nhash) {
         if (nhash > 0 && nhash < MIN_HASH_CAPACITY) {
             nhash = MIN_HASH_CAPACITY;
         }
@@ -650,11 +650,11 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         }
     }
 
-    public static int hashpow2(int hashCode, int mask) {
+    private static int hashpow2(int hashCode, int mask) {
         return hashCode & mask;
     }
 
-    public static int hashmod(int hashCode, int mask) {
+    static int hashmod(int hashCode, int mask) {
         return (hashCode & 0x7FFFFFFF) % mask;
     }
 
@@ -1071,16 +1071,17 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         array[j] = a;
     }
 
+    /**
+     * Returns the number of keys in the table.
+     */
     public int keyCount() {
-        return keys().length;
+        return keys().size();
     }
 
     /**
-     * This may be deprecated in a future release. It is recommended to use next() instead
-     *
-     * @return array of keys in the table
+     * Returns a snapshot of the keys in the table.
      */
-    public LuaValue[] keys() {
+    public List<LuaValue> keys() {
         List<LuaValue> result = new ArrayList<LuaValue>();
 
         LuaValue k = NIL;
@@ -1092,7 +1093,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             }
             result.add(k);
         }
-        return result.toArray(new LuaValue[result.size()]);
+        return result;
     }
 
     // equality w/ metatable processing
@@ -1220,29 +1221,4 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return NIL;
     }
 
-    public String toDetailString() {
-        StringBuilder sb = new StringBuilder(super.tojstring());
-
-        sb.append(" {\n array =");
-        for (int n = 0; n < array.length; n++) {
-            sb.append(" ").append(array[n]);
-        }
-
-        sb.append("\n  hash =");
-        for (int n = 0; n < hash.length; n++) {
-            sb.append(" ");
-            if (hash[n] == null) {
-                sb.append("null");
-            } else {
-                sb.append(hash[n]);
-            }
-        }
-        sb.append("\n}");
-
-        if (length() >= 2) {
-            System.out.println(" > " + sb);
-        }
-
-        return sb.toString();
-    }
 }
