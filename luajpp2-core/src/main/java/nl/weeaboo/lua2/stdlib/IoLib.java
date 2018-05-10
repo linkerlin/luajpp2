@@ -119,7 +119,10 @@ public final class IoLib extends LuaModule {
         return globals.rawget("file").checktable();
     }
 
-    /** io.close([file]) -> void */
+    /**
+     * io.close([file]) -> void
+     * @throws IOException if this operation fails.
+     */
     @LuaBoundFunction
     public Varargs close(Varargs args) throws IOException {
         LuaFileHandle f = args.isnil(1) ? getCurrentOutput() : checkfile(args.arg1());
@@ -130,6 +133,7 @@ public final class IoLib extends LuaModule {
     /**
      * io.flush() -> bool
      * @param args Not used.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs flush(Varargs args) throws IOException {
@@ -141,6 +145,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.input([file]) -> file
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs input(Varargs args) throws IOException {
@@ -156,6 +161,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.output(filename) -> file
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs output(Varargs args) throws IOException {
@@ -171,6 +177,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.lines(filename) -> iterator
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs lines(Varargs args) throws IOException {
@@ -206,6 +213,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.popen(prog, [mode]) -> file
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs popen(Varargs args) throws IOException {
@@ -216,6 +224,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.read(...) -> (...)
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs read(Varargs args) throws IOException {
@@ -287,6 +296,7 @@ public final class IoLib extends LuaModule {
 
     /**
      * io.write(...) -> void
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs write(Varargs args) throws IOException {
@@ -305,6 +315,7 @@ public final class IoLib extends LuaModule {
     /**
      * io.tmpfile() -> file
      * @param args Not used.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs tmpfile(Varargs args) throws IOException {

@@ -47,6 +47,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:close() -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs close(Varargs args) throws IOException {
@@ -59,6 +60,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:flush() -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs flush(Varargs args) throws IOException {
@@ -68,6 +70,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:setvbuf(mode,[size]) -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs setvbuf(Varargs args) throws IOException {
@@ -90,6 +93,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:seek([whence][,offset]) -> pos | nil,error.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs seek(Varargs args) throws IOException {

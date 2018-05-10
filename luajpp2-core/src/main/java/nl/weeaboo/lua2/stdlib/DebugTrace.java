@@ -53,6 +53,10 @@ public final class DebugTrace {
         return sb.toString();
     }
 
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
     public static StackTraceElement[] getStackTrace(LuaThread thread, int levelOffset, int count) {
         if (thread == null) {
             return new StackTraceElement[0];
@@ -91,15 +95,18 @@ public final class DebugTrace {
     }
 
     /**
-     * Get file and line for a particular level, even if it is a java function.
-     *
-     * @param level 1-based index of level to get
-     * @return String containing file and line info if available
+     * @see #fileline(LuaThread, int)
      */
     public static String fileline(int level) {
         return fileline(LuaThread.getRunning(), level);
     }
 
+    /**
+     * Get file and line for a particular level, even if it is a java function.
+     *
+     * @param level 1-based index of level to get
+     * @return String containing file and line info if available
+     */
     public static String fileline(LuaThread running, int level) {
         DebugState ds = DebugLib.getDebugState(running);
         DebugInfo di = ds.getDebugInfo(level);
