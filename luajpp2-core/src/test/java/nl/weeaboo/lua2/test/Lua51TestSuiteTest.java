@@ -20,7 +20,7 @@ import nl.weeaboo.lua2.stdlib.StandardLibrary;
 public final class Lua51TestSuiteTest extends AbstractLuaTest {
 
     @Rule
-    public Timeout timeout = new Timeout(600, TimeUnit.SECONDS);
+    public Timeout timeout = new Timeout(300, TimeUnit.SECONDS);
 
     @SuppressWarnings("serial")
     @Override
