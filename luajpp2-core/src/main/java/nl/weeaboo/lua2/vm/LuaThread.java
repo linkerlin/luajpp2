@@ -207,6 +207,19 @@ public final class LuaThread extends LuaValue implements Serializable {
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
     }
 
+    public Varargs callFunctionInThread(LuaClosure function, Varargs args) {
+        pushPending(function, args);
+
+        Varargs result;
+        int oldSleep = getSleep();
+        try {
+            result = resume(1);
+        } finally {
+            setSleep(oldSleep);
+        }
+        return result;
+    }
+
     /**
      * Returns the function at the requested call stack offset.
      * @return The function, or {@code null} if not found.
@@ -256,6 +269,10 @@ public final class LuaThread extends LuaValue implements Serializable {
         args = yield(args);
         status = LuaThreadStatus.END_CALL;
         return args;
+    }
+
+    public void resume() {
+        resume(-1);
     }
 
     /**
@@ -330,12 +347,6 @@ public final class LuaThread extends LuaValue implements Serializable {
 
         // Notify debuglib that we've returned from our current call
         postReturn(sf);
-    }
-
-    static Varargs execute(LuaClosure c, Varargs args) {
-        LuaThread running = getRunning();
-        running.pushPending(c, args);
-        return running.resume(1);
     }
 
     /**

@@ -19,6 +19,7 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+@Deprecated
 @LuaSerializable
 public class LuaLink extends AbstractLuaLink {
 
@@ -74,12 +75,10 @@ public class LuaLink extends AbstractLuaLink {
         }
     }
 
-    @Override
     public boolean isDestroyed() {
         return thread.isDead();
     }
 
-    @Override
     public void destroy() {
         persistent = false;
         thread.destroy();
@@ -189,7 +188,7 @@ public class LuaLink extends AbstractLuaLink {
 
         try {
             changed = true;
-            thread.resume(-1);
+            thread.resume();
         } catch (RuntimeException e) {
             handleThreadException("Error running thread", e);
         }

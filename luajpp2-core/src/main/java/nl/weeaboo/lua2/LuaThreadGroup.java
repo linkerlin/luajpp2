@@ -1,32 +1,30 @@
 package nl.weeaboo.lua2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.weeaboo.lua2.internal.DestructibleElemList;
-import nl.weeaboo.lua2.internal.IDestructible;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.link.ILuaLink;
-import nl.weeaboo.lua2.link.LuaFunctionLink;
-import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
-import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class LuaThreadGroup implements Serializable, IDestructible {
+final class LuaThreadGroup implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
+    private static final long serialVersionUID = 2L;
+    private static final Logger LOG = LoggerFactory.getLogger(LuaThreadGroup.class);
 
     private final LuaRunState luaRunState;
     private final LuaValue environment;
-    private boolean destroyed;
-    private boolean suspended;
 
-    private final DestructibleElemList<ILuaLink> threads;
+    private List<LuaThread> threads = Collections.emptyList();
+
+    private boolean destroyed;
 
     public LuaThreadGroup(LuaRunState lrs) {
         this(lrs, lrs.getGlobalEnvironment());
@@ -35,121 +33,98 @@ public final class LuaThreadGroup implements Serializable, IDestructible {
     public LuaThreadGroup(LuaRunState lrs, LuaValue environment) {
         this.luaRunState = lrs;
         this.environment = environment;
-
-        threads = new DestructibleElemList<ILuaLink>();
     }
 
     private void checkDestroyed() {
-        if (isDestroyed()) {
+        if (destroyed) {
             throw new IllegalStateException("Attempted to change a disposed thread group");
         }
     }
 
-    @Override
-    public void destroy() {
-        if (destroyed) {
-            return;
+    public boolean isFinished() {
+        for (LuaThread thread : threads) {
+            if (!thread.isFinished()) {
+                return false;
+            }
         }
+        return true;
+    }
 
+    public void destroy() {
         destroyed = true;
 
-        threads.destroyAll();
+        for (LuaThread thread : threads) {
+            thread.destroy();
+        }
     }
 
-    /** Calls the given function (with the supplied arguments) in a new thread */
-    public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
+    public LuaThread newThread() {
         checkDestroyed();
 
-        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
-        add(thread);
-        return thread;
-    }
-
-    /** Calls the given function (with the supplied arguments) in a new thread */
-    public LuaFunctionLink newThread(String func, Object... args) {
-        checkDestroyed();
-
-        LuaFunctionLink thread = new LuaFunctionLink(luaRunState, environment, func, args);
+        LuaThread thread = new LuaThread(luaRunState, environment);
         add(thread);
         return thread;
     }
 
     /** Adds a thread to this thread group */
-    public void add(ILuaLink link) {
+    void add(LuaThread thread) {
         checkDestroyed();
 
-        threads.add(link);
+        List<LuaThread> newThreads = copy(threads);
+        newThreads.add(thread);
+        threads = newThreads;
     }
 
     /** Runs all threads in this thread group */
-    public boolean update() {
+    public void update() {
         checkDestroyed();
 
-        boolean changed = false;
-        for (ILuaLink thread : getThreads()) {
-            if (!suspended) {
+        for (LuaThread thread : threads) {
+            if (!thread.isDead()) {
                 try {
-                    changed |= thread.update();
-                } catch (LuaException e) {
+                    thread.resume();
+                } catch (RuntimeException e) {
                     LOG.warn("Error running thread: {}", thread, e);
                 }
             }
-            if (isDestroyed()) {
+
+            if (destroyed) {
                 break;
             }
         }
-        return changed;
-    }
 
-    @Override
-    public boolean isDestroyed() {
-        return destroyed;
+        removeDeadThreads();
     }
 
     /**
-     * Returns a snapshots of the non-finished threads currently attached to this thread group.
+     * Returns a snapshots of the active threads currently attached to this thread group.
      */
-    public Collection<ILuaLink> getThreads() {
-        for (ILuaLink thread : threads) {
+    public Collection<LuaThread> getThreads() {
+        removeDeadThreads();
+        return Collections.unmodifiableList(threads);
+    }
+
+    private void removeDeadThreads() {
+        List<LuaThread> toRemove = null;
+        for (LuaThread thread : threads) {
             if (thread.isFinished()) {
-                LOG.debug("Removing finished thread: {}", thread);
-                threads.remove(thread);
+                LOG.debug("Removing dead thread: {}", thread);
+                if (toRemove == null) {
+                    toRemove = new ArrayList<LuaThread>();
+                }
+                toRemove.add(thread);
             }
         }
-        return threads.getSnapshot();
+
+        if (toRemove != null) {
+            List<LuaThread> newThreads = copy(threads);
+            newThreads.removeAll(toRemove);
+            threads = newThreads;
+        }
     }
 
-    /**
-     * Suspends this thread group.
-     * @see #setSuspended(boolean)
-     */
-    public void suspend() {
-        setSuspended(true);
-    }
-
-    /**
-     * Resume this thread group.
-     * @see #setSuspended(boolean)
-     */
-    public void resume() {
-        setSuspended(false);
-    }
-
-    /**
-     * @see #setSuspended(boolean)
-     */
-    public boolean isSuspended() {
-        return suspended;
-    }
-
-    /**
-     * Sets the suspend-state for this thread group. A suspended thread group doesn't run its threads even
-     * when {@link #update()} is called.
-     */
-    public void setSuspended(boolean s) {
-        checkDestroyed();
-
-        suspended = s;
+    private static <T> List<T> copy(List<T> list) {
+        return new ArrayList<T>(list);
     }
 
 }

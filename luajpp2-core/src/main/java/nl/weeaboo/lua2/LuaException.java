@@ -2,6 +2,7 @@ package nl.weeaboo.lua2;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 
+@Deprecated
 @LuaSerializable
 public class LuaException extends Exception {
 

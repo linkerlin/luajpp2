@@ -4,6 +4,7 @@ import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.Varargs;
 
+@Deprecated
 abstract class AbstractLuaLink implements ILuaLink {
 
     private static final long serialVersionUID = 1L;

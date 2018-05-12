@@ -3,12 +3,9 @@ package nl.weeaboo.lua2.stdlib;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
-import nl.weeaboo.lua2.link.LuaLink;
-import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
@@ -36,20 +33,7 @@ public final class ThreadLib extends LuaModule {
     public Varargs new_(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         LuaClosure func = args.arg1().checkclosure();
-        LuaLink result = lrs.newThread(func, args.subargs(2));
-        return LuajavaLib.toUserdata(result, result.getClass());
-    }
-
-    /**
-     * Creates a new thread group.
-     *
-     * @param args (not used)
-     */
-    @LuaBoundFunction
-    public Varargs newGroup(Varargs args) {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        LuaThreadGroup result = lrs.newThreadGroup();
-        return LuajavaLib.toUserdata(result, result.getClass());
+        return lrs.newThread(func, args.subargs(2));
     }
 
     /**

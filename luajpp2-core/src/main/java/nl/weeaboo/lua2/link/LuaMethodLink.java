@@ -8,6 +8,7 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+@Deprecated
 @LuaSerializable
 public class LuaMethodLink extends LuaFunctionLink {
 

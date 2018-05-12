@@ -10,6 +10,7 @@ import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+@Deprecated
 @LuaSerializable
 public class LuaFunctionLink extends LuaLink {
 

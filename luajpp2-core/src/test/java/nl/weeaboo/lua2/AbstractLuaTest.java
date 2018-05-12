@@ -9,9 +9,9 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import nl.weeaboo.lua2.compiler.ScriptLoader;
-import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 public abstract class AbstractLuaTest {
@@ -48,13 +48,14 @@ public abstract class AbstractLuaTest {
         luaRunState.destroy();
     }
 
-    protected LuaLink loadScript(String filename) {
+    protected LuaThread loadScript(String filename) {
         Varargs loadResult = ScriptLoader.loadFile(filename);
         if (loadResult.isnil(1)) {
             throw new LuaError(loadResult.tojstring(2));
         }
-        LuaLink mainThread = luaRunState.getMainThread();
-        mainThread.pushCall(loadResult.checkclosure(1), LuaConstants.NONE);
+
+        LuaThread mainThread = luaRunState.getMainThread();
+        mainThread.pushPending(loadResult.checkclosure(1), LuaConstants.NONE);
         return mainThread;
     }
 

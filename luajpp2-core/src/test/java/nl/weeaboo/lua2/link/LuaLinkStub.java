@@ -52,12 +52,10 @@ public class LuaLinkStub extends AbstractLuaLink {
         return instructionsLeft <= 0;
     }
 
-    @Override
     public void destroy() {
         destroyed = true;
     }
 
-    @Override
     public boolean isDestroyed() {
         return destroyed;
     }
