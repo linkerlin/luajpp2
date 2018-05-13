@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 
 @LuaSerializable
@@ -279,8 +280,21 @@ public final class LuaThread extends LuaValue implements Serializable {
     /**
      * Runs the thread until it suspends or finishes.
      */
-    public void resume() {
-        resume(-1);
+    public Varargs resume(Varargs args) {
+        LuaThreadStatus status = getStatus();
+        if (status == LuaThreadStatus.INITIAL) {
+            // Start new coroutine
+            callstack.setArgs(args);
+        } else if (status == LuaThreadStatus.SUSPENDED || status == LuaThreadStatus.END_CALL) {
+            // Resume coroutine
+            // Place args on the thread's stack as though it was returned from the call that yielded
+            callstack.setReturnedValues(args);
+        } else {
+            throw new LuaException("Unable to resume coroutine: " + this + ", status="
+                    + CoroutineLib.getCoroutineStatus(this));
+        }
+
+        return resume(-1);
     }
 
     /**
@@ -289,7 +303,7 @@ public final class LuaThread extends LuaValue implements Serializable {
      * @param maxDepth If {@code >= 0} suspends the thread when the call stack becomes more than
      *        {@code maxDepth} smaller than it was when the resume method was called.
      */
-    public Varargs resume(int maxDepth) {
+    private Varargs resume(int maxDepth) {
         if (isDead()) {
             throw new LuaException("cannot resume dead thread");
         }
@@ -326,7 +340,7 @@ public final class LuaThread extends LuaValue implements Serializable {
                 status = LuaThreadStatus.SUSPENDED;
             }
 
-            if (prior.status == LuaThreadStatus.SUSPENDED) {
+            if (prior != this && prior.status == LuaThreadStatus.SUSPENDED) {
                 prior.status = LuaThreadStatus.RUNNING;
             }
         }
@@ -388,22 +402,6 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
     public int getSleep() {
         return sleep;
-    }
-
-    /**
-     * @deprecated For internal use only.
-     */
-    @Deprecated
-    public void setArgs(Varargs args) {
-        callstack.setArgs(args);
-    }
-
-    /**
-     * @deprecated For internal use only.
-     */
-    @Deprecated
-    public void setReturnedValues(Varargs args) {
-        callstack.setReturnedValues(args);
     }
 
 }

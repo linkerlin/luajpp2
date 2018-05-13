@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.lib;
 
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +15,7 @@ public class ThreadLibTest extends AbstractLuaTest {
     public void testYield() {
         LuaThread thread = loadScript("lib/thread/yield.lua");
 
-        thread.resume();
+        thread.resume(NONE);
         // After yielding, still 10-1=9 yield frames left
         Assert.assertEquals(9, thread.getSleep());
 

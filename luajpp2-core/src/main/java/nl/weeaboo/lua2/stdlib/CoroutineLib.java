@@ -14,7 +14,6 @@ import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaThread;
-import nl.weeaboo.lua2.vm.LuaThreadStatus;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
@@ -65,30 +64,13 @@ public final class CoroutineLib extends LuaModule {
         final LuaThread t = args.checkthread(1);
 
         try {
-            Varargs result = resume(t, args.subargs(2));
+            Varargs result = t.resume(args.subargs(2));
 
             return varargsOf(LuaBoolean.TRUE, result);
         } catch (LuaException e) {
             LOG.trace("Unable to resume coroutine: {}", t, e);
             return varargsOf(LuaBoolean.FALSE, e.getMessageObject());
         }
-    }
-
-    private static Varargs resume(LuaThread thread, Varargs args) {
-        LuaThreadStatus status = thread.getStatus();
-
-        if (status == LuaThreadStatus.INITIAL) {
-            thread.setArgs(args);
-            thread.setSleep(0);
-        } else if (status == LuaThreadStatus.SUSPENDED) {
-            // Resume coroutine
-            // Place args on the thread's stack as though it was returned from the call that yielded
-            thread.setReturnedValues(args);
-        } else {
-            throw new LuaException("Unable to resume coroutine: " + thread + ", status=" + getCoroutineStatus(thread));
-        }
-
-        return thread.resume(-1);
     }
 
     /**
@@ -126,10 +108,11 @@ public final class CoroutineLib extends LuaModule {
         return valueOf(getCoroutineStatus(thread));
     }
 
-    private static String getCoroutineStatus(LuaThread thread) {
+    public static String getCoroutineStatus(LuaThread thread) {
         switch (thread.getStatus()) {
         case INITIAL:
         case SUSPENDED:
+        case END_CALL:
             return "suspended";
         case RUNNING:
             return "running";
@@ -195,7 +178,7 @@ public final class CoroutineLib extends LuaModule {
         @Override
         public Varargs invoke(Varargs args) {
             LuaThread thread = getfenv().checkthread();
-            return resume(thread, args);
+            return thread.resume(args);
         }
     }
 

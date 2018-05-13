@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2;
 
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,7 +84,7 @@ final class LuaThreadGroup implements Serializable {
         for (LuaThread thread : threads) {
             if (!thread.isDead()) {
                 try {
-                    thread.resume();
+                    thread.resume(NONE);
                 } catch (RuntimeException e) {
                     LOG.warn("Error running thread: {}", thread, e);
                 }

@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2;
 
+import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
+
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -17,7 +19,7 @@ public class LuaUtilTest extends AbstractLuaTest {
     public void callEvalStackTrace() throws LuaException {
         // Load script with some test functions
         LuaThread thread = loadScript("util/calleval.lua");
-        thread.resume();
+        thread.resume(NONE);
 
         // Call test function
         LuaClosure x = LuaUtil.getEntryForPath(thread, "x").checkclosure();
