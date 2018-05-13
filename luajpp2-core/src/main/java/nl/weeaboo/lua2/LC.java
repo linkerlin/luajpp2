@@ -216,7 +216,7 @@ final class LC {
 
                 // list the chunk
                 if (list) {
-                    Print.printCode(chunk);
+                    new Print().printCode(chunk);
                 }
 
                 // write out the chunk
@@ -243,7 +243,6 @@ final class LC {
         System.out.println(usage);
         System.exit(1);
     }
-
 
     /**
      * Main entrypoint for running the Lua compiler as a standalone application.

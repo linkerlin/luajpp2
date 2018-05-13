@@ -323,7 +323,7 @@ public final class LuaThread extends LuaValue implements Serializable {
                 prior.status = LuaThreadStatus.SUSPENDED;
             }
             status = LuaThreadStatus.RUNNING;
-            luaRunState.setRunningThread(this);
+            setRunningThread(this);
 
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
             result = LuaInterpreter.resume(this, callstackMin);
@@ -332,7 +332,7 @@ public final class LuaThread extends LuaValue implements Serializable {
             throw LuaException.wrap("Runtime error in Lua thread", e);
         } finally {
             callstackMin = oldCallstackMin;
-            luaRunState.setRunningThread(prior);
+            setRunningThread(prior);
 
             if (callstack == null) {
                 status = LuaThreadStatus.FINISHED;
@@ -346,6 +346,11 @@ public final class LuaThread extends LuaValue implements Serializable {
         }
 
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setRunningThread(LuaThread thread) {
+        luaRunState.setRunningThread(thread);
     }
 
     private void popStackFrames() {

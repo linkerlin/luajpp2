@@ -80,12 +80,12 @@ public abstract class OneArgFunction extends LibFunction {
     }
 
     @Override
-    public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
+    public final LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
         return call(arg1);
     }
 
     @Override
-    public Varargs invoke(Varargs varargs) {
+    public final Varargs invoke(Varargs varargs) {
         return call(varargs.arg1());
     }
 }

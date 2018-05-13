@@ -74,6 +74,11 @@ public final class ThreadLib extends LuaModule {
             thread.setSleep(w <= 0 ? w : w - 1);
         }
 
+        return threadEndCall(args, thread);
+    }
+
+    @SuppressWarnings("deprecation")
+    private Varargs threadEndCall(Varargs args, LuaThread thread) {
         return thread.endCall(args);
     }
 

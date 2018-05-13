@@ -32,14 +32,19 @@ public final class LuaException extends RuntimeException {
         this.cause = cause;
 
         if (level >= 0) {
-            StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
-            if (cause != null) {
-                stack = prefixLuaStackTrace(cause, stack);
-            } else {
-                stack = prefixLuaStackTrace(this, stack);
-            }
-            setStackTrace(stack);
+            initStackTrace(cause, level);
         }
+    }
+
+    private void initStackTrace(Throwable cause, int level) {
+        @SuppressWarnings("deprecation")
+        StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
+        if (cause != null) {
+            stack = prefixLuaStackTrace(cause, stack);
+        } else {
+            stack = prefixLuaStackTrace(this, stack);
+        }
+        setStackTrace(stack);
     }
 
     /**

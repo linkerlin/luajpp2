@@ -41,6 +41,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     private transient LuaThread currentThread;
     private transient int instructionCount;
 
+    @SuppressWarnings("deprecation")
     private LuaRunState() {
         threadGroup = new LuaThreadGroup(this);
 

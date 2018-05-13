@@ -542,10 +542,6 @@ public final class DebugLib extends LuaModule {
         return (DebugState)thread.debugState;
     }
 
-    /**
-     * @deprecated For internal use only.
-     */
-    @Deprecated
     public static boolean isDebugEnabled() {
         return LuaRunState.getCurrent().isDebugEnabled();
     }

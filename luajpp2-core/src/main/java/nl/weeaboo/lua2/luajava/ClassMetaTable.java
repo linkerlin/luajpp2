@@ -16,7 +16,7 @@ import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.OneArgFunction;
-import nl.weeaboo.lua2.lib.VarArgFunction;
+import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -130,7 +130,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @LuaSerializable
-    private static class MetaFunction extends VarArgFunction {
+    private static class MetaFunction extends LuaFunction {
 
         private static final long serialVersionUID = 1L;
 
@@ -142,26 +142,6 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
             classInfo = ci;
             meta = mt;
             isGet = get;
-        }
-
-        @Override
-        public LuaValue call() {
-            return error("Method cannot be called without instance");
-        }
-
-        @Override
-        public LuaValue call(LuaValue arg) {
-            return invokeMethod(arg.checkuserdata(), NIL, NIL);
-        }
-
-        @Override
-        public LuaValue call(LuaValue arg1, LuaValue arg2) {
-            return invokeMethod(arg1.checkuserdata(), arg2, NIL);
-        }
-
-        @Override
-        public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-            return invokeMethod(arg1.checkuserdata(), arg2, arg3);
         }
 
         @Override

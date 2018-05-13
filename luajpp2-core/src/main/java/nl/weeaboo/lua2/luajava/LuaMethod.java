@@ -1,7 +1,5 @@
 package nl.weeaboo.lua2.luajava;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
-
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,21 +40,6 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
     @Override
     public LuaValue call() {
         return error("Method cannot be called without instance");
-    }
-
-    @Override
-    public LuaValue call(LuaValue arg) {
-        return invokeMethod(arg.checkuserdata(), NONE);
-    }
-
-    @Override
-    public LuaValue call(LuaValue arg1, LuaValue arg2) {
-        return invokeMethod(arg1.checkuserdata(), arg2);
-    }
-
-    @Override
-    public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-        return invokeMethod(arg1.checkuserdata(), varargsOf(arg2, arg3));
     }
 
     @Override

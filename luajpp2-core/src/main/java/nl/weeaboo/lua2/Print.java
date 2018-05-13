@@ -42,10 +42,11 @@ import nl.weeaboo.lua2.vm.Varargs;
 final class Print extends Lua {
 
     private static final String STRING_FOR_NULL = "null";
-    public static PrintStream ps = System.out;
+
+    private PrintStream ps = System.out;
 
     /** opcode names. */
-    public static final String[] OPNAMES = { "MOVE", "LOADK", "LOADBOOL", "LOADNIL", "GETUPVAL", "GETGLOBAL",
+    private static final String[] OPNAMES = { "MOVE", "LOADK", "LOADBOOL", "LOADNIL", "GETUPVAL", "GETGLOBAL",
             "GETTABLE", "SETGLOBAL", "SETUPVAL", "SETTABLE", "NEWTABLE", "SELF", "ADD", "SUB", "MUL", "DIV",
             "MOD", "POW", "UNM", "NOT", "LEN", "CONCAT", "JMP", "EQ", "LT", "LE", "TEST", "TESTSET", "CALL",
             "TAILCALL", "RETURN", "FORLOOP", "FORPREP", "TFORLOOP", "SETLIST", "CLOSE", "CLOSURE", "VARARG",
@@ -117,7 +118,7 @@ final class Print extends Lua {
      *
      * @param f the {@link Prototype}
      */
-    public static void printCode(Prototype f) {
+    public void printCode(Prototype f) {
         int[] code = f.code;
         int n = code.length;
         for (int pc = 0; pc < n; pc++) {
@@ -132,7 +133,7 @@ final class Print extends Lua {
      * @param f the {@link Prototype}
      * @param pc the program counter to look up and print
      */
-    public static void printOpCode(Prototype f, int pc) {
+    public void printOpCode(Prototype f, int pc) {
         printOpCode(ps, f, pc);
     }
 
@@ -263,7 +264,7 @@ final class Print extends Lua {
         return pc > 0 && f.lineinfo != null && pc < f.lineinfo.length ? f.lineinfo[pc] : -1;
     }
 
-    static void printHeader(Prototype f) {
+    void printHeader(Prototype f) {
         String s = String.valueOf(f.source);
         if (s.startsWith("@") || s.startsWith("=")) {
             s = s.substring(1);
@@ -279,7 +280,7 @@ final class Print extends Lua {
         ps.print(f.locvars.length + " local, " + f.k.length + " constant, " + f.p.length + " function\n");
     }
 
-    static void printConstants(Prototype f) {
+    void printConstants(Prototype f) {
         int n = f.k.length;
         ps.print("constants (" + n + ") for " + id(f) + ":\n");
         for (int i = 0; i < n; i++) {
@@ -289,7 +290,7 @@ final class Print extends Lua {
         }
     }
 
-    static void printLocals(Prototype f) {
+    void printLocals(Prototype f) {
         int n = f.locvars.length;
         ps.print("locals (" + n + ") for " + id(f) + ":\n");
         for (int i = 0; i < n; i++) {
@@ -298,7 +299,7 @@ final class Print extends Lua {
         }
     }
 
-    static void printUpValues(Prototype f) {
+    void printUpValues(Prototype f) {
         int n = f.upvalues.length;
         ps.print("upvalues (" + n + ") for " + id(f) + ":\n");
         for (int i = 0; i < n; i++) {
@@ -306,11 +307,11 @@ final class Print extends Lua {
         }
     }
 
-    public static void print(Prototype p) {
+    public void print(Prototype p) {
         printFunction(p, true);
     }
 
-    public static void printFunction(Prototype f, boolean full) {
+    public void printFunction(Prototype f, boolean full) {
         final int n = f.p.length;
         printHeader(f);
         printCode(f);
@@ -324,7 +325,7 @@ final class Print extends Lua {
         }
     }
 
-    private static void format(String s, int maxcols) {
+    private void format(String s, int maxcols) {
         int n = s.length();
         if (n > maxcols) {
             ps.print(s.substring(0, maxcols));
@@ -352,7 +353,7 @@ final class Print extends Lua {
      * @param top the top of the stack
      * @param varargs any {@link Varargs} value that may apply
      */
-    public static void printState(LuaClosure cl, int pc, LuaValue[] stack, int top, Varargs varargs) {
+    public void printState(LuaClosure cl, int pc, LuaValue[] stack, int top, Varargs varargs) {
         // print opcode into buffer
         final PrintStream previous = ps;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
