@@ -99,16 +99,7 @@ public final class LoadState {
     private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };
 
     /** Name for compiled chunks. */
-    public static final String SOURCE_BINARY_STRING = "binary string";
-
-    /** for header of binary files -- this is Lua 5.1 */
-    public static final int LUAC_VERSION = 0x51;
-
-    /** for header of binary files -- this is the official format. */
-    public static final int LUAC_FORMAT = 0;
-
-    /** size of header of binary files. */
-    public static final int LUAC_HEADERSIZE = 12;
+    private static final String SOURCE_BINARY_STRING = "binary string";
 
     private static final LuaValue[] NOVALUES = {};
     private static final Prototype[] NOPROTOS = {};
