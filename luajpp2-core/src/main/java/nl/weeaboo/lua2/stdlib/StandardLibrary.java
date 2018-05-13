@@ -4,7 +4,6 @@ import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
@@ -63,7 +62,7 @@ public final class StandardLibrary {
         // Set Thread.yield() as a global yield function
         LuaValue yieldFunction = LuaUtil.getEntryForPath(globals, "Thread.yield");
         if (yieldFunction.isnil()) {
-            throw new LuaError("Unable to find yield function");
+            throw new LuaException("Unable to find yield function");
         }
         globals.rawset("yield", yieldFunction);
     }

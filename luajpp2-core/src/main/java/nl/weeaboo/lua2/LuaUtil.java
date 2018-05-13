@@ -14,7 +14,6 @@ import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -64,7 +63,7 @@ public final class LuaUtil {
      * @throws LuaException If an error occurs while trying to compare or run the code.
      */
     public static Varargs eval(LuaThread thread, String code) throws LuaException {
-        LuaClosure function = compileForEval(code, thread.getCallEnv());
+        LuaClosure function = compileForEval(code, thread.getfenv());
         return thread.callFunctionInThread(function, LuaConstants.NONE);
     }
 
@@ -79,7 +78,7 @@ public final class LuaUtil {
             try {
                 // Try to evaluate as an expression
                 result = LoadState.load("return " + code, chunkName, env);
-            } catch (LuaError err) {
+            } catch (LuaException err) {
                 // Try to evaluate as a statement, no value to return
                 result = LoadState.load(code, chunkName, env);
             }

@@ -40,7 +40,6 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LuaC;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -100,7 +99,7 @@ public class LuaOperationsTest {
             LuaValue.class.getMethod(methodName).invoke(obj);
             Assert.fail("failed to throw LuaError as required");
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError)) {
+            if (!(e.getTargetException() instanceof LuaException)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
             }
             return; // pass

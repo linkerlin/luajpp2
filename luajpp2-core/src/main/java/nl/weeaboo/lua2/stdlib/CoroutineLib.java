@@ -7,12 +7,12 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaThreadStatus;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -68,7 +68,7 @@ public final class CoroutineLib extends LuaModule {
             Varargs result = resume(t, args.subargs(2));
 
             return varargsOf(LuaBoolean.TRUE, result);
-        } catch (LuaError e) {
+        } catch (LuaException e) {
             LOG.trace("Unable to resume coroutine: {}", t, e);
             return varargsOf(LuaBoolean.FALSE, e.getMessageObject());
         }
@@ -85,7 +85,7 @@ public final class CoroutineLib extends LuaModule {
             // Place args on the thread's stack as though it was returned from the call that yielded
             thread.setReturnedValues(args);
         } else {
-            throw new LuaError("Unable to resume coroutine: " + thread + ", status=" + getCoroutineStatus(thread));
+            throw new LuaException("Unable to resume coroutine: " + thread + ", status=" + getCoroutineStatus(thread));
         }
 
         return thread.resume(-1);

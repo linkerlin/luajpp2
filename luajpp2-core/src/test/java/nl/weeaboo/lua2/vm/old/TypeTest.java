@@ -37,7 +37,6 @@ import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.ZeroArgFunction;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaNumber;
@@ -599,7 +598,7 @@ public class TypeTest {
         try {
             obj.getClass().getMethod(method, argtype).invoke(obj, argument);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError)) {
+            if (!(e.getTargetException() instanceof LuaException)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
             }
             return; // pass
@@ -903,7 +902,7 @@ public class TypeTest {
         try {
             obj.getClass().getMethod("optuserdata", Class.class, Object.class).invoke(obj, arg1, arg2);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError)) {
+            if (!(e.getTargetException() instanceof LuaException)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
             }
             return; // pass
@@ -941,7 +940,7 @@ public class TypeTest {
             Object o = userdataobj.optuserdata(MyData.class, sampledata);
             Assert.fail("did not throw bad type error");
             Assert.assertTrue(o instanceof MyData);
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             Assert.assertEquals(MyData.class.getName() + " expected, got userdata", le.getMessage());
         }
     }
@@ -973,7 +972,7 @@ public class TypeTest {
         try {
             obj.getClass().getMethod(method).invoke(obj);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError)) {
+            if (!(e.getTargetException() instanceof LuaException)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
             }
             return; // pass
@@ -1266,7 +1265,7 @@ public class TypeTest {
         try {
             obj.getClass().getMethod("checkuserdata", Class.class).invoke(obj, arg);
         } catch (InvocationTargetException e) {
-            if (!(e.getTargetException() instanceof LuaError)) {
+            if (!(e.getTargetException() instanceof LuaException)) {
                 Assert.fail("not a LuaError: " + e.getTargetException());
             }
             return; // pass
@@ -1303,7 +1302,7 @@ public class TypeTest {
             Object o = userdataobj.checkuserdata(MyData.class);
             Assert.fail("did not throw bad type error");
             Assert.assertTrue(o instanceof MyData);
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             Assert.assertEquals(MyData.class.getName() + " expected, got userdata", le.getMessage());
         }
     }

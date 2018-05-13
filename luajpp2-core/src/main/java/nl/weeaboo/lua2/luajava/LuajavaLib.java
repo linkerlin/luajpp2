@@ -26,10 +26,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.stdlib.LuaModule;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -62,13 +62,13 @@ public final class LuajavaLib extends LuaModule {
      *        <ol>
      *        <li>Fully qualified name of the Java class to load.
      *        </ol>
-     * @throws LuaError If the class isn't allowed to be loaded.
+     * @throws LuaException If the class isn't allowed to be loaded.
      * @throws ClassNotFoundException If the class isn't found.
      */
     @LuaBoundFunction
     public Varargs bindClass(Varargs args) throws ClassNotFoundException {
         if (!allowUnsafeClassLoading) {
-            throw new LuaError("Class loading is not allowed");
+            throw new LuaException("Class loading is not allowed");
         }
 
         Class<?> clazz = Class.forName(args.checkjstring(1));
@@ -95,7 +95,7 @@ public final class LuajavaLib extends LuaModule {
             clazz = c.checkuserdata(Class.class);
         } else {
             if (!allowUnsafeClassLoading) {
-                throw new LuaError("Class loading is not allowed");
+                throw new LuaException("Class loading is not allowed");
             }
             clazz = Class.forName(c.tojstring());
         }
@@ -147,9 +147,9 @@ public final class LuajavaLib extends LuaModule {
                 Object javaObject = ci.newInstance(args);
                 return LuaUserdata.userdataOf(javaObject, ci.getMetatable());
             } catch (InvocationTargetException ite) {
-                throw new LuaError("Error invoking constructor: " + ci.getWrappedClass(), ite.getCause());
+                throw LuaException.wrap("Error invoking constructor: " + ci.getWrappedClass(), ite.getCause());
             } catch (Exception e) {
-                throw new LuaError("Error invoking constructor: " + ci.getWrappedClass(), e);
+                throw LuaException.wrap("Error invoking constructor: " + ci.getWrappedClass(), e);
             }
         }
     }

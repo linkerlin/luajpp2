@@ -6,9 +6,9 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaDouble;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -356,7 +356,7 @@ public final class CoerceLuaToJava {
             return c.cast(enumVal);
         }
 
-        throw new LuaError("Invalid coercion: " + lv.getClass() + " -> " + c);
+        throw new LuaException("Invalid coercion: " + lv.getClass() + " -> " + c);
     }
 
     /**

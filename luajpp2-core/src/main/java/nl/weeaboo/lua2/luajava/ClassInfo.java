@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -51,7 +51,7 @@ final class ClassInfo implements IWriteReplaceSerializable {
 
         ConstructorInfo constr = findConstructor(luaArgs);
         if (constr == null) {
-            throw new LuaError("No suitable constructor found for: " + clazz.getName());
+            throw new LuaException("No suitable constructor found for: " + clazz.getName());
         }
 
         Class<?>[] paramTypes = constr.getParams();

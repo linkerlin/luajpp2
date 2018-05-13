@@ -11,12 +11,12 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.OneArgFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -87,7 +87,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     protected void checkSeal() {
         if (seal) {
-            throw new LuaError("Can't write to a shared Java class metatable");
+            throw new LuaException("Can't write to a shared Java class metatable");
         }
     }
 
@@ -191,7 +191,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
                         Object o = field.get(instance);
                         return CoerceJavaToLua.coerce(o, field.getType());
                     } catch (Exception e) {
-                        throw new LuaError("Error coercing field (" + key + ")", e);
+                        throw LuaException.wrap("Error coercing field: " + key, e);
                     }
                 }
 
@@ -203,11 +203,11 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
                     try {
                         field.set(instance, v);
                     } catch (Exception e) {
-                        throw new LuaError("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
+                        throw LuaException.wrap("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
                     }
                     return NIL;
                 } else {
-                    throw new LuaError("Invalid assignment, field does not exist in Java class: " + key);
+                    throw new LuaException("Invalid assignment, field does not exist in Java class: " + key);
                 }
             }
         }
@@ -225,10 +225,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
         @Override
         protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+            int arrayLength = Array.getLength(instance);
             if (key.isinttype()) {
                 int index = key.checkint() - 1;
-                if (index < 0 || index >= Array.getLength(instance)) {
-                    throw new LuaError(new ArrayIndexOutOfBoundsException(index));
+                if (index < 0 || index >= arrayLength) {
+                    throw new LuaException("Array index out of bounds: index=" + index
+                            + ", length=" + arrayLength);
                 }
 
                 Class<?> clazz = classInfo.getWrappedClass();
@@ -246,7 +248,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
                 }
             } else if (key.equals(LENGTH)) {
                 if (isGet) {
-                    return valueOf(Array.getLength(instance));
+                    return valueOf(arrayLength);
                 }
             }
 

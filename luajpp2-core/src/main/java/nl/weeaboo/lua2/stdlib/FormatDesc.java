@@ -3,9 +3,9 @@ package nl.weeaboo.lua2.stdlib;
 import java.io.Serializable;
 import java.util.Locale;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.Buffer;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 
 @LuaSerializable
@@ -51,7 +51,7 @@ final class FormatDesc implements Serializable {
             }
         }
         if (p - start > MAX_FLAGS) {
-            throw new LuaError("invalid format (repeated flags)");
+            throw new LuaException("invalid format (repeated flags)");
         }
 
         width = -1;
@@ -78,7 +78,7 @@ final class FormatDesc implements Serializable {
         }
 
         if (Character.isDigit((char)c)) {
-            throw new LuaError("invalid format (width or precision too long)");
+            throw new LuaException("invalid format (width or precision too long)");
         }
 
         zeroPad &= !leftAdjust; // '-' overrides '0'

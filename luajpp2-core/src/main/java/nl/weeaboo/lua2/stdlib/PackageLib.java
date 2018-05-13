@@ -15,7 +15,6 @@ import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -121,7 +120,7 @@ public final class PackageLib extends LuaModule {
         LuaValue loaded = loadedTable.get(name);
         if (loaded.toboolean()) {
             if (loaded == S_SENTINEL) {
-                throw new LuaError("loop or previous error loading module '" + name + "'");
+                throw new LuaException("loop or previous error loading module '" + name + "'");
             }
             return loaded;
         }
@@ -133,7 +132,7 @@ public final class PackageLib extends LuaModule {
         for (int i = 1; true; i++) {
             LuaValue loader = tbl.get(i);
             if (loader.isnil()) {
-                throw new LuaError("module '" + name + "' not found: " + name + sb);
+                throw new LuaException("module '" + name + "' not found: " + name + sb);
             }
 
             /* call loader with module name as argument */
@@ -189,7 +188,7 @@ public final class PackageLib extends LuaModule {
             LuaValue globals = running.getfenv();
             module = findtable(globals, modname);
             if (module == null) {
-                throw new LuaError("name conflict for module '" + modname + "'");
+                throw new LuaException("name conflict for module '" + modname + "'");
             }
             loadedTable.set(modname, module);
         } else {
@@ -208,10 +207,10 @@ public final class PackageLib extends LuaModule {
         // set the environment of the current function
         LuaFunction f = running.getCallstackFunction(1);
         if (f == null) {
-            throw new LuaError("no calling function");
+            throw new LuaException("no calling function");
         }
         if (!f.isclosure()) {
-            throw new LuaError("'module' not called from a Lua function");
+            throw new LuaException("'module' not called from a Lua function");
         }
         f.setfenv(module);
 
@@ -269,7 +268,7 @@ public final class PackageLib extends LuaModule {
 
             LuaValue preloadTable = packageTable.get(S_PRELOAD);
             if (!preloadTable.istable()) {
-                throw new LuaError("'package.preload' must be a table");
+                throw new LuaException("'package.preload' must be a table");
             }
 
             LuaValue entry = preloadTable.get(name);

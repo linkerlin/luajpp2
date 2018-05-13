@@ -22,6 +22,7 @@
 
 package nl.weeaboo.lua2.vm;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -42,8 +43,6 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
     private static final long serialVersionUID = 1L;
 
     public static final LuaNil NIL = new LuaNil();
-
-    public static LuaValue s_metatable;
 
     LuaNil() {
     }
@@ -91,7 +90,7 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getNilMetatable();
     }
 
     @Override

@@ -29,6 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
@@ -45,7 +46,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     public LuaUserdata(Object obj, LuaValue metatable) {
         if (obj == null) {
-            throw new LuaError("Attempt to create userdata from null object");
+            throw new LuaException("Attempt to create userdata from null object");
         }
 
         this.userdata = obj;

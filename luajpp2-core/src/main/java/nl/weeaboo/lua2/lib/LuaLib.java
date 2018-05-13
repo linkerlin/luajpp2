@@ -8,7 +8,6 @@ import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -97,13 +96,13 @@ public abstract class LuaLib implements ILuaLib {
                     return LuaConstants.NONE;
                 } else {
                     // This may happen if the methods return type changed (can happen due to serialization)
-                    throw new LuaError("Java method (" + method + ") returned non-varargs: "
+                    throw new LuaException("Java method (" + method + ") returned non-varargs: "
                             + (result != null ? result.getClass().getName() : "null"));
                 }
             } catch (InvocationTargetException ite) {
-                throw new LuaError(ite.getCause());
+                throw LuaException.wrap(createErrorMessage(args, ite), ite.getCause());
             } catch (Exception e) {
-                throw new LuaError(createErrorMessage(args, e), e);
+                throw LuaException.wrap(createErrorMessage(args, e), e);
             }
         }
 

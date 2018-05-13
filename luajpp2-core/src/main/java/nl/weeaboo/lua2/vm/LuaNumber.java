@@ -24,6 +24,8 @@ package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
+
 /**
  * Base class for representing numbers as lua values directly.
  * <p>
@@ -38,9 +40,6 @@ import java.io.Serializable;
 public abstract class LuaNumber extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    /** Shared static metatable for all number values represented in lua. */
-    public static LuaValue s_metatable;
 
     @Override
     public int type() {
@@ -84,7 +83,7 @@ public abstract class LuaNumber extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getNumberMetatable();
     }
 
     @Override

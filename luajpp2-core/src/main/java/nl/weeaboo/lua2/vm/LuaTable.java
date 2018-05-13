@@ -1106,7 +1106,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             return false;
         }
         LuaValue valmt = val.getmetatable();
-        return valmt != null && LuaValue.eqmtcall(this, metatable.toLuaValue(), val, valmt);
+        return !valmt.isnil() && LuaValue.eqmtcall(this, metatable.toLuaValue(), val, valmt);
     }
 
     /** Unpack all the elements of this table. */

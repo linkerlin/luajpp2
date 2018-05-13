@@ -40,6 +40,8 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -76,8 +78,6 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     private static final int MAX_STRING_LENGTH = 64 << 20; // 64 MiB
     private static final int MAX_TO_STRING_LENGTH = 1000;
-
-    public static LuaValue s_metatable;
 
     //--- Uses manual serialization, don't add variables ---
     private /*final*/ byte[] strBytes;
@@ -198,7 +198,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getStringMetatable();
     }
 
     @Override
@@ -232,7 +232,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     // get is delegated to the string library
     @Override
     public LuaValue get(LuaValue key) {
-        if (s_metatable != null) {
+        if (!getmetatable().isnil()) {
             return gettable(this, key);
         }
         return getfenv().get("string").get(key);
@@ -1177,16 +1177,16 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     /**
      * Checks if the given length is a valid Lua string length, throwing an exception if it isn't.
-     * @throws LuaError If the given length isn't valid.
+     * @throws LuaException If the given length isn't valid.
      */
     public static void assertValidStringLength(int len) {
         if (len < 0) {
-            throw new LuaError("String length may not be negative: " + len);
+            throw new LuaException("String length may not be negative: " + len);
         }
 
         if (len > MAX_STRING_LENGTH) {
             // Note: Lua test suite explicitly checks for the word 'overflow' in this error message
-            throw new LuaError("String length overflow: " + len + " > " + MAX_STRING_LENGTH);
+            throw new LuaException("String length overflow: " + len + " > " + MAX_STRING_LENGTH);
         }
     }
 

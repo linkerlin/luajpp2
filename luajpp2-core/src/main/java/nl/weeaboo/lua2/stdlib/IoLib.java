@@ -23,7 +23,6 @@ import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.stdlib.FileLib.LinesIterFunction;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -348,7 +347,7 @@ public final class IoLib extends LuaModule {
 
     private static LuaFileHandle checkopen(LuaFileHandle file) {
         if (file == null || file.isClosed()) {
-            throw new LuaError("attempt to use a closed file");
+            throw new LuaException("attempt to use a closed file");
         }
         return file;
     }

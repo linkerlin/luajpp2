@@ -6,11 +6,11 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -78,12 +78,9 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             String msg = "Error in invoked Java method: " + methodName + "(" + args + ")";
-            if (cause != null) {
-                msg += " :: " + cause;
-            }
-            throw new LuaError(msg, cause);
+            throw LuaException.wrap(msg, cause);
         } catch (Exception e) {
-            throw new LuaError("Error invoking Java method: " + methodName + "(" + args + ")", e);
+            throw LuaException.wrap("Error invoking Java method: " + methodName + "(" + args + ")", e);
         }
     }
 

@@ -28,7 +28,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import org.junit.Assert;
 import org.junit.Test;
 
-import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -210,13 +210,13 @@ public class VarargsTest {
         try {
             v.subargs(0);
             Assert.fail("Failed to throw exception for index 0");
-        } catch ( LuaError e ) {
+        } catch ( LuaException e ) {
             Assert.assertEquals(expectedMessage, e.getMessage());
         }
         try {
             v.subargs(-1);
             Assert.fail("Failed to throw exception for index -1");
-        } catch ( LuaError e ) {
+        } catch ( LuaException e ) {
             Assert.assertEquals(expectedMessage, e.getMessage());
         }
     }

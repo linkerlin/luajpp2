@@ -4,14 +4,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import nl.weeaboo.lua2.AbstractLuaTest;
-import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaTestUtil;
 import nl.weeaboo.lua2.vm.LuaThread;
 
 public class ThreadLibTest extends AbstractLuaTest {
 
     @Test
-    public void testYield() throws LuaException {
+    public void testYield() {
         LuaThread thread = loadScript("lib/thread/yield.lua");
 
         thread.resume();

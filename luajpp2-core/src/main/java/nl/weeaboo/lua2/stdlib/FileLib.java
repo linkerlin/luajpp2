@@ -20,7 +20,6 @@ import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -158,7 +157,7 @@ public final class FileLib extends LuaLib {
                 return line;
             } catch (IOException ioe) {
                 closeFileIfNeeded();
-                throw new LuaError("I/O error from lines iterator for: " + file, ioe);
+                throw LuaException.wrap("I/O error from lines iterator for: " + file, ioe);
             }
         }
 

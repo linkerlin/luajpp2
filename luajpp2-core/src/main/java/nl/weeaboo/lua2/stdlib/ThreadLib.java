@@ -2,12 +2,12 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -89,7 +89,7 @@ public final class ThreadLib extends LuaModule {
     public Varargs jump(Varargs args) {
         Varargs v = ScriptLoader.loadFile(args.checkjstring(1));
         if (v.isnil(1)) {
-            throw new LuaError(v.tojstring(2));
+            throw new LuaException(v.tojstring(2));
         }
 
         // We can only jump to closures

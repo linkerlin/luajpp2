@@ -18,17 +18,16 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.Metatables;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaNil;
-import nl.weeaboo.lua2.vm.LuaNumber;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
@@ -71,7 +70,7 @@ public final class DebugLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs debug(Varargs args) {
-        throw new LuaError("not implemented");
+        throw new LuaException("not implemented");
     }
 
     /**
@@ -308,8 +307,7 @@ public final class DebugLib extends LuaModule {
     @LuaBoundFunction
     public Varargs getmetatable(Varargs args) {
         LuaValue object = args.arg(1);
-        LuaValue mt = object.getmetatable();
-        return (mt != null ? mt : NIL);
+        return object.getmetatable();
     }
 
     /**
@@ -323,33 +321,39 @@ public final class DebugLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs setmetatable(Varargs args) {
+        Metatables metatables = LuaRunState.getCurrent().getMetatables();
+
         LuaValue object = args.arg(1);
         try {
             LuaValue mt = args.opttable(2, null);
+            if (mt == null) {
+                mt = NIL;
+            }
+
             switch (object.type()) {
             case TNIL:
-                LuaNil.s_metatable = mt;
+                metatables.setNilMetatable(mt);
                 break;
             case TNUMBER:
-                LuaNumber.s_metatable = mt;
+                metatables.setNumberMetatable(mt);
                 break;
             case TBOOLEAN:
-                LuaBoolean.s_metatable = mt;
+                metatables.setBooleanMetatable(mt);
                 break;
             case TSTRING:
-                LuaString.s_metatable = mt;
+                metatables.setStringMetatable(mt);
                 break;
             case TFUNCTION:
-                LuaFunction.s_metatable = mt;
+                metatables.setFunctionMetatable(mt);
                 break;
             case TTHREAD:
-                LuaThread.s_metatable = mt;
+                metatables.setThreadMetatable(mt);
                 break;
             default:
                 object.setmetatable(mt);
             }
             return TRUE;
-        } catch (LuaError e) {
+        } catch (LuaException e) {
             return varargsOf(FALSE, valueOf(e.toString()));
         }
     }

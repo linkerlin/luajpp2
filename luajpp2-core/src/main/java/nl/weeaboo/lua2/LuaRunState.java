@@ -14,7 +14,6 @@ import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -29,6 +28,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
 
     private final LuaTable globals = new LuaTable();
     private final LuaTable registry = new LuaTable();
+    private final Metatables metatables = new Metatables();
     private final LuaThreadGroup threadGroup;
     private final LuaThread mainThread;
 
@@ -76,6 +76,10 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
         in.defaultReadObject();
     }
 
+    /**
+     * Destroys this Lua context. This destroys all threads and attempts to close any open resources. After
+     * calling this method, any Lua resources created by this context should no longer be used.
+     */
     public void destroy() {
         if (destroyed) {
             return;
@@ -103,13 +107,17 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
         }
     }
 
+    /**
+     * Creates a new thread with an empty call stack.
+     *
+     * @see #newThread(LuaClosure, Varargs)
+     */
     public LuaThread newThread() {
         return threadGroup.newThread();
     }
 
     /**
      * Creates a new Lua thread running the supplied function called with the supplied arguments.
-     * @see LuaThreadGroup#newThread(LuaClosure, Varargs)
      */
     public LuaThread newThread(LuaClosure func, Varargs args) {
         LuaThread thread = newThread();
@@ -133,12 +141,12 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
      * Called by the interpreter on every instruction (if {@link LuaRunState#isDebugEnabled()}).
      *
      * @param pc The current program counter
-     * @throws LuaError If an internal assertion fails.
+     * @throws LuaException If an internal assertion fails.
      */
-    public void onInstruction(int pc) throws LuaError {
+    public void onInstruction(int pc) throws LuaException {
         instructionCount++;
         if (currentThread != null && instructionCount > instructionCountLimit) {
-            throw new LuaError("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
+            throw new LuaException("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
         }
     }
 
@@ -252,6 +260,10 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
      */
     public boolean isFinished() {
         return threadGroup.isFinished();
+    }
+
+    public Metatables getMetatables() {
+        return metatables;
     }
 
 }

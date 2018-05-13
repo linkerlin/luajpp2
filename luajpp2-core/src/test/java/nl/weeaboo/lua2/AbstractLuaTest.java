@@ -10,7 +10,6 @@ import org.junit.Before;
 
 import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -51,7 +50,7 @@ public abstract class AbstractLuaTest {
     protected LuaThread loadScript(String filename) {
         Varargs loadResult = ScriptLoader.loadFile(filename);
         if (loadResult.isnil(1)) {
-            throw new LuaError(loadResult.tojstring(2));
+            throw new LuaException(loadResult.tojstring(2));
         }
 
         LuaThread mainThread = luaRunState.getMainThread();

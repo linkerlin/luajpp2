@@ -28,12 +28,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
@@ -141,7 +141,7 @@ public final class LuaC extends Lua implements ILuaCompiler {
 
     protected static void luaAssert(boolean b) {
         if (!b) {
-            throw new LuaError("compiler assert failed");
+            throw new LuaException("compiler assert failed");
         }
     }
 

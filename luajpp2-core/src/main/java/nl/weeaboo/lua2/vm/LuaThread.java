@@ -29,6 +29,7 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.DebugLib;
@@ -38,9 +39,6 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
     private static final long serialVersionUID = 2L;
-
-    public static final int MAX_CALLSTACK = 512;
-    public static LuaValue s_metatable;
 
     private LuaRunState luaRunState;
     private LuaValue env;
@@ -129,7 +127,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return luaRunState.getMetatables().getThreadMetatable();
     }
 
     @Override
@@ -207,6 +205,13 @@ public final class LuaThread extends LuaValue implements Serializable {
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
     }
 
+    /**
+     * Pushes a function on the call stack of this thread, then runs the thread until that function returns or
+     * yields. This method ignores the sleep count of the thread.
+     *
+     * @see #pushPending(LuaClosure, Varargs)
+     * @see #getSleep()
+     */
     public Varargs callFunctionInThread(LuaClosure function, Varargs args) {
         pushPending(function, args);
 
@@ -271,6 +276,9 @@ public final class LuaThread extends LuaValue implements Serializable {
         return args;
     }
 
+    /**
+     * Runs the thread until it suspends or finishes.
+     */
     public void resume() {
         resume(-1);
     }
@@ -283,7 +291,7 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
     public Varargs resume(int maxDepth) {
         if (isDead()) {
-            throw new LuaError("cannot resume dead thread");
+            throw new LuaException("cannot resume dead thread");
         }
 
         if (sleep != 0) {
@@ -305,12 +313,9 @@ public final class LuaThread extends LuaValue implements Serializable {
 
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
             result = LuaInterpreter.resume(this, callstackMin);
-        } catch (LuaError e) {
+        } catch (RuntimeException e) {
             popStackFrames();
-            throw e;
-        } catch (Exception e) {
-            popStackFrames();
-            throw new LuaError("Runtime error :: " + e, e);
+            throw LuaException.wrap("Runtime error in Lua thread", e);
         } finally {
             callstackMin = oldCallstackMin;
             luaRunState.setRunningThread(prior);

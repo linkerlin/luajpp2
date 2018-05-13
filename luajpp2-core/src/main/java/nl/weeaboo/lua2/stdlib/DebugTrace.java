@@ -5,9 +5,9 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -119,7 +119,7 @@ public final class DebugTrace {
 
     private static void lua_assert(boolean x) {
         if (!x) {
-            throw new LuaError("lua_assert failed");
+            throw new LuaException("lua_assert failed");
         }
     }
 

@@ -8,8 +8,8 @@ import java.io.ObjectOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -19,6 +19,8 @@ import nl.weeaboo.lua2.vm.LuaValue;
 final class DebugState implements Externalizable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DebugState.class);
+
+    private static final int MAX_CALLSTACK = 512;
 
     // --- Uses manual serialization, don't add variables ---
     private LuaThread thread;
@@ -43,7 +45,7 @@ final class DebugState implements Externalizable {
 
     DebugState(LuaThread t) {
         thread = t;
-        debugInfo = new DebugInfo[LuaThread.MAX_CALLSTACK + 1];
+        debugInfo = new DebugInfo[MAX_CALLSTACK + 1];
     }
 
     @Override
@@ -93,8 +95,8 @@ final class DebugState implements Externalizable {
     }
 
     public DebugInfo pushInfo() {
-        if (debugCalls >= LuaThread.MAX_CALLSTACK) {
-            throw new LuaError("Stack overflow: " + (debugCalls + 1));
+        if (debugCalls >= MAX_CALLSTACK) {
+            throw new LuaException("Stack overflow: " + (debugCalls + 1));
         }
 
         nextInfo();
@@ -121,8 +123,8 @@ final class DebugState implements Externalizable {
         inhook = true;
         try {
             hookfunc.call(type, arg);
-        } catch (Exception e) {
-            throw new LuaError(e);
+        } catch (RuntimeException e) {
+            throw LuaException.wrap("Error invoking hook function", e);
         } finally {
             inhook = false;
         }
