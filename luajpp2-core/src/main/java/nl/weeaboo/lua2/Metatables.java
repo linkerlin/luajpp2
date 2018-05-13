@@ -2,9 +2,15 @@ package nl.weeaboo.lua2;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import java.io.Serializable;
+
+import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
-public final class Metatables {
+@LuaSerializable
+public final class Metatables implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private LuaValue nilMetatable = NIL;
     private LuaValue numberMetatable = NIL;

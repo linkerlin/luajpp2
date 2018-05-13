@@ -82,23 +82,23 @@ public class MetatableTest {
 
     @Test
     public void testGetMetatable() {
-        Assert.assertEquals(null, NIL.getmetatable());
-        Assert.assertEquals(null, bool.getmetatable());
-        Assert.assertEquals(null, number.getmetatable());
-        // assertEquals( null, string.getmetatable() );
-        Assert.assertEquals(null, table.getmetatable());
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
-        Assert.assertEquals(null, userdata.getmetatable());
+        Assert.assertEquals(NIL, NIL.getmetatable());
+        Assert.assertEquals(NIL, bool.getmetatable());
+        Assert.assertEquals(NIL, number.getmetatable());
+        // assertEquals( NIL, string.getmetatable() );
+        Assert.assertEquals(NIL, table.getmetatable());
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
+        Assert.assertEquals(NIL, userdata.getmetatable());
         Assert.assertEquals(table, userdatamt.getmetatable());
     }
 
     @Test
     public void testSetMetatable() {
         final LuaValue mt = LuaValue.tableOf();
-        Assert.assertEquals(null, table.getmetatable());
-        Assert.assertEquals(null, userdata.getmetatable());
+        Assert.assertEquals(NIL, table.getmetatable());
+        Assert.assertEquals(NIL, userdata.getmetatable());
         Assert.assertEquals(table, userdatamt.getmetatable());
         Assert.assertEquals(table, table.setmetatable(mt));
         Assert.assertEquals(userdata, userdata.setmetatable(mt));
@@ -108,43 +108,43 @@ public class MetatableTest {
         Assert.assertEquals(mt, userdatamt.getmetatable());
 
         // these all get metatable behind-the-scenes
-        Assert.assertEquals(null, NIL.getmetatable());
-        Assert.assertEquals(null, bool.getmetatable());
-        Assert.assertEquals(null, number.getmetatable());
-        // assertEquals( null, string.getmetatable() );
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(NIL, NIL.getmetatable());
+        Assert.assertEquals(NIL, bool.getmetatable());
+        Assert.assertEquals(NIL, number.getmetatable());
+        // assertEquals( NIL, string.getmetatable() );
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
         metatables.setNilMetatable(mt);
         Assert.assertEquals(mt, NIL.getmetatable());
-        Assert.assertEquals(null, bool.getmetatable());
-        Assert.assertEquals(null, number.getmetatable());
-        // assertEquals( null, string.getmetatable() );
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(NIL, bool.getmetatable());
+        Assert.assertEquals(NIL, number.getmetatable());
+        // assertEquals( NIL, string.getmetatable() );
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
         metatables.setBooleanMetatable(mt);
         Assert.assertEquals(mt, bool.getmetatable());
-        Assert.assertEquals(null, number.getmetatable());
+        Assert.assertEquals(NIL, number.getmetatable());
         // assertEquals( null, string.getmetatable() );
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
         metatables.setNumberMetatable(mt);
         Assert.assertEquals(mt, number.getmetatable());
         Assert.assertEquals(mt, LuaValue.valueOf(1.25).getmetatable());
         // assertEquals( null, string.getmetatable() );
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
         // LuaString.s_metatable = mt;
         // assertEquals( mt, string.getmetatable() );
-        Assert.assertEquals(null, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
-        Assert.assertEquals(null, closure.getmetatable());
+        Assert.assertEquals(NIL, function.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
+        Assert.assertEquals(NIL, closure.getmetatable());
         metatables.setFunctionMetatable(mt);
         Assert.assertEquals(mt, function.getmetatable());
-        Assert.assertEquals(null, thread.getmetatable());
+        Assert.assertEquals(NIL, thread.getmetatable());
         metatables.setThreadMetatable(mt);
         Assert.assertEquals(mt, thread.getmetatable());
     }

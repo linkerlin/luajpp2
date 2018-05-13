@@ -41,12 +41,15 @@ public class LuaUserdata extends LuaValue implements Serializable {
     private LuaValue metatable;
 
     public LuaUserdata(Object obj) {
-        this(obj, null);
+        this(obj, NIL);
     }
 
     public LuaUserdata(Object obj, LuaValue metatable) {
         if (obj == null) {
             throw new LuaException("Attempt to create userdata from null object");
+        }
+        if (metatable == null) {
+            throw new LuaException("Attempt to create userdata with null metatable");
         }
 
         this.userdata = obj;

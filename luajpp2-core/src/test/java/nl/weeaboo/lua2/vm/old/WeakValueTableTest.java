@@ -32,7 +32,7 @@ public class WeakValueTableTest extends WeakTableTest {
         LuaTable tableValue2 = new LuaTable();
 
         t.set("table", tableValue);
-        t.set("userdata", LuaValue.userdataOf(obj, null));
+        t.set("userdata", LuaValue.userdataOf(obj));
         t.set("string", stringValue);
         t.set("string2", LuaValue.valueOf("another string"));
         t.set(1, tableValue2);

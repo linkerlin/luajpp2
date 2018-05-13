@@ -334,7 +334,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
     @Override
     public LuaValue getmetatable() {
-        return (metatable != null) ? metatable.toLuaValue() : null;
+        return (metatable != null) ? metatable.toLuaValue() : NIL;
     }
 
     @Override
