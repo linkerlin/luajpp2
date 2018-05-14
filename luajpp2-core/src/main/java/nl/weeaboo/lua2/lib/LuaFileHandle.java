@@ -3,9 +3,9 @@ package nl.weeaboo.lua2.lib;
 import java.io.IOException;
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -72,7 +72,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      * @throws IOException If something goes wrong
      */
     public void setvbuf(String mode, int size) throws IOException {
-        throw new LuaError("setvbuf not supported");
+        throw new LuaException("setvbuf not supported");
     }
 
     /**

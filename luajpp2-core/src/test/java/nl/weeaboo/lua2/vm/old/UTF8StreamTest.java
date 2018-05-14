@@ -29,7 +29,7 @@ import org.junit.Test;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.LuaUtil;
-import nl.weeaboo.lua2.link.LuaLink;
+import nl.weeaboo.lua2.vm.LuaThread;
 
 public class UTF8StreamTest {
 
@@ -47,7 +47,7 @@ public class UTF8StreamTest {
                 + "print('x = ', x)\n"
                 + "return x";
 
-        LuaLink link = new LuaLink(lrs);
+        LuaThread link = lrs.newThread();
         String str = LuaUtil.eval(link, script).tojstring(1);
         Assert.assertEquals(value, str);
     }

@@ -20,7 +20,6 @@ import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.LuaFileHandle;
 import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.lib.VarArgFunction;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -47,6 +46,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:close() -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs close(Varargs args) throws IOException {
@@ -59,6 +59,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:flush() -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs flush(Varargs args) throws IOException {
@@ -68,6 +69,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:setvbuf(mode,[size]) -> void.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs setvbuf(Varargs args) throws IOException {
@@ -90,6 +92,7 @@ public final class FileLib extends LuaLib {
 
     /**
      * file:seek([whence][,offset]) -> pos | nil,error.
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs seek(Varargs args) throws IOException {
@@ -154,7 +157,7 @@ public final class FileLib extends LuaLib {
                 return line;
             } catch (IOException ioe) {
                 closeFileIfNeeded();
-                throw new LuaError("I/O error from lines iterator for: " + file, ioe);
+                throw LuaException.wrap("I/O error from lines iterator for: " + file, ioe);
             }
         }
 

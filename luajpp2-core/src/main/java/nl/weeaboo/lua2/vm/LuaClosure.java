@@ -148,17 +148,21 @@ public final class LuaClosure extends LuaFunction {
 
     @Override
     public final Varargs invoke(Varargs varargs) {
-        return LuaThread.execute(this, varargs);
+        LuaThread thread = LuaThread.getRunning();
+        return thread.callFunctionInThread(this, varargs);
     }
 
+    /** Returns the prototype for this closure. */
     public Prototype getPrototype() {
         return p;
     }
 
+    /** Returns the upvalues for this closure. */
     public UpValue[] getUpValues() {
         return upValues;
     }
 
+    /** Returns the number of upvalues for this closure. */
     public int getUpValueCount() {
         return upValues.length;
     }

@@ -7,6 +7,7 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.vm.StackFrame.Status;
@@ -47,7 +48,7 @@ final class LuaInterpreter {
 
     private static Varargs resume(LuaThread thread, StackFrame sf) {
         if (sf.status != Status.RUNNING) {
-            throw new LuaError("StackFrame isn't running: " + sf);
+            throw new LuaException("StackFrame isn't running: " + sf);
         }
 
         final LuaClosure closure = sf.func.checkclosure();
@@ -74,7 +75,7 @@ final class LuaInterpreter {
         try {
             while (thread.isRunning()) {
                 if (pc < 0 || pc >= code.length) {
-                    throw new LuaError("Program Counter outside code range: " + pc + " for " + closure);
+                    throw new LuaException("Program Counter outside code range: " + pc + " for " + closure);
                 }
 
                 if (DebugLib.isDebugEnabled()) {
@@ -270,7 +271,7 @@ final class LuaInterpreter {
                     top = sf.top;
                     pc = sf.pc;
 
-                    if (thread.isSuspended()) {
+                    if (thread.getStatus() == LuaThreadStatus.SUSPENDED) {
                         return v; // Yield
                     }
 
@@ -321,7 +322,7 @@ final class LuaInterpreter {
 
                         pc = sf.pc;
 
-                        if (thread.isSuspended()) {
+                        if (thread.getStatus() == LuaThreadStatus.SUSPENDED) {
                             return v; // Yield
                         }
 
@@ -468,7 +469,7 @@ final class LuaInterpreter {
             }
 
             // Yield
-            if (thread.isDead() || thread.isEndCall()) {
+            if (thread.isDead() || thread.getStatus() == LuaThreadStatus.END_CALL) {
                 sf.status = Status.DEAD;
             }
             return NONE;

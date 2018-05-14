@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.vm;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +51,7 @@ public final class WeakTableTest {
          * Only key/value combinations remaining are where both key and value are still available as local
          * variables in this method.
          */
-        Assert.assertArrayEquals(new LuaValue[] {i1, i2, i3, s}, table.keys());
+        Assert.assertEquals(Arrays.<LuaValue>asList(i1, i2, i3, s), table.keys());
     }
 
 }

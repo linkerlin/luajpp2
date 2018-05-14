@@ -97,6 +97,7 @@ public final class LuaDouble extends LuaNumber implements Externalizable {
         value = d;
     }
 
+    /** Converts from a Java double to a Lua number. */
     public static LuaNumber valueOf(double d) {
         int i = (int)d;
         if (d == i) {

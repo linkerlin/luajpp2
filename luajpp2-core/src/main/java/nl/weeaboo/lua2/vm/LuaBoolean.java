@@ -24,6 +24,7 @@ package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -51,9 +52,6 @@ public final class LuaBoolean extends LuaValue implements Serializable {
      */
     public static final LuaBoolean FALSE = new LuaBoolean(false);
 
-    /** Shared static metatable for boolean values represented in lua. */
-    public static LuaValue s_metatable;
-
     /** The value of the boolean. */
     public final boolean bool;
 
@@ -61,6 +59,7 @@ public final class LuaBoolean extends LuaValue implements Serializable {
         this.bool = b;
     }
 
+    /** Converts from a Java boolean to a Lua boolean object. */
     public static LuaBoolean valueOf(boolean b) {
         return b ? TRUE : FALSE;
     }
@@ -112,7 +111,7 @@ public final class LuaBoolean extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getBooleanMetatable();
     }
 
 }

@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.vm;
 
+import nl.weeaboo.lua2.LuaException;
+
 interface IArith {
 
     /**
@@ -7,7 +9,7 @@ interface IArith {
      *
      * @return boolean inverse as {@link LuaBoolean} if boolean or nil, numeric inverse as {@LuaNumber} if
      *         numeric, or metatag processing result if {@link LuaConstants#META_UNM} metatag is defined
-     * @throws LuaError if {@code this} is not a table or string, and has no {@link LuaConstants#META_UNM} metatag
+     * @throws LuaException if {@code this} is not a table or string, and has no {@link LuaConstants#META_UNM} metatag
      */
     public LuaValue neg();
 
@@ -20,7 +22,7 @@ interface IArith {
      * @param rhs The right-hand-side value to perform the add with
      * @return value of {@code (this + rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_ADD} metatag defined
      */
     LuaValue add(LuaValue rhs);
@@ -35,7 +37,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the add with
      * @return value of {@code (this + rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #add(LuaValue)
      */
     LuaValue add(double rhs);
@@ -50,7 +52,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the add with
      * @return value of {@code (this + rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #add(LuaValue)
      */
     LuaValue add(int rhs);
@@ -65,7 +67,7 @@ interface IArith {
      * @param rhs The right-hand-side value to perform the subtract with
      * @return value of {@code (this - rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_SUB} metatag defined
      */
     LuaValue sub(LuaValue rhs);
@@ -81,7 +83,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the subtract with
      * @return value of {@code (this - rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #sub(LuaValue)
      */
     LuaValue sub(double rhs);
@@ -96,7 +98,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the subtract with
      * @return value of {@code (this - rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #sub(LuaValue)
      */
     LuaValue sub(int rhs);
@@ -111,7 +113,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value from which to perform the subtraction
      * @return value of {@code (lhs - this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #sub(LuaValue)
      * @see #sub(double)
      * @see #sub(int)
@@ -128,7 +130,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value from which to perform the subtraction
      * @return value of {@code (lhs - this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #sub(LuaValue)
      * @see #sub(double)
      * @see #sub(int)
@@ -145,7 +147,7 @@ interface IArith {
      * @param rhs The right-hand-side value to perform the multiply with
      * @return value of {@code (this * rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_MUL} metatag defined
      */
     LuaValue mul(LuaValue rhs);
@@ -161,7 +163,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the multiply with
      * @return value of {@code (this * rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #mul(LuaValue)
      */
     LuaValue mul(double rhs);
@@ -176,7 +178,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the multiply with
      * @return value of {@code (this * rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #mul(LuaValue)
      */
     LuaValue mul(int rhs);
@@ -190,7 +192,7 @@ interface IArith {
      * @param rhs The power to raise this value to
      * @return value of {@code (this ^ rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_POW} metatag defined
      */
     LuaValue pow(LuaValue rhs);
@@ -205,7 +207,7 @@ interface IArith {
      *
      * @param rhs The power to raise this value to
      * @return value of {@code (this ^ rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #pow(LuaValue)
      */
     LuaValue pow(double rhs);
@@ -220,7 +222,7 @@ interface IArith {
      *
      * @param rhs The power to raise this value to
      * @return value of {@code (this ^ rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #pow(LuaValue)
      */
     LuaValue pow(int rhs);
@@ -235,7 +237,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value which will be raised to this power
      * @return value of {@code (lhs ^ this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #pow(LuaValue)
      * @see #pow(double)
      * @see #pow(int)
@@ -252,7 +254,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value which will be raised to this power
      * @return value of {@code (lhs ^ this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #pow(LuaValue)
      * @see #pow(double)
      * @see #pow(int)
@@ -269,7 +271,7 @@ interface IArith {
      * @param rhs The right-hand-side value to perform the divulo with
      * @return value of {@code (this / rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_DIV} metatag defined
      */
     LuaValue div(LuaValue rhs);
@@ -284,7 +286,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the divulo with
      * @return value of {@code (this / rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #div(LuaValue)
      */
     LuaValue div(double rhs);
@@ -299,7 +301,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the divulo with
      * @return value of {@code (this / rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #div(LuaValue)
      */
     LuaValue div(int rhs);
@@ -314,7 +316,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value which will be divided by this
      * @return value of {@code (lhs / this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #div(LuaValue)
      * @see #div(double)
      * @see #div(int)
@@ -331,7 +333,7 @@ interface IArith {
      * @param rhs The right-hand-side value to perform the modulo with
      * @return value of {@code (this % rhs)} if both are numeric, or {@link LuaValue} if metatag processing
      *         occurs
-     * @throws LuaError if either operand is not a number or string convertible to number, and neither has the
+     * @throws LuaException if either operand is not a number or string convertible to number, and neither has the
      *         {@link LuaConstants#META_MOD} metatag defined
      */
     LuaValue mod(LuaValue rhs);
@@ -346,7 +348,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the modulo with
      * @return value of {@code (this % rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #mod(LuaValue)
      */
     LuaValue mod(double rhs);
@@ -361,7 +363,7 @@ interface IArith {
      *
      * @param rhs The right-hand-side value to perform the modulo with
      * @return value of {@code (this % rhs)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #mod(LuaValue)
      */
     LuaValue mod(int rhs);
@@ -376,7 +378,7 @@ interface IArith {
      *
      * @param lhs The left-hand-side value which will be modulo'ed by this
      * @return value of {@code (lhs % this)} if this is numeric
-     * @throws LuaError if {@code this} is not a number or string convertible to number
+     * @throws LuaException if {@code this} is not a number or string convertible to number
      * @see #mod(LuaValue)
      * @see #mod(double)
      * @see #mod(int)

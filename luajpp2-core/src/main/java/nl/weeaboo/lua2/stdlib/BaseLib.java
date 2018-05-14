@@ -25,7 +25,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -126,7 +125,7 @@ public final class BaseLib extends LuaLib {
      */
     @LuaBoundFunction
     public Varargs error(Varargs args) {
-        throw new LuaError(args.arg(1), null, args.optint(2, 1));
+        throw new LuaException(args.arg(1), null, args.optint(2, 1));
     }
 
     /**
@@ -150,7 +149,7 @@ public final class BaseLib extends LuaLib {
             if (args.narg() > 1) {
                 message = args.optjstring(2, "assertion failed!");
             }
-            throw new LuaError(message);
+            throw new LuaException(message);
         }
         return args;
     }
@@ -168,7 +167,7 @@ public final class BaseLib extends LuaLib {
         }
 
         if (v.isnil(1)) {
-            throw new LuaError(v.tojstring(2));
+            throw new LuaException(v.tojstring(2));
         }
         return v.arg1().invoke();
     }
@@ -189,7 +188,10 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs getmetatable(Varargs args) {
         LuaValue mt = args.checkvalue(1).getmetatable();
-        return (mt != null ? mt.rawget(META_METATABLE).optvalue(mt) : NIL);
+        if (mt.isnil()) {
+            return NIL;
+        }
+        return mt.rawget(META_METATABLE).optvalue(mt);
     }
 
     /**
@@ -250,7 +252,7 @@ public final class BaseLib extends LuaLib {
         try {
             Varargs funcResult = func.invoke(args);
             return varargsOf(TRUE, funcResult);
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             LOG.trace("Error in pcall: {} {}", func, args, le);
             return varargsOf(FALSE, le.getMessageObject());
         } catch (Exception e) {
@@ -374,11 +376,11 @@ public final class BaseLib extends LuaLib {
     public Varargs setmetatable(Varargs args) {
         final LuaValue t = args.arg1();
         final LuaValue mt0 = t.getmetatable();
-        if (mt0 != null && !mt0.rawget(META_METATABLE).isnil()) {
-            throw new LuaError("cannot change a protected metatable");
+        if (!mt0.isnil() && !mt0.rawget(META_METATABLE).isnil()) {
+            throw new LuaException("cannot change a protected metatable");
         }
         final LuaValue mt = args.checkvalue(2);
-        return t.setmetatable(mt.isnil() ? null : mt.checktable());
+        return t.setmetatable(mt.isnil() ? NIL : mt.checktable());
     }
 
     /**

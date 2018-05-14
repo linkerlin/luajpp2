@@ -29,8 +29,10 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 
 @LuaSerializable
@@ -38,9 +40,6 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
     private static final long serialVersionUID = 2L;
-
-    public static final int MAX_CALLSTACK = 512;
-    public static LuaValue s_metatable;
 
     private LuaRunState luaRunState;
     private LuaValue env;
@@ -77,12 +76,17 @@ public final class LuaThread extends LuaValue implements Serializable {
         callstack = StackFrame.newInstance(function, NONE, null, 0, 0);
     }
 
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
     public static LuaThread createMainThread(LuaRunState lrs, LuaValue env) {
         LuaThread thread = new LuaThread(lrs, env);
         thread.isMainThread = true;
         return thread;
     }
 
+    /** Resets the thread to its initial state. */
     public void reset() {
         StackFrame.releaseCallstack(callstack);
 
@@ -124,7 +128,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return luaRunState.getMetatables().getThreadMetatable();
     }
 
     @Override
@@ -137,39 +141,37 @@ public final class LuaThread extends LuaValue implements Serializable {
         this.env = env;
     }
 
+    /** Returns the thread's status. */
     public LuaThreadStatus getStatus() {
         return status;
     }
 
+    /** Returns {@code true} if the thread's status is {@link LuaThreadStatus#RUNNING}. */
     public boolean isRunning() {
         return status == LuaThreadStatus.RUNNING;
     }
 
+    /** Returns {@code true} if the thread is dead, or has no further code to execute. */
     public boolean isFinished() {
         return isDead() || callstack == null;
     }
 
+    /** Returns {@code true} if the thread's status is {@link LuaThreadStatus#DEAD}. */
     public boolean isDead() {
         return status == LuaThreadStatus.DEAD;
     }
 
-    public boolean isEndCall() {
-        return status == LuaThreadStatus.END_CALL;
-    }
-
-    public boolean isSuspended() {
-        return status == LuaThreadStatus.SUSPENDED;
-    }
-
+    /** Destroys the thread, making it dead. */
     public void destroy() {
         status = LuaThreadStatus.DEAD;
     }
 
+    /** Returns the number of frames on the thread's call stack. */
     public int callstackSize() {
         return (callstack != null ? callstack.size() : 0);
     }
 
-    public void preCall(StackFrame sf) {
+    void preCall(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
             DebugLib.debugSetupCall(this, sf.args, sf.stack);
             DebugLib.debugOnCall(this, sf.func);
@@ -181,7 +183,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     /**
      * @param sf The stack frame that was just popped from the callstack.
      */
-    public void postReturn(StackFrame sf) {
+    void postReturn(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
             LOG.trace("<<({}) {}", sf.size(), sf);
 
@@ -193,14 +195,41 @@ public final class LuaThread extends LuaValue implements Serializable {
         }
     }
 
+    /**
+     * Pushes a new Lua closure onto the call stack.
+     */
     public void pushPending(LuaClosure func, Varargs args) {
         pushPending(func, args, -1, 0);
     }
 
-    public void pushPending(LuaClosure func, Varargs args, int returnBase, int returnCount) {
+    void pushPending(LuaClosure func, Varargs args, int returnBase, int returnCount) {
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
     }
 
+    /**
+     * Pushes a function on the call stack of this thread, then runs the thread until that function returns or
+     * yields. This method ignores the sleep count of the thread.
+     *
+     * @see #pushPending(LuaClosure, Varargs)
+     * @see #getSleep()
+     */
+    public Varargs callFunctionInThread(LuaClosure function, Varargs args) {
+        pushPending(function, args);
+
+        Varargs result;
+        int oldSleep = getSleep();
+        try {
+            result = resume(1);
+        } finally {
+            setSleep(oldSleep);
+        }
+        return result;
+    }
+
+    /**
+     * Returns the function at the requested call stack offset.
+     * @return The function, or {@code null} if not found.
+     */
     public LuaFunction getCallstackFunction(int level) {
         if (callstack == null) {
             return null;
@@ -208,6 +237,9 @@ public final class LuaThread extends LuaValue implements Serializable {
         return callstack.getCallstackFunction(level);
     }
 
+    /**
+     * Returns the currently running thread.
+     */
     public static LuaThread getRunning() {
         LuaRunState lrs = LuaRunState.getCurrent();
         if (lrs == null) {
@@ -216,6 +248,9 @@ public final class LuaThread extends LuaValue implements Serializable {
         return lrs.getRunningThread();
     }
 
+    /**
+     * Returns {@code true} if this is the main Lua thread.
+     */
     public boolean isMainThread() {
         return isMainThread;
     }
@@ -232,15 +267,45 @@ public final class LuaThread extends LuaValue implements Serializable {
         return args;
     }
 
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
     public Varargs endCall(Varargs args) {
         args = yield(args);
         status = LuaThreadStatus.END_CALL;
         return args;
     }
 
-    public Varargs resume(int maxDepth) {
+    /**
+     * Runs the thread until it suspends or finishes.
+     */
+    public Varargs resume(Varargs args) {
+        LuaThreadStatus status = getStatus();
+        if (status == LuaThreadStatus.INITIAL) {
+            // Start new coroutine
+            callstack.setArgs(args);
+        } else if (status == LuaThreadStatus.SUSPENDED || status == LuaThreadStatus.END_CALL) {
+            // Resume coroutine
+            // Place args on the thread's stack as though it was returned from the call that yielded
+            callstack.setReturnedValues(args);
+        } else {
+            throw new LuaException("Unable to resume coroutine: " + this + ", status="
+                    + CoroutineLib.getCoroutineStatus(this));
+        }
+
+        return resume(-1);
+    }
+
+    /**
+     * Runs the thread until it suspends or finishes.
+     *
+     * @param maxDepth If {@code >= 0} suspends the thread when the call stack becomes more than
+     *        {@code maxDepth} smaller than it was when the resume method was called.
+     */
+    private Varargs resume(int maxDepth) {
         if (isDead()) {
-            throw new LuaError("cannot resume dead thread");
+            throw new LuaException("cannot resume dead thread");
         }
 
         if (sleep != 0) {
@@ -258,19 +323,16 @@ public final class LuaThread extends LuaValue implements Serializable {
                 prior.status = LuaThreadStatus.SUSPENDED;
             }
             status = LuaThreadStatus.RUNNING;
-            luaRunState.setRunningThread(this);
+            setRunningThread(this);
 
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
             result = LuaInterpreter.resume(this, callstackMin);
-        } catch (LuaError e) {
+        } catch (RuntimeException e) {
             popStackFrames();
-            throw e;
-        } catch (Exception e) {
-            popStackFrames();
-            throw new LuaError("Runtime error :: " + e, e);
+            throw LuaException.wrap("Runtime error in Lua thread", e);
         } finally {
             callstackMin = oldCallstackMin;
-            luaRunState.setRunningThread(prior);
+            setRunningThread(prior);
 
             if (callstack == null) {
                 status = LuaThreadStatus.FINISHED;
@@ -278,12 +340,17 @@ public final class LuaThread extends LuaValue implements Serializable {
                 status = LuaThreadStatus.SUSPENDED;
             }
 
-            if (prior.status == LuaThreadStatus.SUSPENDED) {
+            if (prior != this && prior.status == LuaThreadStatus.SUSPENDED) {
                 prior.status = LuaThreadStatus.RUNNING;
             }
         }
 
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setRunningThread(LuaThread thread) {
+        luaRunState.setRunningThread(thread);
     }
 
     private void popStackFrames() {
@@ -306,12 +373,10 @@ public final class LuaThread extends LuaValue implements Serializable {
         postReturn(sf);
     }
 
-    public static Varargs execute(LuaClosure c, Varargs args) {
-        LuaThread running = getRunning();
-        running.pushPending(c, args);
-        return running.resume(1);
-    }
-
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
     public LuaValue getCallEnv() {
         if (callstack != null) {
             return callstack.getCallstackFunction(1).getfenv();
@@ -325,25 +390,23 @@ public final class LuaThread extends LuaValue implements Serializable {
         pushPending(closure, args);
     }
 
-    public void setSleep(int frames) {
-        sleep = frames;
+    /**
+     * Sets the sleep counter for the current thread.
+     *
+     * @param count If positive, ignores the next {@code count} attempts to resume the thread, decrementing
+     *        the internal sleep count by one every time. Use a count of {@code -1} to sleep forever.
+     */
+    public void setSleep(int count) {
+        sleep = count;
     }
 
+    /**
+     * Returns the current value of the internal sleep counter.
+     *
+     * @see #setSleep(int)
+     */
     public int getSleep() {
         return sleep;
-    }
-
-    public void setArgs(Varargs args) {
-        callstack.setArgs(args);
-    }
-
-    public Varargs getArgs() {
-        // TODO: Append varargs
-        return callstack.args;
-    }
-
-    public void setReturnedValues(Varargs args) {
-        callstack.setReturnedValues(args);
     }
 
 }

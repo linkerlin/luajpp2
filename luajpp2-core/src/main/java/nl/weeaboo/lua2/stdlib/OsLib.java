@@ -39,6 +39,7 @@ public final class OsLib extends LuaModule {
      *        <ol>
      *        <li>command to pass to the system
      *        </ol>
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs execute(Varargs args) throws IOException {
@@ -52,6 +53,7 @@ public final class OsLib extends LuaModule {
      *        <ol>
      *        <li>(optional) exit code (int)
      *        </ol>
+     * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
     public Varargs exit(Varargs args) throws IOException {

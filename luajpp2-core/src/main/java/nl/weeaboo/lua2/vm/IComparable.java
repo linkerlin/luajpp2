@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.vm;
 
+import nl.weeaboo.lua2.LuaException;
+
 public interface IComparable {
 
     /**
@@ -58,7 +60,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this < rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(LuaValue)
      */
@@ -73,7 +75,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this < rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(double)
      */
     LuaValue lt(double rhs);
@@ -87,7 +89,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this < rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(int)
      */
     LuaValue lt(int rhs);
@@ -102,7 +104,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this < rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -117,7 +119,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this < rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(int)
      */
     boolean lt_b(int rhs);
@@ -132,7 +134,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this < rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -148,7 +150,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this <= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(LuaValue)
      */
@@ -163,7 +165,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this <= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(double)
      */
     LuaValue lteq(double rhs);
@@ -177,7 +179,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this <= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(int)
      */
     LuaValue lteq(int rhs);
@@ -192,7 +194,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this <= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -207,7 +209,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this <= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(int)
      */
     boolean lteq_b(int rhs);
@@ -221,7 +223,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this <= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(double)
      */
     boolean lteq_b(double rhs);
@@ -236,7 +238,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this > rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(LuaValue)
      */
@@ -251,7 +253,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this > rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(double)
      */
     LuaValue gt(double rhs);
@@ -265,7 +267,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this > rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq_b(int)
      */
     LuaValue gt(int rhs);
@@ -280,7 +282,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this > rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -295,7 +297,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this > rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(int)
      */
     boolean gt_b(int rhs);
@@ -310,7 +312,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this > rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LE} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -326,7 +328,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this >= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(LuaValue)
      */
@@ -341,7 +343,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this >= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(double)
      */
     LuaValue gteq(double rhs);
@@ -355,7 +357,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return {@link LuaBoolean#TRUE} if {@code (this >= rhs)}, {@link LuaBoolean#FALSE} if not, or
      *         {@link LuaValue} if metatag processing occurs
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq_b(int)
      */
     LuaValue gteq(int rhs);
@@ -370,7 +372,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this >= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if either both operands are not a strings or both are not numbers and no
+     * @throws LuaException if either both operands are not a strings or both are not numbers and no
      *         {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(LuaValue)
      */
@@ -385,7 +387,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this >= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(int)
      */
     boolean gteq_b(int rhs);
@@ -399,7 +401,7 @@ public interface IComparable {
      * @param rhs The right-hand-side value to perform the comparison with
      * @return true if {@code (this >= rhs)}, false if not, and boolean interpreation of result if metatag
      *         processing occurs.
-     * @throws LuaError if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
+     * @throws LuaException if this is not a number and no {@link LuaConstants#META_LT} metatag is defined.
      * @see #gteq(double)
      */
     boolean gteq_b(double rhs);
@@ -411,7 +413,7 @@ public interface IComparable {
      *
      * @param rhs The right-hand-side value to perform the comparison with
      * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
-     * @throws LuaError if either operand is not a string
+     * @throws LuaException if either operand is not a string
      */
     int strcmp(LuaValue rhs);
 
@@ -423,7 +425,7 @@ public interface IComparable {
      *
      * @param rhs The right-hand-side value to perform the comparison with
      * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
-     * @throws LuaError if this is not a string
+     * @throws LuaException if this is not a string
      */
     int strcmp(LuaString rhs);
 

@@ -5,9 +5,9 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -53,6 +53,10 @@ public final class DebugTrace {
         return sb.toString();
     }
 
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
     public static StackTraceElement[] getStackTrace(LuaThread thread, int levelOffset, int count) {
         if (thread == null) {
             return new StackTraceElement[0];
@@ -91,15 +95,18 @@ public final class DebugTrace {
     }
 
     /**
-     * Get file and line for a particular level, even if it is a java function.
-     *
-     * @param level 1-based index of level to get
-     * @return String containing file and line info if available
+     * @see #fileline(LuaThread, int)
      */
     public static String fileline(int level) {
         return fileline(LuaThread.getRunning(), level);
     }
 
+    /**
+     * Get file and line for a particular level, even if it is a java function.
+     *
+     * @param level 1-based index of level to get
+     * @return String containing file and line info if available
+     */
     public static String fileline(LuaThread running, int level) {
         DebugState ds = DebugLib.getDebugState(running);
         DebugInfo di = ds.getDebugInfo(level);
@@ -112,7 +119,7 @@ public final class DebugTrace {
 
     private static void lua_assert(boolean x) {
         if (!x) {
-            throw new LuaError("lua_assert failed");
+            throw new LuaException("lua_assert failed");
         }
     }
 

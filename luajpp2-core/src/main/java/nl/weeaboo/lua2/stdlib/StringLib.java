@@ -11,13 +11,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.Metatables;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.Buffer;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -41,7 +42,9 @@ public final class StringLib extends LuaModule {
 
         libTable.rawset("gfind", libTable.rawget("gmatch"));
 
-        LuaString.s_metatable = tableOf(new LuaValue[] { LuaConstants.META_INDEX, libTable });
+        LuaRunState lrs = LuaRunState.getCurrent();
+        Metatables metatables = lrs.getMetatables();
+        metatables.setStringMetatable(tableOf(new LuaValue[] { LuaConstants.META_INDEX, libTable }));
     }
 
     /**
@@ -60,7 +63,7 @@ public final class StringLib extends LuaModule {
             return LuaString.valueOf(baos.toByteArray());
         } catch (IOException e) {
             // This should never happen -- ByteArrayOutputStream doesn't throw these.
-            throw new LuaError(e);
+            throw LuaException.wrap("Error dumping function: " + f, e);
         }
     }
 
@@ -142,7 +145,7 @@ public final class StringLib extends LuaModule {
         }
         int n = (pose - posi + 1);
         if (posi + n <= pose) {
-            throw new LuaError("string slice too long");
+            throw new LuaException("string slice too long");
         }
         LuaValue[] v = new LuaValue[n];
         for (int i = 0; i < n; i++) {
@@ -272,7 +275,7 @@ public final class StringLib extends LuaModule {
                         }
                             break;
                         default:
-                            throw new LuaError("invalid option '%" + (char)fdsc.conversion + "' to 'format'");
+                            throw new LuaException("invalid option '%" + (char)fdsc.conversion + "' to 'format'");
                         }
                     }
                 }
@@ -350,7 +353,7 @@ public final class StringLib extends LuaModule {
         LuaString p = args.checkstring(2);
         LuaValue repl = args.arg(3);
         int maxS = args.optint(4, srclen + 1);
-        final boolean anchor = p.length() > 0 && p.charAt(0) == '^';
+        final boolean anchor = p.length() > 0 && p.luaByte(0) == '^';
 
         Buffer lbuf = new Buffer(srclen);
         MatchState ms = new MatchState(args, src, p);

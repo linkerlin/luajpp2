@@ -10,11 +10,11 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.weeaboo.lua2.compiler.LoadState;
-import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
+import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
@@ -62,8 +62,9 @@ public final class LuaUtil {
      * Compiles and runs a piece of Lua code in the given thread.
      * @throws LuaException If an error occurs while trying to compare or run the code.
      */
-    public static Varargs eval(LuaLink thread, String code) throws LuaException {
-        return thread.call(compileForEval(code, thread.getThread().getCallEnv()));
+    public static Varargs eval(LuaThread thread, String code) throws LuaException {
+        LuaClosure function = compileForEval(code, thread.getfenv());
+        return thread.callFunctionInThread(function, LuaConstants.NONE);
     }
 
     /**
@@ -77,7 +78,7 @@ public final class LuaUtil {
             try {
                 // Try to evaluate as an expression
                 result = LoadState.load("return " + code, chunkName, env);
-            } catch (LuaError err) {
+            } catch (LuaException err) {
                 // Try to evaluate as a statement, no value to return
                 result = LoadState.load(code, chunkName, env);
             }
@@ -92,6 +93,37 @@ public final class LuaUtil {
         } catch (IOException e) {
             throw LuaException.wrap("Error compiling code", e);
         }
+    }
+
+    /**
+     * @see #getEntryForPath(LuaValue, String)
+     */
+    public static LuaValue getEntryForPath(LuaThread thread, String path) {
+        return getEntryForPath(thread.getfenv(), path);
+    }
+
+    /**
+     * Fetches a Lua value from a table.
+     *
+     * @param path The name of the function to find. If the name contains any dots, the name is
+     *        interpreted as a path. For example, a function name of 'a.b.c' first searches the initial table
+     *        for an entry named 'a', then searches that entry for 'b', then that entry for 'c'.
+     * @return The value at the given path, or {@code LuaNil#NIL} if not found.
+     */
+    public static LuaValue getEntryForPath(LuaValue table, String path) {
+        // Resolve a.b.c.d, ends with table=c
+        int index;
+        while (table != null && !table.isnil() && (index = path.indexOf('.')) >= 0) {
+            String part = path.substring(0, index);
+            table = table.get(LuaString.valueOf(part));
+            path = path.substring(index + 1);
+        }
+
+        LuaValue func = LuaNil.NIL;
+        if (table != null && !table.isnil()) {
+            func = table.get(LuaString.valueOf(path));
+        }
+        return func;
     }
 
     /**

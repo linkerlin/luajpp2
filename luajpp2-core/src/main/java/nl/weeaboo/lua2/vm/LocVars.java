@@ -30,8 +30,7 @@ import java.io.ObjectOutput;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
- * Data class to hold debug information relatign to local variables for a
- * {@link Prototype}
+ * Data class to hold debug information relating to local variables for a {@link Prototype}
  */
 @LuaSerializable
 public final class LocVars implements Externalizable {
@@ -63,13 +62,9 @@ public final class LocVars implements Externalizable {
         this.endpc = endpc;
     }
 
-    public String tojstring() {
-        return varname + " " + startpc + "-" + endpc;
-    }
-
     @Override
     public String toString() {
-        return tojstring();
+        return varname + " " + startpc + "-" + endpc;
     }
 
     @Override

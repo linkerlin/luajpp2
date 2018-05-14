@@ -26,6 +26,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.Serializable;
 
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.LibFunction;
 
 /**
@@ -42,9 +43,6 @@ import nl.weeaboo.lua2.lib.LibFunction;
 public abstract class LuaFunction extends LuaValue implements Serializable {
 
     private static final long serialVersionUID = 7157001427080411184L;
-
-    /** Shared static metatable for all functions and closures. */
-    public static LuaValue s_metatable;
 
     protected LuaValue env;
 
@@ -83,7 +81,7 @@ public abstract class LuaFunction extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getFunctionMetatable();
     }
 
     @Override

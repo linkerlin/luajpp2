@@ -18,17 +18,16 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.Metatables;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaNil;
-import nl.weeaboo.lua2.vm.LuaNumber;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
@@ -65,13 +64,24 @@ public final class DebugLib extends LuaModule {
     }
 
     /**
+     * Starts the interactive debugger.
+     *
      * @param args Not used.
      */
     @LuaBoundFunction
     public Varargs debug(Varargs args) {
-        throw new LuaError("not implemented");
+        throw new LuaException("not implemented");
     }
 
+    /**
+     * Returns the environment for the given object.
+     *
+     * @param args
+     *        <ol>
+     *        <li>object
+     *        </ol>
+     * @return The {@code fenv} for the object.
+     */
     @LuaBoundFunction
     public Varargs getfenv(Varargs args) {
         LuaValue object = args.arg1();
@@ -79,6 +89,15 @@ public final class DebugLib extends LuaModule {
         return (env != null ? env : NIL);
     }
 
+    /**
+     * Sets the environment for the given object to the given table.
+     *
+     * @param args
+     *        <ol>
+     *        <li>object
+     *        <li>table
+     *        </ol>
+     */
     @LuaBoundFunction
     public Varargs setfenv(Varargs args) {
         LuaValue object = args.arg1();
@@ -87,6 +106,16 @@ public final class DebugLib extends LuaModule {
         return object;
     }
 
+    /**
+     * Returns the debug hook settings of the thread.
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread. If no thread is specified, uses the currently running thread.
+     *        </ol>
+     * @return {@code hookFunction, hookMask, hookCount}<br>
+     *         see {@link #sethook(Varargs)}
+     */
     @LuaBoundFunction
     public Varargs gethook(Varargs args) {
         int a = 1;
@@ -98,6 +127,31 @@ public final class DebugLib extends LuaModule {
                 valueOf(ds.hookcount));
     }
 
+    /**
+     * Sets the debug hook for a thread.
+     * <p>
+     * When called without arguments, the hook is disabled.
+     * <p>
+     * The hook function is called with the following parameters:
+     * <ul>
+     * <li>event. The type of event that triggered the call ("call", "return", "tail return", "line",
+     * "count").
+     * <li>line number. Only if event is "line".
+     * </ul>
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread. If no thread is specified, uses the currently running thread.
+     *        <li>hook function
+     *        <li>hook mask. A string containing zero or more of the following characters:
+     *        <ul>
+     *        <li>"c": Call the hook every time Lua calls a function.
+     *        <li>"r": Call the hook every time Lua returns from a function.
+     *        <li>"l": Call the hook for every new line of code.
+     *        </ul>
+     *        <li>(optional) hook count. If non-zero, calls the hook after every {@code count} instructions.
+     *        </ol>
+     */
     @LuaBoundFunction
     public Varargs sethook(Varargs args) {
         int a = 1;
@@ -114,24 +168,47 @@ public final class DebugLib extends LuaModule {
         return NONE;
     }
 
+    /**
+     * Returns the name and value of a local variable.
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread. If no thread is specified, uses the currently running thread.
+     *        <li>level. This is the relative offset into the call stack at which to find the local variable.
+     *        <li>index. Local variable index.
+     *        </ol>
+     * @return {@code name, value} if found, or {@code nil} if no local variable was found with that index.
+     */
     @LuaBoundFunction
     public Varargs getlocal(Varargs args) {
         int a = 1;
         LuaThread thread = args.isthread(a) ? args.checkthread(a++) : LuaThread.getRunning();
         int level = args.checkint(a++);
-        int local = args.checkint(a++);
+        int index = args.checkint(a++);
 
         DebugState ds = getDebugState(thread);
         DebugInfo di = ds.getDebugInfo(level);
-        LuaString name = (di != null ? di.getlocalname(local) : null);
+        LuaString name = (di != null ? di.getlocalname(index) : null);
         if (name != null) {
-            LuaValue value = di.stack[local - 1];
+            LuaValue value = di.stack[index - 1];
             return varargsOf(name, value);
         } else {
             return NIL;
         }
     }
 
+    /**
+     * Sets the value of a local variable.
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread. If no thread is specified, uses the currently running thread.
+     *        <li>level. This is the relative offset into the call stack at which to find the local variable.
+     *        <li>index. Local variable index.
+     *        <li>value. The new value for the local variable.
+     *        </ol>
+     * @return The name of the local variable, or {@code nil} if no local variable was found with that index.
+     */
     @LuaBoundFunction
     public Varargs setlocal(Varargs args) {
         int a = 1;
@@ -151,6 +228,16 @@ public final class DebugLib extends LuaModule {
         }
     }
 
+    /**
+     * Returns the name and value of the upvalue with the given index in the given function.
+     *
+     * @param args
+     *        <ol>
+     *        <li>function
+     *        <li>index
+     *        </ol>
+     * @return {@code name, value} if found, or {@code nil} otherwise.
+     */
     @LuaBoundFunction
     public Varargs getupvalue(Varargs args) {
         LuaValue func = args.checkfunction(1);
@@ -167,6 +254,17 @@ public final class DebugLib extends LuaModule {
         return NIL;
     }
 
+    /**
+     * Sets the value of the upvalue with the given index in the given function.
+     *
+     * @param args
+     *        <ol>
+     *        <li>function
+     *        <li>index
+     *        <li>value
+     *        </ol>
+     * @return The name of the upvalue if found, or {@code nil} otherwise.
+     */
     @LuaBoundFunction
     public Varargs setupvalue(Varargs args) {
         LuaValue func = args.checkfunction(1);
@@ -197,46 +295,89 @@ public final class DebugLib extends LuaModule {
         return null;
     }
 
+    /**
+     * Returns the metatable of the given object.
+     *
+     * @param args
+     *        <ol>
+     *        <li>object
+     *        </ol>
+     * @return The metatable, or {@code nil} if the object doesn't have a metatable.
+     */
     @LuaBoundFunction
     public Varargs getmetatable(Varargs args) {
         LuaValue object = args.arg(1);
-        LuaValue mt = object.getmetatable();
-        return (mt != null ? mt : NIL);
+        return object.getmetatable();
     }
 
+    /**
+     * Sets the metatable for the given object.
+     *
+     * @param args
+     *        <ol>
+     *        <li>object
+     *        <li>table (may be nil)
+     *        </ol>
+     */
     @LuaBoundFunction
     public Varargs setmetatable(Varargs args) {
+        Metatables metatables = LuaRunState.getCurrent().getMetatables();
+
         LuaValue object = args.arg(1);
         try {
             LuaValue mt = args.opttable(2, null);
+            if (mt == null) {
+                mt = NIL;
+            }
+
             switch (object.type()) {
             case TNIL:
-                LuaNil.s_metatable = mt;
+                metatables.setNilMetatable(mt);
                 break;
             case TNUMBER:
-                LuaNumber.s_metatable = mt;
+                metatables.setNumberMetatable(mt);
                 break;
             case TBOOLEAN:
-                LuaBoolean.s_metatable = mt;
+                metatables.setBooleanMetatable(mt);
                 break;
             case TSTRING:
-                LuaString.s_metatable = mt;
+                metatables.setStringMetatable(mt);
                 break;
             case TFUNCTION:
-                LuaFunction.s_metatable = mt;
+                metatables.setFunctionMetatable(mt);
                 break;
             case TTHREAD:
-                LuaThread.s_metatable = mt;
+                metatables.setThreadMetatable(mt);
                 break;
             default:
                 object.setmetatable(mt);
             }
             return TRUE;
-        } catch (LuaError e) {
+        } catch (LuaException e) {
             return varargsOf(FALSE, valueOf(e.toString()));
         }
     }
 
+    /**
+     * Returns a table with info about a function.
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread
+     *        <li>function. This can either be a function object, or a call stack offset (a number).
+     *        <li>(optional) what. A sequence of characters describing which fields to return, defaults to
+     *        "nSluf". The possible values are:
+     *        <ul>
+     *        <li>"n": name, namewhat
+     *        <li>"S": what, source, short_src, linedefined, lastlinedefined
+     *        <li>"l": currentline
+     *        <li>"u": nups
+     *        <li>"f": func
+     *        <li>"L": activelines
+     *        </ul>
+     *        </ol>
+     * @return A table with info.
+     */
     @LuaBoundFunction
     public Varargs getinfo(Varargs args) {
         int a = 1;
@@ -331,12 +472,25 @@ public final class DebugLib extends LuaModule {
 
     /**
      * @param args Not used.
+     * @return The Lua registry.
      */
     @LuaBoundFunction
     public Varargs getregistry(Varargs args) {
         return LuaRunState.getCurrent().getRegistry();
     }
 
+    /**
+     * Returns a string with a traceback of the call stack. An optional message string is appended at the
+     * beginning of the traceback. An optional level number tells at which level to start the traceback
+     * (defaults to 1).
+     *
+     * @param args
+     *        <ol>
+     *        <li>(optional) thread. If no thread is specified, uses the currently running thread.
+     *        <li>(optional) message. If present, this is prepended to the resulting traceback.
+     *        <li>(optional) level. Call stack offset.
+     *        </ol>
+     */
     @LuaBoundFunction
     public Varargs traceback(Varargs args) {
         int a = 1;

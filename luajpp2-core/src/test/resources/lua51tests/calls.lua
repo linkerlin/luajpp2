@@ -230,7 +230,6 @@ x = "-- a comment\0\0\0\n  x = 10 + \n23; \
 local i = 0
 function read1 (x)
   return function ()
-    collectgarbage()
     i=i+1
     return string.sub(x, i, i)
   end

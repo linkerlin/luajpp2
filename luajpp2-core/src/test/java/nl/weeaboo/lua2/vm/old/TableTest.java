@@ -123,15 +123,13 @@ public class TableTest {
                 TableTester.getHashLength(t) >= 11); // 0, "0", "1", ..., "9"
         Assert.assertTrue(TableTester.getHashLength(t) <= 33);
 
-        LuaValue[] keys = t.keys();
+        List<LuaValue> keys = t.keys();
 
         int intKeys = 0;
         int stringKeys = 0;
 
-        Assert.assertEquals(20, keys.length);
-        for (int i = 0; i < keys.length; ++i) {
-            LuaValue k = keys[i];
-
+        Assert.assertEquals(20, keys.size());
+        for (LuaValue k : keys) {
             if (k instanceof LuaInteger) {
                 final int ik = k.toint();
                 Assert.assertTrue(ik >= 0 && ik < 10);

@@ -46,12 +46,12 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.compiler.LoadState;
 import nl.weeaboo.lua2.luajava.CoerceJavaToLua;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -208,7 +208,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
                         }
                     };
                 }
-            } catch (LuaError lee) {
+            } catch (LuaException lee) {
                 throw new ScriptException(lee.getMessage());
             } finally {
                 ris.close();
@@ -250,6 +250,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             this.copyBindingsToGlobals();
         }
 
+        /** Copy values from bindings to Lua globals. */
         public void copyBindingsToGlobals() {
             for (Iterator<String> i = b.keySet().iterator(); i.hasNext();) {
                 String key = i.next();
@@ -271,10 +272,9 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             }
         }
 
+        /** Copy values from Lua globals to bindings. */
         public void copyGlobalsToBindings() {
-            LuaValue[] keys = env.keys();
-            for (int i = 0; i < keys.length; i++) {
-                LuaValue luakey = keys[i];
+            for (LuaValue luakey : env.keys()) {
                 LuaValue luaval = env.get(luakey);
                 String key = luakey.tojstring();
                 Object val = toJava(luaval);

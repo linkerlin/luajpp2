@@ -39,11 +39,11 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaDouble;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
@@ -99,16 +99,7 @@ public final class LoadState {
     private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };
 
     /** Name for compiled chunks. */
-    public static final String SOURCE_BINARY_STRING = "binary string";
-
-    /** for header of binary files -- this is Lua 5.1 */
-    public static final int LUAC_VERSION = 0x51;
-
-    /** for header of binary files -- this is the official format. */
-    public static final int LUAC_FORMAT = 0;
-
-    /** size of header of binary files. */
-    public static final int LUAC_HEADERSIZE = 12;
+    private static final String SOURCE_BINARY_STRING = "binary string";
 
     private static final LuaValue[] NOVALUES = {};
     private static final Prototype[] NOPROTOS = {};
@@ -391,7 +382,7 @@ public final class LoadState {
         } else {
             int firstByte = stream.read();
             if (firstByte != LUA_SIGNATURE[0]) {
-                throw new LuaError("no compiler");
+                throw new LuaException("no compiler");
             }
             Prototype p = loadBinaryChunk(firstByte, stream, name);
             return new LuaClosure(p, env);
@@ -429,7 +420,7 @@ public final class LoadState {
         case NUMBER_FORMAT_NUM_PATCH_INT32:
             break;
         default:
-            throw new LuaError("unsupported int size");
+            throw new LuaException("unsupported int size");
         }
         return s.loadFunction(LuaString.valueOf(sname));
     }

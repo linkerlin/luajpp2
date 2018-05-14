@@ -2,15 +2,12 @@ package nl.weeaboo.lua2.stdlib;
 
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaThreadGroup;
 import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
-import nl.weeaboo.lua2.link.LuaLink;
-import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -36,20 +33,7 @@ public final class ThreadLib extends LuaModule {
     public Varargs new_(Varargs args) {
         LuaRunState lrs = LuaRunState.getCurrent();
         LuaClosure func = args.arg1().checkclosure();
-        LuaLink result = lrs.newThread(func, args.subargs(2));
-        return LuajavaLib.toUserdata(result, result.getClass());
-    }
-
-    /**
-     * Creates a new thread group.
-     *
-     * @param args (not used)
-     */
-    @LuaBoundFunction
-    public Varargs newGroup(Varargs args) {
-        LuaRunState lrs = LuaRunState.getCurrent();
-        LuaThreadGroup result = lrs.newThreadGroup();
-        return LuajavaLib.toUserdata(result, result.getClass());
+        return lrs.newThread(func, args.subargs(2));
     }
 
     /**
@@ -90,6 +74,11 @@ public final class ThreadLib extends LuaModule {
             thread.setSleep(w <= 0 ? w : w - 1);
         }
 
+        return threadEndCall(args, thread);
+    }
+
+    @SuppressWarnings("deprecation")
+    private Varargs threadEndCall(Varargs args, LuaThread thread) {
         return thread.endCall(args);
     }
 
@@ -105,7 +94,7 @@ public final class ThreadLib extends LuaModule {
     public Varargs jump(Varargs args) {
         Varargs v = ScriptLoader.loadFile(args.checkjstring(1));
         if (v.isnil(1)) {
-            throw new LuaError(v.tojstring(2));
+            throw new LuaException(v.tojstring(2));
         }
 
         // We can only jump to closures

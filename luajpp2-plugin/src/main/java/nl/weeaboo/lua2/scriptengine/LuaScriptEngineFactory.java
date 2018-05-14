@@ -28,9 +28,7 @@ import java.util.List;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
-import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.vm.LuaError;
 
 /**
  * Jsr 223 scripting engine factory
@@ -130,14 +128,10 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
     @Override
     public ScriptEngine getScriptEngine() {
         ScriptEngine eng = engines.get();
-        if ( eng == null ) {
-            try {
-                LuaRunState lrs = LuaRunState.create();
-                eng = new LuaScriptEngine(lrs);
-                engines.set(eng);
-            } catch (LuaException e) {
-                throw new LuaError(e);
-            }
+        if (eng == null) {
+            LuaRunState lrs = LuaRunState.create();
+            eng = new LuaScriptEngine(lrs);
+            engines.set(eng);
         }
         return eng;
     }

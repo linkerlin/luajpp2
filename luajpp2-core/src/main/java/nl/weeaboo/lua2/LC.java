@@ -14,7 +14,6 @@ import java.util.List;
 import nl.weeaboo.lua2.compiler.DumpState;
 import nl.weeaboo.lua2.compiler.LuaC;
 import nl.weeaboo.lua2.vm.LuaConstants;
-import nl.weeaboo.lua2.vm.Print;
 import nl.weeaboo.lua2.vm.Prototype;
 
 /**
@@ -217,7 +216,7 @@ final class LC {
 
                 // list the chunk
                 if (list) {
-                    Print.printCode(chunk);
+                    new Print().printCode(chunk);
                 }
 
                 // write out the chunk
@@ -244,7 +243,6 @@ final class LC {
         System.out.println(usage);
         System.exit(1);
     }
-
 
     /**
      * Main entrypoint for running the Lua compiler as a standalone application.

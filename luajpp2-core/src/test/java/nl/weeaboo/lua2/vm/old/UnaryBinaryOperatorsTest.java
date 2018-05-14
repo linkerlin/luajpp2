@@ -44,13 +44,11 @@ import org.junit.Test;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
+import nl.weeaboo.lua2.Metatables;
 import nl.weeaboo.lua2.lib.TwoArgFunction;
 import nl.weeaboo.lua2.vm.Buffer;
-import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaDouble;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaNumber;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaUserdata;
@@ -63,9 +61,12 @@ public class UnaryBinaryOperatorsTest {
 
     private static final float EPSILON = 0.001f;
 
+    private Metatables metatables;
+
     @Before
     public void before() throws LuaException {
-        LuaRunState.create();
+        LuaRunState lrs = LuaRunState.create();
+        metatables = lrs.getMetatables();
     }
 
     @Test
@@ -279,140 +280,133 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testEqualsMetatag() {
-        LuaValue tru = TRUE;
-        LuaValue fal = FALSE;
-        LuaValue zer = LuaInteger.valueOf(0);
-        LuaValue one = LuaInteger.valueOf(1);
-        LuaValue abc = LuaValue.valueOf("abcdef").substring(0, 3);
-        LuaValue def = LuaValue.valueOf("abcdef").substring(3, 6);
-        LuaValue pi = LuaValue.valueOf(Math.PI);
-        LuaValue ee = LuaValue.valueOf(Math.E);
-        LuaValue tbl = new LuaTable();
-        LuaValue tbl2 = new LuaTable();
-        LuaValue tbl3 = new LuaTable();
-        LuaValue uda = new LuaUserdata(new Object());
-        LuaValue udb = new LuaUserdata(uda.touserdata());
-        LuaValue uda2 = new LuaUserdata(new Object());
-        LuaValue uda3 = new LuaUserdata(uda.touserdata());
-        LuaValue nilb = LuaValue.valueOf(NIL.toboolean());
-        LuaValue oneb = LuaValue.valueOf(one.toboolean());
+        final LuaValue tru = TRUE;
+        final LuaValue fal = FALSE;
+        final LuaValue zer = LuaInteger.valueOf(0);
+        final LuaValue one = LuaInteger.valueOf(1);
+        final LuaValue abc = LuaValue.valueOf("abcdef").substring(0, 3);
+        final LuaValue def = LuaValue.valueOf("abcdef").substring(3, 6);
+        final LuaValue pi = LuaValue.valueOf(Math.PI);
+        final LuaValue ee = LuaValue.valueOf(Math.E);
+        final LuaValue tbl = new LuaTable();
+        final LuaValue tbl2 = new LuaTable();
+        final LuaValue tbl3 = new LuaTable();
+        final LuaValue uda = new LuaUserdata(new Object());
+        final LuaValue udb = new LuaUserdata(uda.touserdata());
+        final LuaValue uda2 = new LuaUserdata(new Object());
+        final LuaValue uda3 = new LuaUserdata(uda.touserdata());
+        final LuaValue nilb = LuaValue.valueOf(NIL.toboolean());
+        final LuaValue oneb = LuaValue.valueOf(one.toboolean());
         Assert.assertEquals(FALSE, nilb);
         Assert.assertEquals(TRUE, oneb);
-        LuaValue smt = LuaString.s_metatable;
-        try {
-            // always return nil0
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
-            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
-            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, });
-            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
-            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
-            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
-            udb.setmetatable(uda.getmetatable());
-            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
-            // diff metatag function
-            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
-            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
 
-            // primitive types or same valu do not invoke metatag as per C implementation
-            Assert.assertEquals(tru, tru.eq(tru));
-            Assert.assertEquals(tru, one.eq(one));
-            Assert.assertEquals(tru, abc.eq(abc));
-            Assert.assertEquals(tru, tbl.eq(tbl));
-            Assert.assertEquals(tru, uda.eq(uda));
-            Assert.assertEquals(tru, uda.eq(udb));
-            Assert.assertEquals(fal, tru.eq(fal));
-            Assert.assertEquals(fal, fal.eq(tru));
-            Assert.assertEquals(fal, zer.eq(one));
-            Assert.assertEquals(fal, one.eq(zer));
-            Assert.assertEquals(fal, pi.eq(ee));
-            Assert.assertEquals(fal, ee.eq(pi));
-            Assert.assertEquals(fal, pi.eq(one));
-            Assert.assertEquals(fal, one.eq(pi));
-            Assert.assertEquals(fal, abc.eq(def));
-            Assert.assertEquals(fal, def.eq(abc));
-            // different types. not comparable
-            Assert.assertEquals(fal, fal.eq(tbl));
-            Assert.assertEquals(fal, tbl.eq(fal));
-            Assert.assertEquals(fal, tbl.eq(one));
-            Assert.assertEquals(fal, one.eq(tbl));
-            Assert.assertEquals(fal, fal.eq(one));
-            Assert.assertEquals(fal, one.eq(fal));
-            Assert.assertEquals(fal, abc.eq(one));
-            Assert.assertEquals(fal, one.eq(abc));
-            Assert.assertEquals(fal, tbl.eq(uda));
-            Assert.assertEquals(fal, uda.eq(tbl));
-            // same type, same value, does not invoke metatag op
-            Assert.assertEquals(tru, tbl.eq(tbl));
-            // same type, different value, same metatag op. comparabile via metatag op
-            Assert.assertEquals(nilb, tbl.eq(tbl2));
-            Assert.assertEquals(nilb, tbl2.eq(tbl));
-            Assert.assertEquals(nilb, uda.eq(uda2));
-            Assert.assertEquals(nilb, uda2.eq(uda));
-            // same type, different metatag ops. not comparable
-            Assert.assertEquals(fal, tbl.eq(tbl3));
-            Assert.assertEquals(fal, tbl3.eq(tbl));
-            Assert.assertEquals(fal, uda.eq(uda3));
-            Assert.assertEquals(fal, uda3.eq(uda));
+        // always return nil0
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        metatables.setNumberMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        metatables.setStringMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        udb.setmetatable(uda.getmetatable());
+        uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        // diff metatag function
+        tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
 
-            // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
-            LuaNumber.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
-            LuaString.s_metatable = LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, });
-            tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
-            tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
-            uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
-            udb.setmetatable(uda.getmetatable());
-            uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
-            // diff metatag function
-            tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
-            uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        // primitive types or same valu do not invoke metatag as per C implementation
+        Assert.assertEquals(tru, tru.eq(tru));
+        Assert.assertEquals(tru, one.eq(one));
+        Assert.assertEquals(tru, abc.eq(abc));
+        Assert.assertEquals(tru, tbl.eq(tbl));
+        Assert.assertEquals(tru, uda.eq(uda));
+        Assert.assertEquals(tru, uda.eq(udb));
+        Assert.assertEquals(fal, tru.eq(fal));
+        Assert.assertEquals(fal, fal.eq(tru));
+        Assert.assertEquals(fal, zer.eq(one));
+        Assert.assertEquals(fal, one.eq(zer));
+        Assert.assertEquals(fal, pi.eq(ee));
+        Assert.assertEquals(fal, ee.eq(pi));
+        Assert.assertEquals(fal, pi.eq(one));
+        Assert.assertEquals(fal, one.eq(pi));
+        Assert.assertEquals(fal, abc.eq(def));
+        Assert.assertEquals(fal, def.eq(abc));
+        // different types. not comparable
+        Assert.assertEquals(fal, fal.eq(tbl));
+        Assert.assertEquals(fal, tbl.eq(fal));
+        Assert.assertEquals(fal, tbl.eq(one));
+        Assert.assertEquals(fal, one.eq(tbl));
+        Assert.assertEquals(fal, fal.eq(one));
+        Assert.assertEquals(fal, one.eq(fal));
+        Assert.assertEquals(fal, abc.eq(one));
+        Assert.assertEquals(fal, one.eq(abc));
+        Assert.assertEquals(fal, tbl.eq(uda));
+        Assert.assertEquals(fal, uda.eq(tbl));
+        // same type, same value, does not invoke metatag op
+        Assert.assertEquals(tru, tbl.eq(tbl));
+        // same type, different value, same metatag op. comparabile via metatag op
+        Assert.assertEquals(nilb, tbl.eq(tbl2));
+        Assert.assertEquals(nilb, tbl2.eq(tbl));
+        Assert.assertEquals(nilb, uda.eq(uda2));
+        Assert.assertEquals(nilb, uda2.eq(uda));
+        // same type, different metatag ops. not comparable
+        Assert.assertEquals(fal, tbl.eq(tbl3));
+        Assert.assertEquals(fal, tbl3.eq(tbl));
+        Assert.assertEquals(fal, uda.eq(uda3));
+        Assert.assertEquals(fal, uda3.eq(uda));
 
-            // primitive types or same value do not invoke metatag as per C implementation
-            Assert.assertEquals(tru, tru.eq(tru));
-            Assert.assertEquals(tru, one.eq(one));
-            Assert.assertEquals(tru, abc.eq(abc));
-            Assert.assertEquals(tru, tbl.eq(tbl));
-            Assert.assertEquals(tru, uda.eq(uda));
-            Assert.assertEquals(tru, uda.eq(udb));
-            Assert.assertEquals(fal, tru.eq(fal));
-            Assert.assertEquals(fal, fal.eq(tru));
-            Assert.assertEquals(fal, zer.eq(one));
-            Assert.assertEquals(fal, one.eq(zer));
-            Assert.assertEquals(fal, pi.eq(ee));
-            Assert.assertEquals(fal, ee.eq(pi));
-            Assert.assertEquals(fal, pi.eq(one));
-            Assert.assertEquals(fal, one.eq(pi));
-            Assert.assertEquals(fal, abc.eq(def));
-            Assert.assertEquals(fal, def.eq(abc));
-            // different types. not comparable
-            Assert.assertEquals(fal, fal.eq(tbl));
-            Assert.assertEquals(fal, tbl.eq(fal));
-            Assert.assertEquals(fal, tbl.eq(one));
-            Assert.assertEquals(fal, one.eq(tbl));
-            Assert.assertEquals(fal, fal.eq(one));
-            Assert.assertEquals(fal, one.eq(fal));
-            Assert.assertEquals(fal, abc.eq(one));
-            Assert.assertEquals(fal, one.eq(abc));
-            Assert.assertEquals(fal, tbl.eq(uda));
-            Assert.assertEquals(fal, uda.eq(tbl));
-            // same type, same value, does not invoke metatag op
-            Assert.assertEquals(tru, tbl.eq(tbl));
-            // same type, different value, same metatag op. comparabile via metatag op
-            Assert.assertEquals(oneb, tbl.eq(tbl2));
-            Assert.assertEquals(oneb, tbl2.eq(tbl));
-            Assert.assertEquals(oneb, uda.eq(uda2));
-            Assert.assertEquals(oneb, uda2.eq(uda));
-            // same type, different metatag ops. not comparable
-            Assert.assertEquals(fal, tbl.eq(tbl3));
-            Assert.assertEquals(fal, tbl3.eq(tbl));
-            Assert.assertEquals(fal, uda.eq(uda3));
-            Assert.assertEquals(fal, uda3.eq(uda));
+        // always use right argument
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        metatables.setNumberMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        metatables.setStringMetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        tbl2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        uda.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        udb.setmetatable(uda.getmetatable());
+        uda2.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_ONE, }));
+        // diff metatag function
+        tbl3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
+        uda3.setmetatable(LuaValue.tableOf(new LuaValue[] { META_EQ, RETURN_NIL, }));
 
-        } finally {
-            LuaBoolean.s_metatable = null;
-            LuaNumber.s_metatable = null;
-            LuaString.s_metatable = smt;
-        }
+        // primitive types or same value do not invoke metatag as per C implementation
+        Assert.assertEquals(tru, tru.eq(tru));
+        Assert.assertEquals(tru, one.eq(one));
+        Assert.assertEquals(tru, abc.eq(abc));
+        Assert.assertEquals(tru, tbl.eq(tbl));
+        Assert.assertEquals(tru, uda.eq(uda));
+        Assert.assertEquals(tru, uda.eq(udb));
+        Assert.assertEquals(fal, tru.eq(fal));
+        Assert.assertEquals(fal, fal.eq(tru));
+        Assert.assertEquals(fal, zer.eq(one));
+        Assert.assertEquals(fal, one.eq(zer));
+        Assert.assertEquals(fal, pi.eq(ee));
+        Assert.assertEquals(fal, ee.eq(pi));
+        Assert.assertEquals(fal, pi.eq(one));
+        Assert.assertEquals(fal, one.eq(pi));
+        Assert.assertEquals(fal, abc.eq(def));
+        Assert.assertEquals(fal, def.eq(abc));
+        // different types. not comparable
+        Assert.assertEquals(fal, fal.eq(tbl));
+        Assert.assertEquals(fal, tbl.eq(fal));
+        Assert.assertEquals(fal, tbl.eq(one));
+        Assert.assertEquals(fal, one.eq(tbl));
+        Assert.assertEquals(fal, fal.eq(one));
+        Assert.assertEquals(fal, one.eq(fal));
+        Assert.assertEquals(fal, abc.eq(one));
+        Assert.assertEquals(fal, one.eq(abc));
+        Assert.assertEquals(fal, tbl.eq(uda));
+        Assert.assertEquals(fal, uda.eq(tbl));
+        // same type, same value, does not invoke metatag op
+        Assert.assertEquals(tru, tbl.eq(tbl));
+        // same type, different value, same metatag op. comparabile via metatag op
+        Assert.assertEquals(oneb, tbl.eq(tbl2));
+        Assert.assertEquals(oneb, tbl2.eq(tbl));
+        Assert.assertEquals(oneb, uda.eq(uda2));
+        Assert.assertEquals(oneb, uda2.eq(uda));
+        // same type, different metatag ops. not comparable
+        Assert.assertEquals(fal, tbl.eq(tbl3));
+        Assert.assertEquals(fal, tbl3.eq(tbl));
+        Assert.assertEquals(fal, uda.eq(uda3));
+        Assert.assertEquals(fal, uda3.eq(uda));
     }
 
     @Test
@@ -614,255 +608,252 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testArithMetatag() {
-        LuaValue tru = TRUE;
-        LuaValue fal = FALSE;
-        LuaValue tbl = new LuaTable();
-        LuaValue tbl2 = new LuaTable();
+        final LuaValue tru = TRUE;
+        final LuaValue fal = FALSE;
+        final LuaValue tbl = new LuaTable();
+        final LuaValue tbl2 = new LuaTable();
+
         try {
-            try {
-                tru.add(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.mul(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.div(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.pow(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.mod(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+            tru.add(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.mul(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.div(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.pow(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.mod(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            // always use left argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.add(fal));
-            Assert.assertEquals(tru, tru.add(tbl));
-            Assert.assertEquals(tbl, tbl.add(tru));
-            try {
-                tbl.add(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        // always use left argument
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.add(fal));
+        Assert.assertEquals(tru, tru.add(tbl));
+        Assert.assertEquals(tbl, tbl.add(tru));
+        try {
+            tbl.add(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.sub(fal));
-            Assert.assertEquals(tru, tru.sub(tbl));
-            Assert.assertEquals(tbl, tbl.sub(tru));
-            try {
-                tbl.sub(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.add(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.sub(fal));
+        Assert.assertEquals(tru, tru.sub(tbl));
+        Assert.assertEquals(tbl, tbl.sub(tru));
+        try {
+            tbl.sub(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.add(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.mul(fal));
-            Assert.assertEquals(tru, tru.mul(tbl));
-            Assert.assertEquals(tbl, tbl.mul(tru));
-            try {
-                tbl.mul(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.mul(fal));
+        Assert.assertEquals(tru, tru.mul(tbl));
+        Assert.assertEquals(tbl, tbl.mul(tru));
+        try {
+            tbl.mul(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.div(fal));
-            Assert.assertEquals(tru, tru.div(tbl));
-            Assert.assertEquals(tbl, tbl.div(tru));
-            try {
-                tbl.div(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.div(fal));
+        Assert.assertEquals(tru, tru.div(tbl));
+        Assert.assertEquals(tbl, tbl.div(tru));
+        try {
+            tbl.div(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.pow(fal));
-            Assert.assertEquals(tru, tru.pow(tbl));
-            Assert.assertEquals(tbl, tbl.pow(tru));
-            try {
-                tbl.pow(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.pow(fal));
+        Assert.assertEquals(tru, tru.pow(tbl));
+        Assert.assertEquals(tbl, tbl.pow(tru));
+        try {
+            tbl.pow(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_LHS, });
-            Assert.assertEquals(tru, tru.mod(fal));
-            Assert.assertEquals(tru, tru.mod(tbl));
-            Assert.assertEquals(tbl, tbl.mod(tru));
-            try {
-                tbl.mod(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_LHS, }));
+        Assert.assertEquals(tru, tru.mod(fal));
+        Assert.assertEquals(tru, tru.mod(tbl));
+        Assert.assertEquals(tbl, tbl.mod(tru));
+        try {
+            tbl.mod(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.add(fal));
-            Assert.assertEquals(tbl, tru.add(tbl));
-            Assert.assertEquals(tru, tbl.add(tru));
-            try {
-                tbl.add(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        // always use right argument
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.add(fal));
+        Assert.assertEquals(tbl, tru.add(tbl));
+        Assert.assertEquals(tru, tbl.add(tru));
+        try {
+            tbl.add(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.sub(fal));
-            Assert.assertEquals(tbl, tru.sub(tbl));
-            Assert.assertEquals(tru, tbl.sub(tru));
-            try {
-                tbl.sub(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.add(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.sub(fal));
+        Assert.assertEquals(tbl, tru.sub(tbl));
+        Assert.assertEquals(tru, tbl.sub(tru));
+        try {
+            tbl.sub(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.add(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.mul(fal));
-            Assert.assertEquals(tbl, tru.mul(tbl));
-            Assert.assertEquals(tru, tbl.mul(tru));
-            try {
-                tbl.mul(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.mul(fal));
+        Assert.assertEquals(tbl, tru.mul(tbl));
+        Assert.assertEquals(tru, tbl.mul(tru));
+        try {
+            tbl.mul(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.div(fal));
-            Assert.assertEquals(tbl, tru.div(tbl));
-            Assert.assertEquals(tru, tbl.div(tru));
-            try {
-                tbl.div(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.div(fal));
+        Assert.assertEquals(tbl, tru.div(tbl));
+        Assert.assertEquals(tru, tbl.div(tru));
+        try {
+            tbl.div(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.pow(fal));
-            Assert.assertEquals(tbl, tru.pow(tbl));
-            Assert.assertEquals(tru, tbl.pow(tru));
-            try {
-                tbl.pow(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.pow(fal));
+        Assert.assertEquals(tbl, tru.pow(tbl));
+        Assert.assertEquals(tru, tbl.pow(tru));
+        try {
+            tbl.pow(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
 
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_RHS, });
-            Assert.assertEquals(fal, tru.mod(fal));
-            Assert.assertEquals(tbl, tru.mod(tbl));
-            Assert.assertEquals(tru, tbl.mod(tru));
-            try {
-                tbl.mod(tbl2);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tru.sub(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-        } finally {
-            LuaBoolean.s_metatable = null;
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_RHS, }));
+        Assert.assertEquals(fal, tru.mod(fal));
+        Assert.assertEquals(tbl, tru.mod(tbl));
+        Assert.assertEquals(tru, tbl.mod(tru));
+        try {
+            tbl.mod(tbl2);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tru.sub(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
         }
     }
 
@@ -875,13 +866,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.add(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.add(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_ADD, RETURN_ONE, }));
@@ -891,13 +882,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.sub(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.sub(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_SUB, RETURN_ONE, }));
@@ -907,13 +898,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.mul(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.mul(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_MUL, RETURN_ONE, }));
@@ -923,13 +914,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.div(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.div(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_DIV, RETURN_ONE, }));
@@ -939,13 +930,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.pow(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.pow(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_POW, RETURN_ONE, }));
@@ -955,13 +946,13 @@ public class UnaryBinaryOperatorsTest {
         try {
             tbl.mod(zero);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         try {
             zero.mod(tbl);
             Assert.fail("did not throw error");
-        } catch (LuaError le) {
+        } catch (LuaException le) {
             // Expected
         }
         tbl.setmetatable(LuaValue.tableOf(new LuaValue[] { META_MOD, RETURN_ONE, }));
@@ -1138,51 +1129,47 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testCompareMetatag() {
-        LuaValue tru = TRUE;
-        LuaValue fal = FALSE;
-        LuaValue tbl = new LuaTable();
-        LuaValue tbl2 = new LuaTable();
+        final LuaValue tru = TRUE;
+        final LuaValue fal = FALSE;
+        final LuaValue tbl = new LuaTable();
+        final LuaValue tbl2 = new LuaTable();
         //LuaValue tbl3 = new LuaTable();
-        try {
-            // always use left argument
-            LuaValue mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_LHS, META_LE, RETURN_RHS, });
-            LuaBoolean.s_metatable = mt;
-            tbl.setmetatable(mt);
-            tbl2.setmetatable(mt);
-            Assert.assertEquals(tru, tru.lt(fal));
-            Assert.assertEquals(fal, fal.lt(tru));
-            Assert.assertEquals(tbl, tbl.lt(tbl2));
-            Assert.assertEquals(tbl2, tbl2.lt(tbl));
-            //Assert.assertEquals(tbl, tbl.lt(tbl3));
-            //Assert.assertEquals(tbl3, tbl3.lt(tbl));
-            Assert.assertEquals(fal, tru.lteq(fal));
-            Assert.assertEquals(tru, fal.lteq(tru));
-            Assert.assertEquals(tbl2, tbl.lteq(tbl2));
-            Assert.assertEquals(tbl, tbl2.lteq(tbl));
-            //Assert.assertEquals(tbl3, tbl.lteq(tbl3));
-            //Assert.assertEquals(tbl, tbl3.lteq(tbl));
 
-            // always use right argument
-            mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_RHS, META_LE, RETURN_LHS });
-            LuaBoolean.s_metatable = mt;
-            tbl.setmetatable(mt);
-            tbl2.setmetatable(mt);
-            Assert.assertEquals(fal, tru.lt(fal));
-            Assert.assertEquals(tru, fal.lt(tru));
-            Assert.assertEquals(tbl2, tbl.lt(tbl2));
-            Assert.assertEquals(tbl, tbl2.lt(tbl));
-            //Assert.assertEquals(tbl3, tbl.lt(tbl3));
-            //Assert.assertEquals(tbl, tbl3.lt(tbl));
-            Assert.assertEquals(tru, tru.lteq(fal));
-            Assert.assertEquals(fal, fal.lteq(tru));
-            Assert.assertEquals(tbl, tbl.lteq(tbl2));
-            Assert.assertEquals(tbl2, tbl2.lteq(tbl));
-            //Assert.assertEquals(tbl, tbl.lteq(tbl3));
-            //Assert.assertEquals(tbl3, tbl3.lteq(tbl));
+        // always use left argument
+        LuaValue mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_LHS, META_LE, RETURN_RHS, });
+        metatables.setBooleanMetatable(mt);
+        tbl.setmetatable(mt);
+        tbl2.setmetatable(mt);
+        Assert.assertEquals(tru, tru.lt(fal));
+        Assert.assertEquals(fal, fal.lt(tru));
+        Assert.assertEquals(tbl, tbl.lt(tbl2));
+        Assert.assertEquals(tbl2, tbl2.lt(tbl));
+        //Assert.assertEquals(tbl, tbl.lt(tbl3));
+        //Assert.assertEquals(tbl3, tbl3.lt(tbl));
+        Assert.assertEquals(fal, tru.lteq(fal));
+        Assert.assertEquals(tru, fal.lteq(tru));
+        Assert.assertEquals(tbl2, tbl.lteq(tbl2));
+        Assert.assertEquals(tbl, tbl2.lteq(tbl));
+        //Assert.assertEquals(tbl3, tbl.lteq(tbl3));
+        //Assert.assertEquals(tbl, tbl3.lteq(tbl));
 
-        } finally {
-            LuaBoolean.s_metatable = null;
-        }
+        // always use right argument
+        mt = LuaValue.tableOf(new LuaValue[] { META_LT, RETURN_RHS, META_LE, RETURN_LHS });
+        metatables.setBooleanMetatable(mt);
+        tbl.setmetatable(mt);
+        tbl2.setmetatable(mt);
+        Assert.assertEquals(fal, tru.lt(fal));
+        Assert.assertEquals(tru, fal.lt(tru));
+        Assert.assertEquals(tbl2, tbl.lt(tbl2));
+        Assert.assertEquals(tbl, tbl2.lt(tbl));
+        //Assert.assertEquals(tbl3, tbl.lt(tbl3));
+        //Assert.assertEquals(tbl, tbl3.lt(tbl));
+        Assert.assertEquals(tru, tru.lteq(fal));
+        Assert.assertEquals(fal, fal.lteq(tru));
+        Assert.assertEquals(tbl, tbl.lteq(tbl2));
+        Assert.assertEquals(tbl2, tbl2.lteq(tbl));
+        //Assert.assertEquals(tbl, tbl.lteq(tbl3));
+        //Assert.assertEquals(tbl3, tbl3.lteq(tbl));
     }
 
     @Test
@@ -1421,106 +1408,103 @@ public class UnaryBinaryOperatorsTest {
 
     @Test
     public void testConcatMetatag() {
-        LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
-        LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
-        LuaValue tru = TRUE;
-        LuaValue fal = FALSE;
-        LuaValue tbl = new LuaTable();
-        LuaValue uda = new LuaUserdata(new Object());
-        try {
-            // always use left argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_LHS });
-            Assert.assertEquals(tru, tru.concat(tbl));
-            Assert.assertEquals(tbl, tbl.concat(tru));
-            Assert.assertEquals(tru, tru.concat(tbl));
-            Assert.assertEquals(tbl, tbl.concat(tru));
-            Assert.assertEquals(tru, tru.concat(tbl.buffer()).value());
-            Assert.assertEquals(tbl, tbl.concat(tru.buffer()).value());
-            Assert.assertEquals(fal, fal.concat(tbl.concat(tru.buffer())).value());
-            Assert.assertEquals(uda, uda.concat(tru.concat(tbl.buffer())).value());
-            try {
-                tbl.concat(def);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                def.concat(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tbl.concat(def.buffer()).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                def.concat(tbl.buffer()).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                uda.concat(def.concat(tbl.buffer())).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                ghi.concat(tbl.concat(def.buffer())).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
+        final LuaValue def = LuaValue.valueOf("abcdefghi").substring(3, 6);
+        final LuaValue ghi = LuaValue.valueOf("abcdefghi").substring(6, 9);
+        final LuaValue tru = TRUE;
+        final LuaValue fal = FALSE;
+        final LuaValue tbl = new LuaTable();
+        final LuaValue uda = new LuaUserdata(new Object());
 
-            // always use right argument
-            LuaBoolean.s_metatable = LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_RHS });
-            Assert.assertEquals(tbl, tru.concat(tbl));
-            Assert.assertEquals(tru, tbl.concat(tru));
-            Assert.assertEquals(tbl, tru.concat(tbl.buffer()).value());
-            Assert.assertEquals(tru, tbl.concat(tru.buffer()).value());
-            Assert.assertEquals(tru, uda.concat(tbl.concat(tru.buffer())).value());
-            Assert.assertEquals(tbl, fal.concat(tru.concat(tbl.buffer())).value());
-            try {
-                tbl.concat(def);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                def.concat(tbl);
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                tbl.concat(def.buffer()).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                def.concat(tbl.buffer()).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                uda.concat(def.concat(tbl.buffer())).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-            try {
-                uda.concat(tbl.concat(def.buffer())).value();
-                Assert.fail("did not throw error");
-            } catch (LuaError le) {
-                // Expected
-            }
-        } finally {
-            LuaBoolean.s_metatable = null;
+        // always use left argument
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_LHS }));
+        Assert.assertEquals(tru, tru.concat(tbl));
+        Assert.assertEquals(tbl, tbl.concat(tru));
+        Assert.assertEquals(tru, tru.concat(tbl));
+        Assert.assertEquals(tbl, tbl.concat(tru));
+        Assert.assertEquals(tru, tru.concat(tbl.buffer()).value());
+        Assert.assertEquals(tbl, tbl.concat(tru.buffer()).value());
+        Assert.assertEquals(fal, fal.concat(tbl.concat(tru.buffer())).value());
+        Assert.assertEquals(uda, uda.concat(tru.concat(tbl.buffer())).value());
+        try {
+            tbl.concat(def);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            def.concat(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tbl.concat(def.buffer()).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            def.concat(tbl.buffer()).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            uda.concat(def.concat(tbl.buffer())).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            ghi.concat(tbl.concat(def.buffer())).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+
+        // always use right argument
+        metatables.setBooleanMetatable(LuaValue.tableOf(new LuaValue[] { META_CONCAT, RETURN_RHS }));
+        Assert.assertEquals(tbl, tru.concat(tbl));
+        Assert.assertEquals(tru, tbl.concat(tru));
+        Assert.assertEquals(tbl, tru.concat(tbl.buffer()).value());
+        Assert.assertEquals(tru, tbl.concat(tru.buffer()).value());
+        Assert.assertEquals(tru, uda.concat(tbl.concat(tru.buffer())).value());
+        Assert.assertEquals(tbl, fal.concat(tru.concat(tbl.buffer())).value());
+        try {
+            tbl.concat(def);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            def.concat(tbl);
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            tbl.concat(def.buffer()).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            def.concat(tbl.buffer()).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            uda.concat(def.concat(tbl.buffer())).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
+        }
+        try {
+            uda.concat(tbl.concat(def.buffer())).value();
+            Assert.fail("did not throw error");
+        } catch (LuaException le) {
+            // Expected
         }
     }
 

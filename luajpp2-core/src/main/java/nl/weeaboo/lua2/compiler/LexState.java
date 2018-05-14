@@ -28,9 +28,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LocVars;
 import nl.weeaboo.lua2.vm.Lua;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -309,7 +309,7 @@ final class LexState {
             msg += " near '" + txtToken(token) + "'";
             luaC.pushfstring("syntax error: " + msg);
         }
-        throw new LuaError(cid + ":" + linenumber + ": " + msg);
+        throw new LuaException(cid + ":" + linenumber + ": " + msg);
     }
 
     String chunkid(String source) {

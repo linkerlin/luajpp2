@@ -26,10 +26,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.stdlib.LuaModule;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -62,19 +62,31 @@ public final class LuajavaLib extends LuaModule {
      *        <ol>
      *        <li>Fully qualified name of the Java class to load.
      *        </ol>
-     * @throws LuaError If the class isn't allowed to be loaded.
+     * @throws LuaException If the class isn't allowed to be loaded.
      * @throws ClassNotFoundException If the class isn't found.
      */
     @LuaBoundFunction
     public Varargs bindClass(Varargs args) throws ClassNotFoundException {
         if (!allowUnsafeClassLoading) {
-            throw new LuaError("Class loading is not allowed");
+            throw new LuaException("Class loading is not allowed");
         }
 
         Class<?> clazz = Class.forName(args.checkjstring(1));
         return toUserdata(clazz, Class.class);
     }
 
+    /**
+     * Instantiates a new Java object. Any additionaly arguments are passed to the class constructor.
+     *
+     * @param args
+     *        <ol>
+     *        <li>class. This can be either a class object (see {@link #bindClass(Varargs)}), or a string with
+     *        the full Java class name.
+     *        <li>args...
+     *        </ol>
+     * @return A userdata object.
+     * @throws Exception If class loading fails, or the constructor raised an exception.
+     */
     @LuaBoundFunction
     public Varargs newInstance(Varargs args) throws Exception {
         final LuaValue c = args.checkvalue(1);
@@ -82,6 +94,9 @@ public final class LuajavaLib extends LuaModule {
         if (c.isuserdata(Class.class)) {
             clazz = c.checkuserdata(Class.class);
         } else {
+            if (!allowUnsafeClassLoading) {
+                throw new LuaException("Class loading is not allowed");
+            }
             clazz = Class.forName(c.tojstring());
         }
 
@@ -132,9 +147,9 @@ public final class LuajavaLib extends LuaModule {
                 Object javaObject = ci.newInstance(args);
                 return LuaUserdata.userdataOf(javaObject, ci.getMetatable());
             } catch (InvocationTargetException ite) {
-                throw new LuaError("Error invoking constructor: " + ci.getWrappedClass(), ite.getCause());
+                throw LuaException.wrap("Error invoking constructor: " + ci.getWrappedClass(), ite.getCause());
             } catch (Exception e) {
-                throw new LuaError("Error invoking constructor: " + ci.getWrappedClass(), e);
+                throw LuaException.wrap("Error invoking constructor: " + ci.getWrappedClass(), e);
             }
         }
     }

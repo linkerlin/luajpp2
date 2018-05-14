@@ -100,6 +100,7 @@ public final class LuaConstants {
     private LuaConstants() {
     }
 
+    /** Returns a string describing the Lua version. */
     public static String getEngineVersion() {
         return "Lua 5.1";
     }

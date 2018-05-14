@@ -7,34 +7,30 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.weeaboo.lua2.internal.DestructibleElemList;
-import nl.weeaboo.lua2.internal.IDestructible;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
-import nl.weeaboo.lua2.link.LuaFunctionLink;
-import nl.weeaboo.lua2.link.LuaLink;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
-import nl.weeaboo.lua2.vm.LuaError;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-public final class LuaRunState implements Serializable, IDestructible, ILuaResourceFinder {
+public final class LuaRunState implements Serializable, ILuaResourceFinder {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(DestructibleElemList.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LuaRunState.class);
 
     private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
 
     private final LuaTable globals = new LuaTable();
     private final LuaTable registry = new LuaTable();
-    private final DestructibleElemList<LuaThreadGroup> threadGroups;
-    private final LuaLink mainThread;
+    private final Metatables metatables = new Metatables();
+    private final LuaThreadGroup threadGroup;
+    private final LuaThread mainThread;
 
     private boolean destroyed;
     private boolean debugEnabled = true;
@@ -45,12 +41,12 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     private transient LuaThread currentThread;
     private transient int instructionCount;
 
+    @SuppressWarnings("deprecation")
     private LuaRunState() {
-        threadGroups = new DestructibleElemList<LuaThreadGroup>();
+        threadGroup = new LuaThreadGroup(this);
 
-        LuaThreadGroup mainGroup = newThreadGroup();
-        mainThread = new LuaLink(this, LuaThread.createMainThread(this, globals));
-        mainGroup.add(mainThread);
+        mainThread = LuaThread.createMainThread(this, globals);
+        threadGroup.add(mainThread);
     }
 
     /**
@@ -81,7 +77,10 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         in.defaultReadObject();
     }
 
-    @Override
+    /**
+     * Destroys this Lua context. This destroys all threads and attempts to close any open resources. After
+     * calling this method, any Lua resources created by this context should no longer be used.
+     */
     public void destroy() {
         if (destroyed) {
             return;
@@ -90,7 +89,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         LOG.debug("Destroying LuaRunState: {}", this);
 
         destroyed = true;
-        threadGroups.destroyAll();
+        threadGroup.destroy();
 
         currentThread = null;
 
@@ -109,76 +108,46 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         }
     }
 
-    private LuaThreadGroup findFirstThreadGroup() {
-        for (LuaThreadGroup group : threadGroups) {
-            if (!group.isDestroyed()) {
-                return group;
-            }
-        }
-        return null;
+    /**
+     * Creates a new thread with an empty call stack.
+     *
+     * @see #newThread(LuaClosure, Varargs)
+     */
+    public LuaThread newThread() {
+        return threadGroup.newThread();
     }
 
     /**
      * Creates a new Lua thread running the supplied function called with the supplied arguments.
-     * @see LuaThreadGroup#newThread(LuaClosure, Varargs)
      */
-    public LuaFunctionLink newThread(LuaClosure func, Varargs args) {
-        LuaThreadGroup group = getDefaultThreadGroup();
-        if (group == null) {
-            throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
-        }
-        return group.newThread(func, args);
-    }
-
-    /**
-     * Creates a new Lua thread running the supplied function called with the supplied arguments.
-     * @see LuaThreadGroup#newThread(String, Object...)
-     */
-    public LuaFunctionLink newThread(String func, Object... args) {
-        LuaThreadGroup group = getDefaultThreadGroup();
-        if (group == null) {
-            throw new IllegalStateException("Attempted to spawn a new thread, but all thread groups are destroyed");
-        }
-        return group.newThread(func, args);
-    }
-
-    /**
-     * Creates a new Lua thread group.
-     */
-    public LuaThreadGroup newThreadGroup() {
-        LuaThreadGroup tg = new LuaThreadGroup(this);
-        threadGroups.add(tg);
-        return tg;
+    public LuaThread newThread(LuaClosure func, Varargs args) {
+        LuaThread thread = newThread();
+        thread.pushPending(func, args);
+        return thread;
     }
 
     /**
      * Runs all threads.
      */
-    public boolean update() {
+    public void update() {
         if (destroyed) {
-            LOG.debug("Attempted to update a destroyed LuaRunState");
-            return false;
+            throw new IllegalStateException("Attempted to update a destroyed LuaRunState");
         }
 
         registerOnThread();
-
-        boolean changed = false;
-        for (LuaThreadGroup tg : threadGroups) {
-            changed |= tg.update();
-        }
-        return changed;
+        threadGroup.update();
     }
 
     /**
      * Called by the interpreter on every instruction (if {@link LuaRunState#isDebugEnabled()}).
      *
      * @param pc The current program counter
-     * @throws LuaError If an internal assertion fails.
+     * @throws LuaException If an internal assertion fails.
      */
-    public void onInstruction(int pc) throws LuaError {
+    public void onInstruction(int pc) throws LuaException {
         instructionCount++;
         if (currentThread != null && instructionCount > instructionCountLimit) {
-            throw new LuaError("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
+            throw new LuaException("Lua thread instruction limit exceeded (is there an infinite loop somewhere)?");
         }
     }
 
@@ -189,11 +158,6 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
         return threadInstance.get();
     }
 
-    @Override
-    public boolean isDestroyed() {
-        return destroyed;
-    }
-
     /**
      * Returns {@code true} if debug mode is enabled (switches on some assertions as well as the {@link DebugLib}).
      */
@@ -202,16 +166,9 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
     }
 
     /**
-     * Returns the default thread group used for new threads.
-     */
-    public LuaThreadGroup getDefaultThreadGroup() {
-        return findFirstThreadGroup();
-    }
-
-    /**
      * Returns the main thread for this Lua context.
      */
-    public LuaLink getMainThread() {
+    public LuaThread getMainThread() {
         return mainThread;
     }
 
@@ -219,7 +176,7 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
      * Returns the currently running thread, or if no thread is running, the main thread.
      */
     public LuaThread getRunningThread() {
-        return (currentThread != null ? currentThread : mainThread.getThread());
+        return (currentThread != null ? currentThread : mainThread);
     }
 
     /**
@@ -303,12 +260,11 @@ public final class LuaRunState implements Serializable, IDestructible, ILuaResou
      * @return {@code true} if there are still running threads.
      */
     public boolean isFinished() {
-        for (LuaThreadGroup group : threadGroups) {
-            if (!group.getThreads().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return threadGroup.isFinished();
+    }
+
+    public Metatables getMetatables() {
+        return metatables;
     }
 
 }

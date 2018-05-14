@@ -40,6 +40,8 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -76,8 +78,6 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     private static final int MAX_STRING_LENGTH = 64 << 20; // 64 MiB
     private static final int MAX_TO_STRING_LENGTH = 1000;
-
-    public static LuaValue s_metatable;
 
     //--- Uses manual serialization, don't add variables ---
     private /*final*/ byte[] strBytes;
@@ -198,7 +198,7 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public LuaValue getmetatable() {
-        return s_metatable;
+        return LuaRunState.getCurrent().getMetatables().getStringMetatable();
     }
 
     @Override
@@ -232,7 +232,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     // get is delegated to the string library
     @Override
     public LuaValue get(LuaValue key) {
-        if (s_metatable != null) {
+        if (!getmetatable().isnil()) {
             return gettable(this, key);
         }
         return getfenv().get("string").get(key);
@@ -704,6 +704,7 @@ public final class LuaString extends LuaValue implements Externalizable {
         return this;
     }
 
+    /** Returns a substring from {@code beginIndex} (inclusive) to {@code endIndex} (exclusive). */
     public LuaString substring(int beginIndex, int endIndex) {
         return new LuaString(strBytes, strOffset + beginIndex, endIndex - beginIndex);
     }
@@ -730,11 +731,20 @@ public final class LuaString extends LuaValue implements Externalizable {
         return false;
     }
 
-    public static boolean equals(LuaString a, int i, LuaString b, int j, int n) {
-        return equals(a.strBytes, a.strOffset + i, b.strBytes, b.strOffset + j, n);
+    /**
+     * Checks for substring equality
+     *
+     * @param a First string
+     * @param aOffset Offset into first string
+     * @param b Seconds string
+     * @param bOffset Offset into second string
+     * @param len Length of the substring to compare.
+     */
+    public static boolean equals(LuaString a, int aOffset, LuaString b, int bOffset, int len) {
+        return equals(a.strBytes, a.strOffset + aOffset, b.strBytes, b.strOffset + bOffset, len);
     }
 
-    public static boolean equals(byte[] a, int i, byte[] b, int j, int n) {
+    private static boolean equals(byte[] a, int i, byte[] b, int j, int n) {
         if (a.length < i + n || b.length < j + n) {
             return false;
         }
@@ -774,10 +784,20 @@ public final class LuaString extends LuaValue implements Externalizable {
         return equals(strBytes, strOffset, s.strBytes, s.strOffset, strLength);
     }
 
-    public void write(OutputStream writer, int i, int len) throws IOException {
-        writer.write(strBytes, strOffset + i, len);
+    /**
+     * Writes part of this string to {@code writer}.
+     *
+     * @throws IOException If writing fails.
+     */
+    public void write(OutputStream writer, int offset, int len) throws IOException {
+        writer.write(strBytes, strOffset + offset, len);
     }
 
+    /**
+     * Writes part of this string to {@code out}.
+     *
+     * @throws IOException If writing fails.
+     */
     public void write(DataOutput out, int i, int len) throws IOException {
         out.write(strBytes, strOffset + i, len);
     }
@@ -797,15 +817,16 @@ public final class LuaString extends LuaValue implements Externalizable {
         return strLength;
     }
 
+    /**
+     * Returns the UTF-8 byte at the given index.
+     *
+     * @throws IndexOutOfBoundsException If the given index is outside the valid range: {@code [0, length)}.
+     */
     public int luaByte(int index) {
         if (index < 0 || index >= strLength) {
             throw new IndexOutOfBoundsException("index=" + index + ", length=" + strLength);
         }
         return strBytes[strOffset + index] & 0x0FF;
-    }
-
-    public int charAt(int index) {
-        return luaByte(index);
     }
 
     @Override
@@ -1154,14 +1175,18 @@ public final class LuaString extends LuaValue implements Externalizable {
         in.readFully(strBytes, strOffset, strLength);
     }
 
+    /**
+     * Checks if the given length is a valid Lua string length, throwing an exception if it isn't.
+     * @throws LuaException If the given length isn't valid.
+     */
     public static void assertValidStringLength(int len) {
         if (len < 0) {
-            throw new LuaError("String length may not be negative: " + len);
+            throw new LuaException("String length may not be negative: " + len);
         }
 
         if (len > MAX_STRING_LENGTH) {
             // Note: Lua test suite explicitly checks for the word 'overflow' in this error message
-            throw new LuaError("String length overflow: " + len + " > " + MAX_STRING_LENGTH);
+            throw new LuaException("String length overflow: " + len + " > " + MAX_STRING_LENGTH);
         }
     }
 
