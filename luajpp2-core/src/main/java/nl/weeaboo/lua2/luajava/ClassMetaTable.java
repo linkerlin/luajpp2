@@ -16,7 +16,7 @@ import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.OneArgFunction;
-import nl.weeaboo.lua2.vm.LuaFunction;
+import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -130,7 +130,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @LuaSerializable
-    private static class MetaFunction extends LuaFunction {
+    private static class MetaFunction extends VarArgFunction {
 
         private static final long serialVersionUID = 1L;
 
