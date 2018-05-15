@@ -204,6 +204,15 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     void pushPending(LuaClosure func, Varargs args, int returnBase, int returnCount) {
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
+
+        /*
+         * When adding something to the call stack, change the status from initial to something else.
+         * Otherwise, the first attempt to resume the thread will overwrite the arguments for the topmost
+         * stack frame.
+         */
+        if (status == LuaThreadStatus.INITIAL) {
+            status = LuaThreadStatus.SUSPENDED;
+        }
     }
 
     /**
@@ -317,9 +326,11 @@ public final class LuaThread extends LuaValue implements Serializable {
 
         final int oldCallstackMin = callstackMin;
         final LuaThread prior = luaRunState.getRunningThread();
+        final LuaThreadStatus priorStatus = prior.getStatus();
+
         Varargs result;
         try {
-            if (prior.status == LuaThreadStatus.RUNNING) {
+            if (priorStatus == LuaThreadStatus.RUNNING) {
                 prior.status = LuaThreadStatus.SUSPENDED;
             }
             status = LuaThreadStatus.RUNNING;
@@ -327,6 +338,9 @@ public final class LuaThread extends LuaValue implements Serializable {
 
             callstackMin = Math.max(callstackMin, (maxDepth < 0 ? 0 : callstackSize() - maxDepth));
             result = LuaInterpreter.resume(this, callstackMin);
+        } catch (LuaException e) {
+            popStackFrames();
+            throw e;
         } catch (RuntimeException e) {
             popStackFrames();
             throw LuaException.wrap("Runtime error in Lua thread", e);
@@ -340,7 +354,7 @@ public final class LuaThread extends LuaValue implements Serializable {
                 status = LuaThreadStatus.SUSPENDED;
             }
 
-            if (prior != this && prior.status == LuaThreadStatus.SUSPENDED) {
+            if (prior.status == LuaThreadStatus.SUSPENDED && priorStatus == LuaThreadStatus.RUNNING) {
                 prior.status = LuaThreadStatus.RUNNING;
             }
         }
