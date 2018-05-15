@@ -82,8 +82,9 @@ public final class PackageLib extends LuaModule {
     public Varargs seeall(Varargs args) {
         LuaTable t = args.checktable(1);
         LuaValue m = t.getmetatable();
-        if (m == null) {
-            t.setmetatable(m = tableOf());
+        if (m.isnil()) {
+            m = tableOf();
+            t.setmetatable(m);
         }
         LuaThread running = LuaThread.getRunning();
         m.set(META_INDEX, running.getfenv());
