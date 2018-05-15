@@ -235,7 +235,7 @@ final class StackFrame implements Externalizable {
         // Push args on the stack
         LuaClosure closure = func.checkclosure();
         Prototype p = closure.getPrototype();
-        if (pc < 0) {
+        if (pc <= 0) {
             v = args;
             return;
         }
