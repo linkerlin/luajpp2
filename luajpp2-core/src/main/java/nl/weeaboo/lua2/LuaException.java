@@ -15,7 +15,6 @@ public final class LuaException extends RuntimeException {
     private static final int MAX_LEVELS = 8;
 
     private final LuaValue message;
-    private final Throwable cause;
 
     public LuaException(String message) {
         this(LuaString.valueOf(message));
@@ -26,10 +25,9 @@ public final class LuaException extends RuntimeException {
     }
 
     public LuaException(LuaValue message, Throwable cause, int level) {
-        super();
+        super(cause);
 
         this.message = (message != null ? message : LuaNil.NIL);
-        this.cause = cause;
 
         if (level >= 0) {
             initStackTrace(cause, level);
@@ -56,15 +54,13 @@ public final class LuaException extends RuntimeException {
             if (ex.getMessage() != null) {
                 message += ": " + ex.toString();
             }
-            le = new LuaException(message);
+            le = new LuaException(LuaString.valueOf(message), ex.getCause(), 0);
 
             // Copy stacktrace and cause from the existing exception
             le.setStackTrace(ex.getStackTrace());
-            le.initCause(ex.getCause());
         } else {
             // For non-Lua exceptions, add the original exception as a cause
-            le = new LuaException(message);
-            le.initCause(ex);
+            le = new LuaException(LuaString.valueOf(message), ex, 0);
         }
 
         return le;
@@ -96,11 +92,6 @@ public final class LuaException extends RuntimeException {
     /** Retuns the error message for this exception as a Lua object. */
     public LuaValue getMessageObject() {
         return message;
-    }
-
-    @Override
-    public Throwable getCause() {
-        return cause;
     }
 
 }

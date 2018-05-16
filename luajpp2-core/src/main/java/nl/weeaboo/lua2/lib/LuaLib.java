@@ -100,7 +100,7 @@ public abstract class LuaLib implements ILuaLib {
                             + (result != null ? result.getClass().getName() : "null"));
                 }
             } catch (InvocationTargetException ite) {
-                throw LuaException.wrap(createErrorMessage(args, ite), ite.getCause());
+                throw LuaException.wrap(createErrorMessage(args, ite.getCause()), ite.getCause());
             } catch (Exception e) {
                 throw LuaException.wrap(createErrorMessage(args, e), e);
             }
@@ -114,7 +114,7 @@ public abstract class LuaLib implements ILuaLib {
                 error += "(" + args + ")";
             }
             if (cause != null) {
-                error += " :: " + cause;
+                error += "\n\t " + cause;
             }
             return error;
         }
