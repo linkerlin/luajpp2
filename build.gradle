@@ -13,7 +13,7 @@ apply plugin: 'com.jfrog.bintray'
 allprojects {
     apply plugin: "maven-publish"
     group = 'nl.weeaboo.luajpp2'
-    version = '3.0.0'
+    version = '3.0.0-beta1'
 
     repositories {
         jcenter()
@@ -92,6 +92,8 @@ project(':luajpp2-plugin') {
 publishing {
     publications {
         core(MavenPublication) {
+            artifactId = 'luajpp2-core'
+
             def proj = project(":luajpp2-core")
             from proj.components.java            
             artifact(proj.sourceJar)
@@ -101,6 +103,8 @@ publishing {
             }  
         }
         plugin(MavenPublication) {
+            artifactId = 'luajpp2-plugin'
+
             def proj = project(":luajpp2-plugin")
             from proj.components.java            
             artifact(proj.sourceJar)
