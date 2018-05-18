@@ -50,7 +50,7 @@ public class ThreadLibTest extends AbstractLuaTest {
         runToCompletion();
 
         LuaThread mainThread = luaRunState.getMainThread();
-        Assert.assertEquals(true, mainThread.isFinished());
+        Assert.assertEquals(false, mainThread.isRunnable());
     }
 
     @Test

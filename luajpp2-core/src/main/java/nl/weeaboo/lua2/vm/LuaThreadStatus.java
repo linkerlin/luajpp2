@@ -7,7 +7,6 @@ public enum LuaThreadStatus {
     RUNNING,
     END_CALL,
     ERROR,
-    FINISHED,
     DEAD;
 
 }

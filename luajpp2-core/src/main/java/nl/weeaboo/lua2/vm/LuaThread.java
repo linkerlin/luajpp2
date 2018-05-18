@@ -39,13 +39,15 @@ import nl.weeaboo.lua2.stdlib.DebugLib;
 public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private LuaRunState luaRunState;
     private LuaValue env;
     private LuaThreadStatus status = LuaThreadStatus.INITIAL;
     private int callstackMin;
     private boolean isMainThread;
+    private boolean isPersistent;
+
     private int sleep;
 
     StackFrame callstack;
@@ -83,6 +85,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public static LuaThread createMainThread(LuaRunState lrs, LuaValue env) {
         LuaThread thread = new LuaThread(lrs, env);
         thread.isMainThread = true;
+        thread.isPersistent = true;
         return thread;
     }
 
@@ -151,9 +154,9 @@ public final class LuaThread extends LuaValue implements Serializable {
         return status == LuaThreadStatus.RUNNING;
     }
 
-    /** Returns {@code true} if the thread is dead, or has no further code to execute. */
-    public boolean isFinished() {
-        return isDead() || callstack == null;
+    /** Returns {@code true} if the thread can be resumed. */
+    public boolean isRunnable() {
+        return !isDead() && callstack != null;
     }
 
     /** Returns {@code true} if the thread's status is {@link LuaThreadStatus#DEAD}. */
@@ -293,11 +296,15 @@ public final class LuaThread extends LuaValue implements Serializable {
         LuaThreadStatus status = getStatus();
         if (status == LuaThreadStatus.INITIAL) {
             // Start new coroutine
-            callstack.setArgs(args);
+            if (callstack != null) {
+                callstack.setArgs(args);
+            }
         } else if (status == LuaThreadStatus.SUSPENDED || status == LuaThreadStatus.END_CALL) {
             // Resume coroutine
             // Place args on the thread's stack as though it was returned from the call that yielded
-            callstack.setReturnedValues(args);
+            if (callstack != null) {
+                callstack.setReturnedValues(args);
+            }
         } else {
             throw new LuaException("Unable to resume coroutine: " + this + ", status="
                     + CoroutineLib.getCoroutineStatus(this));
@@ -349,7 +356,7 @@ public final class LuaThread extends LuaValue implements Serializable {
             setRunningThread(prior);
 
             if (callstack == null) {
-                status = LuaThreadStatus.FINISHED;
+                status = (isPersistent ? LuaThreadStatus.SUSPENDED : LuaThreadStatus.DEAD);
             } else if (status == LuaThreadStatus.RUNNING) {
                 status = LuaThreadStatus.SUSPENDED;
             }
@@ -421,6 +428,21 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
     public int getSleep() {
         return sleep;
+    }
+
+    /**
+     * A persistent thread doesn't die when it finishes running all of its code. This allows you to reuse a
+     * single thread to occasionally run pieces of code.
+     */
+    public boolean isPersistent() {
+        return isPersistent;
+    }
+
+    /**
+     * @see #isPersistent()
+     */
+    public void setPersistent(boolean isPersistent) {
+        this.isPersistent = isPersistent;
     }
 
 }

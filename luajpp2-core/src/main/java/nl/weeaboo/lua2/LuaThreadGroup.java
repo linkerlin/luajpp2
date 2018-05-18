@@ -45,7 +45,7 @@ final class LuaThreadGroup implements Serializable {
 
     public boolean isFinished() {
         for (LuaThread thread : threads) {
-            if (!thread.isFinished()) {
+            if (thread.isRunnable()) {
                 return false;
             }
         }
@@ -109,7 +109,7 @@ final class LuaThreadGroup implements Serializable {
     private void removeDeadThreads() {
         List<LuaThread> toRemove = null;
         for (LuaThread thread : threads) {
-            if (thread.isFinished()) {
+            if (thread.isDead()) {
                 LOG.debug("Removing dead thread: {}", thread);
                 if (toRemove == null) {
                     toRemove = new ArrayList<LuaThread>();
