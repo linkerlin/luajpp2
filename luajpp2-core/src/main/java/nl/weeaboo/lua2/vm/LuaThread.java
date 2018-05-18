@@ -307,7 +307,7 @@ public final class LuaThread extends LuaValue implements Serializable {
             }
         } else {
             throw new LuaException("Unable to resume coroutine: " + this + ", status="
-                    + CoroutineLib.getCoroutineStatus(this));
+                    + CoroutineLib.getCoroutineStatus(status));
         }
 
         return resume(-1);

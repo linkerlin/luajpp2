@@ -14,6 +14,7 @@ import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaThread;
+import nl.weeaboo.lua2.vm.LuaThreadStatus;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
@@ -105,11 +106,14 @@ public final class CoroutineLib extends LuaModule {
     @LuaBoundFunction
     public Varargs status(Varargs args) {
         LuaThread thread = args.checkthread(1);
-        return valueOf(getCoroutineStatus(thread));
+        return valueOf(getCoroutineStatus(thread.getStatus()));
     }
 
-    public static String getCoroutineStatus(LuaThread thread) {
-        switch (thread.getStatus()) {
+    /**
+     * @return The Lua coroutine status value (a string) corresponding to the internal thread status.
+     */
+    public static String getCoroutineStatus(LuaThreadStatus threadStatus) {
+        switch (threadStatus) {
         case INITIAL:
         case SUSPENDED:
         case END_CALL:

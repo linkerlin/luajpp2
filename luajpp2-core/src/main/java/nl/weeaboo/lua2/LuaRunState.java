@@ -263,6 +263,9 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
         return threadGroup.isFinished();
     }
 
+    /**
+     * The global metatables for basic types (numbers, strings, etc.)
+     */
     public Metatables getMetatables() {
         return metatables;
     }
