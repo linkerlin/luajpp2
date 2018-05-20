@@ -4,6 +4,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nl.weeaboo.lua2.LuaException;
@@ -257,8 +258,8 @@ public final class CoerceLuaToJava {
     private CoerceLuaToJava() {
     }
 
-    static void coerceArgs(Object[] out, Varargs luaArgs, Class<?>[] javaParams) {
-        final int jlen = javaParams.length;
+    static void coerceArgs(Object[] out, Varargs luaArgs, List<Class<?>> javaParams) {
+        final int jlen = javaParams.size();
         if (jlen == 0) {
             return;
         }
@@ -269,25 +270,25 @@ public final class CoerceLuaToJava {
 
         //Treat java functions ending in an array param as varargs
         for (int n = 0; n < jlast; n++) {
-            out[n] = coerceArg(luaArgs.arg(1 + n), javaParams[n]);
+            out[n] = coerceArg(luaArgs.arg(1 + n), javaParams.get(n));
         }
 
         final int vaCount = llen - jlast;
-        if (llen > jlen && javaParams[jlast].isArray()) {
-            final Class<?> vaType = javaParams[jlast].getComponentType();
+        if (llen > jlen && javaParams.get(jlast).isArray()) {
+            final Class<?> vaType = javaParams.get(jlast).getComponentType();
             Object temp = Array.newInstance(vaType, vaCount);
             for (int n = 0; n < vaCount; n++) {
                 Array.set(temp, n, coerceArg(luaArgs.arg(1 + jlast + n), vaType));
             }
             out[jlast] = temp;
-        } else if (llen > jlen && javaParams[jlast] == Varargs.class) {
+        } else if (llen > jlen && javaParams.get(jlast) == Varargs.class) {
             out[jlast] = luaArgs.subargs(1 + jlast);
         } else {
             if (jlast >= 0) {
-                out[jlast] = coerceArg(luaArgs.arg(1 + jlast), javaParams[jlast]);
+                out[jlast] = coerceArg(luaArgs.arg(1 + jlast), javaParams.get(jlast));
             }
             for (int n = minlen; n < jlen; n++) {
-                out[n] = CoerceLuaToJava.coerceArg(NIL, javaParams[n]);
+                out[n] = CoerceLuaToJava.coerceArg(NIL, javaParams.get(n));
             }
         }
     }
@@ -366,11 +367,11 @@ public final class CoerceLuaToJava {
      *
      * @return The score, lower scores are better matches
      */
-    public static int scoreParamTypes(Varargs luaArgs, Class<?>[] javaParams) {
+    public static int scoreParamTypes(Varargs luaArgs, List<Class<?>> javaParams) {
         //Init score & minimum length
         int score;
         final int llen = luaArgs.narg();
-        final int jlen = javaParams.length;
+        final int jlen = javaParams.size();
         final int len;
         if (jlen == llen) {
             //Same length or possible vararg
@@ -386,7 +387,7 @@ public final class CoerceLuaToJava {
 
         //Compare args
         for (int n = 0; n < len; n++) {
-            score += scoreParam(luaArgs.arg(1 + n), javaParams[n]);
+            score += scoreParam(luaArgs.arg(1 + n), javaParams.get(n));
         }
         return score;
     }

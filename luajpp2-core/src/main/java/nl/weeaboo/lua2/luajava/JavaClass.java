@@ -23,7 +23,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 @LuaSerializable
-final class ClassInfo implements IWriteReplaceSerializable {
+final class JavaClass implements IWriteReplaceSerializable {
 
     private static final Comparator<Method> methodSorter = new MethodSorter();
 
@@ -32,30 +32,30 @@ final class ClassInfo implements IWriteReplaceSerializable {
 
     private transient ClassMetaTable metaTable;
 
-    private transient ConstructorInfo[] constrs;
+    private transient JavaConstructor[] constrs;
     private transient Map<LuaString, Field> fields;
-    private transient Map<LuaString, MethodInfo[]> methods;
+    private transient Map<LuaString, JavaMethod[]> methods;
 
-    public ClassInfo(Class<?> c) {
+    public JavaClass(Class<?> c) {
         clazz = c;
         isArray = c.isArray();
     }
 
     @Override
     public Object writeReplace() throws ObjectStreamException {
-        return new ClassInfoRef(clazz);
+        return new JavaClassRef(clazz);
     }
 
     public Object newInstance(Varargs luaArgs) throws IllegalArgumentException, InstantiationException,
             IllegalAccessException, InvocationTargetException {
 
-        ConstructorInfo constr = findConstructor(luaArgs);
+        JavaConstructor constr = findConstructor(luaArgs);
         if (constr == null) {
             throw new LuaException("No suitable constructor found for: " + clazz.getName());
         }
 
-        Class<?>[] paramTypes = constr.getParams();
-        Object[] javaArgs = new Object[paramTypes.length];
+        List<Class<?>> paramTypes = constr.getParamTypes();
+        Object[] javaArgs = new Object[paramTypes.size()];
         CoerceLuaToJava.coerceArgs(javaArgs, luaArgs, paramTypes);
         return constr.getConstructor().newInstance(javaArgs);
     }
@@ -67,8 +67,8 @@ final class ClassInfo implements IWriteReplaceSerializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ClassInfo) {
-            ClassInfo ci = (ClassInfo)obj;
+        if (obj instanceof JavaClass) {
+            JavaClass ci = (JavaClass)obj;
             return clazz.equals(ci.clazz);
         }
         return false;
@@ -82,12 +82,12 @@ final class ClassInfo implements IWriteReplaceSerializable {
         return isArray;
     }
 
-    protected ConstructorInfo findConstructor(Varargs luaArgs) {
-        ConstructorInfo bestMatch = null;
+    protected JavaConstructor findConstructor(Varargs luaArgs) {
+        JavaConstructor bestMatch = null;
         int bestScore = Integer.MAX_VALUE;
 
-        for (ConstructorInfo constr : getConstructors()) {
-            int score = CoerceLuaToJava.scoreParamTypes(luaArgs, constr.getParams());
+        for (JavaConstructor constr : getConstructors()) {
+            int score = CoerceLuaToJava.scoreParamTypes(luaArgs, constr.getParamTypes());
             if (score == 0) {
                 return constr; // Perfect match, return at once
             } else if (score < bestScore) {
@@ -99,14 +99,15 @@ final class ClassInfo implements IWriteReplaceSerializable {
         return bestMatch;
     }
 
-    public ConstructorInfo[] getConstructors() {
+    public JavaConstructor[] getConstructors() {
         if (constrs == null) {
             Constructor<?>[] cs = clazz.getConstructors();
 
-            constrs = new ConstructorInfo[cs.length];
+            JavaConstructor[] result = new JavaConstructor[cs.length];
             for (int n = 0; n < cs.length; n++) {
-                constrs[n] = new ConstructorInfo(n, cs[n]);
+                result[n] = new JavaConstructor(cs[n]);
             }
+            constrs = result;
         }
         return constrs;
     }
@@ -128,48 +129,48 @@ final class ClassInfo implements IWriteReplaceSerializable {
         return fields.get(name);
     }
 
-    public MethodInfo[] getMethods(LuaValue name) {
+    public JavaMethod[] getMethods(LuaValue name) {
         if (methods == null) {
             Method[] marr = clazz.getMethods();
             Arrays.sort(marr, methodSorter);
 
-            methods = new HashMap<LuaString, MethodInfo[]>();
+            methods = new HashMap<LuaString, JavaMethod[]>();
 
             String curName = null;
-            List<MethodInfo> list = new ArrayList<MethodInfo>();
+            List<JavaMethod> list = new ArrayList<JavaMethod>();
             for (Method m : marr) {
                 // Workaround for https://bugs.openjdk.java.net/browse/JDK-4283544
                 m.setAccessible(true);
 
                 if (!m.getName().equals(curName)) {
                     if (curName != null) {
-                        methods.put(valueOf(curName), list.toArray(new MethodInfo[list.size()]));
+                        methods.put(valueOf(curName), list.toArray(new JavaMethod[list.size()]));
                     }
                     curName = m.getName();
                     list.clear();
                 }
-                list.add(new MethodInfo(m));
+                list.add(new JavaMethod(m));
             }
 
             if (curName != null) {
-                methods.put(LuaString.valueOf(curName), list.toArray(new MethodInfo[list.size()]));
+                methods.put(LuaString.valueOf(curName), list.toArray(new JavaMethod[list.size()]));
             }
         }
         return methods.get(name);
     }
 
-    public boolean hasMethod(LuaString name) {
+    public boolean hasMethod(LuaValue name) {
         return getMethods(name) != null;
     }
 
     @LuaSerializable
-    private static class ClassInfoRef implements IReadResolveSerializable {
+    private static class JavaClassRef implements IReadResolveSerializable {
 
         private static final long serialVersionUID = 1L;
 
         private final Class<?> clazz;
 
-        public ClassInfoRef(Class<?> clazz) {
+        public JavaClassRef(Class<?> clazz) {
             this.clazz = clazz;
         }
 
@@ -179,7 +180,7 @@ final class ClassInfo implements IWriteReplaceSerializable {
         }
     }
 
-    private static class MethodSorter implements Comparator<Method> {
+    private static final class MethodSorter implements Comparator<Method> {
 
         @Override
         public int compare(Method m1, Method m2) {

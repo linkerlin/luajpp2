@@ -40,7 +40,7 @@ public final class LuajavaLib extends LuaModule {
 
     private static final long serialVersionUID = 2L;
 
-    private static final Map<Class<?>, ClassInfo> classInfoMap = new HashMap<Class<?>, ClassInfo>();
+    private static final Map<Class<?>, JavaClass> classInfoMap = new HashMap<Class<?>, JavaClass>();
 
     private boolean allowUnsafeClassLoading;
 
@@ -100,7 +100,7 @@ public final class LuajavaLib extends LuaModule {
             clazz = Class.forName(c.tojstring());
         }
 
-        ClassInfo info = getClassInfo(clazz);
+        JavaClass info = getClassInfo(clazz);
         Object javaObject = info.newInstance(args.subargs(2));
         return LuaUserdata.userdataOf(javaObject, info.getMetatable());
     }
@@ -110,14 +110,14 @@ public final class LuajavaLib extends LuaModule {
      * defined in {@code clazz}.
      */
     public static LuaUserdata toUserdata(Object object, Class<?> clazz) {
-        ClassInfo info = getClassInfo(clazz);
+        JavaClass info = getClassInfo(clazz);
         return LuaUserdata.userdataOf(object, info.getMetatable());
     }
 
-    static ClassInfo getClassInfo(Class<?> clazz) {
-        ClassInfo info = classInfoMap.get(clazz);
+    static JavaClass getClassInfo(Class<?> clazz) {
+        JavaClass info = classInfoMap.get(clazz);
         if (info == null) {
-            info = new ClassInfo(clazz);
+            info = new JavaClass(clazz);
             classInfoMap.put(clazz, info);
         }
         return info;
@@ -135,7 +135,7 @@ public final class LuajavaLib extends LuaModule {
 
         private static final long serialVersionUID = 6459092255782515933L;
 
-        private final ClassInfo ci;
+        private final JavaClass ci;
 
         public ConstrFunction(Class<?> c) {
             ci = getClassInfo(c);
