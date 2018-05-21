@@ -31,22 +31,19 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     //--- Uses manual serialization, don't add variables ---
     private JavaClass classInfo;
-    private boolean seal;
-    private transient Map<LuaValue, LuaMethod> methods;
+    private transient Map<LuaValue, LuaMethod> cachedMethds;
     //--- Uses manual serialization, don't add variables ---
 
     ClassMetaTable(JavaClass ci) {
         classInfo = ci;
+        cachedMethds = new HashMap<LuaValue, LuaMethod>();
 
-        rawset(META_INDEX, newMetaFunction(classInfo, this, true));
-        rawset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
+        super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
+        super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
         if (ci.isArray()) {
-            rawset(META_LEN, ARRAY_LENGTH_FUNCTION);
+            super.hashset(META_LEN, ARRAY_LENGTH_FUNCTION);
         }
 
-        seal = true;
-
-        methods = new HashMap<LuaValue, LuaMethod>();
     }
 
     @Override
@@ -86,9 +83,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     protected void checkSeal() {
-        if (seal) {
-            throw new LuaException("Can't write to a shared Java class metatable");
-        }
+        throw new LuaException("Can't write to a shared Java class metatable");
     }
 
     @Override
@@ -97,12 +92,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     LuaMethod getMethod(LuaValue name) {
-        LuaMethod method = methods.get(name);
+        LuaMethod method = cachedMethds.get(name);
         if (method != null) {
             return method;
         } else if (classInfo.hasMethod(name)) {
             method = new LuaMethod(classInfo, name);
-            methods.put(name, method);
+            cachedMethds.put(name, method);
             return method;
         } else {
             return null;
