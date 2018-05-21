@@ -31,12 +31,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     //--- Uses manual serialization, don't add variables ---
     private JavaClass classInfo;
-    private transient Map<LuaValue, LuaMethod> cachedMethds;
+    private transient Map<LuaValue, LuaMethod> cachedMethods;
     //--- Uses manual serialization, don't add variables ---
 
     ClassMetaTable(JavaClass ci) {
         classInfo = ci;
-        cachedMethds = new HashMap<LuaValue, LuaMethod>();
+        cachedMethods = new HashMap<LuaValue, LuaMethod>();
 
         super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
         super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
@@ -92,12 +92,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     LuaMethod getMethod(LuaValue name) {
-        LuaMethod method = cachedMethds.get(name);
+        LuaMethod method = cachedMethods.get(name);
         if (method != null) {
             return method;
         } else if (classInfo.hasMethod(name)) {
             method = new LuaMethod(classInfo, name);
-            cachedMethds.put(name, method);
+            cachedMethods.put(name, method);
             return method;
         } else {
             return null;
