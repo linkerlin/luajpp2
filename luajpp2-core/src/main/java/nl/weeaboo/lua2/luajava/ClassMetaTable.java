@@ -30,23 +30,20 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     private static final LuaValue ARRAY_LENGTH_FUNCTION = new ArrayLengthFunction();
 
     //--- Uses manual serialization, don't add variables ---
-    private ClassInfo classInfo;
-    private boolean seal;
-    private transient Map<LuaValue, LuaMethod> methods;
+    private JavaClass classInfo;
+    private transient Map<LuaValue, LuaMethod> cachedMethods;
     //--- Uses manual serialization, don't add variables ---
 
-    ClassMetaTable(ClassInfo ci) {
+    ClassMetaTable(JavaClass ci) {
         classInfo = ci;
+        cachedMethods = new HashMap<LuaValue, LuaMethod>();
 
-        rawset(META_INDEX, newMetaFunction(classInfo, this, true));
-        rawset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
+        super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
+        super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
         if (ci.isArray()) {
-            rawset(META_LEN, ARRAY_LENGTH_FUNCTION);
+            super.hashset(META_LEN, ARRAY_LENGTH_FUNCTION);
         }
 
-        seal = true;
-
-        methods = new HashMap<LuaValue, LuaMethod>();
     }
 
     @Override
@@ -54,7 +51,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         return new ClassMetaTableRef(classInfo);
     }
 
-    private static MetaFunction newMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean isGet) {
+    private static MetaFunction newMetaFunction(JavaClass ci, ClassMetaTable mt, boolean isGet) {
         if (ci.isArray()) {
             return new ArrayMetaFunction(ci, mt, isGet);
         }
@@ -86,9 +83,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     protected void checkSeal() {
-        if (seal) {
-            throw new LuaException("Can't write to a shared Java class metatable");
-        }
+        throw new LuaException("Can't write to a shared Java class metatable");
     }
 
     @Override
@@ -97,29 +92,26 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     LuaMethod getMethod(LuaValue name) {
-        LuaMethod method = methods.get(name);
+        LuaMethod method = cachedMethods.get(name);
         if (method != null) {
             return method;
+        } else if (classInfo.hasMethod(name)) {
+            method = new LuaMethod(classInfo, name);
+            cachedMethods.put(name, method);
+            return method;
         } else {
-            MethodInfo[] ms = classInfo.getMethods(name);
-            if (ms != null && ms.length > 0) {
-                method = new LuaMethod(classInfo, name, ms);
-                methods.put(name, method);
-                return method;
-            }
+            return null;
         }
-        return null;
     }
 
-    //Inner Classes
     @LuaSerializable
-    private static class ClassMetaTableRef implements IReadResolveSerializable {
+    private static final class ClassMetaTableRef implements IReadResolveSerializable {
 
         private static final long serialVersionUID = 1L;
 
-        private final ClassInfo classInfo;
+        private final JavaClass classInfo;
 
-        public ClassMetaTableRef(ClassInfo classInfo) {
+        public ClassMetaTableRef(JavaClass classInfo) {
             this.classInfo = classInfo;
         }
 
@@ -134,11 +126,11 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
         private static final long serialVersionUID = 1L;
 
-        protected final ClassInfo classInfo;
+        protected final JavaClass classInfo;
         protected final ClassMetaTable meta;
         protected final boolean isGet;
 
-        public MetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
+        public MetaFunction(JavaClass ci, ClassMetaTable mt, boolean get) {
             classInfo = ci;
             meta = mt;
             isGet = get;
@@ -195,11 +187,11 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @LuaSerializable
-    private static class ArrayMetaFunction extends MetaFunction {
+    private static final class ArrayMetaFunction extends MetaFunction {
 
         private static final long serialVersionUID = 1L;
 
-        public ArrayMetaFunction(ClassInfo ci, ClassMetaTable mt, boolean get) {
+        public ArrayMetaFunction(JavaClass ci, ClassMetaTable mt, boolean get) {
             super(ci, mt, get);
         }
 
@@ -238,7 +230,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @LuaSerializable
-    private static class ArrayLengthFunction extends OneArgFunction {
+    private static final class ArrayLengthFunction extends OneArgFunction {
 
         private static final long serialVersionUID = 1L;
 
