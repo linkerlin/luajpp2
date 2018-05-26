@@ -1646,13 +1646,15 @@ final class LexState {
             upval |= bl.upval;
             bl = bl.previous;
         }
+
         if (bl == null) {
             this.syntaxerror("no loop to break");
+        } else {
+            if (upval) {
+                fs.codeABC(Lua.OP_CLOSE, bl.nactvar, 0, 0);
+            }
+            fs.concat(bl.breaklist, fs.jump());
         }
-        if (upval) {
-            fs.codeABC(Lua.OP_CLOSE, bl.nactvar, 0, 0);
-        }
-        fs.concat(bl.breaklist, fs.jump());
     }
 
     void whilestat(int line) {

@@ -129,8 +129,9 @@ public final class PackageLib extends LuaModule {
         /* else must load it; iterate over available loaders */
         LuaTable tbl = packageTable.get(S_LOADERS).checktable();
         StringBuffer sb = new StringBuffer();
-        LuaValue chunk = null;
-        for (int i = 1; true; i++) {
+        LuaValue chunk;
+        int i = 1;
+        do {
             LuaValue loader = tbl.get(i);
             if (loader.isnil()) {
                 throw new LuaException("module '" + name + "' not found: " + name + sb);
@@ -144,7 +145,8 @@ public final class PackageLib extends LuaModule {
             if (chunk.isstring()) {
                 sb.append(chunk.tojstring());
             }
-        }
+            i++;
+        } while (true);
 
         // load the module using the loader
         loadedTable.set(name, S_SENTINEL);
@@ -307,7 +309,7 @@ public final class PackageLib extends LuaModule {
             // check the path elements
             int e = -1;
             int n = path.length();
-            StringBuffer sb = null;
+            StringBuffer sb = new StringBuffer();
             name = name.replace('.', '/');
             while (e < n) {
 
@@ -329,9 +331,6 @@ public final class PackageLib extends LuaModule {
                 }
 
                 // report error
-                if (sb == null) {
-                    sb = new StringBuffer();
-                }
                 sb.append("\n\t'" + filename + "': " + v.arg(2));
             }
             return valueOf(sb.toString());

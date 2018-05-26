@@ -140,18 +140,26 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         int nn = (named != null ? named.length : 0);
         int nu = (unnamed != null ? unnamed.length : 0);
         int nl = (lastarg != null ? lastarg.narg() : 0);
+
         presize(nu + nl, nn >> 1);
-        for (int i = 0; i < nu; i++) {
-            rawset(i + 1, unnamed[i]);
+
+        if (unnamed != null) {
+            for (int i = 0; i < nu; i++) {
+                rawset(i + 1, unnamed[i]);
+            }
         }
+
         if (lastarg != null) {
             for (int i = 1, n = lastarg.narg(); i <= n; ++i) {
                 rawset(nu + i, lastarg.arg(i));
             }
         }
-        for (int i = 0; i < nn; i += 2) {
-            if (!named[i + 1].isnil()) {
-                rawset(named[i], named[i + 1]);
+
+        if (named != null) {
+            for (int i = 0; i < nn; i += 2) {
+                if (!named[i + 1].isnil()) {
+                    rawset(named[i], named[i + 1]);
+                }
             }
         }
     }

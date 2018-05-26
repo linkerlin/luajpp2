@@ -188,7 +188,11 @@ public final class DebugLib extends LuaModule {
 
         DebugState ds = getDebugState(thread);
         DebugInfo di = ds.getDebugInfo(level);
-        LuaString name = (di != null ? di.getlocalname(index) : null);
+        if (di == null) {
+            return NIL;
+        }
+
+        LuaString name = di.getlocalname(index);
         if (name != null) {
             LuaValue value = di.stack[index - 1];
             return varargsOf(name, value);
@@ -219,7 +223,11 @@ public final class DebugLib extends LuaModule {
 
         DebugState ds = getDebugState(thread);
         DebugInfo di = ds.getDebugInfo(level);
-        LuaString name = (di != null ? di.getlocalname(local) : null);
+        if (di == null) {
+            return NIL;
+        }
+
+        LuaString name = di.getlocalname(local);
         if (name != null) {
             di.stack[local - 1] = value;
             return name;
