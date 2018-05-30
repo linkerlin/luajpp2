@@ -15,7 +15,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 final class StackFrame implements Externalizable {
 
     enum Status {
-        FRESH, RUNNING, DEAD
+        FRESH, RUNNING, FINISHED, CLOSED
     }
 
     // --- Uses manual serialization, don't add variables ---
@@ -40,7 +40,7 @@ final class StackFrame implements Externalizable {
     public StackFrame() {
     }
 
-    public static StackFrame newInstance(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
+    static StackFrame newInstance(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
             int returnCount) {
 
         StackFrame frame = new StackFrame();
@@ -49,7 +49,7 @@ final class StackFrame implements Externalizable {
     }
 
     /** Closes every frame in the callstack. */
-    public static void releaseCallstack(StackFrame frame) {
+    static void releaseCallstack(StackFrame frame) {
         while (frame != null) {
             StackFrame parent = frame.parent;
             frame.close();
@@ -96,7 +96,7 @@ final class StackFrame implements Externalizable {
     }
 
     public void close() {
-        status = Status.DEAD;
+        status = Status.CLOSED;
 
         closeUpValues();
 

@@ -206,6 +206,11 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     void pushPending(LuaClosure func, Varargs args, int returnBase, int returnCount) {
+        if (callstack != null && callstack.status == StackFrame.Status.FINISHED) {
+            LOG.error("Callstack was corrupted -- parent stack frame is finished :: parent={}",
+                    callstack);
+        }
+
         callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
 
         /*
@@ -392,6 +397,11 @@ public final class LuaThread extends LuaValue implements Serializable {
 
         // Notify debuglib that we've returned from our current call
         postReturn(sf);
+
+        if (callstack != null && callstack.status == StackFrame.Status.FINISHED) {
+            LOG.error("Callstack was corrupted -- parent stack frame is finished :: popped={}, parent={}",
+                    sf, callstack);
+        }
     }
 
     /**

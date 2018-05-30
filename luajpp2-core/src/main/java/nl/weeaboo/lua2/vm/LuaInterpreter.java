@@ -7,12 +7,17 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.vm.StackFrame.Status;
 
 final class LuaInterpreter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LuaInterpreter.class);
 
     private LuaInterpreter() {
     }
@@ -37,7 +42,7 @@ final class LuaInterpreter {
             try {
                 result = resume(thread, sf);
             } finally {
-                if (sf.status == Status.DEAD) {
+                if (sf.status == Status.FINISHED) {
                     finishCall(thread, sf, result);
                 }
             }
@@ -48,7 +53,7 @@ final class LuaInterpreter {
 
     private static Varargs resume(LuaThread thread, StackFrame sf) {
         if (sf.status != Status.RUNNING) {
-            throw new LuaException("StackFrame isn't running: " + sf);
+            throw new LuaException("StackFrame isn't running: status=" + sf.status + ", stackFrame=" + sf);
         }
 
         final LuaClosure closure = sf.func.checkclosure();
@@ -316,7 +321,19 @@ final class LuaInterpreter {
                     sf.parentCount--;
                     v = f.invoke(v);
 
-                    if (sf == thread.callstack) {
+                    if (sf != thread.callstack) {
+                        // Remove sf from callstack
+                        sf.close();
+                        StackFrame cur = thread.callstack;
+                        while (cur != null) {
+                            if (cur.parent == sf) {
+                                cur.parent = sf.parent;
+                                break;
+                            }
+                            cur = cur.parent;
+                        }
+                        return NONE;
+                    } else {
                         // Java function didn't do anything to the callstack, recover.
                         sf.parentCount++;
 
@@ -336,7 +353,7 @@ final class LuaInterpreter {
                 case Lua.OP_RETURN: /* A B return R(A), ... ,R(A+B-2) (see note) */
                     b = i >>> 23;
 
-                    sf.status = Status.DEAD;
+                    sf.status = Status.FINISHED;
                     switch (b) {
                     case 0:
                         return copyArgs(stack, a, top - v.narg() - a, v); // Important: copies args
@@ -470,7 +487,7 @@ final class LuaInterpreter {
 
             // Yield
             if (thread.isDead() || thread.getStatus() == LuaThreadStatus.END_CALL) {
-                sf.status = Status.DEAD;
+                sf.status = Status.FINISHED;
             }
             return NONE;
         } finally {
@@ -506,6 +523,8 @@ final class LuaInterpreter {
         if (thread.callstack == sf) {
             thread.popStackFrame();
         } else {
+            LOG.error("Callstack was corrupted, finished={}, callstack={}",
+                    sf, thread.callstack);
             sf.close();
         }
     }
