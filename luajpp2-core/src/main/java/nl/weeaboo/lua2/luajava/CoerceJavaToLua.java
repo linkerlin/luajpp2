@@ -2,105 +2,18 @@ package nl.weeaboo.lua2.luajava;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import nl.weeaboo.lua2.vm.LuaBoolean;
-import nl.weeaboo.lua2.vm.LuaDouble;
-import nl.weeaboo.lua2.vm.LuaInteger;
-import nl.weeaboo.lua2.vm.LuaString;
-import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 public final class CoerceJavaToLua {
 
-    interface Coercion {
-
-        LuaValue coerce(Object javaValue);
-
-    }
-
-    private static Map<Class<?>, Coercion> COERCIONS = new HashMap<Class<?>, Coercion>();
-
-    static {
-        Coercion boolCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                boolean b = ((Boolean)javaValue).booleanValue();
-                return (b ? LuaBoolean.TRUE : LuaBoolean.FALSE);
-            }
-        };
-        Coercion charCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                char c = ((Character)javaValue).charValue();
-                return LuaInteger.valueOf(c);
-            }
-        };
-        Coercion intCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                int i = ((Number)javaValue).intValue();
-                return LuaInteger.valueOf(i);
-            }
-        };
-        Coercion longCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                long i = ((Number)javaValue).longValue();
-                return LuaDouble.valueOf(i);
-            }
-        };
-        Coercion doubleCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                double d = ((Number)javaValue).doubleValue();
-                return LuaDouble.valueOf(d);
-            }
-        };
-        Coercion stringCoercion = new Coercion() {
-            @Override
-            public LuaValue coerce(Object javaValue) {
-                return LuaString.valueOf(javaValue.toString());
-            }
-        };
-
-        COERCIONS.put(Boolean.class, boolCoercion);
-        COERCIONS.put(Boolean.TYPE, boolCoercion);
-        COERCIONS.put(Byte.class, intCoercion);
-        COERCIONS.put(Byte.TYPE, intCoercion);
-        COERCIONS.put(Character.class, charCoercion);
-        COERCIONS.put(Character.TYPE, charCoercion);
-        COERCIONS.put(Short.class, intCoercion);
-        COERCIONS.put(Short.TYPE, intCoercion);
-        COERCIONS.put(Integer.class, intCoercion);
-        COERCIONS.put(Integer.TYPE, intCoercion);
-        COERCIONS.put(Long.class, longCoercion);
-        COERCIONS.put(Long.TYPE, longCoercion);
-        COERCIONS.put(Float.class, doubleCoercion);
-        COERCIONS.put(Float.TYPE, doubleCoercion);
-        COERCIONS.put(Double.class, doubleCoercion);
-        COERCIONS.put(Double.TYPE, doubleCoercion);
-        COERCIONS.put(String.class, stringCoercion);
-    }
-
     private CoerceJavaToLua() {
     }
 
-    /** Converts a sequence of values to an equivalent LuaTable. */
-    public static <T> LuaTable toTable(Iterable<? extends T> values, Class<T> type) {
-        LuaTable table = new LuaTable();
-        int i = 1;
-        for (T value : values) {
-            table.rawset(i, coerce(value, type));
-            i++;
-        }
-        return table;
-    }
-
     /**
-     * Coerces multiple Java objects to their equivalent Lua values (automatically tries to deduce their types).
+     * Coerces multiple Java objects to their equivalent Lua values (automatically tries to deduce their
+     * types).
+     *
      * @see #coerce(Object)
      */
     public static Varargs coerceArgs(Object[] values) {
@@ -113,6 +26,7 @@ public final class CoerceJavaToLua {
 
     /**
      * Coerces a single Java object to its equivalent Lua value (automatically tries to deduce a type).
+     *
      * @see #coerce(Object, Class)
      */
     public static LuaValue coerce(Object obj) {
@@ -135,10 +49,11 @@ public final class CoerceJavaToLua {
             return NIL;
         }
 
-        Coercion c = COERCIONS.get(declaredType);
-        if (c != null) {
+        TypeCoercions typeCoercions = TypeCoercions.getInstance();
+        IJavaToLua javaToLua = typeCoercions.findJavaToLua(declaredType);
+        if (javaToLua != null) {
             // A specialized coercion was found, use it
-            return c.coerce(obj);
+            return javaToLua.toLua(obj);
         }
 
         if (LuaValue.class.isAssignableFrom(declaredType)) {
