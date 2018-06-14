@@ -2,12 +2,24 @@ package nl.weeaboo.lua2.luajava;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
 public final class CoerceJavaToLua {
 
     private CoerceJavaToLua() {
+    }
+
+    /** Converts a sequence of values to an equivalent LuaTable. */
+    public static <T> LuaTable toTable(Iterable<? extends T> values, Class<T> type) {
+        LuaTable table = new LuaTable();
+        int i = 1;
+        for (T value : values) {
+            table.rawset(i, coerce(value, type));
+            i++;
+        }
+        return table;
     }
 
     /**
