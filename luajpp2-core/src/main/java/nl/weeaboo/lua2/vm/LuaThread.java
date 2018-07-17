@@ -194,7 +194,7 @@ public final class LuaThread extends LuaValue implements Serializable {
         }
 
         if (callstack == null) {
-            LOG.info("Final stack frame popped: {}", sf);
+            LOG.debug("Final stack frame popped: {}", sf);
         }
     }
 
