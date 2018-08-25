@@ -1,36 +1,59 @@
 buildscript {
     repositories {
+        google()
         jcenter()
         maven { url 'http://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        // Plugins for Android
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
-apply plugin: 'com.jfrog.bintray'
+plugins {
+    // Plugin for uploading to bintray
+    // Note: Causes a classpath conflict for org.apache.tools.zip
+    id 'com.jfrog.bintray' version '1.8.0'
+
+    // Google error-prone
+    id 'net.ltgt.errorprone' version '0.0.13' apply false
+}
+
+apply from: 'dependencies.gradle'
 
 allprojects {
-    apply plugin: "maven-publish"
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'com.jfrog.bintray'
+    
     group = 'nl.weeaboo.luajpp2'
     version = '3.0.0-beta3'
 
     repositories {
         jcenter()
+    }
+    
+    bintray {   
+        user = System.getenv('BINTRAY_USER')
+        key = System.getenv('BINTRAY_KEY')
+        pkg {
+            repo = 'luajpp2'
+            name = 'luajpp2'
+            licenses = ['MIT']
+            vcsUrl = 'https://github.com/anonl/luajpp2.git'
+            version {
+                name = project.version
+            }
+        }
     }    
 }
 
 subprojects {
-    apply plugin: 'java'
     apply plugin: 'jacoco'
-    apply plugin: 'eclipse'
-    apply plugin: 'idea'
+    apply plugin: 'maven-publish'
 
     ext {
-        javaVersion = JavaVersion.VERSION_1_6
-
-        slf4jVersion = '1.7.21'
-        junitVersion = '4.12'
+        javaVersion = JavaVersion.VERSION_1_8
 
         pomLicenseConfig = {
            licenses {
@@ -44,35 +67,50 @@ subprojects {
         pomLicenseConfig.resolveStrategy = Closure.DELEGATE_ONLY // Otherwise 'license' elem is missing
     }
     
-    sourceCompatibility = javaVersion
-    
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
+    plugins.withType(JavaPlugin) {
+        sourceCompatibility = javaVersion
 
-    dependencies {
-        testCompile "junit:junit:$junitVersion"
-    }
-    
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allJava
-        classifier "sources"
-    }
-    
-    jacocoTestReport {
-        reports {
-            xml.enabled true
+        tasks.withType(JavaCompile) {
+            options.encoding = 'UTF-8'
         }
-    }    
+
+        dependencies {
+            compileOnly deps.static_analysis_annotations
+            implementation deps.slf4j_api
+
+            testImplementation deps.junit
+            testRuntimeOnly deps.slf4j_desktop
+        }
+
+        test {
+            def uiTest = project.hasProperty('uiTest')
+            inputs.property('uiTest', uiTest) // Re-execute task if uiTest property changes
+            useJUnit {
+                if (!uiTest) {
+                    // Exclude UI tests by default
+                    excludeCategories 'nl.weeaboo.gdx.test.junit.GdxUiTest'
+                }
+            }
+        }
+
+        jacocoTestReport {
+            reports {
+                xml.enabled true
+            }
+        }
+
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allJava
+            classifier "sources"
+        }
+
+        project.apply from: rootProject.file('errorprone.gradle')
+    }
 }
 
 project(':luajpp2-core') {
-    dependencies {
-        compile "org.slf4j:slf4j-api:$slf4jVersion"
+    apply plugin: 'java-library'
 
-        testRuntime "org.slf4j:slf4j-jdk14:$slf4jVersion"
-    }
-    
     processResources {
         filesMatching('**/*.properties') {
             filter {
@@ -81,52 +119,77 @@ project(':luajpp2-core') {
             }
         }
     }
+    
+    publishing {
+        publications {
+            core(MavenPublication) {
+                from components.java            
+                artifactId = 'luajpp2-core'
+                artifact(sourceJar)
+
+                pom.withXml {
+                    asNode().children().last() + proj.ext.pomLicenseConfig
+                }  
+            }
+        }
+    }    
+
+    bintray {
+        publications = ['core']
+    }
 }
 
 project(':luajpp2-plugin') {
+    apply plugin: 'java-library'
+
     dependencies {
-        compile project(':luajpp2-core')
+        api project(':luajpp2-core')
     }
-}
 
-publishing {
-    publications {
-        core(MavenPublication) {
-            artifactId = 'luajpp2-core'
+    publishing {
+        publications {
+            plugin(MavenPublication) {
+                from components.java            
+                artifactId = 'luajpp2-plugin'
+                artifact(sourceJar)
 
-            def proj = project(":luajpp2-core")
-            from proj.components.java            
-            artifact(proj.sourceJar)
-
-            pom.withXml {
-                asNode().children().last() + proj.ext.pomLicenseConfig
-            }  
-        }
-        plugin(MavenPublication) {
-            artifactId = 'luajpp2-plugin'
-
-            def proj = project(":luajpp2-plugin")
-            from proj.components.java            
-            artifact(proj.sourceJar)
-
-            pom.withXml {
-                asNode().children().last() + proj.ext.pomLicenseConfig
+                pom.withXml {
+                    asNode().children().last() + proj.ext.pomLicenseConfig
+                }  
             }
         }
+    }    
+
+    bintray {
+        publications = ['plugin']
     }
 }
 
-bintray {   
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['core', 'plugin']
-    pkg {
-        repo = 'luajpp2'
-        name = 'luajpp2'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/anonl/luajpp2.git'
-        version {
-            name = project.version
+project(':luajpp2-android') {
+    apply plugin: 'com.android.application'
+
+    android {
+        buildToolsVersion '26.0.2'
+        compileSdkVersion 25
+
+        defaultConfig {
+            minSdkVersion 15
+            targetSdkVersion 26
+        }
+
+        compileOptions {
+            sourceCompatibility javaVersion
+            targetCompatibility javaVersion
+        }
+
+        lintOptions {
+            textOutput 'stdout'
+            textReport true
         }
     }
+
+    dependencies {
+        api project(':luajpp2-core')
+    }
 }
+
