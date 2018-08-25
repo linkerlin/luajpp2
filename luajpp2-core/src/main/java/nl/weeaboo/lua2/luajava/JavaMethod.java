@@ -1,5 +1,6 @@
 package nl.weeaboo.lua2.luajava;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +14,10 @@ final class JavaMethod {
         method = m;
     }
 
-    public Method getMethod() {
-        return method;
+    public Object invoke(Object instance, Object... args)
+            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+
+        return method.invoke(instance, args);
     }
 
     public List<Class<?>> getParamTypes() {
@@ -22,6 +25,10 @@ final class JavaMethod {
             paramTypes = Arrays.asList(method.getParameterTypes());
         }
         return paramTypes;
+    }
+
+    public Class<?> getReturnType() {
+        return method.getReturnType();
     }
 
 }

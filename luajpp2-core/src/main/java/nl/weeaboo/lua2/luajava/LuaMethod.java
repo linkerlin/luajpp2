@@ -2,7 +2,6 @@ package nl.weeaboo.lua2.luajava;
 
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import nl.weeaboo.lua2.LuaException;
@@ -55,9 +54,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
                         methodName));
             }
 
-            Object javaResult = invokeMethod(method, instance, args);
-            // Only allow access to declared type (prevents accidental use of nondeclared interfaces)
-            return CoerceJavaToLua.coerce(javaResult, method.getMethod().getReturnType());
+            return invokeMethod(method, instance, args);
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             String msg = "Error in invoked Java method: " + methodName + "(" + args + ")";
@@ -67,16 +64,17 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         }
     }
 
-    private Object invokeMethod(JavaMethod mi, Object instance, Varargs args)
+    private LuaValue invokeMethod(JavaMethod method, Object instance, Varargs args)
         throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 
-        Method method = mi.getMethod();
-        List<Class<?>> paramTypes = mi.getParamTypes();
-
+        List<Class<?>> paramTypes = method.getParamTypes();
         Object[] javaArgs = new Object[paramTypes.size()];
         CoerceLuaToJava.coerceArgs(javaArgs, args, paramTypes);
 
-        return method.invoke(instance, javaArgs);
+        Object javaResult = method.invoke(instance, javaArgs);
+
+        // Only allow access to declared type (prevents accidental use of nondeclared interfaces)
+        return CoerceJavaToLua.coerce(javaResult, method.getReturnType());
     }
 
     protected JavaMethod findMethod(Varargs args) {
@@ -93,8 +91,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
             if (score <= bestScore) {
                 if (bestMatch != null && score == bestScore) {
                     // Parameter score is equal, select the method with the more specific return type
-                    Class<?> curReturnType = curMethod.getMethod().getReturnType();
-                    if (bestMatch.getMethod().getReturnType().isAssignableFrom(curReturnType)) {
+                    if (bestMatch.getReturnType().isAssignableFrom(curMethod.getReturnType())) {
                         bestMatch = curMethod;
                     }
                 } else {

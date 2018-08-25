@@ -1,6 +1,7 @@
 package nl.weeaboo.lua2.luajava;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,8 +14,9 @@ final class JavaConstructor {
         constr = c;
     }
 
-    public Constructor<?> getConstructor() {
-        return constr;
+    public Object newInstance(Object... args)
+            throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        return constr.newInstance(args);
     }
 
     public List<Class<?>> getParamTypes() {

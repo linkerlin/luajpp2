@@ -101,8 +101,7 @@ public final class LuajavaLib extends LuaModule {
         }
 
         JavaClass info = getClassInfo(clazz);
-        Object javaObject = info.newInstance(args.subargs(2));
-        return LuaUserdata.userdataOf(javaObject, info.getMetatable());
+        return info.newInstance(args.subargs(2));
     }
 
     /**
@@ -144,8 +143,7 @@ public final class LuajavaLib extends LuaModule {
         @Override
         public Varargs invoke(Varargs args) {
             try {
-                Object javaObject = ci.newInstance(args);
-                return LuaUserdata.userdataOf(javaObject, ci.getMetatable());
+                return ci.newInstance(args);
             } catch (InvocationTargetException ite) {
                 throw LuaException.wrap("Error invoking constructor: " + ci.getWrappedClass(), ite.getCause());
             } catch (Exception e) {

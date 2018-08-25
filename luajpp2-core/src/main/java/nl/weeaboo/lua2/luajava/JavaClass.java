@@ -19,6 +19,7 @@ import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaString;
+import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -46,7 +47,7 @@ final class JavaClass implements IWriteReplaceSerializable {
         return new JavaClassRef(clazz);
     }
 
-    public Object newInstance(Varargs luaArgs) throws IllegalArgumentException, InstantiationException,
+    public LuaUserdata newInstance(Varargs luaArgs) throws IllegalArgumentException, InstantiationException,
             IllegalAccessException, InvocationTargetException {
 
         JavaConstructor constr = findConstructor(luaArgs);
@@ -57,7 +58,10 @@ final class JavaClass implements IWriteReplaceSerializable {
         List<Class<?>> paramTypes = constr.getParamTypes();
         Object[] javaArgs = new Object[paramTypes.size()];
         CoerceLuaToJava.coerceArgs(javaArgs, luaArgs, paramTypes);
-        return constr.getConstructor().newInstance(javaArgs);
+
+        Object javaObject = constr.newInstance(javaArgs);
+
+        return LuaUserdata.userdataOf(javaObject, getMetatable());
     }
 
     @Override
