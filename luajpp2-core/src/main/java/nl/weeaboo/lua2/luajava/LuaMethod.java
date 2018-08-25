@@ -37,7 +37,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 
     @Override
     public LuaValue call() {
-        return error("Method cannot be called without instance");
+        throw error("Method cannot be called without instance");
     }
 
     @Override

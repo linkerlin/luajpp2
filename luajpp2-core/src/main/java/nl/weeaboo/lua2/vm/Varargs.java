@@ -526,7 +526,10 @@ public abstract class Varargs {
      * @exception LuaException if the argument does not exist.
      */
     public LuaValue checkvalue(int i) {
-        return i <= narg() ? arg(i) : LuaValue.argerror(i, "value expected");
+        if (i <= narg()) {
+            return arg(i);
+        }
+        throw LuaValue.argerror(i, "value expected");
     }
 
     /**

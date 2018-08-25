@@ -414,14 +414,12 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public boolean lt_b(int rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
     public boolean lt_b(double rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
@@ -436,14 +434,12 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public boolean lteq_b(int rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
     public boolean lteq_b(double rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
@@ -458,14 +454,12 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public boolean gt_b(int rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
     public boolean gt_b(double rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
@@ -480,14 +474,12 @@ public final class LuaString extends LuaValue implements Externalizable {
 
     @Override
     public boolean gteq_b(int rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     @Override
     public boolean gteq_b(double rhs) {
-        typerror("attempt to compare string with number");
-        return false;
+        throw typerror("attempt to compare string with number");
     }
 
     // concatenation
@@ -561,7 +553,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     public double checkdouble() {
         double d = scannumber(10);
         if (Double.isNaN(d)) {
-            argerror("number");
+            throw argerror("number");
         }
         return d;
     }
@@ -575,7 +567,7 @@ public final class LuaString extends LuaValue implements Externalizable {
     public LuaNumber checknumber(String msg) {
         double d = scannumber(10);
         if (Double.isNaN(d)) {
-            argerror("number");
+            throw argerror("number");
         }
         return valueOf(d);
     }

@@ -117,7 +117,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
     @Override
     public <T> T optuserdata(Class<T> c, T defval) {
         if (!c.isAssignableFrom(userdata.getClass())) {
-            typerror(c.getName());
+            throw typerror(c.getName());
         }
         return c.cast(userdata);
     }
@@ -141,7 +141,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
     @Override
     public <T> T checkuserdata(Class<T> c) {
         if (!c.isAssignableFrom(userdata.getClass())) {
-            typerror(c.getName());
+            throw typerror(c.getName());
         }
         return c.cast(userdata);
     }

@@ -260,7 +260,7 @@ public final class IoLib extends LuaModule {
                     }
 
                     if (fmt.length() <= fmtCharIndex) {
-                        return argerror(i + 1, "(invalid format)");
+                        throw argerror(i + 1, "(invalid format)");
                     }
 
                     switch (fmt.luaByte(fmtCharIndex)) {
@@ -278,14 +278,14 @@ public final class IoLib extends LuaModule {
                         }
                         break;
                     default:
-                        return argerror(i + 1, "(invalid format)");
+                        throw argerror(i + 1, "(invalid format)");
                     }
                 } else {
-                    return argerror(i + 1, "(invalid format)");
+                    throw argerror(i + 1, "(invalid format)");
                 }
                 break;
             default:
-                return argerror(i + 1, "(invalid format)");
+                throw argerror(i + 1, "(invalid format)");
             }
 
             v[i++] = vi;

@@ -156,12 +156,12 @@ final class MatchState implements Serializable {
             if (i == 0) {
                 return s.substring(soff, end);
             } else {
-                return error("invalid capture index");
+                throw error("invalid capture index");
             }
         } else {
             int l = clen[i];
             if (l == CAP_UNFINISHED) {
-                return error("unfinished capture");
+                throw error("unfinished capture");
             }
             if (l == CAP_POSITION) {
                 return valueOf(cinit[i] + 1);

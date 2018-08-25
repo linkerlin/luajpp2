@@ -418,7 +418,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     @Override
     public void set(LuaValue key, LuaValue value) {
         if (!key.isvalidkey() && !metatag(META_NEWINDEX).isfunction()) {
-            typerror("table index");
+            throw typerror("table index");
         }
         if (metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
             rawset(key, value);
