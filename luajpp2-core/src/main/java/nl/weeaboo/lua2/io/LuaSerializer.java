@@ -9,11 +9,11 @@ import java.util.concurrent.Callable;
 
 public class LuaSerializer {
 
-    private static final ThreadLocal<LuaSerializer> CURRENT = new ThreadLocal<LuaSerializer>();
+    private static final ThreadLocal<LuaSerializer> CURRENT = new ThreadLocal<>();
     private final Environment env;
 
-    private final List<Object> writeDelayed = new ArrayList<Object>();
-    private final List<DelayedReader> readDelayed = new ArrayList<DelayedReader>();
+    private final List<Object> writeDelayed = new ArrayList<>();
+    private final List<DelayedReader> readDelayed = new ArrayList<>();
 
     public LuaSerializer() {
         env = new Environment();

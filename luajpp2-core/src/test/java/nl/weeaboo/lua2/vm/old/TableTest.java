@@ -313,7 +313,7 @@ public class TableTest {
     @Test
     public void testInsertBeginningOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
 
         for (int i = 1; i <= 32; ++i) {
             LuaString test = LuaValue.valueOf("Test Value! " + i);
@@ -326,7 +326,7 @@ public class TableTest {
     @Test
     public void testInsertEndOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
 
         for (int i = 1; i <= 32; ++i) {
             LuaString test = LuaValue.valueOf("Test Value! " + i);
@@ -339,7 +339,7 @@ public class TableTest {
     @Test
     public void testInsertMiddleOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
 
         for (int i = 1; i <= 32; ++i) {
             LuaString test = LuaValue.valueOf("Test Value! " + i);
@@ -361,7 +361,7 @@ public class TableTest {
     @Test
     public void testRemoveBeginningOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
         prefillLists(t, v);
         for (int i = 1; i <= 32; ++i) {
             t.remove(1);
@@ -373,7 +373,7 @@ public class TableTest {
     @Test
     public void testRemoveEndOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
         prefillLists(t, v);
         for (int i = 1; i <= 32; ++i) {
             t.remove(0);
@@ -385,7 +385,7 @@ public class TableTest {
     @Test
     public void testRemoveMiddleOfList() {
         LuaTable t = newTable();
-        List<LuaValue> v = new ArrayList<LuaValue>();
+        List<LuaValue> v = new ArrayList<>();
         prefillLists(t, v);
         for (int i = 1; i <= 32; ++i) {
             int m = v.size() / 2;
@@ -405,7 +405,7 @@ public class TableTest {
                 new LuaValue[] { LuaValue.valueOf("11"), LuaValue.valueOf("22"), LuaValue.valueOf("33"),
                         LuaValue.valueOf("44"), LuaValue.valueOf("55"), });
         // Find expected order after removal.
-        java.util.List<String> expected = new java.util.ArrayList<String>();
+        java.util.List<String> expected = new java.util.ArrayList<>();
         Varargs n;
         int i;
         for (n = t.next(NIL), i = 0; !n.arg1().isnil(); n = t.next(n.arg1()), ++i) {
@@ -420,7 +420,7 @@ public class TableTest {
             }
         }
         // Iterate over remaining table, and form list of entries still in table.
-        java.util.List<String> actual = new java.util.ArrayList<String>();
+        java.util.List<String> actual = new java.util.ArrayList<>();
         for (n = t.next(NIL); !n.arg1().isnil(); n = t.next(n.arg1())) {
             actual.add(n.arg1() + "=" + n.arg(2));
         }

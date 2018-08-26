@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,7 @@ public class ObjectDeserializer extends ObjectInputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectDeserializer.class);
 
-    private final Environment env;
+    private final @Nullable Environment env;
     private final ExecutorService executor;
 
     private boolean collectStats = true;

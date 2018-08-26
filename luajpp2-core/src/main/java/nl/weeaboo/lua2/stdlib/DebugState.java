@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,11 +140,11 @@ final class DebugState implements Externalizable {
         this.hookfunc = func;
     }
 
-    DebugInfo getDebugInfo() {
+    @Nullable DebugInfo getDebugInfo() {
         return getDebugInfo(1);
     }
 
-    DebugInfo getDebugInfo(int level) {
+    @Nullable DebugInfo getDebugInfo(int level) {
         if (level <= 0 || level > debugCalls) {
             return null;
         }

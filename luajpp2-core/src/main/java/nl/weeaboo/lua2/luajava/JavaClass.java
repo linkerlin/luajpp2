@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
@@ -86,7 +88,7 @@ final class JavaClass implements IWriteReplaceSerializable {
         return isArray;
     }
 
-    protected JavaConstructor findConstructor(Varargs luaArgs) {
+    protected @Nullable JavaConstructor findConstructor(Varargs luaArgs) {
         JavaConstructor bestMatch = null;
         int bestScore = Integer.MAX_VALUE;
 
@@ -123,9 +125,9 @@ final class JavaClass implements IWriteReplaceSerializable {
         return metaTable;
     }
 
-    public Field getField(LuaValue name) {
+    public @Nullable Field getField(LuaValue name) {
         if (fields == null) {
-            fields = new HashMap<LuaString, Field>();
+            fields = new HashMap<>();
             for (Field f : clazz.getFields()) {
                 fields.put(valueOf(f.getName()), f);
             }
@@ -138,10 +140,10 @@ final class JavaClass implements IWriteReplaceSerializable {
             Method[] marr = clazz.getMethods();
             Arrays.sort(marr, methodSorter);
 
-            methods = new HashMap<LuaString, JavaMethod[]>();
+            methods = new HashMap<>();
 
             String curName = null;
-            List<JavaMethod> list = new ArrayList<JavaMethod>();
+            List<JavaMethod> list = new ArrayList<>();
             for (Method m : marr) {
                 // Workaround for https://bugs.openjdk.java.net/browse/JDK-4283544
                 m.setAccessible(true);

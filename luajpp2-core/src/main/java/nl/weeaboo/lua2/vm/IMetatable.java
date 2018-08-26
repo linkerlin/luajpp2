@@ -22,6 +22,8 @@
 
 package nl.weeaboo.lua2.vm;
 
+import javax.annotation.Nullable;
+
 /**
  * Provides operations that depend on the __mode key of the metatable.
  */
@@ -37,7 +39,7 @@ interface IMetatable {
     public LuaValue toLuaValue();
 
     /** Return an instance of Slot appropriate for the given key and value. */
-    public ISlot entry( LuaValue key, LuaValue value );
+    public @Nullable ISlot entry( LuaValue key, LuaValue value );
 
     /** Returns the given value wrapped in a weak reference if appropriate. */
     public LuaValue wrap( LuaValue value );

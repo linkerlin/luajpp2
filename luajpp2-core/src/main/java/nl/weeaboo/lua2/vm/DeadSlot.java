@@ -2,6 +2,8 @@ package nl.weeaboo.lua2.vm;
 
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -14,10 +16,10 @@ final class DeadSlot implements ISlot {
     private static final long serialVersionUID = 1L;
 
     private final Object key;
-    private ISlot next;
+    private @Nullable ISlot next;
 
     DeadSlot(LuaValue key, ISlot next) {
-        this.key = LuaTable.isLargeKey(key) ? new WeakReference<LuaValue>(key) : (Object)key;
+        this.key = LuaTable.isLargeKey(key) ? new WeakReference<>(key) : key;
         this.next = next;
     }
 
@@ -36,12 +38,12 @@ final class DeadSlot implements ISlot {
     }
 
     @Override
-    public IStrongSlot first() {
+    public @Nullable IStrongSlot first() {
         return null;
     }
 
     @Override
-    public IStrongSlot find(LuaValue key) {
+    public @Nullable IStrongSlot find(LuaValue key) {
         return null;
     }
 
@@ -52,7 +54,7 @@ final class DeadSlot implements ISlot {
     }
 
     @Override
-    public ISlot rest() {
+    public @Nullable ISlot rest() {
         return next;
     }
 
@@ -62,7 +64,7 @@ final class DeadSlot implements ISlot {
     }
 
     @Override
-    public ISlot set(IStrongSlot target, LuaValue value) {
+    public @Nullable ISlot set(IStrongSlot target, LuaValue value) {
         ISlot next = (this.next != null) ? this.next.set(target, value) : null;
         if (key() != null) {
             // if key hasn't been garbage collected, it is still potentially a valid argument
@@ -85,7 +87,11 @@ final class DeadSlot implements ISlot {
             next = next.remove(target);
             return this;
         } else {
-            return next;
+            ISlot result = next;
+            if (result == null) {
+                throw new NullPointerException("Unable to remove slot: next is null");
+            }
+            return result;
         }
     }
 
@@ -96,7 +102,7 @@ final class DeadSlot implements ISlot {
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<dead");
         LuaValue k = key();
         if (k != null) {

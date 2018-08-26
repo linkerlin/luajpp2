@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         // Plugins for Android
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
 
@@ -16,7 +16,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 
     // Google error-prone
-    id 'net.ltgt.errorprone' version '0.0.13' apply false
+    id 'net.ltgt.errorprone' version '0.0.16' apply false
 }
 
 apply from: 'dependencies.gradle'
@@ -30,6 +30,7 @@ allprojects {
     version = '3.0.0-beta3'
 
     repositories {
+        google()
         jcenter()
     }
     
@@ -78,19 +79,9 @@ subprojects {
             compileOnly deps.static_analysis_annotations
             implementation deps.slf4j_api
 
+            testCompileOnly deps.static_analysis_annotations
             testImplementation deps.junit
             testRuntimeOnly deps.slf4j_desktop
-        }
-
-        test {
-            def uiTest = project.hasProperty('uiTest')
-            inputs.property('uiTest', uiTest) // Re-execute task if uiTest property changes
-            useJUnit {
-                if (!uiTest) {
-                    // Exclude UI tests by default
-                    excludeCategories 'nl.weeaboo.gdx.test.junit.GdxUiTest'
-                }
-            }
         }
 
         jacocoTestReport {
@@ -169,12 +160,20 @@ project(':luajpp2-android') {
     apply plugin: 'com.android.application'
 
     android {
-        buildToolsVersion '26.0.2'
-        compileSdkVersion 25
+        buildToolsVersion '28.0.2'
+        compileSdkVersion 15
 
         defaultConfig {
             minSdkVersion 15
-            targetSdkVersion 26
+            targetSdkVersion 15
+        }
+
+        // Add source folders of the core module so we can test/lint them to check for Android compatibility
+        sourceSets {
+            main.java.srcDirs += '../luajpp2-core/src/main/java'
+            main.resources.srcDirs += '../luajpp2-core/src/main/resources'
+            test.java.srcDirs += '../luajpp2-core/src/test/java'
+            test.resources.srcDirs += '../luajpp2-core/src/test/resources'
         }
 
         compileOptions {
@@ -189,7 +188,12 @@ project(':luajpp2-android') {
     }
 
     dependencies {
-        api project(':luajpp2-core')
+        compileOnly deps.static_analysis_annotations
+        implementation deps.slf4j_api
+
+        testCompileOnly deps.static_analysis_annotations
+        testImplementation deps.junit
+        testRuntimeOnly deps.slf4j_desktop
     }
 }
 

@@ -54,7 +54,7 @@ public class StringTest {
     }
 
     private static final String userFriendly(String s) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0, n = s.length(); i < n; i++) {
             int c = s.charAt(i);
             if (c < ' ' || c >= 0x80) {

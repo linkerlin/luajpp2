@@ -3,6 +3,8 @@ package nl.weeaboo.lua2.luajava;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
@@ -14,8 +16,8 @@ final class TypeCoercions {
 
     private static final TypeCoercions INSTANCE = new TypeCoercions();
 
-    private final Map<Class<?>, IJavaToLua> javaToLuaCoercions = new HashMap<Class<?>, IJavaToLua>();
-    private final Map<Class<?>, ILuaToJava<?>> luaToJavaCoercions = new HashMap<Class<?>, ILuaToJava<?>>();
+    private final Map<Class<?>, IJavaToLua> javaToLuaCoercions = new HashMap<>();
+    private final Map<Class<?>, ILuaToJava<?>> luaToJavaCoercions = new HashMap<>();
 
     private TypeCoercions() {
         initDefaultJavaToLua();
@@ -274,7 +276,7 @@ final class TypeCoercions {
 
         ILuaToJava<String> stringCoercion = new ILuaToJava<String>() {
             @Override
-            public String toJava(LuaValue value) {
+            public @Nullable String toJava(LuaValue value) {
                 return (value.isnil() ? null : value.tojstring());
             }
 
@@ -290,7 +292,7 @@ final class TypeCoercions {
 
         ILuaToJava<Object> objectCoercion = new ILuaToJava<Object>() {
             @Override
-            public Object toJava(LuaValue value) {
+            public @Nullable Object toJava(LuaValue value) {
                 if (value instanceof LuaUserdata) {
                     return ((LuaUserdata)value).userdata();
                 }

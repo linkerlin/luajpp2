@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public final class Environment {
 
-    private final Map<String, Object> idObjMap = new HashMap<String, Object>();
-    private final IdentityHashMap<Object, String> objIdMap = new IdentityHashMap<Object, String>();
+    private final Map<String, Object> idObjMap = new HashMap<>();
+    private final IdentityHashMap<Object, String> objIdMap = new IdentityHashMap<>();
 
     /**
      * Adds a named object to the environment. A particular object instance may only have one name.

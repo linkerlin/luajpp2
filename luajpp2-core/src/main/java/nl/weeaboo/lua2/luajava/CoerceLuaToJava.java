@@ -5,6 +5,8 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaUserdata;
@@ -56,7 +58,7 @@ public final class CoerceLuaToJava {
     /**
      * Casts or converts the given Lua value to the given Java type.
      */
-    public static <T> T coerceArg(LuaValue lv, Class<T> c) {
+    public static @Nullable <T> T coerceArg(LuaValue lv, Class<T> c) {
         /*
          * The java arg is a Lua type. Check that c is a subclass of LuaValue to prevent using this case for
          * Object params.

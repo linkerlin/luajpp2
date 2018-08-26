@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
@@ -65,7 +67,7 @@ final class LinkSlot implements IStrongSlot, Externalizable {
     }
 
     @Override
-    public IStrongSlot find(LuaValue key) {
+    public @Nullable IStrongSlot find(LuaValue key) {
         return entry.keyeq(key) ? this : null;
     }
 

@@ -15,6 +15,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -98,7 +100,7 @@ public final class IoLib extends LuaModule {
     }
 
     private void setCurrentInput(LuaFileHandle file) {
-        currentInput = new AtomicReference<LuaFileHandle>(file);
+        currentInput = new AtomicReference<>(file);
     }
 
     private LuaFileHandle getCurrentOutput() {
@@ -110,7 +112,7 @@ public final class IoLib extends LuaModule {
     }
 
     private void setCurrentOutput(LuaFileHandle file) {
-        currentOutput = new AtomicReference<LuaFileHandle>(file);
+        currentOutput = new AtomicReference<>(file);
     }
 
     static LuaTable getFileTable() {
@@ -332,14 +334,14 @@ public final class IoLib extends LuaModule {
         return (f.isClosed() ? CLOSED_FILE : FILE);
     }
 
-    static LuaFileHandle optfile(LuaValue val) {
+    static @Nullable LuaFileHandle optfile(LuaValue val) {
         return (val instanceof LuaFileHandle) ? (LuaFileHandle)val : null;
     }
 
     static LuaFileHandle checkfile(LuaValue val) {
         LuaFileHandle f = optfile(val);
         if (f == null) {
-            argerror(1, "not a file handle");
+            throw argerror(1, "not a file handle");
         }
         checkopen(f);
         return f;

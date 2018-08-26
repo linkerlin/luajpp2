@@ -40,7 +40,7 @@ public final class LuajavaLib extends LuaModule {
 
     private static final long serialVersionUID = 2L;
 
-    private static final Map<Class<?>, JavaClass> classInfoMap = new HashMap<Class<?>, JavaClass>();
+    private static final Map<Class<?>, JavaClass> classInfoMap = new HashMap<>();
 
     private boolean allowUnsafeClassLoading;
 

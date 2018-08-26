@@ -34,11 +34,6 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -73,8 +68,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  */
 @LuaSerializable
 public final class LuaString extends LuaValue implements Externalizable {
-
-    private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
 
     private static final int MAX_STRING_LENGTH = 64 << 20; // 64 MiB
     private static final int MAX_TO_STRING_LENGTH = 1000;
@@ -759,6 +752,11 @@ public final class LuaString extends LuaValue implements Externalizable {
         return val.raweq(this);
     }
 
+    /*
+     * Suppress ErrorProne:ReferenceEquality: we use a reference equality comparison as a fast path to avoid potentially
+     * more expensive checks
+     */
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public boolean raweq(LuaString s) {
         if (this == s) {
@@ -766,9 +764,6 @@ public final class LuaString extends LuaValue implements Externalizable {
         }
         if (s.strLength != strLength) {
             return false;
-        }
-        if (s.strBytes == strBytes && s.strOffset == strOffset) {
-            return true;
         }
         if (s.hashCode() != hashCode()) {
             return false;
@@ -950,28 +945,23 @@ public final class LuaString extends LuaValue implements Externalizable {
             utf16L++;
         }
 
-        try {
-            char[] chars = new char[utf16L];
-            int i = offset;
-            int j = offset + length;
-            for (int n = 0; i < j; n++) {
-                byte b = bytes[i++];
-                if (b >= 0 || i >= j) {
-                    chars[n] = (char)b;
-                } else if (b < -32 || i + 1 >= j) {
-                    chars[n] = (char)(((b & 0x3f) << 6) | (bytes[i++] & 0x3f));
-                } else if (b < -16 || i + 2 >= j) {
-                    chars[n] = (char)(((b & 0xf) << 12) | ((bytes[i++] & 0x3f) << 6) | (bytes[i++] & 0x3f));
-                } else { //Requires more than one UTF-16 char
-                    CharBuffer cbuf = UTF8_DECODER.decode(ByteBuffer.wrap(bytes, offset, length));
-                    return cbuf.toString();
-                }
+        char[] chars = new char[utf16L];
+        int i = offset;
+        int j = offset + length;
+        for (int n = 0; i < j; n++) {
+            byte b = bytes[i++];
+            if (b >= 0 || i >= j) {
+                chars[n] = (char)b;
+            } else if (b < -32 || i + 1 >= j) {
+                chars[n] = (char)(((b & 0x3f) << 6) | (bytes[i++] & 0x3f));
+            } else if (b < -16 || i + 2 >= j) {
+                chars[n] = (char)(((b & 0xf) << 12) | ((bytes[i++] & 0x3f) << 6) | (bytes[i++] & 0x3f));
+            } else {
+                throw new LuaException("Unable to decode UTF-8 sequence");
             }
-
-            return new String(chars);
-        } catch (CharacterCodingException e) {
-            return new String(bytes, offset, length);
         }
+
+        return new String(chars);
     }
 
     /**

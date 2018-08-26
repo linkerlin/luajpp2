@@ -39,7 +39,7 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
     private static final String[] MIMETYPES = { "text/plain", "text/lua", "application/lua" };
     private static final String[] NAMES = { "lua", "luaj", };
 
-    private static final ThreadLocal<ScriptEngine> engines = new ThreadLocal<ScriptEngine>();
+    private static final ThreadLocal<ScriptEngine> engines = new ThreadLocal<>();
 
     private List<String> extensions;
     private List<String> mimeTypes;
@@ -94,7 +94,7 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public String getMethodCallSyntax(String obj, String m, String... args)  {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(obj + ":" + m + "(");
         int len = args.length;
         for (int i = 0; i < len; i++) {
@@ -114,7 +114,7 @@ public class LuaScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public String getProgram(String ... statements) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int len = statements.length;
         for (int i = 0; i < len; i++) {
             if (i > 0) {

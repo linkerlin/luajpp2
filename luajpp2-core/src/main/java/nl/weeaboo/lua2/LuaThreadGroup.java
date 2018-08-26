@@ -112,7 +112,7 @@ final class LuaThreadGroup implements Serializable {
             if (thread.isDead()) {
                 LOG.debug("Removing dead thread: {}", thread);
                 if (toRemove == null) {
-                    toRemove = new ArrayList<LuaThread>();
+                    toRemove = new ArrayList<>();
                 }
                 toRemove.add(thread);
             }
@@ -126,7 +126,7 @@ final class LuaThreadGroup implements Serializable {
     }
 
     private static <T> List<T> copy(List<T> list) {
-        return new ArrayList<T>(list);
+        return new ArrayList<>(list);
     }
 
 }

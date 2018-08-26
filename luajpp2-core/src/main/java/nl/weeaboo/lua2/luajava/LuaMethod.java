@@ -4,6 +4,8 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
@@ -77,7 +79,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         return CoerceJavaToLua.coerce(javaResult, method.getReturnType());
     }
 
-    protected JavaMethod findMethod(Varargs args) {
+    protected @Nullable JavaMethod findMethod(Varargs args) {
         JavaMethod[] methods = getMatchingJavaMethods();
         if (methods.length == 1) {
             return methods[0];
@@ -125,7 +127,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         }
 
         @Override
-        public Object readResolve() throws ObjectStreamException {
+        public @Nullable Object readResolve() throws ObjectStreamException {
             return classInfo.getMetatable().getMethod(name);
         }
     }

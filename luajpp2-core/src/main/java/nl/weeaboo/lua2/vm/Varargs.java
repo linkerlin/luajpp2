@@ -27,6 +27,8 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -693,7 +695,7 @@ public abstract class Varargs {
      * @param i the index of the argument to convert, 1 is the first argument
      * @return java Object value if argument i is a userdata, otherwise null
      */
-    public Object touserdata(int i) {
+    public @Nullable Object touserdata(int i) {
         return arg(i).touserdata();
     }
 
@@ -705,7 +707,7 @@ public abstract class Varargs {
      * @return java Object value if argument i is a userdata whose instance Class c or a subclass, otherwise
      *         null
      */
-    public <T> T touserdata(int i, Class<T> c) {
+    public @Nullable <T> T touserdata(int i, Class<T> c) {
         return arg(i).touserdata(c);
     }
 

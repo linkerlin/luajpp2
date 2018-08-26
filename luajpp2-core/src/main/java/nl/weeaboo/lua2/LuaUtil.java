@@ -142,7 +142,7 @@ public final class LuaUtil {
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (int level = 1; level <= DEFAULT_STACK_LIMIT; level++) {
             String line = DebugTrace.fileline(thread, level);
             if (line == null) {
@@ -189,9 +189,6 @@ public final class LuaUtil {
      * Returns an independent copy of a {@link Varargs}.
      */
     public static Varargs copyArgs(Varargs in) {
-        if (in == null) {
-            return null;
-        }
         final int inL = in.narg();
         if (inL == 0) {
             return NONE;

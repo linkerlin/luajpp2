@@ -29,6 +29,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
@@ -105,7 +107,7 @@ public class LuaUserdata extends LuaValue implements Serializable {
     }
 
     @Override
-    public <T> T touserdata(Class<T> c) {
+    public @Nullable <T> T touserdata(Class<T> c) {
         return c.isAssignableFrom(userdata.getClass()) ? c.cast(userdata) : null;
     }
 
@@ -189,8 +191,17 @@ public class LuaUserdata extends LuaValue implements Serializable {
         return val.raweq(this);
     }
 
+    /*
+     * Suppress ErrorProne:ReferenceEquality: we use a reference equality comparison as a fast path to avoid potentially
+     * more expensive checks
+     */
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public boolean raweq(LuaUserdata val) {
-        return this == val || (metatable == val.metatable && userdata.equals(val.userdata));
+        if (this == val) {
+            return true;
+        }
+        return (metatable == val.metatable || (metatable != null && metatable.equals(val.metatable)))
+                && userdata.equals(val.userdata);
     }
 }

@@ -986,6 +986,7 @@ public class UnaryBinaryOperatorsTest {
         Assert.assertEquals(FALSE, sd.lt(sd));
     }
 
+    @SuppressWarnings("ComplexBooleanConstant") // In this test, writing "3 < 4" is slightly more clear
     @Test
     public void testLt() {
         LuaValue ia = LuaValue.valueOf(3);
@@ -1006,6 +1007,7 @@ public class UnaryBinaryOperatorsTest {
         Assert.assertEquals(.25 < 3., da.lt_b(ia));
     }
 
+    @SuppressWarnings("ComplexBooleanConstant") // In this test, writing "3 < 4" is slightly more clear
     @Test
     public void testLtEq() {
         LuaValue ia = LuaValue.valueOf(3);
@@ -1026,6 +1028,7 @@ public class UnaryBinaryOperatorsTest {
         Assert.assertEquals(.25 <= 3., da.lteq_b(ia));
     }
 
+    @SuppressWarnings("ComplexBooleanConstant") // In this test, writing "3 < 4" is slightly more clear
     @Test
     public void testGt() {
         LuaValue ia = LuaValue.valueOf(3);
@@ -1046,6 +1049,7 @@ public class UnaryBinaryOperatorsTest {
         Assert.assertEquals(.25 > 3., da.gt_b(ia));
     }
 
+    @SuppressWarnings("ComplexBooleanConstant") // In this test, writing "3 < 4" is slightly more clear
     @Test
     public void testGtEq() {
         LuaValue ia = LuaValue.valueOf(3);
@@ -1066,6 +1070,7 @@ public class UnaryBinaryOperatorsTest {
         Assert.assertEquals(.25 >= 3., da.gteq_b(ia));
     }
 
+    @SuppressWarnings("ComplexBooleanConstant") // In this test, writing "3 < 4" is slightly more clear
     @Test
     public void testNotEq() {
         LuaValue ia = LuaValue.valueOf(3);

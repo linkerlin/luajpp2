@@ -701,22 +701,22 @@ public class TypeTest {
     @Test
     public void testOptInt() {
         Assert.assertEquals(33, somenil.optint(33));
-        throwsError(sometrue, "optint", int.class, new Integer(33));
-        throwsError(somefalse, "optint", int.class, new Integer(33));
+        throwsError(sometrue, "optint", int.class, Integer.valueOf(33));
+        throwsError(somefalse, "optint", int.class, Integer.valueOf(33));
         Assert.assertEquals(0, zero.optint(33));
         Assert.assertEquals(sampleint, intint.optint(33));
         Assert.assertEquals((int)samplelong, longdouble.optint(33));
         Assert.assertEquals((int)sampledouble, doubledouble.optint(33));
-        throwsError(somefunc, "optint", int.class, new Integer(33));
-        throwsError(someclosure, "optint", int.class, new Integer(33));
-        throwsError(stringstring, "optint", int.class, new Integer(33));
+        throwsError(somefunc, "optint", int.class, Integer.valueOf(33));
+        throwsError(someclosure, "optint", int.class, Integer.valueOf(33));
+        throwsError(stringstring, "optint", int.class, Integer.valueOf(33));
         Assert.assertEquals(sampleint, stringint.optint(33));
         Assert.assertEquals((int)samplelong, stringlong.optint(33));
         Assert.assertEquals((int)sampledouble, stringdouble.optint(33));
-        throwsError(thread, "optint", int.class, new Integer(33));
-        throwsError(table, "optint", int.class, new Integer(33));
-        throwsError(userdataobj, "optint", int.class, new Integer(33));
-        throwsError(userdatacls, "optint", int.class, new Integer(33));
+        throwsError(thread, "optint", int.class, Integer.valueOf(33));
+        throwsError(table, "optint", int.class, Integer.valueOf(33));
+        throwsError(userdataobj, "optint", int.class, Integer.valueOf(33));
+        throwsError(userdatacls, "optint", int.class, Integer.valueOf(33));
     }
 
     @Test
@@ -745,22 +745,22 @@ public class TypeTest {
     @Test
     public void testOptLong() {
         Assert.assertEquals(33L, somenil.optlong(33));
-        throwsError(sometrue, "optlong", long.class, new Long(33));
-        throwsError(somefalse, "optlong", long.class, new Long(33));
+        throwsError(sometrue, "optlong", long.class, Long.valueOf(33));
+        throwsError(somefalse, "optlong", long.class, Long.valueOf(33));
         Assert.assertEquals(0L, zero.optlong(33));
         Assert.assertEquals(sampleint, intint.optlong(33));
         Assert.assertEquals(samplelong, longdouble.optlong(33));
         Assert.assertEquals((long)sampledouble, doubledouble.optlong(33));
-        throwsError(somefunc, "optlong", long.class, new Long(33));
-        throwsError(someclosure, "optlong", long.class, new Long(33));
-        throwsError(stringstring, "optlong", long.class, new Long(33));
+        throwsError(somefunc, "optlong", long.class, Long.valueOf(33));
+        throwsError(someclosure, "optlong", long.class, Long.valueOf(33));
+        throwsError(stringstring, "optlong", long.class, Long.valueOf(33));
         Assert.assertEquals(sampleint, stringint.optlong(33));
         Assert.assertEquals(samplelong, stringlong.optlong(33));
         Assert.assertEquals((long)sampledouble, stringdouble.optlong(33));
-        throwsError(thread, "optlong", long.class, new Long(33));
-        throwsError(table, "optlong", long.class, new Long(33));
-        throwsError(userdataobj, "optlong", long.class, new Long(33));
-        throwsError(userdatacls, "optlong", long.class, new Long(33));
+        throwsError(thread, "optlong", long.class, Long.valueOf(33));
+        throwsError(table, "optlong", long.class, Long.valueOf(33));
+        throwsError(userdataobj, "optlong", long.class, Long.valueOf(33));
+        throwsError(userdatacls, "optlong", long.class, Long.valueOf(33));
     }
 
     @Test
