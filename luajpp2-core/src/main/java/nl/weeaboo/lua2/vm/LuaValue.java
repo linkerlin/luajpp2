@@ -468,7 +468,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} otherwise
      * @throws LuaException if was not a closure or nil or none.
      */
-    public @Nullable LuaClosure optclosure(LuaClosure defval) {
+    public LuaClosure optclosure(LuaClosure defval) {
         throw argerror("closure");
     }
 
@@ -496,7 +496,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} otherwise
      * @throws LuaException if was not a function or nil or none.
      */
-    public @Nullable LuaFunction optfunction(LuaFunction defval) {
+    public LuaFunction optfunction(LuaFunction defval) {
         throw argerror("function");
     }
 
@@ -525,7 +525,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #optdouble(double)
      * @see #optint(int)
      */
-    public @Nullable LuaInteger optinteger(LuaInteger defval) {
+    public LuaInteger optinteger(LuaInteger defval) {
         throw argerror("integer");
     }
 
@@ -555,7 +555,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see #optlong(long)
      * @see #optint(int)
      */
-    public @Nullable LuaNumber optnumber(LuaNumber defval) {
+    public LuaNumber optnumber(LuaNumber defval) {
         throw argerror("number");
     }
 
@@ -567,7 +567,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} if some other type
      * @throws LuaException if was not a string or number or nil or none.
      */
-    public @Nullable String optjstring(String defval) {
+    public String optjstring(String defval) {
         throw argerror("String");
     }
 
@@ -579,7 +579,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         none, throws {@link LuaException} if some other type
      * @throws LuaException if was not a string or number or nil or none.
      */
-    public @Nullable LuaString optstring(LuaString defval) {
+    public LuaString optstring(LuaString defval) {
         throw argerror("string");
     }
 
@@ -591,7 +591,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} if some other type
      * @throws LuaException if was not a table or nil or none.
      */
-    public @Nullable LuaTable opttable(LuaTable defval) {
+    public LuaTable opttable(LuaTable defval) {
         throw argerror("table");
     }
 
@@ -603,7 +603,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} if some other type
      * @throws LuaException if was not a thread or nil or none.
      */
-    public @Nullable LuaThread optthread(LuaThread defval) {
+    public LuaThread optthread(LuaThread defval) {
         throw argerror("thread");
     }
 
@@ -615,7 +615,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@link LuaException} if some other type
      * @throws LuaException if was not a userdata or nil or none.
      */
-    public @Nullable Object optuserdata(Object defval) {
+    public Object optuserdata(Object defval) {
         throw argerror("object");
     }
 
@@ -628,7 +628,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *         {@code c}, {@code defval} if nil or none, throws {@link LuaException} if some other type
      * @throws LuaException if was not a userdata whose instance is assignable to {@code c} or nil or none.
      */
-    public @Nullable <T> T optuserdata(Class<T> c, T defval) {
+    public <T> T optuserdata(Class<T> c, T defval) {
         throw argerror(c.getName());
     }
 

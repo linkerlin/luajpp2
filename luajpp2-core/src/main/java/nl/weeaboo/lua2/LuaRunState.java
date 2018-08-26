@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(LuaRunState.class);
 
-    private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<LuaRunState>();
+    private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<>();
 
     private final LuaTable globals = new LuaTable();
     private final LuaTable registry = new LuaTable();
@@ -38,7 +40,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
 
     private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
 
-    private transient LuaThread currentThread;
+    private transient @Nullable LuaThread currentThread;
     private transient int instructionCount;
 
     @SuppressWarnings("deprecation")
@@ -176,7 +178,11 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
      * Returns the currently running thread, or if no thread is running, the main thread.
      */
     public LuaThread getRunningThread() {
-        return (currentThread != null ? currentThread : mainThread);
+        LuaThread result = currentThread;
+        if (result == null) {
+            result = mainThread;
+        }
+        return result;
     }
 
     /**
@@ -245,7 +251,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     }
 
     @Override
-    public LuaResource findResource(String filename) {
+    public @Nullable LuaResource findResource(String filename) {
         return resourceFinder.findResource(filename);
     }
 

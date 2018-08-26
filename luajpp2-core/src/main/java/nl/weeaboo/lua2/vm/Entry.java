@@ -5,6 +5,8 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.Externalizable;
 
+import javax.annotation.Nullable;
+
 /**
  * Base class for regular entries.
  * <p>
@@ -90,12 +92,12 @@ abstract class Entry extends Varargs implements IStrongSlot, Externalizable {
     }
 
     @Override
-    public ISlot rest() {
+    public @Nullable ISlot rest() {
         return null;
     }
 
     @Override
-    public IStrongSlot find(LuaValue key) {
+    public @Nullable IStrongSlot find(LuaValue key) {
         return keyeq(key) ? this : null;
     }
 

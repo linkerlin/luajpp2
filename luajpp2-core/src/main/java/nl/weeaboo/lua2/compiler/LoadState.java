@@ -39,6 +39,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.internal.SharedByteAlloc;
 import nl.weeaboo.lua2.vm.LocVars;
@@ -198,11 +200,11 @@ public final class LoadState {
     }
 
     /**
-     * Load a lua strin gvalue from the input stream
+     * Loads a lua string value from the input stream.
      *
-     * @return the {@link LuaString} value laoded.
+     * @return the {@link LuaString} value loaded.
      **/
-    LuaString loadString() throws IOException {
+    private @Nullable LuaString loadString() throws IOException {
         int size = loadInt();
         if (size == 0) {
             return null;

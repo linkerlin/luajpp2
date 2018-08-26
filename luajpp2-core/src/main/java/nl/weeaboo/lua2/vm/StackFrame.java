@@ -9,6 +9,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
@@ -29,8 +31,8 @@ final class StackFrame implements Externalizable {
     int returnBase;    //Stack offset in parent to write return values to
     int returnCount;   //Number of return values to write in parent stack
 
-    LuaValue[] stack;
-    UpValue[] openups;
+    LuaValue[] stack = LuaConstants.NOVALS;
+    UpValue[] openups = UpValue.NOUPVALUES;
     Varargs v;
     int top;
     int pc;
@@ -100,7 +102,7 @@ final class StackFrame implements Externalizable {
 
         closeUpValues();
 
-        stack = null;
+        stack = LuaConstants.NOVALS;
     }
 
     public void closeUpValues() {
@@ -113,7 +115,7 @@ final class StackFrame implements Externalizable {
     }
 
     private void resetExecutionState(int minStackSize, int subFunctionCount) {
-        if (stack == null || stack.length != minStackSize) {
+        if (stack.length != minStackSize) {
             stack = new LuaValue[minStackSize];
         }
         Arrays.fill(stack, NIL);
@@ -133,7 +135,7 @@ final class StackFrame implements Externalizable {
         return parentCount + 1; //(parent != null ? parentCount + 1 : 1);
     }
 
-    public LuaFunction getCallstackFunction(int level) {
+    public @Nullable LuaFunction getCallstackFunction(int level) {
         StackFrame sf = this;
         while (--level >= 1) {
             sf = sf.parent;
@@ -144,7 +146,7 @@ final class StackFrame implements Externalizable {
         return sf.func;
     }
 
-    private static Prototype getPrototype(LuaFunction func) {
+    private static @Nullable Prototype getPrototype(LuaFunction func) {
         if (func.isclosure()) {
             return func.checkclosure().getPrototype();
         } else {

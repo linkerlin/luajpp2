@@ -42,7 +42,7 @@ public final class UpValue implements Externalizable {
     public static final UpValue[] NOUPVALUES = new UpValue[0];
 
     private LuaValue sealed; //Gets set when closed
-    private LuaValue[] array;
+    private LuaValue[] array = LuaConstants.NOVALS;
     private int index;
 
     /**
@@ -58,7 +58,7 @@ public final class UpValue implements Externalizable {
      * @param stack the stack
      * @param index the index on the stack for the upvalue
      */
-    public UpValue(LuaValue[] stack, int index) {
+    UpValue(LuaValue[] stack, int index) {
         this.array = stack;
         this.index = index;
     }
@@ -129,7 +129,7 @@ public final class UpValue implements Externalizable {
     public final void close() {
         if (sealed == null) {
             sealed = array[index];
-            array = null;
+            array = LuaConstants.NOVALS;
             index = -1;
         }
     }

@@ -34,6 +34,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -103,7 +105,7 @@ final class WeakTable implements IMetatable, Serializable {
     }
 
     @Override
-    public ISlot entry(LuaValue key, LuaValue value) {
+    public @Nullable ISlot entry(LuaValue key, LuaValue value) {
         value = value.strongvalue();
         if (value == null) {
             return null;
@@ -125,9 +127,9 @@ final class WeakTable implements IMetatable, Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        protected Object key;
-        protected Object value;
-        protected ISlot next;
+        protected @Nullable Object key;
+        protected @Nullable Object value;
+        protected @Nullable ISlot next;
 
         protected WeakSlot(Object key, Object value, ISlot next) {
             this.key = key;
@@ -141,7 +143,7 @@ final class WeakTable implements IMetatable, Serializable {
         public abstract ISlot set(LuaValue value);
 
         @Override
-        public ISlot set(IStrongSlot target, LuaValue value) {
+        public @Nullable ISlot set(IStrongSlot target, LuaValue value) {
             LuaValue key = strongkey();
             if (key != null && target.find(key) != null) {
                 return set(value);
@@ -156,7 +158,7 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         @Override
-        public IStrongSlot first() {
+        public @Nullable IStrongSlot first() {
             LuaValue key = strongkey();
             LuaValue value = strongvalue();
             if (key != null && value != null) {
@@ -169,7 +171,7 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         @Override
-        public IStrongSlot find(LuaValue key) {
+        public @Nullable IStrongSlot find(LuaValue key) {
             IStrongSlot first = first();
             return (first != null) ? first.find(key) : null;
         }
@@ -181,7 +183,7 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         @Override
-        public ISlot rest() {
+        public @Nullable ISlot rest() {
             return next;
         }
 
@@ -193,11 +195,13 @@ final class WeakTable implements IMetatable, Serializable {
 
         @Override
         public ISlot add(ISlot entry) {
-            next = (next != null) ? next.add(entry) : entry;
+            ISlot newNext = (next != null) ? next.add(entry) : entry;
+            next = newNext;
+
             if (strongkey() != null && strongvalue() != null) {
                 return this;
             } else {
-                return next;
+                return newNext;
             }
         }
 
@@ -228,11 +232,11 @@ final class WeakTable implements IMetatable, Serializable {
             }
         }
 
-        public LuaValue strongkey() {
+        public @Nullable LuaValue strongkey() {
             return (LuaValue)key;
         }
 
-        public LuaValue strongvalue() {
+        public @Nullable LuaValue strongvalue() {
             return (LuaValue)value;
         }
 
@@ -431,14 +435,12 @@ final class WeakTable implements IMetatable, Serializable {
 
         @Override
         public int type() {
-            illegal("type", "weak value");
-            return 0;
+            throw illegal("type", "weak value");
         }
 
         @Override
         public String typename() {
-            illegal("typename", "weak value");
-            return null;
+            throw illegal("typename", "weak value");
         }
 
         @Override
@@ -462,7 +464,7 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         protected final void setWeakValue(LuaValue val) {
-            ref = new WeakReference<LuaValue>(val);
+            ref = new WeakReference<>(val);
         }
     }
 
@@ -482,14 +484,14 @@ final class WeakTable implements IMetatable, Serializable {
         private WeakUserdata(LuaValue value) {
             super(value);
 
-            ob = new WeakReference<Object>(value.touserdata());
+            ob = new WeakReference<>(value.touserdata());
             mt = value.getmetatable();
         }
 
         private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
             in.defaultReadObject();
 
-            ob = new WeakReference<Object>(in.readObject());
+            ob = new WeakReference<>(in.readObject());
         }
 
         private void writeObject(ObjectOutputStream out) throws IOException {
@@ -499,7 +501,7 @@ final class WeakTable implements IMetatable, Serializable {
         }
 
         @Override
-        public LuaValue strongvalue() {
+        public @Nullable LuaValue strongvalue() {
             LuaValue u = getWeakValue();
             if (u != null) {
                 return u;

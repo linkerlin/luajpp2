@@ -24,6 +24,8 @@ package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -61,7 +63,7 @@ public final class Buffer implements Serializable {
     private int offset;
 
     /** Value of this buffer, when not represented in bytes */
-    private LuaValue value;
+    private @Nullable LuaValue value;
 
     /**
      * Create buffer with default capacity (64)
@@ -99,7 +101,11 @@ public final class Buffer implements Serializable {
      * @return value as a {@link LuaValue}, converting as necessary
      */
     public LuaValue value() {
-        return value != null ? value : this.tostring();
+        LuaValue result = value;
+        if (result == null) {
+            result = tostring();
+        }
+        return result;
     }
 
     /**

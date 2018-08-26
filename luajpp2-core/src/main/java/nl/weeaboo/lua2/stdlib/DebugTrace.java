@@ -5,6 +5,8 @@ import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaConstants;
@@ -64,7 +66,7 @@ public final class DebugTrace {
 
         DebugState ds = DebugLib.getDebugState(thread);
 
-        List<StackTraceElement> out = new ArrayList<StackTraceElement>();
+        List<StackTraceElement> out = new ArrayList<>();
         for (int level = 1; level <= count; level++) {
             DebugInfo di = ds.getDebugInfo(levelOffset + level);
             if (di == null) {
@@ -81,7 +83,7 @@ public final class DebugTrace {
      * @return String identifying the file and line of the nearest lua closure, or the function name of the
      *         Java call if no closure is being called.
      */
-    public static String fileline() {
+    public static @Nullable String fileline() {
         LuaThread running = LuaThread.getRunning();
         DebugState ds = DebugLib.getDebugState(running);
         int limit = ds.debugCalls;
@@ -97,7 +99,7 @@ public final class DebugTrace {
     /**
      * @see #fileline(LuaThread, int)
      */
-    public static String fileline(int level) {
+    public static @Nullable String fileline(int level) {
         return fileline(LuaThread.getRunning(), level);
     }
 
@@ -107,7 +109,7 @@ public final class DebugTrace {
      * @param level 1-based index of level to get
      * @return String containing file and line info if available
      */
-    public static String fileline(LuaThread running, int level) {
+    public static @Nullable String fileline(LuaThread running, int level) {
         DebugState ds = DebugLib.getDebugState(running);
         DebugInfo di = ds.getDebugInfo(level);
 
@@ -126,7 +128,7 @@ public final class DebugTrace {
     /**
      * @return StrValue[] { name, namewhat } if found, null if not
      */
-    public static LuaString[] getobjname(LuaValue value) {
+    public static @Nullable LuaString[] getobjname(LuaValue value) {
         LuaThread thread = LuaThread.getRunning();
         DebugState ds = DebugLib.getDebugState(thread);
         if (ds == null) {
@@ -160,7 +162,7 @@ public final class DebugTrace {
     /**
      * @return StrValue[] { name, namewhat } if found, null if not
      */
-    static LuaString[] getobjname(DebugInfo di, int stackpos) {
+    static @Nullable LuaString[] getobjname(DebugInfo di, int stackpos) {
         if (di.closure == null || stackpos < 0) {
             return null; // Not a Lua function or stack pos invalid
         }

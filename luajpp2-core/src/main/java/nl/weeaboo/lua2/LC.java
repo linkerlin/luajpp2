@@ -44,8 +44,8 @@ final class LC {
     private boolean processing;
     private boolean multiwrite;
 
-    private final List<String> args = new ArrayList<String>();
-    private final List<Exception> errors = new ArrayList<Exception>();
+    private final List<String> args = new ArrayList<>();
+    private final List<Exception> errors = new ArrayList<>();
 
     private LC() {
         reset();

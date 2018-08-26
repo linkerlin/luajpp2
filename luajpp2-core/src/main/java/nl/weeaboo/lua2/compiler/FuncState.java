@@ -166,7 +166,7 @@ final class FuncState {
         int i;
         for (i = 0; i < f.nups; i++) {
             if (upvalues[i].k == v.k && upvalues[i].info == v.u.s.info) {
-                luaAssert(f.upvalues[i] == name);
+                luaAssert(name.raweq(f.upvalues[i]));
                 return i;
             }
         }
@@ -186,7 +186,7 @@ final class FuncState {
     int searchvar(LuaString n) {
         int i;
         for (i = nactvar - 1; i >= 0; i--) {
-            if (n == getlocvar(i).varname) {
+            if (n.raweq(getlocvar(i).varname)) {
                 return i;
             }
         }

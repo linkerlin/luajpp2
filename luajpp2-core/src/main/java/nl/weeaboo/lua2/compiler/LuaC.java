@@ -64,7 +64,7 @@ public final class LuaC extends Lua implements ILuaCompiler {
     static final int LUAI_MAXUPVALUES = 60;
     static final int LUAI_MAXVARS = 200;
 
-    private final Map<LuaString, LuaString> strings = new HashMap<LuaString, LuaString>();
+    private final Map<LuaString, LuaString> strings = new HashMap<>();
 
     int nCcalls;
 

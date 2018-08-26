@@ -2,6 +2,8 @@ package nl.weeaboo.lua2.vm;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a slot in the hash table.
  */
@@ -11,10 +13,10 @@ interface ISlot extends Serializable {
     int keyindex(int hashMask);
 
     /** Return first Entry, if still present, or null. */
-    IStrongSlot first();
+    @Nullable IStrongSlot first();
 
     /** Compare given key with first()'s key; return first() if equal. */
-    IStrongSlot find(LuaValue key);
+    @Nullable IStrongSlot find(LuaValue key);
 
     /**
      * Compare given key with first()'s key; return true if equal. May return true for keys no longer
@@ -23,7 +25,7 @@ interface ISlot extends Serializable {
     boolean keyeq(LuaValue key);
 
     /** Return rest of elements */
-    ISlot rest();
+    @Nullable ISlot rest();
 
     /**
      * Return first entry's key, iff it is an integer between 1 and max, inclusive, or zero otherwise.
@@ -34,7 +36,7 @@ interface ISlot extends Serializable {
      * Set the value of this Slot's first Entry, if possible, or return a new Slot whose first entry has
      * the given value.
      */
-    ISlot set(IStrongSlot target, LuaValue value);
+    @Nullable ISlot set(IStrongSlot target, LuaValue value);
 
     /**
      * Link the given new entry to this slot.

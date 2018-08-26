@@ -26,6 +26,8 @@ import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +52,8 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     private int sleep;
 
-    StackFrame callstack;
-    public Object debugState;
+    @Nullable StackFrame callstack;
+    public @Nullable Object debugState;
 
     /**
      * Do not use. Required for efficient serialization.
@@ -247,7 +249,7 @@ public final class LuaThread extends LuaValue implements Serializable {
      * Returns the function at the requested call stack offset.
      * @return The function, or {@code null} if not found.
      */
-    public LuaFunction getCallstackFunction(int level) {
+    public @Nullable LuaFunction getCallstackFunction(int level) {
         if (callstack == null) {
             return null;
         }

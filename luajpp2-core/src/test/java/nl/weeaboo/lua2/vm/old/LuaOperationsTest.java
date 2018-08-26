@@ -154,9 +154,7 @@ public class LuaOperationsTest {
         try {
             return LuaC.compile(script, name);
         } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.toString());
-            return null;
+            throw new AssertionError(e);
         }
     }
 
