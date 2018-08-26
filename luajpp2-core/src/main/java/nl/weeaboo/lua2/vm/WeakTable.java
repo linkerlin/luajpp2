@@ -62,23 +62,23 @@ final class WeakTable implements IMetatable, Serializable {
     /**
      * Construct a table with weak keys, weak values, or both.
      *
-     * @param weakkeys true to let the table have weak keys
-     * @param weakvalues true to let the table have weak values
+     * @param weakKeys true to let the table have weak keys
+     * @param weakValues true to let the table have weak values
      */
-    WeakTable(boolean weakkeys, boolean weakvalues, LuaValue backing) {
-        this.weakKeys = weakkeys;
-        this.weakValues = weakvalues;
+    WeakTable(boolean weakKeys, boolean weakValues, LuaValue backing) {
+        this.weakKeys = weakKeys;
+        this.weakValues = weakValues;
         this.backing = backing;
     }
 
 
-    public static LuaTable make(boolean weakkeys, boolean weakvalues) {
+    public static LuaTable make(boolean weakKeys, boolean weakValues) {
         LuaString mode;
-        if (weakkeys && weakvalues) {
+        if (weakKeys && weakValues) {
             mode = LuaString.valueOf("kv");
-        } else if (weakkeys) {
+        } else if (weakKeys) {
             mode = LuaString.valueOf("k");
-        } else if (weakvalues) {
+        } else if (weakValues) {
             mode = LuaString.valueOf("v");
         } else {
             return LuaTable.tableOf();

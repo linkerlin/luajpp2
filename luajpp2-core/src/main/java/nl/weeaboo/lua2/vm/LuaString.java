@@ -34,8 +34,6 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -70,8 +68,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  */
 @LuaSerializable
 public final class LuaString extends LuaValue implements Externalizable {
-
-    private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
 
     private static final int MAX_STRING_LENGTH = 64 << 20; // 64 MiB
     private static final int MAX_TO_STRING_LENGTH = 1000;
