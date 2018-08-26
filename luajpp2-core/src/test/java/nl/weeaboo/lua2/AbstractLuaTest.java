@@ -38,7 +38,7 @@ public abstract class AbstractLuaTest {
                 in.close();
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            throw new AssertionError(ioe);
         }
     }
 

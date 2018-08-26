@@ -91,6 +91,11 @@ public class TypeTest {
     public static final class MyData {
         public MyData() {
         }
+
+        @Override
+        public String toString() {
+            return "MyData";
+        }
     }
 
     @Before

@@ -55,7 +55,7 @@ public abstract class WeakTableTest extends TableTest {
             rt.gc();
             Thread.sleep(20);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AssertionError(e);
         }
         rt.gc();
     }
