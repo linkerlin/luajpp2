@@ -326,7 +326,7 @@ public class ObjectSerializer extends ObjectOutputStream {
 
         @Override
         public String toString() {
-            return String.format("%d", count);
+            return Integer.toString(count);
         }
 
     }
