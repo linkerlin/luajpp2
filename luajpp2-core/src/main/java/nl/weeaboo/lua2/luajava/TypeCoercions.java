@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaDouble;
 import nl.weeaboo.lua2.vm.LuaInteger;
+import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -29,6 +30,14 @@ final class TypeCoercions {
     }
 
     private void initDefaultJavaToLua() {
+        IJavaToLua nullCoercion = new IJavaToLua() {
+            @Override
+            public LuaValue toLua(Object javaValue) {
+                return LuaNil.NIL;
+            }
+        };
+        putJavaToLua(Void.TYPE, nullCoercion);
+
         IJavaToLua boolCoercion = new IJavaToLua() {
             @Override
             public LuaValue toLua(Object javaValue) {
