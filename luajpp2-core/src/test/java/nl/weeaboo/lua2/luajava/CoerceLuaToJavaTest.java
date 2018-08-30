@@ -1,5 +1,7 @@
 package nl.weeaboo.lua2.luajava;
 
+import javax.annotation.Nullable;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,11 +22,11 @@ public class CoerceLuaToJavaTest {
         Assert.assertEquals(true, coerce(LuaBoolean.TRUE, Object.class));
         Assert.assertEquals("ABC", coerce(LuaString.valueOf("ABC"), Object.class));
 
-        final Double obj = new Double(12345.6789);
+        final Double obj = Double.valueOf(12345.6789);
         Assert.assertSame(obj, coerce(LuaUserdata.userdataOf(obj), Object.class));
     }
 
-    private Object coerce(LuaValue luaValue, Class<Object> targetType) {
+    private @Nullable Object coerce(LuaValue luaValue, Class<Object> targetType) {
         return CoerceLuaToJava.coerceArg(luaValue, targetType);
     }
 

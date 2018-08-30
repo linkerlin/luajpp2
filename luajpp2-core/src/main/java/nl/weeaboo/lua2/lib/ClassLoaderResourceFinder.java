@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 @LuaSerializable
@@ -14,7 +16,7 @@ public class ClassLoaderResourceFinder implements ILuaResourceFinder, Serializab
     private static final long serialVersionUID = 1L;
 
     @Override
-    public LuaResource findResource(String filename) {
+    public @Nullable LuaResource findResource(String filename) {
         if (!filename.startsWith("/")) {
             filename = "/" + filename;
         }

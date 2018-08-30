@@ -42,6 +42,8 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.DelayedReader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.io.LuaSerializer;
@@ -111,7 +113,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     protected int hashEntries;
 
     /** metatable for this table, or null. */
-    protected IMetatable metatable;
+    protected @Nullable IMetatable metatable;
 
     /** Construct empty table. */
     public LuaTable() {
@@ -418,7 +420,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     @Override
     public void set(LuaValue key, LuaValue value) {
         if (!key.isvalidkey() && !metatag(META_NEWINDEX).isfunction()) {
-            typerror("table index");
+            throw typerror("table index");
         }
         if (metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
             rawset(key, value);
@@ -955,7 +957,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     }
 
     @Override
-    public ISlot entry(LuaValue key, LuaValue value) {
+    public @Nullable ISlot entry(LuaValue key, LuaValue value) {
         if (metatable != null) {
             return metatable.entry(key, value);
         }
@@ -1090,7 +1092,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
      * Returns a snapshot of the keys in the table.
      */
     public List<LuaValue> keys() {
-        List<LuaValue> result = new ArrayList<LuaValue>();
+        List<LuaValue> result = new ArrayList<>();
 
         LuaValue k = NIL;
         while (true) {

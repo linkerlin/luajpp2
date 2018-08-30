@@ -105,7 +105,7 @@ public class LuaNil extends LuaValue implements IReadResolveSerializable {
 
     @Override
     public LuaValue checknotnil() {
-        return argerror("value");
+        throw argerror("value");
     }
 
     // optional argument conversions - nil always falls back to default value

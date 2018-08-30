@@ -15,6 +15,8 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,7 +293,7 @@ public final class DebugLib extends LuaModule {
         return NIL;
     }
 
-    private static LuaString findupvalue(LuaClosure c, int up) {
+    private static @Nullable LuaString findupvalue(LuaClosure c, int up) {
         if (up > 0 && up <= c.getUpValueCount()) {
             Prototype p = c.getPrototype();
             if (p.upvalues != null && up <= p.upvalues.length) {
@@ -543,7 +545,7 @@ public final class DebugLib extends LuaModule {
         }
     }
 
-    static DebugState getDebugState(LuaThread thread) {
+    static @Nullable DebugState getDebugState(LuaThread thread) {
         if (thread.debugState == null) {
             thread.debugState = new DebugState(thread);
         }

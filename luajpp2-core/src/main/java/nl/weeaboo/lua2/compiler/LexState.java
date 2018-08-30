@@ -24,9 +24,10 @@ package nl.weeaboo.lua2.compiler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.LocVars;
@@ -38,22 +39,14 @@ import nl.weeaboo.lua2.vm.Prototype;
 
 final class LexState {
 
-    private static final String RESERVED_LOCAL_VAR_FOR_CONTROL = "(for control)";
-    private static final String RESERVED_LOCAL_VAR_FOR_STATE = "(for state)";
-    private static final String RESERVED_LOCAL_VAR_FOR_GENERATOR = "(for generator)";
-    private static final String RESERVED_LOCAL_VAR_FOR_STEP = "(for step)";
-    private static final String RESERVED_LOCAL_VAR_FOR_LIMIT = "(for limit)";
-    private static final String RESERVED_LOCAL_VAR_FOR_INDEX = "(for index)";
-
-    // keywords array
-    private static final String[] RESERVED_LOCAL_VAR_KEYWORDS = {
-        RESERVED_LOCAL_VAR_FOR_CONTROL,
-        RESERVED_LOCAL_VAR_FOR_STATE,
-        RESERVED_LOCAL_VAR_FOR_GENERATOR,
-        RESERVED_LOCAL_VAR_FOR_STEP,
-        RESERVED_LOCAL_VAR_FOR_LIMIT,
-        RESERVED_LOCAL_VAR_FOR_INDEX
-    };
+    private static final LuaString STR_ARG = LuaString.valueOf("arg");
+    private static final LuaString STR_SELF = LuaString.valueOf("self");
+    private static final LuaString STR_FOR_CONTROL = LuaString.valueOf("(for control)");
+    private static final LuaString STR_FOR_STATE = LuaString.valueOf("(for state)");
+    private static final LuaString STR_FOR_GENERATOR = LuaString.valueOf("(for generator)");
+    private static final LuaString STR_FOR_STEP = LuaString.valueOf("(for step)");
+    private static final LuaString STR_FOR_LIMIT = LuaString.valueOf("(for limit)");
+    private static final LuaString STR_FOR_INDEX = LuaString.valueOf("(for index)");
 
     private static final int EOZ = (-1);
     private static final int MAXSRC = 80;
@@ -76,15 +69,6 @@ final class LexState {
     /** 1 for compatibility, 2 for old behavior. */
     private static int LUA_COMPAT_LSTR = 1;
     private static final boolean LUA_COMPAT_VARARG = true;
-
-    public static boolean isReservedKeyword(String varName) {
-        for (String s : RESERVED_LOCAL_VAR_KEYWORDS) {
-            if (varName.equals(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /*
      * * Marks the end of a patch list. It is an invalid value both as an
@@ -171,7 +155,7 @@ final class LexState {
     int lastline; /* line of last token `consumed' */
     final Token t = new Token(); /* current token */
     final Token lookahead = new Token(); /* look ahead token */
-    FuncState fs; /* `FuncState' is private to the parser */
+    @Nullable FuncState fs; /* `FuncState' is private to the parser */
     LuaC luaC;
     InputStream z; /* input stream */
     byte[] buff; /* buffer for tokens */
@@ -221,7 +205,7 @@ final class LexState {
     static final int FIRST_RESERVED = TK_AND;
     static final int NUM_RESERVED = TK_WHILE + 1 - FIRST_RESERVED;
 
-    static final Map<LuaString, Integer> RESERVED = new HashMap<LuaString, Integer>();
+    static final Map<LuaString, Integer> RESERVED = new HashMap<>();
 
     static {
         for (int i = 0; i < NUM_RESERVED; i++) {
@@ -295,7 +279,7 @@ final class LexState {
         case TK_NAME:
         case TK_STRING:
         case TK_NUMBER:
-            return new String(buff, 0, nbuff);
+            return LuaString.decodeAsUtf8(buff, 0, nbuff);
         default:
             return token2str(token);
         }
@@ -332,17 +316,6 @@ final class LexState {
 
     void syntaxerror(String msg) {
         lexerror(msg, t.token);
-    }
-
-    // only called by new_localvarliteral() for var names.
-    LuaString newstring(String s) {
-        byte[] bytes;
-        try {
-            bytes = s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            bytes = s.getBytes();
-        }
-        return luaC.newTString(bytes, 0, bytes.length);
     }
 
     LuaString newstring(byte[] bytes, int offset, int len) {
@@ -452,7 +425,7 @@ final class LexState {
         }
         save('\0');
         buffreplace((byte) '.', decpoint); /* follow locale for decimal point */
-        String str = new String(buff, 0, nbuff);
+        String str = LuaString.decodeAsUtf8(buff, 0, nbuff);
         // if (!str2d(str, seminfo)) /* format error? */
         // trydecpoint(str, seminfo); /* try to update decimal point separator
         // */
@@ -892,16 +865,6 @@ final class LexState {
         return fs.nlocvars++;
     }
 
-    //
-    // #define new_localvarliteral(ls,v,n) \
-    // this.new_localvar(luaX_newstring(ls, "" v, (sizeof(v)/sizeof(char))-1),
-    // n)
-    //
-    void new_localvarliteral(String v, int n) {
-        LuaString ts = newstring(v);
-        new_localvar(ts, n);
-    }
-
     void new_localvar(LuaString name, int n) {
         FuncState fs = this.fs;
         fs.checklimit(fs.nactvar + n + 1, LuaC.LUAI_MAXVARS, "local variables");
@@ -1010,7 +973,7 @@ final class LexState {
         fs.bl = null;
         f.maxstacksize = 2; /* registers 0/1 are always valid */
         // fs.h = new LTable();
-        fs.htable = new HashMap<LuaValue, Integer>();
+        fs.htable = new HashMap<>();
     }
 
     void close_func() {
@@ -1182,7 +1145,7 @@ final class LexState {
                     this.next();
                     if (LUA_COMPAT_VARARG) {
                         /* use `arg' as default name */
-                        this.new_localvarliteral("arg", nparams++);
+                        this.new_localvar(STR_ARG, nparams++);
                         f.isVararg = Lua.VARARG_HASARG | Lua.VARARG_NEEDSARG;
                     }
                     f.isVararg |= Lua.VARARG_ISVARARG;
@@ -1205,7 +1168,7 @@ final class LexState {
         newFS.f.linedefined = line;
         this.checknext('(');
         if (needself) {
-            new_localvarliteral("self", 0);
+            new_localvar(STR_SELF, 0);
             adjustlocalvars(1);
         }
         this.parlist();
@@ -1552,7 +1515,7 @@ final class LexState {
      * assignment
      */
     static class LhsAssign {
-        LhsAssign prev;
+        @Nullable LhsAssign prev;
         /* variable (global, local, upvalue, or indexed) */
         ExpDesc v = new ExpDesc();
     }
@@ -1738,9 +1701,9 @@ final class LexState {
         FuncState fs = this.fs;
         final int base = fs.freereg;
 
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_INDEX, 0);
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_LIMIT, 1);
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_STEP, 2);
+        this.new_localvar(STR_FOR_INDEX, 0);
+        this.new_localvar(STR_FOR_LIMIT, 1);
+        this.new_localvar(STR_FOR_STEP, 2);
         this.new_localvar(varname, 3);
         this.checknext('=');
         this.exp1(); /* initial value */
@@ -1761,9 +1724,9 @@ final class LexState {
         int nvars = 0;
         final int base = fs.freereg;
         /* create control variables */
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_GENERATOR, nvars++);
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_STATE, nvars++);
-        this.new_localvarliteral(RESERVED_LOCAL_VAR_FOR_CONTROL, nvars++);
+        this.new_localvar(STR_FOR_GENERATOR, nvars++);
+        this.new_localvar(STR_FOR_STATE, nvars++);
+        this.new_localvar(STR_FOR_CONTROL, nvars++);
         /* create declared variables */
         this.new_localvar(indexname, nvars++);
         while (this.testnext(',')) {

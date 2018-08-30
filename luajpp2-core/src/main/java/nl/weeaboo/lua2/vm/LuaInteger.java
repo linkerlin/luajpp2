@@ -501,8 +501,7 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
     // string comparison
     @Override
     public int strcmp(LuaString rhs) {
-        typerror("attempt to compare number with string");
-        return 0;
+        throw typerror("attempt to compare number with string");
     }
 
     @Override

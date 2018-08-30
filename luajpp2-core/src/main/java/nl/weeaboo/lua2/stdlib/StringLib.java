@@ -9,6 +9,7 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
@@ -87,7 +88,7 @@ public final class StringLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs lower(Varargs args) {
-        return valueOf(args.checkjstring(1).toLowerCase());
+        return valueOf(args.checkjstring(1).toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -99,7 +100,7 @@ public final class StringLib extends LuaModule {
      */
     @LuaBoundFunction
     public Varargs upper(Varargs args) {
-        return valueOf(args.checkjstring(1).toUpperCase());
+        return valueOf(args.checkjstring(1).toUpperCase(Locale.ROOT));
     }
 
     /**

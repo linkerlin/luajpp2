@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 
 /**
@@ -108,7 +110,7 @@ public final class Prototype implements Externalizable {
      * @param pc the program counter
      * @return the name, or null if not found
      */
-    public LuaString getlocalname(int number, int pc) {
+    public @Nullable LuaString getlocalname(int number, int pc) {
         int i;
         for (i = 0; i < locvars.length && locvars[i].startpc <= pc; i++) {
             if (pc < locvars[i].endpc) { /* is variable active? */

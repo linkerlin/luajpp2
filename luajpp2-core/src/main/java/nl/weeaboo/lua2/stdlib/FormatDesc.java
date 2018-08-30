@@ -112,7 +112,7 @@ final class FormatDesc implements Serializable {
             }
             digits = Long.toString(number, radix);
             if (conversion == 'X') {
-                digits = digits.toUpperCase();
+                digits = digits.toUpperCase(Locale.ROOT);
             }
         }
 

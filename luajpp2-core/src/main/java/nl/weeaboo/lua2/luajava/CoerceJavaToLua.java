@@ -2,6 +2,8 @@ package nl.weeaboo.lua2.luajava;
 
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -41,7 +43,7 @@ public final class CoerceJavaToLua {
      *
      * @see #coerce(Object, Class)
      */
-    public static LuaValue coerce(Object obj) {
+    public static LuaValue coerce(@Nullable Object obj) {
         if (obj == null) {
             return NIL;
         }
@@ -56,7 +58,7 @@ public final class CoerceJavaToLua {
      *        interface you'd want Lua to only have access to the methods in that interface and not also all
      *        methods available in whatever the runtime type of the returned value is.
      */
-    public static LuaValue coerce(Object obj, Class<?> declaredType) {
+    public static LuaValue coerce(@Nullable Object obj, Class<?> declaredType) {
         if (obj == null) {
             return NIL;
         }

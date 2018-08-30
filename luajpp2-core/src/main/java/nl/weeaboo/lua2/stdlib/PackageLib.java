@@ -10,6 +10,8 @@ import static nl.weeaboo.lua2.vm.LuaValue.tableOf;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
@@ -128,7 +130,7 @@ public final class PackageLib extends LuaModule {
 
         /* else must load it; iterate over available loaders */
         LuaTable tbl = packageTable.get(S_LOADERS).checktable();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         LuaValue chunk;
         int i = 1;
         do {
@@ -231,7 +233,7 @@ public final class PackageLib extends LuaModule {
      * @param fname the name to look up or create, such as "abc.def.ghi"
      * @return the table for that name, possible a new one, or null if a non-table has that name already.
      */
-    private static final LuaValue findtable(LuaValue table, LuaString fname) {
+    private static final @Nullable LuaValue findtable(LuaValue table, LuaString fname) {
         int b;
         int e = -1;
         do {
@@ -309,7 +311,7 @@ public final class PackageLib extends LuaModule {
             // check the path elements
             int e = -1;
             int n = path.length();
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             name = name.replace('.', '/');
             while (e < n) {
 

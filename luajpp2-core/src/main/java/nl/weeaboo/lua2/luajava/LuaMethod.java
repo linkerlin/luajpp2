@@ -4,6 +4,8 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
@@ -37,49 +39,37 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
 
     @Override
     public LuaValue call() {
-        return error("Method cannot be called without instance");
+        throw error("Method cannot be called without instance");
     }
 
     @Override
     public Varargs invoke(Varargs args) {
-        return invokeMethod(args.checkuserdata(1), args.subargs(2));
-    }
+        Object instance = args.checkuserdata(1);
+        Varargs methodArgs = args.subargs(2);
 
-    private LuaValue invokeMethod(Object instance, Varargs args) {
         try {
-            JavaMethod method = findMethod(args);
+            JavaMethod method = findMethod(methodArgs);
             if (method == null) {
-                throw new NoSuchMethodException(String.format(
-                        "Method %s with the specified parameter types doesn't exist",
-                        methodName));
+                throw new NoSuchMethodException();
             }
 
-            return invokeMethod(method, instance, args);
+            return method.luaInvoke(instance, methodArgs);
         } catch (InvocationTargetException ite) {
-            Throwable cause = ite.getCause();
-            String msg = "Error in invoked Java method: " + methodName + "(" + args + ")";
-            throw LuaException.wrap(msg, cause);
+            throw invokeError(args, ite.getCause());
         } catch (Exception e) {
-            throw LuaException.wrap("Error invoking Java method: " + methodName + "(" + args + ")", e);
+            throw invokeError(args, e);
         }
     }
 
-    private LuaValue invokeMethod(JavaMethod method, Object instance, Varargs args)
-        throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-
-        List<Class<?>> paramTypes = method.getParamTypes();
-        Object[] javaArgs = new Object[paramTypes.size()];
-        CoerceLuaToJava.coerceArgs(javaArgs, args, paramTypes);
-
-        Object javaResult = method.invoke(instance, javaArgs);
-
-        // Only allow access to declared type (prevents accidental use of nondeclared interfaces)
-        return CoerceJavaToLua.coerce(javaResult, method.getReturnType());
+    private LuaException invokeError(Varargs args, Throwable exception) {
+        String msg = "Error in invoked Java method: " + methodName + "(" + args + ")";
+        throw LuaException.wrap(msg, exception);
     }
 
-    protected JavaMethod findMethod(Varargs args) {
+    protected @Nullable JavaMethod findMethod(Varargs args) {
         JavaMethod[] methods = getMatchingJavaMethods();
         if (methods.length == 1) {
+            // Fast path: No need to score alternatives if there's only one method
             return methods[0];
         }
 
@@ -125,7 +115,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         }
 
         @Override
-        public Object readResolve() throws ObjectStreamException {
+        public @Nullable Object readResolve() throws ObjectStreamException {
             return classInfo.getMetatable().getMethod(name);
         }
     }

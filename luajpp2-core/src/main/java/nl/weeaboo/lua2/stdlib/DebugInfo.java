@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -27,7 +30,7 @@ final class DebugInfo implements Externalizable {
 
     // --- Uses manual serialization, don't add variables ---
     LuaValue func;
-    LuaClosure closure;
+    @Nullable LuaClosure closure;
     LuaValue[] stack;
     Varargs varargs;
     Varargs extras;
@@ -79,12 +82,12 @@ final class DebugInfo implements Externalizable {
     void clear() {
         func = NIL;
         closure = null;
-        stack = null;
-        varargs = extras = null;
+        stack = LuaConstants.NOVALS;
+        varargs = extras = LuaConstants.NONE;
         pc = top = 0;
     }
 
-    public LuaString[] getfunckind() {
+    public @Nullable LuaString[] getfunckind() {
         return DebugTrace.getobjname(this, getStackPos());
     }
 
@@ -101,7 +104,7 @@ final class DebugInfo implements Externalizable {
 
     public String source() {
         if (closure == null) {
-            return (func == null || func.isnil() ? "???" : func.tojstring());
+            return func.isnil() ? "???" : func.tojstring();
         }
         String s = closure.getPrototype().source.tojstring();
         return (s.startsWith("@") || s.startsWith("=") ? s.substring(1) : s);
@@ -127,7 +130,7 @@ final class DebugInfo implements Externalizable {
         return "function " + kind[0].tojstring();
     }
 
-    public LuaString getlocalname(int index) {
+    public @Nullable LuaString getlocalname(int index) {
         if (closure == null) {
             return null;
         }

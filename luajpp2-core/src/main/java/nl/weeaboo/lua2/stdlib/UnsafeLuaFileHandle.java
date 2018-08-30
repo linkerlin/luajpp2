@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +20,16 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(UnsafeLuaFileHandle.class);
 
-    private static final Set<String> openFiles = new CopyOnWriteArraySet<String>();
+    private static final Set<String> openFiles = new CopyOnWriteArraySet<>();
 
     private final String fileName;
     private final FileOpenMode mode;
 
     private FileBufferMode bufferMode = FileBufferMode.NO;
-    private transient ByteBuffer buffer; // Must have a backing array
+    private transient @Nullable ByteBuffer buffer; // Must have a backing array
 
     // Mark file as transient so it 'auto-closes' during serialization
-    private transient RandomAccessFile file;
+    private transient @Nullable RandomAccessFile file;
 
     public UnsafeLuaFileHandle(LuaTable fileMethods, String fileName, RandomAccessFile file, FileOpenMode mode) {
         super(fileMethods);

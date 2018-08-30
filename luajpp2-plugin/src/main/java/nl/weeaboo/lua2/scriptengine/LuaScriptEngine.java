@@ -36,6 +36,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
@@ -201,7 +202,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
                         @Override
                         protected LuaFunction newFunctionInstance() throws ScriptException {
                             try {
-                                return (LuaFunction) c.newInstance();
+                                return (LuaFunction)c.getConstructor().newInstance();
                             } catch (Exception e) {
                                 throw new ScriptException("instantiation failed: " + e.toString());
                             }
@@ -282,7 +283,7 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             }
         }
 
-        private Object toJava(LuaValue v) {
+        private @Nullable Object toJava(LuaValue v) {
             switch (v.type()) {
             case TNIL:
                 return null;
@@ -291,16 +292,20 @@ public class LuaScriptEngine implements ScriptEngine, Compilable {
             case TUSERDATA:
                 return v.checkuserdata(Object.class);
             case TNUMBER:
-                return v.isinttype() ? (Object) new Integer(v.toint()) : (Object) new Double(v.todouble());
+                if (v.isinttype()) {
+                    return Integer.valueOf(v.toint());
+                } else {
+                    return Double.valueOf(v.todouble());
+                }
             default:
                 return v;
             }
         }
     }
 
-    // ------ convert char stream to byte stream for lua compiler -----
-
-    private final class Utf8Encoder extends InputStream {
+    /** Converts char stream to byte stream for lua compiler */
+    @SuppressWarnings("InputStreamSlowMultibyteRead")
+    private static final class Utf8Encoder extends InputStream {
         private final Reader r;
         private final int[] buf = new int[2];
         private int n;

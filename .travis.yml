@@ -1,18 +1,19 @@
 
-language: java
-
-# Java 6 must be installed explicitly: https://github.com/travis-ci/travis-ci/issues/8199
-addons:
-  apt:
-    packages:
-      - openjdk-6-jdk
+language: android    
 
 jdk:
-  - openjdk6
+  - openjdk8
+
+android:
+  components:
+    - tools
+    - tools
+    - build-tools-28.0.2
+    - platform-tools
+    - android-15
 
 script:
   ./gradlew clean build jacocoTestReport --info
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  

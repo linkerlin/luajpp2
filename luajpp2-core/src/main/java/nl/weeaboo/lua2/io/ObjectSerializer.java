@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,14 +34,14 @@ public class ObjectSerializer extends ObjectOutputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectSerializer.class);
 
-    private final Environment env; // Null if empty or not used
-    private final Set<String> validPackages = new HashSet<String>();
-    private final Set<Class<?>> validClasses = new HashSet<Class<?>>();
+    private final @Nullable Environment env; // Null if empty or not used
+    private final Set<String> validPackages = new HashSet<>();
+    private final Set<Class<?>> validClasses = new HashSet<>();
     private final ExecutorService executor;
 
-    private final List<String> errors = new ArrayList<String>();
-    private final List<String> warnings = new ArrayList<String>();
-    private final Map<Class<?>, Stats> classCounter = new IdentityHashMap<Class<?>, Stats>();
+    private final List<String> errors = new ArrayList<>();
+    private final List<String> warnings = new ArrayList<>();
+    private final Map<Class<?>, Stats> classCounter = new IdentityHashMap<>();
 
     private ErrorLevel packageErrorLevel = ErrorLevel.ERROR;
     private boolean collectStats = true;
@@ -119,7 +121,7 @@ public class ObjectSerializer extends ObjectOutputStream {
     }
 
     @Override
-    protected Object replaceObject(Object obj) {
+    protected @Nullable Object replaceObject(Object obj) {
         Class<?> clazz = obj.getClass();
 
         // Updating stats
@@ -324,7 +326,7 @@ public class ObjectSerializer extends ObjectOutputStream {
 
         @Override
         public String toString() {
-            return String.format("%d", count);
+            return Integer.toString(count);
         }
 
     }

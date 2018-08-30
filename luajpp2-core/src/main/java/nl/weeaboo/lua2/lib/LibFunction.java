@@ -163,6 +163,7 @@ public abstract class LibFunction extends LuaFunction {
      * @param names array of String names, one for each function.
      * @see #bind(LuaValue, Class, String[], int)
      */
+    @Deprecated
     protected void bind(LuaValue env, Class<?> factory, String[] names) {
         bind(env, factory, names, 0);
     }
@@ -179,10 +180,11 @@ public abstract class LibFunction extends LuaFunction {
      * @param firstopcode the first opcode to use
      * @see #bind(LuaValue, Class, String[])
      */
+    @Deprecated
     protected void bind(LuaValue env, Class<?> factory, String[] names, int firstopcode) {
         try {
             for (int i = 0, n = names.length; i < n; i++) {
-                LibFunction f = (LibFunction)factory.newInstance();
+                LibFunction f = (LibFunction)factory.getConstructor().newInstance();
                 f.opcode = firstopcode + i;
                 f.name = names[i];
                 f.env = env;

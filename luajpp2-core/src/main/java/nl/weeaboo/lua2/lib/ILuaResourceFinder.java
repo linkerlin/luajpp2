@@ -22,6 +22,8 @@
 
 package nl.weeaboo.lua2.lib;
 
+import javax.annotation.Nullable;
+
 /**
  * Interface for opening application resource files such as scripts sources.
  * <p>
@@ -35,6 +37,6 @@ public interface ILuaResourceFinder {
     /**
      * Try to open a file, or return null if not found.
      */
-    LuaResource findResource(String filename);
+    @Nullable LuaResource findResource(String filename);
 
 }

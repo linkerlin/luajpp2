@@ -11,6 +11,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.IReadResolveSerializable;
 import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
@@ -36,7 +38,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     ClassMetaTable(JavaClass ci) {
         classInfo = ci;
-        cachedMethods = new HashMap<LuaValue, LuaMethod>();
+        cachedMethods = new HashMap<>();
 
         super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
         super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
@@ -91,7 +93,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         return "ClassMetaTable(" + classInfo.getWrappedClass().getSimpleName() + ")@" + hashCode();
     }
 
-    LuaMethod getMethod(LuaValue name) {
+    @Nullable LuaMethod getMethod(LuaValue name) {
         LuaMethod method = cachedMethods.get(name);
         if (method != null) {
             return method;
