@@ -51,15 +51,9 @@ final class JavaMethod {
             CoerceLuaToJava.coerceArgs(javaArgs, args, paramTypes);
         }
 
-        Object javaResult = invoke(instance, javaArgs);
+        Object javaResult = method.invoke(instance, javaArgs);
 
         return returnTypeCoercion.toLua(javaResult);
-    }
-
-    public Object invoke(Object instance, Object... args)
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-
-        return method.invoke(instance, args);
     }
 
     public List<Class<?>> getParamTypes() {

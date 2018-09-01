@@ -8,8 +8,7 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
@@ -19,6 +18,7 @@ import nl.weeaboo.lua2.io.IWriteReplaceSerializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.OneArgFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
+import nl.weeaboo.lua2.vm.LuaFunction;
 import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
@@ -33,12 +33,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     //--- Uses manual serialization, don't add variables ---
     private JavaClass classInfo;
-    private transient Map<LuaValue, LuaMethod> cachedMethods;
+    private transient ArrayList<LuaMethod> cachedMethods;
     //--- Uses manual serialization, don't add variables ---
 
     ClassMetaTable(JavaClass ci) {
         classInfo = ci;
-        cachedMethods = new HashMap<>();
+        cachedMethods = new ArrayList<>();
 
         super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
         super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
@@ -53,11 +53,20 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         return new ClassMetaTableRef(classInfo);
     }
 
-    private static MetaFunction newMetaFunction(JavaClass ci, ClassMetaTable mt, boolean isGet) {
+    private static LuaFunction newMetaFunction(JavaClass ci, ClassMetaTable mt, boolean isGet) {
         if (ci.isArray()) {
-            return new ArrayMetaFunction(ci, mt, isGet);
+            if (isGet) {
+                return new ArrayMetaGetFunction(ci, mt);
+            } else {
+                return new ArrayMetaSetFunction(ci);
+            }
+        } else {
+            if (isGet) {
+                return new MetaGetFunction(ci, mt);
+            } else {
+                return new MetaSetFunction(ci);
+            }
         }
-        return new MetaFunction(ci, mt, isGet);
     }
 
     @Override
@@ -94,16 +103,21 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @Nullable LuaMethod getMethod(LuaValue name) {
-        LuaMethod method = cachedMethods.get(name);
-        if (method != null) {
-            return method;
-        } else if (classInfo.hasMethod(name)) {
-            method = new LuaMethod(classInfo, name);
-            cachedMethods.put(name, method);
-            return method;
-        } else {
-            return null;
+        final int cachedMethodsL = cachedMethods.size();
+        for (int n = 0; n < cachedMethodsL; n++) {
+            LuaMethod method = cachedMethods.get(n);
+            if (name.equals(method.methodName)) {
+                return method;
+            }
         }
+
+        if (classInfo.hasMethod(name)) {
+            LuaMethod method = new LuaMethod(classInfo, name);
+            cachedMethods.add(method);
+            return method;
+        }
+
+        return null;
     }
 
     @LuaSerializable
@@ -124,18 +138,60 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @LuaSerializable
-    private static class MetaFunction extends VarArgFunction {
+    private static class MetaGetFunction extends VarArgFunction {
 
         private static final long serialVersionUID = 1L;
 
         protected final JavaClass classInfo;
         protected final ClassMetaTable meta;
-        protected final boolean isGet;
 
-        public MetaFunction(JavaClass ci, ClassMetaTable mt, boolean get) {
+        public MetaGetFunction(JavaClass ci, ClassMetaTable mt) {
             classInfo = ci;
             meta = mt;
-            isGet = get;
+        }
+
+        @Override
+        public Varargs invoke(Varargs args) {
+            return invokeMethod(args.arg1().checkuserdata(), args.arg(2));
+        }
+
+        protected LuaValue invokeMethod(Object instance, LuaValue key) {
+            if (instance == null) {
+                return LuaNil.NIL.call();
+            }
+
+            LuaMethod method = meta.getMethod(key);
+            if (method != null) {
+                return method;
+            }
+
+            Field field = classInfo.getField(key);
+            if (field != null) {
+                try {
+                    /*
+                     * Only allow access to the declared type. This prevents Lua from accessing non-public
+                     * implementation details.
+                     */
+                    Object javaValue = field.get(instance);
+                    return CoerceJavaToLua.coerce(javaValue, field.getType());
+                } catch (Exception e) {
+                    throw LuaException.wrap("Error coercing field: " + key, e);
+                }
+            }
+
+            return NIL; // Invalid get returns nil
+        }
+    }
+
+    @LuaSerializable
+    private static class MetaSetFunction extends VarArgFunction {
+
+        private static final long serialVersionUID = 1L;
+
+        protected final JavaClass classInfo;
+
+        public MetaSetFunction(JavaClass ci) {
+            classInfo = ci;
         }
 
         @Override
@@ -144,61 +200,33 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         }
 
         protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
-            if (instance == null) {
-                return LuaNil.NIL.call();
-            }
-
-            //Fields & Methods
-            if (isGet) {
-                LuaMethod method = meta.getMethod(key);
-                if (method != null) {
-                    return method;
+            Field field = classInfo.getField(key);
+            if (field != null) {
+                Object v = CoerceLuaToJava.coerceArg(val, field.getType());
+                try {
+                    field.set(instance, v);
+                } catch (Exception e) {
+                    throw LuaException.wrap("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
                 }
-
-                Field field = classInfo.getField(key);
-                if (field != null) {
-                    try {
-                        /*
-                         * Only allow access to the declared type. This prevents Lua from accessing non-public
-                         * implementation details.
-                         */
-                        Object o = field.get(instance);
-                        return CoerceJavaToLua.coerce(o, field.getType());
-                    } catch (Exception e) {
-                        throw LuaException.wrap("Error coercing field: " + key, e);
-                    }
-                }
-
-                return NIL; //Invalid get returns nil
+                return NIL;
             } else {
-                Field field = classInfo.getField(key);
-                if (field != null) {
-                    Object v = CoerceLuaToJava.coerceArg(val, field.getType());
-                    try {
-                        field.set(instance, v);
-                    } catch (Exception e) {
-                        throw LuaException.wrap("Error setting field: " + classInfo.getWrappedClass() + "." + key, e);
-                    }
-                    return NIL;
-                } else {
-                    throw new LuaException("Invalid assignment, field does not exist in Java class: " + key);
-                }
+                throw new LuaException("Invalid assignment, field does not exist in Java class: " + key);
             }
         }
 
     }
 
     @LuaSerializable
-    private static final class ArrayMetaFunction extends MetaFunction {
+    private static final class ArrayMetaGetFunction extends MetaGetFunction {
 
         private static final long serialVersionUID = 1L;
 
-        public ArrayMetaFunction(JavaClass ci, ClassMetaTable mt, boolean get) {
-            super(ci, mt, get);
+        public ArrayMetaGetFunction(JavaClass ci, ClassMetaTable mt) {
+            super(ci, mt);
         }
 
         @Override
-        protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+        protected LuaValue invokeMethod(Object instance, LuaValue key) {
             int arrayLength = Array.getLength(instance);
             if (key.isinttype()) {
                 int index = key.checkint() - 1;
@@ -207,28 +235,42 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
                             + ", length=" + arrayLength);
                 }
 
-                Class<?> clazz = classInfo.getWrappedClass();
-                if (isGet) {
-                    /*
-                     * Only allow access to the declared component type. This prevents Lua from accessing
-                     * non-public implementation details.
-                     */
-                    Object javaValue = Array.get(instance, index);
-                    return CoerceJavaToLua.coerce(javaValue, clazz.getComponentType());
-                } else {
-                    Object v = CoerceLuaToJava.coerceArg(val, clazz.getComponentType());
-                    Array.set(instance, key.checkint() - 1, v);
-                    return NIL;
-                }
+                Object javaValue = Array.get(instance, index);
+
+                /*
+                 * Only allow access to the declared component type. This prevents Lua from accessing
+                 * non-public implementation details.
+                 */
+                Class<?> wrappedClass = classInfo.getWrappedClass();
+                return CoerceJavaToLua.coerce(javaValue, wrappedClass.getComponentType());
             } else if (key.equals(LENGTH)) {
-                if (isGet) {
-                    return valueOf(arrayLength);
-                }
+                return valueOf(arrayLength);
+            }
+
+            return super.invokeMethod(instance, key);
+        }
+    }
+
+    @LuaSerializable
+    private static final class ArrayMetaSetFunction extends MetaSetFunction {
+
+        private static final long serialVersionUID = 1L;
+
+        public ArrayMetaSetFunction(JavaClass ci) {
+            super(ci);
+        }
+
+        @Override
+        protected LuaValue invokeMethod(Object instance, LuaValue key, LuaValue val) {
+            if (key.isinttype()) {
+                Class<?> wrappedClass = classInfo.getWrappedClass();
+                Object v = CoerceLuaToJava.coerceArg(val, wrappedClass.getComponentType());
+                Array.set(instance, key.checkint() - 1, v);
+                return NIL;
             }
 
             return super.invokeMethod(instance, key, val);
         }
-
     }
 
     @LuaSerializable

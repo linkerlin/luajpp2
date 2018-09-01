@@ -17,8 +17,8 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializable {
 
-    private final JavaClass classInfo;
-    private final LuaValue methodName;
+    final JavaClass classInfo;
+    final LuaValue methodName;
 
     private transient JavaMethod[] javaMethods;
 
