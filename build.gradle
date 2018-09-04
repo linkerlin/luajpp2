@@ -119,7 +119,7 @@ project(':luajpp2-core') {
                 artifact(sourceJar)
 
                 pom.withXml {
-                    asNode().children().last() + proj.ext.pomLicenseConfig
+                    asNode().children().last() + project.ext.pomLicenseConfig
                 }  
             }
         }
@@ -145,7 +145,7 @@ project(':luajpp2-plugin') {
                 artifact(sourceJar)
 
                 pom.withXml {
-                    asNode().children().last() + proj.ext.pomLicenseConfig
+                    asNode().children().last() + project.ext.pomLicenseConfig
                 }  
             }
         }
