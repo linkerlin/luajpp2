@@ -8,6 +8,7 @@ import nl.weeaboo.lua2.compiler.ScriptLoader;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -18,6 +19,14 @@ public final class ThreadLib extends LuaModule {
 
     ThreadLib() {
         super("Thread");
+    }
+
+    @Override
+    protected void registerAdditional(LuaTable globals, LuaTable libTable) throws LuaException {
+        super.registerAdditional(globals, libTable);
+
+        // Also make Thread.yield() available as a global function
+        globals.rawset("yield", libTable.rawget("yield"));
     }
 
     /**

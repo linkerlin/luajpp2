@@ -1,11 +1,7 @@
 package nl.weeaboo.lua2.stdlib;
 
 import nl.weeaboo.lua2.LuaException;
-import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaValue;
 
 public final class StandardLibrary {
 
@@ -40,9 +36,6 @@ public final class StandardLibrary {
      * @throws LuaException If an error occurs.
      */
     public void register() throws LuaException {
-        LuaRunState runState = LuaRunState.getCurrent();
-        final LuaTable globals = runState.getGlobalEnvironment();
-
         new BaseLib().register();
         packageLib.register();
         new TableLib().register();
@@ -58,13 +51,6 @@ public final class StandardLibrary {
         if (debugEnabled) {
             new DebugLib().register();
         }
-
-        // Set Thread.yield() as a global yield function
-        LuaValue yieldFunction = LuaUtil.getEntryForPath(globals, "Thread.yield");
-        if (yieldFunction.isnil()) {
-            throw new LuaException("Unable to find yield function");
-        }
-        globals.rawset("yield", yieldFunction);
     }
 
     private ILuaIoImpl createIoImpl() {

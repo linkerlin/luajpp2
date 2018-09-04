@@ -222,7 +222,7 @@ public final class LoadState {
      * @param bits long value containing the bits
      * @return {@link LuaInteger} or {@link LuaDouble} whose value corresponds to the bits provided.
      */
-    public static LuaValue longBitsToLuaNumber(long bits) {
+    private static LuaValue longBitsToLuaNumber(long bits) {
         if ((bits & ((1L << 63) - 1)) == 0L) {
             return LuaInteger.valueOf(0);
         }
@@ -327,7 +327,7 @@ public final class LoadState {
      * @return {@link Prototype} instance that was loaded
      * @throws IOException If an I/O error occurs.
      */
-    public Prototype loadFunction(LuaString p) throws IOException {
+    private Prototype loadFunction(LuaString p) throws IOException {
         Prototype f = new Prototype();
         f.source = loadString();
         if (f.source == null) {
@@ -350,7 +350,7 @@ public final class LoadState {
      *
      * @throws IOException if an i/o exception occurs.
      */
-    public void loadHeader() throws IOException {
+    private void loadHeader() throws IOException {
         luacVersion = is.readByte();
         luacFormat = is.readByte();
         luacLittleEndian = (0 != is.readByte());

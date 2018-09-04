@@ -96,7 +96,6 @@ public final class LuaConstants {
     /** Limit on lua stack size. */
     public static final int MAXSTACK = 250;
 
-
     private LuaConstants() {
     }
 
