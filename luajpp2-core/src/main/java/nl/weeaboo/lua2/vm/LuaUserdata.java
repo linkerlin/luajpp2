@@ -125,12 +125,24 @@ public class LuaUserdata extends LuaValue implements Serializable {
     }
 
     @Override
+    public LuaValue metatag(LuaValue tag) {
+        if (metatable.isnil()) {
+            return NIL;
+        }
+        return metatable.rawget(tag);
+    }
+
+    @Override
     public LuaValue getmetatable() {
         return metatable;
     }
 
     @Override
     public LuaValue setmetatable(LuaValue metatable) {
+        if (metatable == null) {
+            throw new NullPointerException();
+        }
+
         this.metatable = metatable;
         return this;
     }
@@ -150,14 +162,20 @@ public class LuaUserdata extends LuaValue implements Serializable {
 
     @Override
     public LuaValue get(LuaValue key) {
-        return metatable != null ? gettable(this, key) : NIL;
+        if (metatable.isnil()) {
+            return NIL;
+        }
+
+        return gettable(this, key);
     }
 
     @Override
     public void set(LuaValue key, LuaValue value) {
-        if (metatable == null || !settable(this, key, value)) {
-            error("cannot set " + key + " for userdata");
+        if (metatable.isnil()) {
+            return;
         }
+
+        settable(this, key, value);
     }
 
     @Override

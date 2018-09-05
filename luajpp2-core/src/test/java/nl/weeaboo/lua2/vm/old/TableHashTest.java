@@ -163,7 +163,7 @@ public class TableHashTest {
         Assert.assertEquals("nil", t.get(456).tojstring());
 
         // set metatable to null
-        t.setmetatable(null);
+        t.setmetatable(NIL);
         Assert.assertEquals("abc", t.get("ppp").tojstring());
         Assert.assertEquals("def", t.get(123).tojstring());
         Assert.assertEquals("nil", t.get("qqq").tojstring());
@@ -221,7 +221,7 @@ public class TableHashTest {
         Assert.assertEquals("from mt: 456", t.get(456).tojstring());
 
         // set metatable to null
-        t.setmetatable(null);
+        t.setmetatable(NIL);
         Assert.assertEquals("abc", t.get("ppp").tojstring());
         Assert.assertEquals("def", t.get(123).tojstring());
         Assert.assertEquals("nil", t.get("qqq").tojstring());

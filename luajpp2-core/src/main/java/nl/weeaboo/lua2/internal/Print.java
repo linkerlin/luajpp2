@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-package nl.weeaboo.lua2;
+package nl.weeaboo.lua2.internal;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -39,7 +39,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  * @see Prototype
  * @see LuaClosure
  */
-final class Print extends Lua {
+public final class Print extends Lua {
 
     private static final String STRING_FOR_NULL = "null";
 
@@ -258,6 +258,7 @@ final class Print extends Lua {
         default:
             break;
         }
+        ps.println();
     }
 
     private static int getline(Prototype f, int pc) {

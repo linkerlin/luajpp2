@@ -29,6 +29,7 @@ final class RunLuaInterpreterBenchmark {
     private RunLuaInterpreterBenchmark() {
         luaRunState = LuaRunState.create();
         luaRunState.setInstructionCountLimit(Integer.MAX_VALUE);
+        // luaRunState.setDebugEnabled(false);
     }
 
     public static void main(String[] args) throws IOException {

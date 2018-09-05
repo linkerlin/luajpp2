@@ -151,9 +151,9 @@ public class MetatableTest {
 
     @Test
     public void testMetatableIndex() {
-        Assert.assertEquals(table, table.setmetatable(null));
-        Assert.assertEquals(userdata, userdata.setmetatable(null));
-        Assert.assertEquals(userdatamt, userdatamt.setmetatable(null));
+        Assert.assertEquals(table, table.setmetatable(NIL));
+        Assert.assertEquals(userdata, userdata.setmetatable(NIL));
+        Assert.assertEquals(userdatamt, userdatamt.setmetatable(NIL));
         Assert.assertEquals(NIL, table.get(1));
         Assert.assertEquals(NIL, userdata.get(1));
         Assert.assertEquals(NIL, userdatamt.get(1));

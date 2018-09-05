@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.Metatables;
+import nl.weeaboo.lua2.internal.Print;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.vm.Lua;
@@ -43,6 +44,8 @@ public final class DebugLib extends LuaModule {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DebugLib.class);
+
+    private static final boolean TRACE = false;
 
     private static final LuaString LUA = valueOf("Lua");
     private static final LuaString JAVA = valueOf("Java");
@@ -618,9 +621,9 @@ public final class DebugLib extends LuaModule {
             return; // No debug information available
         }
 
-        // if (TRACE) {
-        // Print.printState(di.closure, pc, di.stack, top, di.varargs);
-        // }
+        if (TRACE) {
+            Print.printOpCode(System.out, di.closure.getPrototype(), pc);
+        }
 
         di.pc = pc;
         di.extras = extras;

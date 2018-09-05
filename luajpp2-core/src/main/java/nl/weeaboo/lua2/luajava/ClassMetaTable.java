@@ -33,6 +33,8 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
 
     //--- Uses manual serialization, don't add variables ---
     private JavaClass classInfo;
+    private LuaFunction metaIndex;
+    private LuaFunction metaNewIndex;
     private transient ArrayList<LuaMethod> cachedMethods;
     //--- Uses manual serialization, don't add variables ---
 
@@ -40,8 +42,12 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         classInfo = ci;
         cachedMethods = new ArrayList<>();
 
-        super.hashset(META_INDEX, newMetaFunction(classInfo, this, true));
-        super.hashset(META_NEWINDEX, newMetaFunction(classInfo, this, false));
+        metaIndex = newMetaFunction(classInfo, this, true);
+        metaNewIndex = newMetaFunction(classInfo, this, false);
+
+        super.hashset(META_INDEX, metaIndex);
+        super.hashset(META_NEWINDEX, metaNewIndex);
+
         if (ci.isArray()) {
             super.hashset(META_LEN, ARRAY_LENGTH_FUNCTION);
         }
@@ -67,6 +73,18 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
                 return new MetaSetFunction(ci);
             }
         }
+    }
+
+    @Override
+    public LuaValue rawget(LuaValue key) {
+        // Fast path for the most-used meta functions
+        if (key.raweq(META_INDEX)) {
+            return metaIndex;
+        } else if (key.raweq(META_NEWINDEX)) {
+            return metaNewIndex;
+        }
+
+        return super.rawget(key);
     }
 
     @Override

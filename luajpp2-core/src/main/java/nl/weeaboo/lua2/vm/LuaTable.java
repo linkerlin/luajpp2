@@ -409,22 +409,13 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         return NIL;
     }
 
-    @Override
-    public void set(int key, LuaValue value) {
-        if (metatable == null || !rawget(key).isnil() || !settable(this, LuaInteger.valueOf(key), value)) {
-            rawset(key, value);
-        }
-    }
-
     /** caller must ensure key is not nil. */
     @Override
     public void set(LuaValue key, LuaValue value) {
         if (!key.isvalidkey() && !metatag(META_NEWINDEX).isfunction()) {
             throw typerror("table index");
         }
-        if (metatable == null || !rawget(key).isnil() || !settable(this, key, value)) {
-            rawset(key, value);
-        }
+        super.set(key, value);
     }
 
     @Override
@@ -1116,7 +1107,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             return false;
         }
         LuaValue valmt = val.getmetatable();
-        return !valmt.isnil() && LuaValue.eqmtcall(this, metatable.toLuaValue(), val, valmt);
+        return !valmt.isnil() && LuaValue.eqmtcall(this, getmetatable(), val, valmt);
     }
 
     /** Unpack all the elements of this table. */

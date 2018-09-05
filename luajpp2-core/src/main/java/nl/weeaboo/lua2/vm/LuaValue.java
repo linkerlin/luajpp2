@@ -1316,7 +1316,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * For {@link LuaTable} and {@link LuaUserdata} instances, the metatable is per instance. For all other
      * types, there is one metatable per type that can be set directly from java
      *
-     * @param metatable {@link LuaValue} instance to serve as the metatable, or null to reset it.
+     * @param metatable {@link LuaValue} instance to serve as the metatable, or {@link #NIL} to reset it.
      * @return {@code this} to allow chaining of Java function calls
      * @see Metatables
      */
@@ -2777,19 +2777,25 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         do {
             if (t.istable()) {
                 LuaValue res = t.rawget(key);
-                if ((!res.isnil()) || (tm = t.metatag(META_INDEX)).isnil()) {
+                tm = t.metatag(META_INDEX);
+                if (!res.isnil() || tm.isnil()) {
                     return res;
                 }
-            } else if ((tm = t.metatag(META_INDEX)).isnil()) {
-                t.indexerror();
+            } else {
+                tm = t.metatag(META_INDEX);
+                if (tm.isnil()) {
+                    t.indexerror();
+                }
             }
+
             if (tm.isfunction()) {
                 return tm.call(t, key);
             }
+
             t = tm;
         } while (++loop < MAXTAGLOOP);
-        error("loop in gettable");
-        return NIL;
+
+        throw error("loop in gettable");
     }
 
     /**
@@ -2799,29 +2805,27 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *        {@link LuaConstants#META_NEWINDEX} defined
      * @param key {@link LuaValue} naming the field to assign
      * @param value {@link LuaValue} the new value to assign to {@code key}
-     * @return true if assignment or metatag processing succeeded, false otherwise
      * @throws LuaException if there is a loop in metatag processing
      */
-    protected static boolean settable(LuaValue t, LuaValue key, LuaValue value) {
+    protected static void settable(LuaValue t, LuaValue key, LuaValue value) {
         LuaValue tm;
         int loop = 0;
         do {
             if (t.istable()) {
                 if ((!t.rawget(key).isnil()) || (tm = t.metatag(META_NEWINDEX)).isnil()) {
                     t.rawset(key, value);
-                    return true;
+                    return;
                 }
             } else if ((tm = t.metatag(META_NEWINDEX)).isnil()) {
                 throw t.typerror("index");
             }
             if (tm.isfunction()) {
                 tm.call(t, key, value);
-                return true;
+                return;
             }
             t = tm;
         } while (++loop < MAXTAGLOOP);
-        error("loop in settable");
-        return false;
+        throw error("loop in settable");
     }
 
     /**
@@ -2878,7 +2882,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
 
     /** Construct a Metatable instance from the given LuaValue. */
     protected static @Nullable IMetatable metatableOf(LuaValue mt) {
-        if (mt != null && mt.istable()) {
+        if (mt.istable()) {
             LuaValue mode = mt.rawget(META_MODE);
             if (mode.isstring()) {
                 String m = mode.tojstring();
@@ -2889,7 +2893,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
                 }
             }
             return (LuaTable)mt;
-        } else if (mt != null) {
+        } else if (!mt.isnil()) {
             return new NonTableMetatable(mt);
         } else {
             return null;

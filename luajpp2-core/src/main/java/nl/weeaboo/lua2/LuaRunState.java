@@ -168,6 +168,15 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     }
 
     /**
+     * Enables or disables debug mode.
+     *
+     * @see #isDebugEnabled()
+     */
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
+    /**
      * Returns the main thread for this Lua context.
      */
     public LuaThread getMainThread() {

@@ -241,9 +241,8 @@ final class LuaInterpreter {
                     stack[a] = new LuaTable(i >>> 23, (i >> 14) & 0x1ff);
                     continue;
 
-                case Lua.OP_SELF: /* A B C R(A+1):= R(B): R(A):= R(B)[RK(C)] */
-                    stack[a + 1] = (o = stack[i >>> 23]);
-                    stack[a] = o.get((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]);
+                case Lua.OP_SELF:
+                    opSelf(i, a);
                     continue;
 
                 case Lua.OP_ADD:
@@ -614,6 +613,15 @@ final class LuaInterpreter {
                 }
                 v = NONE; // todo: necessary?
             }
+        }
+
+        /** A B C R(A+1):= R(B): R(A):= R(B)[RK(C)] */
+        private void opSelf(int i, int a) {
+            LuaValue object = stack[i >>> 23];
+            stack[a + 1] = object;
+
+            int c = (i >> 14) & 0x1ff;
+            stack[a] = object.get(c > 0xff ? k[c & 0x0ff] : stack[c]);
         }
 
         /** A B C R(A)[(C-1)*FPF+i]:= R(A+i), 1 <= i <= B */

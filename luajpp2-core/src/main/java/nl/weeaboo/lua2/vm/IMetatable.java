@@ -30,23 +30,24 @@ import javax.annotation.Nullable;
 interface IMetatable {
 
     /** Return whether or not this table's keys are weak. */
-    public boolean useWeakKeys();
+    boolean useWeakKeys();
 
     /** Return whether or not this table's values are weak. */
-    public boolean useWeakValues();
+    boolean useWeakValues();
 
     /** Return this metatable as a LuaValue. */
-    public LuaValue toLuaValue();
+    LuaValue toLuaValue();
 
     /** Return an instance of Slot appropriate for the given key and value. */
-    public @Nullable ISlot entry( LuaValue key, LuaValue value );
+    @Nullable ISlot entry(LuaValue key, LuaValue value);
 
     /** Returns the given value wrapped in a weak reference if appropriate. */
-    public LuaValue wrap( LuaValue value );
+    LuaValue wrap(LuaValue value);
 
     /**
      * Returns the value at the given index in the array, or null if it is a weak reference that
      * has been dropped.
      */
-    public LuaValue arrayget(LuaValue[] array, int index);
+    LuaValue arrayget(LuaValue[] array, int index);
+
 }
