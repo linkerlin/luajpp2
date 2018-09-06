@@ -402,7 +402,7 @@ final class LuaInterpreter {
          *
          * @return A non-null value if execution should terminate with the given result.
          */
-        private Varargs opTailCall(int i, int a) {
+        private @Nullable Varargs opTailCall(int i, int a) {
             int b = i >>> 23;
             if (b > 0) {
                 v = copyArgs(stack, a + 1, b - 1); // Important: copies args
