@@ -23,8 +23,6 @@ final class LuaInterpreter {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaInterpreter.class);
 
-    private static FrameState frameState = new FrameState();
-
     private LuaInterpreter() {
     }
 
@@ -65,6 +63,8 @@ final class LuaInterpreter {
         sf.status = Status.RUNNING;
 
         Varargs result;
+
+        final FrameState frameState = new FrameState();
         frameState.startRunning(thread, sf);
         try {
             result = frameState.run();
