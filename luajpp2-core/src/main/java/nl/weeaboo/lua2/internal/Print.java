@@ -308,11 +308,11 @@ public final class Print extends Lua {
         }
     }
 
-    public void print(Prototype p) {
+    void print(Prototype p) {
         printFunction(p, true);
     }
 
-    public void printFunction(Prototype f, boolean full) {
+    void printFunction(Prototype f, boolean full) {
         final int n = f.p.length;
         printHeader(f);
         printCode(f);

@@ -187,9 +187,10 @@ final class LuaInterpreter {
 
                 pc++;
 
-                // process the op code
+                // process the opcode
                 int a = ((i >> 6) & 0xff);
-                switch (i & 0x3f) {
+                final int opcode = i & 0x3f;
+                switch (opcode) {
 
                 case Lua.OP_MOVE:/* A B R(A):= R(B) */
                     stack[a] = stack[i >>> 23];
@@ -275,6 +276,8 @@ final class LuaInterpreter {
                     continue;
 
                 case Lua.OP_EQ:
+                case Lua.OP_LT:
+                case Lua.OP_LE:
                     opCompare(i, a);
                     continue;
 
@@ -348,6 +351,9 @@ final class LuaInterpreter {
                 case Lua.OP_VARARG:
                     opVararg(i, a);
                     continue;
+
+                default:
+                    throw new LuaException("Unsupported opcode: " + opcode);
                 }
             }
 
