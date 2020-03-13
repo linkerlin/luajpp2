@@ -35,6 +35,9 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Basic Lua library
+ */
 @LuaSerializable
 public final class BaseLib extends LuaLib {
 

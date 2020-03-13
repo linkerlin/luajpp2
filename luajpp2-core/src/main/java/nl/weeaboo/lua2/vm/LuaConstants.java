@@ -2,6 +2,9 @@ package nl.weeaboo.lua2.vm;
 
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
+/**
+ * Commonly used constants.
+ */
 public final class LuaConstants {
 
     /**

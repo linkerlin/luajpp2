@@ -3,6 +3,9 @@ package nl.weeaboo.lua2.lib;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Represents a named loadable resource.
+ */
 public abstract class LuaResource {
 
     private final String canonicalName;

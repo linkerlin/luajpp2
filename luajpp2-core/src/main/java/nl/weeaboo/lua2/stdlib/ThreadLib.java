@@ -12,6 +12,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Thread library
+ */
 @LuaSerializable
 public final class ThreadLib extends LuaModule {
 

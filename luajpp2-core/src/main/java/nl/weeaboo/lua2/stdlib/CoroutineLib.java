@@ -17,6 +17,9 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaThreadStatus;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Coroutine library
+ */
 @LuaSerializable
 public final class CoroutineLib extends LuaModule {
 

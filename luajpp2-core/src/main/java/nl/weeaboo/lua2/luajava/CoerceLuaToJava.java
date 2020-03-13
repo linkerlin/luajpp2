@@ -13,6 +13,9 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Converts Lua objects to their equivalent Java objects.
+ */
 public final class CoerceLuaToJava {
 
     private CoerceLuaToJava() {

@@ -535,7 +535,7 @@ public final class LuaInteger extends LuaNumber implements Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    public void readExternal(ObjectInput in) throws IOException {
         v = in.readInt();
     }
 

@@ -37,6 +37,9 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 
+/**
+ * Lua thread object
+ */
 @LuaSerializable
 public final class LuaThread extends LuaValue implements Serializable {
 

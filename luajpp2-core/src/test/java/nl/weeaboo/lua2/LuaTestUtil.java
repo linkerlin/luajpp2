@@ -13,6 +13,9 @@ import nl.weeaboo.lua2.luajava.CoerceLuaToJava;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
+/**
+ * Generic functions useful for automated testing.
+ */
 public final class LuaTestUtil {
 
     private LuaTestUtil() {

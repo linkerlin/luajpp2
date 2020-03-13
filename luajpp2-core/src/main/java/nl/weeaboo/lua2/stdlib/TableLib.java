@@ -12,6 +12,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Table library
+ */
 @LuaSerializable
 public final class TableLib extends LuaModule {
 

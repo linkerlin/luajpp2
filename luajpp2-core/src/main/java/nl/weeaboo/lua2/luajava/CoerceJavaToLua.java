@@ -8,6 +8,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Converts Java objects to their equivalent Lua objects.
+ */
 public final class CoerceJavaToLua {
 
     private CoerceJavaToLua() {

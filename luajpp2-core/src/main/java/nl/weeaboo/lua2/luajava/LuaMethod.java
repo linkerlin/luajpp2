@@ -1,6 +1,5 @@
 package nl.weeaboo.lua2.luajava;
 
-import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -17,6 +16,8 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializable {
 
+    private static final long serialVersionUID = 1L;
+
     final JavaClass classInfo;
     final LuaValue methodName;
 
@@ -28,7 +29,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
     }
 
     @Override
-    public Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() {
         return new LuaMethodRef(classInfo, methodName);
     }
 
@@ -115,7 +116,7 @@ final class LuaMethod extends VarArgFunction implements IWriteReplaceSerializabl
         }
 
         @Override
-        public @Nullable Object readResolve() throws ObjectStreamException {
+        public @Nullable Object readResolve() {
             return classInfo.getMetatable().getMethod(name);
         }
     }

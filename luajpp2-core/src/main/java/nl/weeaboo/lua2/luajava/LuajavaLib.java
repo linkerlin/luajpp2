@@ -35,6 +35,9 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Special library for accessing Java functionality from Lua.
+ */
 @LuaSerializable
 public final class LuajavaLib extends LuaModule {
 

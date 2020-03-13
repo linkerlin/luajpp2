@@ -10,6 +10,9 @@ import javax.annotation.Nullable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
 
+/**
+ * Resource loader that reads resources from the Java classpath.
+ */
 @LuaSerializable
 public class ClassLoaderResourceFinder implements ILuaResourceFinder, Serializable {
 

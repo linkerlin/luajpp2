@@ -7,6 +7,9 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 
+/**
+ * Represents an error thrown by the Lua VM.
+ */
 @LuaSerializable
 public final class LuaException extends RuntimeException {
 

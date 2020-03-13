@@ -3,6 +3,9 @@ package nl.weeaboo.lua2.stdlib;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 
+/**
+ * A full set of standard Lua libraries/modules
+ */
 public final class StandardLibrary {
 
     private final PackageLib packageLib;

@@ -2,7 +2,6 @@ package nl.weeaboo.lua2.luajava;
 
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
-import java.io.ObjectStreamException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +27,8 @@ import nl.weeaboo.lua2.vm.Varargs;
 @LuaSerializable
 final class JavaClass implements IWriteReplaceSerializable {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Comparator<Method> methodSorter = new MethodSorter();
 
     private final Class<?> clazz;
@@ -45,7 +46,7 @@ final class JavaClass implements IWriteReplaceSerializable {
     }
 
     @Override
-    public Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() {
         return new JavaClassRef(clazz);
     }
 
@@ -181,7 +182,7 @@ final class JavaClass implements IWriteReplaceSerializable {
         }
 
         @Override
-        public Object readResolve() throws ObjectStreamException {
+        public Object readResolve() {
             return LuajavaLib.getClassInfo(clazz);
         }
     }

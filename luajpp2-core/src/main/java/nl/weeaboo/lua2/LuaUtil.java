@@ -21,6 +21,9 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Contains various useful functions that didn't fit anywhere else.
+ */
 public final class LuaUtil {
 
     private static final LuaString NEW = valueOf("new");
@@ -202,16 +205,16 @@ public final class LuaUtil {
     }
 
     private static final char[] escapeList = {
-        '\"', '\"',
-        '\'', '\'',
-        '\\', '\\',
-        'n', '\n',
-        'r', '\r',
-        't', '\t',
-        'f', '\f',
-        'a', '\u0007', // Bell character
-        'b', '\b',
-        'v', '\u000B',
+            '\"', '\"',
+            '\'', '\'',
+            '\\', '\\',
+            'n', '\n',
+            'r', '\r',
+            't', '\t',
+            'f', '\f',
+            'a', '\u0007', // Bell character
+            'b', '\b',
+            'v', '\u000B',
     };
 
     /**

@@ -42,6 +42,9 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
 
+/**
+ * Writes compiled Lua code to an output stream.
+ */
 public final class DumpState {
 
     /**

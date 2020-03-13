@@ -12,6 +12,9 @@ import nl.weeaboo.lua2.lib.LuaResource;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Provides user friendly functions for loading Lua scripts.
+ */
 public final class ScriptLoader {
 
     private ScriptLoader() {

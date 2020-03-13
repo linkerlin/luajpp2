@@ -67,7 +67,7 @@ subprojects {
         }
         pomLicenseConfig.resolveStrategy = Closure.DELEGATE_ONLY // Otherwise 'license' elem is missing
     }
-    
+
     plugins.withType(JavaPlugin) {
         sourceCompatibility = javaVersion
 
@@ -123,36 +123,10 @@ project(':luajpp2-core') {
                 }  
             }
         }
-    }    
+    }
 
     bintray {
         publications = ['core']
-    }
-}
-
-project(':luajpp2-plugin') {
-    apply plugin: 'java-library'
-
-    dependencies {
-        api project(':luajpp2-core')
-    }
-
-    publishing {
-        publications {
-            plugin(MavenPublication) {
-                from components.java            
-                artifactId = 'luajpp2-plugin'
-                artifact(sourceJar)
-
-                pom.withXml {
-                    asNode().children().last() + project.ext.pomLicenseConfig
-                }  
-            }
-        }
-    }    
-
-    bintray {
-        publications = ['plugin']
     }
 }
 

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * Reads/writes Lua objects to a binary stream.
+ */
 public class LuaSerializer {
 
     private static final ThreadLocal<LuaSerializer> CURRENT = new ThreadLocal<>();

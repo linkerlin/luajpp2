@@ -25,6 +25,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * String library
+ */
 @LuaSerializable
 public final class StringLib extends LuaModule {
 

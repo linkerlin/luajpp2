@@ -2,7 +2,7 @@ package nl.weeaboo.lua2.vm;
 
 import nl.weeaboo.lua2.LuaException;
 
-public interface IComparable {
+interface IComparable {
 
     /**
      * Equals: Perform equality comparison with another value including metatag processing using

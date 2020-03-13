@@ -20,6 +20,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Global Lua VM state.
+ */
 @LuaSerializable
 public final class LuaRunState implements Serializable, ILuaResourceFinder {
 
@@ -52,7 +55,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     }
 
     /**
-     * Creates a new instance using the stoch standard library.
+     * Creates a new instance using the default {@link StandardLibrary}.
      *
      * @throws LuaException If no run state could be created.
      * @see #create(StandardLibrary)

@@ -39,6 +39,9 @@ import nl.weeaboo.lua2.vm.Prototype;
 import nl.weeaboo.lua2.vm.UpValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Optional debug library
+ */
 @LuaSerializable
 public final class DebugLib extends LuaModule {
 

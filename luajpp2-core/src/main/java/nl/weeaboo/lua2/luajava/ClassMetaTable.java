@@ -5,7 +5,6 @@ import static nl.weeaboo.lua2.vm.LuaConstants.META_LEN;
 import static nl.weeaboo.lua2.vm.LuaConstants.META_NEWINDEX;
 import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
-import java.io.ObjectStreamException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
     }
 
     @Override
-    public Object writeReplace() throws ObjectStreamException {
+    public Object writeReplace() {
         return new ClassMetaTableRef(classInfo);
     }
 
@@ -150,7 +149,7 @@ final class ClassMetaTable extends LuaTable implements IWriteReplaceSerializable
         }
 
         @Override
-        public Object readResolve() throws ObjectStreamException {
+        public Object readResolve() {
             return classInfo.getMetatable();
         }
     }

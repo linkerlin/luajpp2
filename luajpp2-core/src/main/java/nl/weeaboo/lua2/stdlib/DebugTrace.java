@@ -15,6 +15,9 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
 
+/**
+ * Provides access to debugging information for the currently executing Lua thread.
+ */
 public final class DebugTrace {
 
     private static final LuaString QMARK = valueOf("?");

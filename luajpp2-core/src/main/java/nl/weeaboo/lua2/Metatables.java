@@ -7,6 +7,11 @@ import java.io.Serializable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
+/**
+ * Stores the metatable set for {@link LuaRunState}.
+ *
+ * @see LuaRunState#getMetatables()
+ */
 @LuaSerializable
 public final class Metatables implements Serializable {
 

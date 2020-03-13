@@ -7,6 +7,9 @@ import nl.weeaboo.lua2.LuaUtil;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Contains various functions for working with Lua function arguments.
+ */
 public final class LuaArgsUtil {
 
     private LuaArgsUtil() {

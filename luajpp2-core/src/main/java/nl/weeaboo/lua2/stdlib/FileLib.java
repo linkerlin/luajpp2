@@ -24,6 +24,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * File library
+ */
 @LuaSerializable
 public final class FileLib extends LuaLib {
 

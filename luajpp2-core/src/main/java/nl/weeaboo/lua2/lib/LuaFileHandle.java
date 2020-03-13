@@ -10,6 +10,9 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
+/**
+ * Base class for a file-like objects.
+ */
 @LuaSerializable
 public abstract class LuaFileHandle extends LuaValue implements Serializable {
 

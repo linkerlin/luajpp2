@@ -5,6 +5,9 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.LuaLib;
 import nl.weeaboo.lua2.vm.LuaTable;
 
+/**
+ * Base class for Java implementations of a Lua module.
+ */
 public abstract class LuaModule extends LuaLib {
 
     private static final long serialVersionUID = 1L;

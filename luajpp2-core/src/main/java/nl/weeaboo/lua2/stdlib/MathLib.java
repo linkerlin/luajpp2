@@ -15,6 +15,9 @@ import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Math library
+ */
 @LuaSerializable
 public final class MathLib extends LuaModule {
 
