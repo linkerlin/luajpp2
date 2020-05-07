@@ -253,7 +253,7 @@ public final class BaseLib extends LuaLib {
     /**
      * @param errfunc is ignored, should replace thread's errfunc which it doesn't have anymore
      */
-    private static Varargs pcall(LuaValue func, Varargs args, LuaValue errfunc) {
+    private static Varargs pcall(LuaValue func, Varargs args, @SuppressWarnings("unused") LuaValue errfunc) {
         try {
             Varargs funcResult = func.invoke(args);
             return varargsOf(TRUE, funcResult);
@@ -320,10 +320,9 @@ public final class BaseLib extends LuaLib {
     @LuaBoundFunction
     public Varargs unpack(Varargs args) {
         LuaTable t = args.checktable(1);
-        int n = t.length();
         int i = args.optint(2, 1);
         int j = args.isnil(3) ? t.getn().checkint() : args.checkint(3);
-        n = j - i + 1;
+        int n = j - i + 1;
         if (n < 0) {
             return NONE;
         }

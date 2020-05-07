@@ -551,11 +551,13 @@ public final class DebugLib extends LuaModule {
         }
     }
 
-    static @Nullable DebugState getDebugState(LuaThread thread) {
-        if (thread.debugState == null) {
-            thread.debugState = new DebugState(thread);
+    static DebugState getDebugState(LuaThread thread) {
+        DebugState result = (DebugState)thread.debugState;
+        if (result == null) {
+            result = new DebugState(thread);
+            thread.debugState = result;
         }
-        return (DebugState)thread.debugState;
+        return result;
     }
 
     /**
@@ -624,8 +626,11 @@ public final class DebugLib extends LuaModule {
             return; // No debug information available
         }
 
+        LuaClosure closure = di.closure;
         if (TRACE) {
-            Print.printOpCode(System.out, di.closure.getPrototype(), pc);
+            if (closure != null) {
+                Print.printOpCode(System.out, closure.getPrototype(), pc);
+            }
         }
 
         di.pc = pc;
@@ -640,10 +645,10 @@ public final class DebugLib extends LuaModule {
             }
         }
 
-        if (ds.hookline) {
+        if (ds.hookline && closure != null) {
             int newline = di.currentline();
             if (newline != ds.line) {
-                int c = di.closure.getPrototype().code[pc];
+                int c = closure.getPrototype().code[pc];
                 if ((c & 0x3f) != Lua.OP_JMP || ((c >>> 14) - 0x1ffff) >= 0) {
                     ds.line = newline;
                     ds.callHookFunc(LINE, valueOf(newline));

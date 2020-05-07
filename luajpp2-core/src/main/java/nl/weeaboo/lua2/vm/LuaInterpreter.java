@@ -38,6 +38,9 @@ final class LuaInterpreter {
         Varargs result = NONE;
         while (thread.isRunning() && thread.callstackSize() > callstackBase) {
             StackFrame sf = thread.callstack;
+            if (sf == null) {
+                throw new IllegalStateException("StackFrame on callstack is unexpectedly null");
+            }
             if (sf.status == Status.FRESH) {
                 startCall(thread, sf);
                 sf.status = Status.RUNNING;

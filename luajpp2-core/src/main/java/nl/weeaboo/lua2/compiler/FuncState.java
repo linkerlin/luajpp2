@@ -178,8 +178,8 @@ final class FuncState {
         f.upvalues[f.nups] = name;
         luaAssert(v.k == LexState.VLOCAL || v.k == LexState.VUPVAL);
         upvalues[f.nups] = new UpValueDesc();
-        upvalues[f.nups].k = (short)(v.k);
-        upvalues[f.nups].info = (short)(v.u.s.info);
+        upvalues[f.nups].k = (short)v.k;
+        upvalues[f.nups].info = (short)v.u.s.info;
         return f.nups++;
     }
 
@@ -277,7 +277,7 @@ final class FuncState {
     }
 
     boolean hasmultret(int k) {
-        return ((k) == LexState.VCALL || (k) == LexState.VVARARG);
+        return (k == LexState.VCALL || k == LexState.VVARARG);
     }
 
     void lastlistfield(ConsControl cc) {

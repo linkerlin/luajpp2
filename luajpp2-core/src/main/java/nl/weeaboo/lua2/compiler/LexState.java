@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import nl.weeaboo.lua2.LuaException;
@@ -393,7 +394,7 @@ final class LexState {
     void buffreplace(byte from, byte to) {
         int n = nbuff;
         byte[] p = buff;
-        while ((--n) >= 0) {
+        while (--n >= 0) {
             if (p[n] == from) {
                 p[n] = to;
             }
@@ -441,7 +442,7 @@ final class LexState {
             save_and_next();
             count++;
         }
-        return (current == s) ? count : (-count) - 1;
+        return current == s ? count : -count - 1;
     }
 
     void read_long_string(SemInfo seminfo, int sep) {
@@ -786,7 +787,7 @@ final class LexState {
     }
 
     boolean hasmultret(int k) {
-        return ((k) == VCALL || (k) == VVARARG);
+        return (k == VCALL || k == VVARARG);
     }
 
     /*----------------------------------------------------------------------
@@ -822,7 +823,7 @@ final class LexState {
     }
 
     void check_condition(boolean c, String msg) {
-        if (!(c)) {
+        if (!c) {
             syntaxerror(msg);
         }
     }
@@ -847,7 +848,7 @@ final class LexState {
     }
 
     void codestring(ExpDesc e, LuaString s) {
-        e.init(VK, fs.stringK(s));
+        e.init(VK, getCurrentFuncState().stringK(s));
     }
 
     void checkname(ExpDesc e) {
@@ -855,7 +856,7 @@ final class LexState {
     }
 
     int registerlocalvar(LuaString varname) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         Prototype f = fs.f;
         if (f.locvars == null || fs.nlocvars + 1 > f.locvars.length) {
             f.locvars = LuaC.realloc(f.locvars,
@@ -866,13 +867,13 @@ final class LexState {
     }
 
     void new_localvar(LuaString name, int n) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         fs.checklimit(fs.nactvar + n + 1, LuaC.LUAI_MAXVARS, "local variables");
         fs.actvar[fs.nactvar + n] = (short) registerlocalvar(name);
     }
 
     void adjustlocalvars(int nvars) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         fs.nactvar = (short) (fs.nactvar + nvars);
         for (; nvars > 0; nvars--) {
             fs.getlocvar(fs.nactvar - nvars).startpc = fs.pc;
@@ -880,7 +881,7 @@ final class LexState {
     }
 
     void removevars(int tolevel) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         while (fs.nactvar > tolevel) {
             fs.getlocvar(--fs.nactvar).endpc = fs.pc;
         }
@@ -888,7 +889,7 @@ final class LexState {
 
     void singlevar(ExpDesc var) {
         LuaString varname = this.str_checkname();
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         if (fs.singlevaraux(varname, var, 1) == VGLOBAL) {
             var.u.s.info = fs.stringK(varname); /*
                                                                                                  * info
@@ -901,7 +902,7 @@ final class LexState {
     }
 
     void adjust_assign(int nvars, int nexps, ExpDesc e) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         int extra = nvars - nexps;
         if (hasmultret(e.k)) {
             /* includes call itself */
@@ -938,7 +939,7 @@ final class LexState {
     }
 
     void pushclosure(FuncState func, ExpDesc v) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         Prototype f = fs.f;
         if (f.p == null || fs.np + 1 > f.p.length) {
             f.p = LuaC.realloc(f.p, fs.np * 2 + 1);
@@ -977,7 +978,7 @@ final class LexState {
     }
 
     void close_func() {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         Prototype f = fs.f;
         this.removevars(0);
         fs.ret(0, 0); /* final return */
@@ -1004,7 +1005,7 @@ final class LexState {
 
     void field(ExpDesc v) {
         /* field -> ['.' | ':'] NAME */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         ExpDesc key = new ExpDesc();
         fs.exp2anyreg(v);
         this.next(); /* skip the dot or colon */
@@ -1016,8 +1017,16 @@ final class LexState {
         /* index -> '[' expr ']' */
         this.next(); /* skip the '[' */
         this.expr(v);
-        this.fs.exp2val(v);
+        getCurrentFuncState().exp2val(v);
         this.checknext(']');
+    }
+
+    private @Nonnull FuncState getCurrentFuncState() {
+        FuncState fs = this.fs;
+        if (fs == null) {
+            throw new IllegalStateException("FuncState was unexpectedly null");
+        }
+        return fs;
     }
 
     /*
@@ -1036,8 +1045,8 @@ final class LexState {
 
     void recfield(ConsControl cc) {
         /* recfield -> (NAME | `['exp1`]') = exp1 */
-        FuncState fs = this.fs;
-        final int reg = this.fs.freereg;
+        FuncState fs = getCurrentFuncState();
+        final int reg = fs.freereg;
         ExpDesc key = new ExpDesc();
         if (this.t.token == TK_NAME) {
             fs.checklimit(cc.nh, MAX_INT, "items in a constructor");
@@ -1058,14 +1067,14 @@ final class LexState {
 
     void listfield(ConsControl cc) {
         this.expr(cc.v);
-        fs.checklimit(cc.na, MAX_INT, "items in a constructor");
+        getCurrentFuncState().checklimit(cc.na, MAX_INT, "items in a constructor");
         cc.na++;
         cc.tostore++;
     }
 
     void constructor(ExpDesc t) {
         /* constructor -> ?? */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         final int line = this.linenumber;
         int pc = fs.codeABC(Lua.OP_NEWTABLE, 0, 0, 0);
         ConsControl cc = new ConsControl();
@@ -1130,7 +1139,7 @@ final class LexState {
 
     void parlist() {
         /* parlist -> [ param { `,' param } ] */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         Prototype f = fs.f;
         int nparams = 0;
         f.isVararg = 0;
@@ -1185,7 +1194,7 @@ final class LexState {
         int n = 1; /* at least one expression */
         this.expr(v);
         while (this.testnext(',')) {
-            fs.exp2nextreg(v);
+            getCurrentFuncState().exp2nextreg(v);
             this.expr(v);
             n++;
         }
@@ -1193,7 +1202,7 @@ final class LexState {
     }
 
     void funcargs(ExpDesc f) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         ExpDesc args = new ExpDesc();
         int line = this.linenumber;
         switch (this.t.token) {
@@ -1259,7 +1268,7 @@ final class LexState {
             this.next();
             this.expr(v);
             this.check_match(')', '(', line);
-            fs.dischargevars(v);
+            getCurrentFuncState().dischargevars(v);
             return;
         }
         case TK_NAME: {
@@ -1278,7 +1287,7 @@ final class LexState {
          * primaryexp -> prefixexp { `.' NAME | `[' exp `]' | `:' NAME funcargs
          * | funcargs }
          */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         this.prefixexp(v);
         for (;;) {
             switch (this.t.token) {
@@ -1342,7 +1351,7 @@ final class LexState {
             break;
         }
         case TK_DOTS: { /* vararg */
-            FuncState fs = this.fs;
+            FuncState fs = getCurrentFuncState();
             this.check_condition(fs.f.isVararg != 0, "cannot use " + luaQL("...")
                     + " outside a vararg function");
             fs.f.isVararg &= ~Lua.VARARG_NEEDSARG; /* don't need 'arg' */
@@ -1455,7 +1464,7 @@ final class LexState {
         if (uop != OPR_NOUNOPR) {
             next();
             subexpr(v, UNARY_PRIORITY);
-            fs.prefix(uop, v);
+            getCurrentFuncState().prefix(uop, v);
         } else {
             simpleexp(v);
         }
@@ -1465,10 +1474,10 @@ final class LexState {
             ExpDesc v2 = new ExpDesc();
             int nextop;
             next();
-            fs.infix(op, v);
+            getCurrentFuncState().infix(op, v);
             /* read sub-expression with higher priority */
             nextop = this.subexpr(v2, priority[op].right);
-            fs.posfix(op, v, v2);
+            getCurrentFuncState().posfix(op, v, v2);
             op = nextop;
         }
         leavelevel();
@@ -1502,7 +1511,7 @@ final class LexState {
 
     void block() {
         /* block -> chunk */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         BlockCnt bl = new BlockCnt();
         fs.enterblock(bl, false);
         this.chunk();
@@ -1527,7 +1536,7 @@ final class LexState {
      * assignment.
      */
     void check_conflict(LhsAssign lh, ExpDesc v) {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         int extra = fs.freereg; /* eventual position to save local variable */
         boolean conflict = false;
         for (; lh != null; lh = lh.prev) {
@@ -1557,6 +1566,8 @@ final class LexState {
     void assignment(LhsAssign lh, int nvars) {
         ExpDesc e = new ExpDesc();
         this.check_condition(VLOCAL <= lh.v.k && lh.v.k <= VINDEXED, "syntax error");
+
+        FuncState fs = getCurrentFuncState();
         if (this.testnext(',')) { /* assignment -> `,' primaryexp assignment */
             LhsAssign nv = new LhsAssign();
             nv.prev = lh;
@@ -1572,7 +1583,7 @@ final class LexState {
             if (nexps != nvars) {
                 this.adjust_assign(nvars, nexps, e);
                 if (nexps > nvars) {
-                    this.fs.freereg -= nexps - nvars; /*
+                    fs.freereg -= nexps - nvars; /*
                                                                          * remove
                                                                          * extra
                                                                          * values
@@ -1584,7 +1595,7 @@ final class LexState {
                 return; /* avoid default */
             }
         }
-        e.init(VNONRELOC, this.fs.freereg - 1); /* default assignment */
+        e.init(VNONRELOC, fs.freereg - 1); /* default assignment */
         fs.storevar(lh.v, e);
     }
 
@@ -1597,12 +1608,14 @@ final class LexState {
         if (v.k == VNIL) {
             v.k = VFALSE;
         }
+
+        FuncState fs = getCurrentFuncState();
         fs.goiftrue(v);
         return v.f.i;
     }
 
     void breakstat() {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         BlockCnt bl = fs.bl;
         boolean upval = false;
         while (bl != null && !bl.isbreakable) {
@@ -1622,7 +1635,7 @@ final class LexState {
 
     void whilestat(int line) {
         /* whilestat -> WHILE cond DO block END */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         int whileinit;
         int condexit;
         this.next(); /* skip WHILE */
@@ -1641,7 +1654,7 @@ final class LexState {
 
     void repeatstat(int line) {
         /* repeatstat -> REPEAT block UNTIL cond */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         final int repeat_init = fs.getlabel();
         BlockCnt bl1 = new BlockCnt();
         BlockCnt bl2 = new BlockCnt();
@@ -1668,13 +1681,13 @@ final class LexState {
         int k;
         this.expr(e);
         k = e.k;
-        fs.exp2nextreg(e);
+        getCurrentFuncState().exp2nextreg(e);
         return k;
     }
 
     void forbody(int base, int line, int nvars, boolean isnum) {
         /* forbody -> DO block */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         this.adjustlocalvars(3); /* control variables */
         this.checknext(TK_DO);
         final int prep = isnum ? fs.codeAsBx(Lua.OP_FORPREP, base, NO_JUMP) : fs.jump();
@@ -1698,7 +1711,7 @@ final class LexState {
 
     void fornum(LuaString varname, int line) {
         /* fornum -> NAME = exp1,exp1[,exp1] forbody */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         final int base = fs.freereg;
 
         this.new_localvar(STR_FOR_INDEX, 0);
@@ -1720,7 +1733,7 @@ final class LexState {
 
     void forlist(LuaString indexname) {
         /* forlist -> NAME {,NAME} IN explist1 forbody */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         int nvars = 0;
         final int base = fs.freereg;
         /* create control variables */
@@ -1743,7 +1756,7 @@ final class LexState {
 
     void forstat(int line) {
         /* forstat -> FOR (fornum | forlist) END */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         LuaString varname;
         BlockCnt bl = new BlockCnt();
         fs.enterblock(bl, true); /* scope for loop and control variables */
@@ -1779,7 +1792,7 @@ final class LexState {
          * ifstat -> IF cond THEN block {ELSEIF cond THEN block} [ELSE block]
          * END
          */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         int flist;
         IntPtr escapelist = new IntPtr(NO_JUMP);
         flist = test_then_block(); /* IF cond THEN block */
@@ -1801,7 +1814,7 @@ final class LexState {
     }
 
     void localfunc() {
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         this.new_localvar(this.str_checkname(), 0);
 
         ExpDesc v = new ExpDesc();
@@ -1856,13 +1869,15 @@ final class LexState {
         this.next(); /* skip FUNCTION */
         needself = this.funcname(v);
         this.body(b, needself, line);
+
+        FuncState fs = getCurrentFuncState();
         fs.storevar(v, b);
         fs.fixline(line); /* definition `happens' in the first line */
     }
 
     void exprstat() {
         /* stat -> func | assignment */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         LhsAssign v = new LhsAssign();
         this.primaryexp(v.v);
         if (v.v.k == VCALL) {
@@ -1875,7 +1890,7 @@ final class LexState {
 
     void retstat() {
         /* stat -> RETURN explist */
-        FuncState fs = this.fs;
+        FuncState fs = getCurrentFuncState();
         ExpDesc e = new ExpDesc();
         this.next(); /* skip RETURN */
 
@@ -1970,8 +1985,10 @@ final class LexState {
         while (!islast && !block_follow(this.t.token)) {
             islast = this.statement();
             this.testnext(';');
-            LuaC.luaAssert(this.fs.f.maxstacksize >= this.fs.freereg && this.fs.freereg >= this.fs.nactvar);
-            this.fs.freereg = this.fs.nactvar; /* free registers */
+
+            FuncState fs = getCurrentFuncState();
+            LuaC.luaAssert(fs.f.maxstacksize >= fs.freereg && fs.freereg >= fs.nactvar);
+            fs.freereg = fs.nactvar; /* free registers */
         }
         this.leavelevel();
     }

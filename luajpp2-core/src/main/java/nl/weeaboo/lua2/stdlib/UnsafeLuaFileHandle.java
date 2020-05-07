@@ -57,10 +57,11 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
         }
     }
 
-    private void checkOpen() throws IOException {
-        if (isClosed()) {
+    private RandomAccessFile checkOpen() throws IOException {
+        if (file == null) {
             throw new IOException("File is closed");
         }
+        return file;
     }
 
     private void checkReadable() throws IOException {
@@ -87,6 +88,10 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     }
 
     private void doClose() throws IOException {
+        if (file == null) {
+            return;
+        }
+
         LOG.debug("Closing file: {}", fileName);
         openFiles.remove(fileName);
         try {
@@ -103,7 +108,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
 
     @Override
     public int seek(String whence, int bytecount) throws IOException {
-        checkOpen();
+        RandomAccessFile file = checkOpen();
         flushBuffer();
 
         if (whence.equals("set")) {
@@ -139,7 +144,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     @Override
     public int remaining() {
         try {
-            checkOpen();
+            RandomAccessFile file = checkOpen();
             flushBuffer(); // Not strictly necessary, but it saves us a bit of complexity here.
 
             return (int)Math.min(Integer.MAX_VALUE, file.length() - file.getFilePointer());
@@ -151,7 +156,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
 
     @Override
     public int peek() throws IOException {
-        checkOpen();
+        RandomAccessFile file = checkOpen();
         checkReadable();
         flushBuffer();
 
@@ -163,7 +168,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
 
     @Override
     public int read() throws IOException {
-        checkOpen();
+        RandomAccessFile file = checkOpen();
         checkReadable();
         flushBuffer();
 
@@ -172,7 +177,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
 
     @Override
     public int read(byte[] bytes, int offset, int length) throws IOException {
-        checkOpen();
+        RandomAccessFile file = checkOpen();
         checkReadable();
         flushBuffer();
 
@@ -187,11 +192,11 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
         if (buffer == null) {
             writeToFile(string);
         } else {
-            writeToBuffer(string);
+            writeToBuffer(buffer, string);
         }
     }
 
-    private void writeToBuffer(LuaString string) throws IOException {
+    private void writeToBuffer(ByteBuffer buffer, LuaString string) throws IOException {
         for (int n = 0; n < string.rawlen(); n++) {
             int b = string.luaByte(n);
             buffer.put((byte)b);
@@ -207,6 +212,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
             return;
         }
 
+        RandomAccessFile file = checkOpen();
         if (mode.isAppend()) {
             final long oldpos = file.getFilePointer();
             file.seek(file.length());
@@ -222,6 +228,7 @@ final class UnsafeLuaFileHandle extends LuaFileHandle {
     }
 
     private void writeToFile(LuaString string) throws IOException {
+        RandomAccessFile file = checkOpen();
         if (mode.isAppend()) {
             final long oldpos = file.getFilePointer();
             file.seek(file.length());

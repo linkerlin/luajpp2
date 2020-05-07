@@ -393,9 +393,12 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     void popStackFrame() {
         final StackFrame sf = callstack;
+        if (sf == null) {
+            throw new IllegalStateException("Unable to pop stack frame; callstack is empty");
+        }
 
         // Pop from call stack
-        callstack = callstack.parent;
+        callstack = sf.parent;
 
         // Close stack frame
         sf.close();
@@ -414,8 +417,12 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
     @Deprecated
     public LuaValue getCallEnv() {
-        if (callstack != null) {
-            return callstack.getCallstackFunction(1).getfenv();
+        StackFrame sf = callstack;
+        if (sf != null) {
+            LuaFunction func = sf.getCallstackFunction(1);
+            if (func != null) {
+                return func.getfenv();
+            }
         }
         return getfenv();
     }

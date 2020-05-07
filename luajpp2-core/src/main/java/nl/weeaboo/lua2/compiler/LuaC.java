@@ -146,23 +146,23 @@ public final class LuaC extends Lua implements ILuaCompiler {
     }
 
     static void setOpcode(InstructionPtr i, int o) {
-        i.set((i.get() & (MASK_NOT_OP)) | ((o << POS_OP) & MASK_OP));
+        i.set((i.get() & MASK_NOT_OP) | ((o << POS_OP) & MASK_OP));
     }
 
     static void setArgA(InstructionPtr i, int u) {
-        i.set((i.get() & (MASK_NOT_A)) | ((u << POS_A) & MASK_A));
+        i.set((i.get() & MASK_NOT_A) | ((u << POS_A) & MASK_A));
     }
 
     static void setArgB(InstructionPtr i, int u) {
-        i.set((i.get() & (MASK_NOT_B)) | ((u << POS_B) & MASK_B));
+        i.set((i.get() & MASK_NOT_B) | ((u << POS_B) & MASK_B));
     }
 
     static void setArgC(InstructionPtr i, int u) {
-        i.set((i.get() & (MASK_NOT_C)) | ((u << POS_C) & MASK_C));
+        i.set((i.get() & MASK_NOT_C) | ((u << POS_C) & MASK_C));
     }
 
     static void setArgBx(InstructionPtr i, int u) {
-        i.set((i.get() & (MASK_NOT_Bx)) | ((u << POS_Bx) & MASK_Bx));
+        i.set((i.get() & MASK_NOT_Bx) | ((u << POS_Bx) & MASK_Bx));
     }
 
     static void setArgSBx(InstructionPtr i, int u) {

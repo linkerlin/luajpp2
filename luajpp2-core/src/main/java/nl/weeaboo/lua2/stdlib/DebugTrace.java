@@ -243,7 +243,7 @@ public final class DebugTrace {
     }
 
     private static boolean checkopenop(Prototype pt, int pc) {
-        int i = pt.code[(pc) + 1];
+        int i = pt.code[pc + 1];
 
         switch (Lua.getOpcode(i)) {
         case Lua.OP_CALL:
@@ -285,7 +285,7 @@ public final class DebugTrace {
         last = pt.code.length - 1; /*
                                     * points to final return (a `neutral' instruction)
                                     */
-        if (!(precheck(pt))) {
+        if (!precheck(pt)) {
             return 0;
         }
         for (int pc = 0; pc < lastpc; pc++) {
@@ -377,7 +377,7 @@ public final class DebugTrace {
             }
             case Lua.OP_GETGLOBAL:
             case Lua.OP_SETGLOBAL: {
-                if (!(pt.k[b].isstring())) {
+                if (!pt.k[b].isstring()) {
                     return 0;
                 }
                 break;
@@ -437,7 +437,7 @@ public final class DebugTrace {
                 }
                 c--; /* c = num. returns */
                 if (c == Lua.LUA_MULTRET) {
-                    if (!(checkopenop(pt, pc))) {
+                    if (!checkopenop(pt, pc)) {
                         return 0;
                     }
                 } else if (c != 0) {
@@ -495,7 +495,7 @@ public final class DebugTrace {
                 }
                 b--;
                 if (b == Lua.LUA_MULTRET) {
-                    if (!(checkopenop(pt, pc))) {
+                    if (!checkopenop(pt, pc)) {
                         return 0;
                     }
                 }

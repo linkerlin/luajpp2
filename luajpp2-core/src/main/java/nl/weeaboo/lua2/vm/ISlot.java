@@ -36,7 +36,7 @@ interface ISlot extends Serializable {
      * Set the value of this Slot's first Entry, if possible, or return a new Slot whose first entry has
      * the given value.
      */
-    @Nullable ISlot set(IStrongSlot target, LuaValue value);
+    ISlot set(IStrongSlot target, LuaValue value);
 
     /**
      * Link the given new entry to this slot.

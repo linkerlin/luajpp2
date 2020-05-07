@@ -1,6 +1,6 @@
 ext.deps = [:]
 
-ext.errorProneVersion = '2.3.1'
+ext.errorProneVersion = '2.3.3'
 
 def slf4jVersion = '1.7.21'
 

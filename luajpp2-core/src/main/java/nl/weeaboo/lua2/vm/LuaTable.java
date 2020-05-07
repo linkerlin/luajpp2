@@ -722,8 +722,10 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
     }
 
     private void dropWeakArrayValues() {
-        for (int i = 0; i < array.length; ++i) {
-            metatable.arrayget(array, i);
+        if (metatable != null) {
+            for (int i = 0; i < array.length; ++i) {
+                metatable.arrayget(array, i);
+            }
         }
     }
 
@@ -1198,7 +1200,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
         Varargs n;
         LuaValue k = NIL;
         LuaValue v;
-        while (!(k = ((n = next(k)).arg1())).isnil()) {
+        while (!(k = (n = next(k)).arg1()).isnil()) {
             if (!(v = func.call(k, n.arg(2))).isnil()) {
                 return v;
             }

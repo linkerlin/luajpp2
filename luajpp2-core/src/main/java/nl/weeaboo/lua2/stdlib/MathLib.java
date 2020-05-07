@@ -306,7 +306,7 @@ public final class MathLib extends LuaModule {
             return varargsOf(LuaInteger.valueOf(0), LuaInteger.valueOf(0));
         }
         long bits = Double.doubleToLongBits(x);
-        double m = ((bits & (~(-1L << 52))) + (1L << 52))
+        double m = ((bits & ~(-1L << 52)) + (1L << 52))
                 * ((bits >= 0) ? (.5 / (1L << 52)) : (-.5 / (1L << 52)));
         double e = (((int)(bits >> 52)) & 0x7ff) - 1022;
         return varargsOf(valueOf(m), valueOf(e));

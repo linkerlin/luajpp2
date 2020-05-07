@@ -175,7 +175,7 @@ public final class Print extends Lua {
             if (getBMode(o) == OpArgK) {
                 ps.print(a + " " + (-1 - bx));
             } else {
-                ps.print(a + " " + (bx));
+                ps.print(a + " " + bx);
             }
             break;
         case iAsBx:
@@ -341,7 +341,7 @@ public final class Print extends Lua {
     /**
      * @param f The prototype to get the identifier of.
      */
-    private static String id(Prototype f) {
+    private static String id(@SuppressWarnings("unused") Prototype f) {
         return "Proto";
     }
 

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import javax.annotation.Nullable;
 
 import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.vm.LuaNil;
 import nl.weeaboo.lua2.vm.LuaValue;
 
 @LuaSerializable
@@ -14,7 +15,7 @@ final class StringInputStream extends InputStream implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private @Nullable LuaValue func;
+    private LuaValue func;
     private @Nullable InputStream buffered;
 
     StringInputStream(LuaValue func) {
@@ -23,11 +24,7 @@ final class StringInputStream extends InputStream implements Serializable {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        if (func == null) {
-            return -1;
-        }
-
-        int r = buffered.read(b, off, len);
+        int r = (buffered != null ? buffered.read(b, off, len) : -1);
         if (r < 0) {
             fillBuffer();
             if (buffered != null) {
@@ -39,11 +36,7 @@ final class StringInputStream extends InputStream implements Serializable {
 
     @Override
     public int read() throws IOException {
-        if (func == null) {
-            return -1;
-        }
-
-        int r = buffered.read();
+        int r = (buffered != null ? buffered.read() : -1);
         if (r < 0) {
             fillBuffer();
             if (buffered != null) {
@@ -54,9 +47,13 @@ final class StringInputStream extends InputStream implements Serializable {
     }
 
     private void fillBuffer() {
+        if (func.isnil()) {
+            return;
+        }
+
         LuaValue val = func.call();
         if (val.isnil() || val.length() == 0) {
-            func = null;
+            func = LuaNil.NIL;
             buffered = null;
         } else {
             buffered = val.checkstring().toInputStream();

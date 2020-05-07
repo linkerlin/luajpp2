@@ -2812,7 +2812,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
         int loop = 0;
         do {
             if (t.istable()) {
-                if ((!t.rawget(key).isnil()) || (tm = t.metatag(META_NEWINDEX)).isnil()) {
+                if (!t.rawget(key).isnil() || (tm = t.metatag(META_NEWINDEX)).isnil()) {
                     t.rawset(key, value);
                     return;
                 }
