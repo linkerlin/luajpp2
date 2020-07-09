@@ -85,7 +85,7 @@ public class StringTest {
             String after = ls.tojstring();
             Assert.assertEquals(userFriendly(before), userFriendly(after));
         }
-        char[] c = { (char)(1), (char)(2), (char)(3) };
+        char[] c = { (char)1, (char)2, (char)3 };
         String before = new String(c) + " 1-3";
         LuaString ls = LuaString.valueOf(before);
         String after = ls.tojstring();

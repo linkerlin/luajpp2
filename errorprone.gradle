@@ -14,6 +14,11 @@ tasks.withType(JavaCompile) {
         warn('FieldMissingNullable')
         warn('ParameterNotNullable')
         warn('ReturnMissingNullable')
+    }
+}
+
+tasks.named('compileJava') {
+    options.errorprone {
         warn('NullableDereference')
     }
 }

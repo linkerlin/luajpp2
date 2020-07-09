@@ -579,7 +579,7 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to perform arithmetic")) || actual.indexOf(type) < 0) {
+            if (!actual.startsWith("attempt to perform arithmetic") || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
             }
@@ -1123,7 +1123,7 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to compare")) || actual.indexOf(type) < 0) {
+            if (!actual.startsWith("attempt to compare") || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
             }
@@ -1533,7 +1533,7 @@ public class UnaryBinaryOperatorsTest {
             LuaValue.class.getMethod(op, new Class[] { LuaValue.class }).invoke(a, new Object[] { b });
         } catch (InvocationTargetException ite) {
             String actual = ite.getTargetException().getMessage();
-            if ((!actual.startsWith("attempt to concatenate")) || actual.indexOf(type) < 0) {
+            if (!actual.startsWith("attempt to concatenate") || actual.indexOf(type) < 0) {
                 Assert.fail(
                         "(" + a.typename() + "," + op + "," + b.typename() + ") reported '" + actual + "'");
             }

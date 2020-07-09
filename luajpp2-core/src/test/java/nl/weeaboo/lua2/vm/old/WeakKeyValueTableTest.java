@@ -23,6 +23,7 @@ public class WeakKeyValueTableTest extends WeakTableTest {
         return TableTester.newWeakTable(true, true);
     }
 
+    @SuppressWarnings("UnusedVariable") // 'Unused' writes of null are used to allow garbage collection
     @Test
     public void testWeakKeysValuesTable() {
         LuaTable t = TableTester.newWeakTable(true, true);

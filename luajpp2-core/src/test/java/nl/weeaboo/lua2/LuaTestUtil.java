@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import org.junit.Assert;
 
 import nl.weeaboo.lua2.io.LuaSerializer;
@@ -32,13 +34,13 @@ public final class LuaTestUtil {
     }
 
     /** Returns the value of the Lua global with the given name. */
-    public static LuaValue getGlobal(String name) {
+    public static @Nullable LuaValue getGlobal(String name) {
         LuaTable globals = LuaRunState.getCurrent().getGlobalEnvironment();
         return globals.get(name);
     }
 
     /** Returns the value of the Lua global with the given name converted to a Java value. */
-    public static <T> T getGlobal(String name, Class<T> type) {
+    public static @Nullable <T> T getGlobal(String name, Class<T> type) {
         return getGlobal(name).optuserdata(type, null);
     }
 

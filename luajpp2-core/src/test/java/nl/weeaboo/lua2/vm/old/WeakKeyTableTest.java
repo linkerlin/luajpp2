@@ -57,6 +57,7 @@ public class WeakKeyTableTest extends WeakTableTest {
         Assert.assertEquals(null, origval.get());
     }
 
+    @SuppressWarnings("UnusedVariable") // 'Unused' writes of null are used to allow garbage collection
     @Test
     public void testNext() {
         LuaTable t = TableTester.newWeakTable(true, true);

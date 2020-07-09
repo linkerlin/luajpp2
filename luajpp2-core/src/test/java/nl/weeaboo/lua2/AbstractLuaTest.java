@@ -1,9 +1,5 @@
 package nl.weeaboo.lua2;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.LogManager;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,8 +13,6 @@ public abstract class AbstractLuaTest {
 
     static {
         System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
-
-        configureLogging();
     }
 
     protected LuaRunState luaRunState;
@@ -26,20 +20,6 @@ public abstract class AbstractLuaTest {
     @Before
     public void initLuaRunState() throws LuaException {
         luaRunState = LuaRunState.create();
-    }
-
-    private static void configureLogging() {
-        LogManager logManager = LogManager.getLogManager();
-        try {
-            InputStream in = AbstractLuaTest.class.getResourceAsStream("/logging.debug.properties");
-            try {
-                logManager.readConfiguration(in);
-            } finally {
-                in.close();
-            }
-        } catch (IOException ioe) {
-            throw new AssertionError(ioe);
-        }
     }
 
     @After

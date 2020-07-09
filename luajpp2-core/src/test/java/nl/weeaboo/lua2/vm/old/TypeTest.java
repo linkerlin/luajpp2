@@ -471,6 +471,7 @@ public class TypeTest {
         Assert.assertEquals(0., someclosure.todouble(), EPSILON);
     }
 
+    @SuppressWarnings("FloatingPointAssertionWithinEpsilon")
     @Test
     public void testToFloat() {
         Assert.assertEquals(0.f, somenil.tofloat(), EPSILON);
