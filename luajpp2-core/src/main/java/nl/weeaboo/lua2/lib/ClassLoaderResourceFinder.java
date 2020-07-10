@@ -3,7 +3,6 @@ package nl.weeaboo.lua2.lib;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 
 import javax.annotation.Nullable;
@@ -14,7 +13,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
  * Resource loader that reads resources from the Java classpath.
  */
 @LuaSerializable
-public class ClassLoaderResourceFinder implements ILuaResourceFinder, Serializable {
+public class ClassLoaderResourceFinder implements ILuaResourceFinder {
 
     private static final long serialVersionUID = 1L;
 

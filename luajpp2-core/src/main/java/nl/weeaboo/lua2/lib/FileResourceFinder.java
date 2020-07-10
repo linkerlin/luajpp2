@@ -10,6 +10,8 @@ import java.io.InputStream;
  */
 public final class FileResourceFinder implements ILuaResourceFinder {
 
+    private static final long serialVersionUID = 1L;
+
     private final File baseFolder;
 
     public FileResourceFinder() {

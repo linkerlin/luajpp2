@@ -7,9 +7,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import nl.weeaboo.lua2.LuaException;
-import nl.weeaboo.lua2.vm.LuaTable;
-import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
@@ -60,67 +57,11 @@ public final class CoerceLuaToJava {
 
     /**
      * Casts or converts the given Lua value to the given Java type.
+     *
+     * @see ITypeCoercions#toJava(LuaValue, Class)
      */
     public static @Nullable <T> T coerceArg(LuaValue lv, Class<T> c) {
-        /*
-         * The java arg is a Lua type. Check that c is a subclass of LuaValue to prevent using this case for
-         * Object params.
-         */
-        if (LuaValue.class.isAssignableFrom(c) && c.isAssignableFrom(lv.getClass())) {
-            return c.cast(lv);
-        }
-
-        // The lua arg is a Java object
-        if (lv instanceof LuaUserdata) {
-            Object obj = ((LuaUserdata)lv).userdata();
-            if (c.isAssignableFrom(obj.getClass())) {
-                return c.cast(obj);
-            }
-        }
-
-        // Try to use a specialized coercion function if one is available
-        TypeCoercions typeCoercions = TypeCoercions.getInstance();
-        ILuaToJava<T> luaToJava = typeCoercions.findLuaToJava(c);
-        if (luaToJava != null) {
-            return luaToJava.toJava(lv);
-        }
-
-        // Special coercion for arrays
-        if (c.isArray()) {
-            Class<?> inner = c.getComponentType();
-            if (lv instanceof LuaTable) {
-                // LTable -> Array
-                LuaTable table = (LuaTable)lv;
-                int len = table.length();
-                Object result = Array.newInstance(inner, len);
-                for (int n = 0; n < len; n++) {
-                    LuaValue val = table.get(n + 1);
-                    if (val != null) {
-                        Array.set(result, n, coerceArg(val, inner));
-                    }
-                }
-                return c.cast(result);
-            } else {
-                // Single element -> Array
-                Object result = Array.newInstance(inner, 1);
-                Array.set(result, 0, coerceArg(lv, inner));
-                return c.cast(result);
-            }
-        }
-
-        // Special case for nil
-        if (lv.isnil()) {
-            return null;
-        }
-
-        // String -> Enum
-        if (c.isEnum() && lv.isstring()) {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            Enum enumVal = Enum.valueOf((Class<Enum>)c, lv.tojstring());
-            return c.cast(enumVal);
-        }
-
-        throw new LuaException("Invalid coercion: " + lv.getClass() + " -> " + c);
+        return ITypeCoercions.getCurrent().toJava(lv, c);
     }
 
     /**
@@ -149,46 +90,11 @@ public final class CoerceLuaToJava {
         }
 
         // Compare args
+        ITypeCoercions typeCoercions = ITypeCoercions.getCurrent();
         for (int n = 0; n < len; n++) {
-            score += scoreParam(luaArgs.arg(1 + n), javaParams.get(n));
+            score += typeCoercions.scoreParam(luaArgs.arg(1 + n), javaParams.get(n));
         }
         return score;
-    }
-
-    private static <T> int scoreParam(LuaValue a, Class<T> c) {
-        // Java function uses Lua types
-        if (c.isAssignableFrom(a.getClass())) {
-            return 0;
-        }
-
-        // The lua arg is a Java object
-        if (a instanceof LuaUserdata) {
-            Object o = ((LuaUserdata)a).userdata();
-            if (c.isAssignableFrom(o.getClass())) {
-                return 0; // Perfect match
-            }
-        }
-
-        // Try to use a specialized scoring function if one is available
-        TypeCoercions typeCoercions = TypeCoercions.getInstance();
-        ILuaToJava<T> luaToJava = typeCoercions.findLuaToJava(c);
-        if (luaToJava != null) {
-            return luaToJava.score(a);
-        }
-
-        // Special scoring for arrays
-        if (c.isArray()) {
-            Class<?> inner = c.getComponentType();
-            if (a instanceof LuaTable) {
-                // Supplying a table as an array arg, compare element types
-                return scoreParam(((LuaTable)a).get(1), inner);
-            } else {
-                // Supplying a single element as an array argument
-                return 0x10 + (scoreParam(a, inner) << 8);
-            }
-        }
-
-        return 0x1000;
     }
 
 }

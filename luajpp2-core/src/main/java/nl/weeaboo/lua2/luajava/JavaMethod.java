@@ -15,31 +15,11 @@ final class JavaMethod {
     private final Method method;
     private final List<Class<?>> paramTypes;
     private final int paramCount;
-    private final IJavaToLua returnTypeCoercion;
 
     public JavaMethod(Method m) {
         method = m;
         paramTypes = Arrays.asList(m.getParameterTypes());
         paramCount = paramTypes.size();
-        returnTypeCoercion = initReturnTypeCoercion(m);
-    }
-
-    private static IJavaToLua initReturnTypeCoercion(final Method method) {
-        final Class<?> returnType = method.getReturnType();
-
-        TypeCoercions typeCoercions = TypeCoercions.getInstance();
-        IJavaToLua result = typeCoercions.findJavaToLua(returnType);
-
-        if (result == null) {
-            // Slow path for types for which no dedicated conversion exists
-            result = new IJavaToLua() {
-                @Override
-                public LuaValue toLua(Object javaValue) {
-                    return CoerceJavaToLua.coerce(javaValue, returnType);
-                }
-            };
-        }
-        return result;
     }
 
     public LuaValue luaInvoke(Object instance, Varargs args)
@@ -53,7 +33,7 @@ final class JavaMethod {
 
         Object javaResult = method.invoke(instance, javaArgs);
 
-        return returnTypeCoercion.toLua(javaResult);
+        return CoerceJavaToLua.coerce(javaResult, method.getReturnType());
     }
 
     public List<Class<?>> getParamTypes() {

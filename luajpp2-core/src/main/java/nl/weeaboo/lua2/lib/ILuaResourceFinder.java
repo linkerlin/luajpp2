@@ -22,6 +22,8 @@
 
 package nl.weeaboo.lua2.lib;
 
+import java.io.Serializable;
+
 import javax.annotation.Nullable;
 
 /**
@@ -32,7 +34,7 @@ import javax.annotation.Nullable;
  * <p>
  * The io library does not use this API for file manipulation.
  */
-public interface ILuaResourceFinder {
+public interface ILuaResourceFinder extends Serializable {
 
     /**
      * Try to open a file, or return null if not found.
