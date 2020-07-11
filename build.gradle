@@ -1,11 +1,11 @@
 buildscript {
     repositories {
-        google()
         jcenter()
+        google()
     }
     dependencies {
         // Plugins for Android
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:4.0.0'
     }
 }
 
@@ -26,7 +26,7 @@ allprojects {
     apply plugin: 'com.jfrog.bintray'
 
     group = 'nl.weeaboo.luajpp2'
-    version = '3.0.3'
+    version = '3.1.0'
 
     repositories {
         google()
@@ -97,83 +97,3 @@ subprojects {
         project.apply from: rootProject.file('errorprone.gradle')
     }
 }
-
-project(':luajpp2-core') {
-    apply plugin: 'java-library'
-
-    processResources {
-        filesMatching('**/*.properties') {
-            filter {
-                // Engine version number
-                it.replace('@VERSION@', version)
-            }
-        }
-    }
-    
-    publishing {
-        publications {
-            core(MavenPublication) {
-                from components.java            
-                artifactId = 'luajpp2-core'
-                artifact(sourceJar)
-
-                pom.withXml {
-                    asNode().children().last() + project.ext.pomLicenseConfig
-                }  
-            }
-        }
-    }
-
-    bintray {
-        publications = ['core']
-    }
-}
-
-project(':luajpp2-android') {
-    apply plugin: 'com.android.application'
-
-    android {
-        buildToolsVersion '29.0.2'
-        compileSdkVersion 15
-
-        defaultConfig {
-            minSdkVersion 15
-            targetSdkVersion 15
-        }
-
-        // Add source folders of the core module so we can test/lint them to check for Android compatibility
-        sourceSets {
-            main.java.srcDirs += '../luajpp2-core/src/main/java'
-            main.resources.srcDirs += '../luajpp2-core/src/main/resources'
-            test.java.srcDirs += '../luajpp2-core/src/test/java'
-            test.resources.srcDirs += '../luajpp2-core/src/test/resources'
-        }
-
-        compileOptions {
-            sourceCompatibility javaVersion
-            targetCompatibility javaVersion
-        }
-
-        lintOptions {
-            textOutput 'stdout'
-            textReport true
-        }
-    }
-    
-    eclipse {
-        sourceSets {
-            main.java.srcDirs 'src/main/java'
-            test.java.srcDirs 'src/test/java'
-        }
-    }
-
-    dependencies {
-        compileOnly deps.static_analysis_annotations
-        implementation deps.slf4j_api
-
-        testCompileOnly deps.static_analysis_annotations
-        testImplementation deps.junit
-        testRuntimeOnly deps.slf4j_desktop
-    }
-}
-

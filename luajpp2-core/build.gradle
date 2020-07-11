@@ -1,0 +1,28 @@
+apply plugin: 'java-library'
+
+processResources {
+    filesMatching('**/*.properties') {
+        filter {
+            // Engine version number
+            it.replace('@VERSION@', version)
+        }
+    }
+}
+
+publishing {
+    publications {
+        core(MavenPublication) {
+            from components.java            
+            artifactId = 'luajpp2-core'
+            artifact(sourceJar)
+
+            pom.withXml {
+                asNode().children().last() + project.ext.pomLicenseConfig
+            }  
+        }
+    }
+}
+
+bintray {
+    publications = ['core']
+}
