@@ -2644,7 +2644,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @param unnamedValues array of {@link LuaValue} containing the values to use in initialization
      * @return new {@link LuaTable} instance with sequential elements coming from the array.
      */
-    public static LuaTable listOf(LuaValue[] unnamedValues) {
+    public static LuaTable listOf(LuaValue... unnamedValues) {
         return new LuaTable(null, unnamedValues, null);
     }
 
@@ -2699,7 +2699,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *        {@code key-a, value-a, key-b, value-b, ...}
      * @return new {@link LuaTable} instance with non-sequential keys coming from the supplied array.
      */
-    public static LuaTable tableOf(LuaValue[] namedValues) {
+    public static LuaTable tableOf(LuaValue... namedValues) {
         return new LuaTable(namedValues, null, null);
     }
 
@@ -2908,7 +2908,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      * @see LuaValue#varargsOf(LuaValue, Varargs)
      * @see LuaValue#varargsOf(LuaValue[], int, int)
      */
-    public static Varargs varargsOf(final LuaValue[] v) {
+    public static Varargs varargsOf(final LuaValue... v) {
         switch (v.length) {
         case 0:
             return NONE;
