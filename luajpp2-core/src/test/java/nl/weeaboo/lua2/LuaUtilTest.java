@@ -15,6 +15,7 @@ import nl.weeaboo.lua2.vm.LuaValue;
 public class LuaUtilTest extends AbstractLuaTest {
 
     /** Test for eval and stacktrace functions. */
+    @SuppressWarnings("deprecation") // Unit test of deprecated method
     @Test
     public void callEvalStackTrace() throws LuaException {
         // Load script with some test functions

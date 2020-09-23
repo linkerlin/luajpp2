@@ -132,14 +132,20 @@ public final class LuaUtil {
     /**
      * Returns the current call stack of the active Lua thread, or an empty list if no thread is active.
      * @see #getLuaStack()
+     *
+     * @deprecated Use {@link DebugTrace#stackTrace(LuaThread)} instead.
      */
+    @Deprecated
     public static List<String> getLuaStack() {
         return getLuaStack(LuaThread.getRunning());
     }
 
     /**
      * Returns the call stack of the given thread.
+     *
+     * @deprecated Use {@link DebugTrace#stackTrace(LuaThread)} instead.
      */
+    @Deprecated
     public static List<String> getLuaStack(LuaThread thread) {
         if (thread == null) {
             return Collections.emptyList();

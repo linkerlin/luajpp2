@@ -412,7 +412,7 @@ public final class DebugLib extends LuaModule {
 
                 DebugInfo parentInfo = ds.getDebugInfo(level + 1);
                 if (parentInfo != null) {
-                    namewhat = parentInfo.getfunckind();
+                    namewhat = parentInfo.getnamewhat();
                 }
             } else {
                 di = new DebugInfo(thread.getCallstackFunction(1));
@@ -582,11 +582,11 @@ public final class DebugLib extends LuaModule {
      * @param thread the thread for the call
      * @param func the function called
      */
-    public static void debugOnCall(LuaThread thread, LuaFunction func) {
+    public static void debugOnCall(LuaThread thread, LuaFunction func, String functionName) {
         DebugState ds = getDebugState(thread);
 
         DebugInfo di = ds.pushInfo();
-        di.setfunction(func);
+        di.setfunction(func, functionName);
 
         LOG.trace("debugOnCall: {}", di);
 

@@ -64,6 +64,10 @@ public final class Prototype implements Externalizable {
     public int isVararg;
     public int maxstacksize;
 
+    public Prototype() {
+        // A no-arg constructor is required for Externalizable
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(k);

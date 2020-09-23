@@ -1,8 +1,11 @@
 package nl.weeaboo.lua2;
 
+import java.util.List;
+
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaNil;
+import nl.weeaboo.lua2.vm.LuaStackTraceElement;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -38,14 +41,12 @@ public final class LuaException extends RuntimeException {
     }
 
     private void initStackTrace(Throwable cause, int level) {
-        @SuppressWarnings("deprecation")
-        StackTraceElement[] stack = DebugTrace.getStackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
+        List<LuaStackTraceElement> stack = DebugTrace.stackTrace(LuaThread.getRunning(), level, MAX_LEVELS);
         if (cause != null) {
-            stack = prefixLuaStackTrace(cause, stack);
+            setStackTrace(prefixLuaStackTrace(cause, stack));
         } else {
-            stack = prefixLuaStackTrace(this, stack);
+            setStackTrace(prefixLuaStackTrace(this, stack));
         }
-        setStackTrace(stack);
     }
 
     /**
@@ -69,9 +70,9 @@ public final class LuaException extends RuntimeException {
         return le;
     }
 
-    private static StackTraceElement[] prefixLuaStackTrace(Throwable t, StackTraceElement[] luaStack) {
+    private static StackTraceElement[] prefixLuaStackTrace(Throwable t, List<LuaStackTraceElement> luaStack) {
         StackTraceElement[] javaStack = t.getStackTrace();
-        StackTraceElement[] newStack = new StackTraceElement[luaStack.length + javaStack.length];
+        StackTraceElement[] newStack = new StackTraceElement[luaStack.size() + javaStack.length];
 
         int joff = 0;
         for (int n = 0; n < javaStack.length; n++) {
@@ -82,8 +83,10 @@ public final class LuaException extends RuntimeException {
             }
         }
         System.arraycopy(javaStack, 0, newStack, 0, joff);
-        System.arraycopy(luaStack, 0, newStack, joff, luaStack.length);
-        System.arraycopy(javaStack, joff, newStack, joff + luaStack.length, javaStack.length - joff);
+        for (int n = 0; n < luaStack.size(); n++) {
+            newStack[joff + n] = luaStack.get(n).toJavaStackTraceElement();
+        }
+        System.arraycopy(javaStack, joff, newStack, joff + luaStack.size(), javaStack.length - joff);
         return newStack;
     }
 

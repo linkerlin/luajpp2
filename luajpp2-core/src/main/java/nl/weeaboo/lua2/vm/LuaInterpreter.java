@@ -17,6 +17,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.stdlib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.StackFrame.Status;
 
 final class LuaInterpreter {
@@ -421,9 +422,10 @@ final class LuaInterpreter {
 
             LuaValue f = stack[a];
             if (f.isclosure()) {
+                String functionName = DebugTrace.getCalledFunctionName(thread);
                 thread.postReturn(stackFrame);
 
-                stackFrame.prepareTailcall(f.checkclosure(), v);
+                stackFrame.prepareTailcall(f.checkclosure(), v, functionName);
                 top = stackFrame.top;
                 pc = stackFrame.pc;
                 v = stackFrame.v;

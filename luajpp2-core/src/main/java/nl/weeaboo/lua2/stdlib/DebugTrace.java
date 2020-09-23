@@ -3,6 +3,7 @@ package nl.weeaboo.lua2.stdlib;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -10,6 +11,7 @@ import javax.annotation.Nullable;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.LuaStackTraceElement;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
@@ -36,6 +38,8 @@ public final class DebugTrace {
      * @param thread LuaThread to provide stack trace for
      * @param level 0-based level to start reporting on
      * @return String containing the stack trace.
+     *
+     * @see #stackTrace(LuaThread)
      */
     public static String traceback(LuaThread thread, int level) {
         DebugState ds = DebugLib.getDebugState(thread);
@@ -86,6 +90,7 @@ public final class DebugTrace {
      * @return String identifying the file and line of the nearest lua closure, or the function name of the
      *         Java call if no closure is being called.
      */
+    @Deprecated
     public static @Nullable String fileline() {
         LuaThread running = LuaThread.getRunning();
         DebugState ds = DebugLib.getDebugState(running);
@@ -102,6 +107,7 @@ public final class DebugTrace {
     /**
      * @see #fileline(LuaThread, int)
      */
+    @Deprecated
     public static @Nullable String fileline(int level) {
         return fileline(LuaThread.getRunning(), level);
     }
@@ -112,6 +118,7 @@ public final class DebugTrace {
      * @param level 1-based index of level to get
      * @return String containing file and line info if available
      */
+    @Deprecated
     public static @Nullable String fileline(LuaThread running, int level) {
         DebugState ds = DebugLib.getDebugState(running);
         DebugInfo di = ds.getDebugInfo(level);
@@ -122,10 +129,56 @@ public final class DebugTrace {
         return di.sourceline();
     }
 
+    /**
+     * Returns the Lua call stack of the given thread.
+     */
+    public static List<LuaStackTraceElement> stackTrace(LuaThread thread) {
+        return stackTrace(thread, 0, 8);
+    }
+
+    /**
+     * Returns the Lua call stack of the given thread.
+     *
+     * @param offset Return stack trace from this call depth onwards.
+     * @param count Traverse at most this number of levels.
+     */
+    public static List<LuaStackTraceElement> stackTrace(LuaThread thread, int offset, int count) {
+        List<LuaStackTraceElement> result = new ArrayList<>();
+        DebugState ds = DebugLib.getDebugState(thread);
+        for (int level = 1; level <= count; level++) {
+            DebugInfo di = ds.getDebugInfo(offset + level);
+            if (di == null) {
+                continue;
+            }
+
+            LuaStackTraceElement trace = di.getStackTraceElement();
+            if (trace == null) {
+                break;
+            }
+            result.add(trace);
+        }
+        return Collections.unmodifiableList(result);
+    }
+
     private static void lua_assert(boolean x) {
         if (!x) {
             throw new LuaException("lua_assert failed");
         }
+    }
+
+    /**
+     * The name of the function that the given thread is currently in the process of calling. A function can
+     * be known by multiple names. This is the name used to call the function in this particular case.
+     */
+    public static String getCalledFunctionName(LuaThread thread) {
+        DebugState ds = DebugLib.getDebugState(thread);
+        if (ds != null) {
+            DebugInfo di = ds.getDebugInfo();
+            if (di != null) {
+                return di.getObjectName();
+            }
+        }
+        return "?";
     }
 
     /**

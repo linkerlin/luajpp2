@@ -36,6 +36,7 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 
 /**
  * Lua thread object
@@ -80,7 +81,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     public LuaThread(LuaThread parent, LuaClosure function) {
         this(parent.luaRunState, parent.getfenv());
 
-        callstack = StackFrame.newInstance(function, NONE, null, 0, 0);
+        callstack = StackFrame.newInstance(function, NONE, function.tojstring(), null, 0, 0);
     }
 
     /**
@@ -182,7 +183,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     void preCall(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
             DebugLib.debugSetupCall(this, sf.args, sf.stack);
-            DebugLib.debugOnCall(this, sf.func);
+            DebugLib.debugOnCall(this, sf.func, sf.functionName);
 
             LOG.trace(">>({}) {}", sf.size(), sf);
         }
@@ -216,7 +217,8 @@ public final class LuaThread extends LuaValue implements Serializable {
                     callstack);
         }
 
-        callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
+        String funcName = DebugTrace.getCalledFunctionName(this);
+        callstack = StackFrame.newInstance(func, args, funcName, callstack, returnBase, returnCount);
 
         /*
          * When adding something to the call stack, change the status from initial to something else.

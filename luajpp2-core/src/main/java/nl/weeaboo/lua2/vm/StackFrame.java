@@ -23,6 +23,7 @@ final class StackFrame implements Externalizable {
     // --- Uses manual serialization, don't add variables ---
     Status status;
     LuaFunction func;  //The function that's being called
+    String functionName; // The name of 'func' at the place where it's being called from
     Varargs args;      //The args given
     Varargs varargs;   //The varargs part of the arguments given
 
@@ -42,11 +43,11 @@ final class StackFrame implements Externalizable {
     public StackFrame() {
     }
 
-    static StackFrame newInstance(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
-            int returnCount) {
+    static StackFrame newInstance(LuaFunction func, Varargs args, String functionName,
+            StackFrame parent, int returnBase, int returnCount) {
 
         StackFrame frame = new StackFrame();
-        frame.prepareCall(func, args, parent, returnBase, returnCount);
+        frame.prepareCall(func, args, functionName, parent, returnBase, returnCount);
         return frame;
     }
 
@@ -63,6 +64,7 @@ final class StackFrame implements Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(status);
         out.writeObject(func);
+        out.writeUTF(functionName);
         out.writeObject(args);
         out.writeObject(varargs);
 
@@ -82,6 +84,7 @@ final class StackFrame implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         status = (Status)in.readObject();
         func = (LuaClosure)in.readObject();
+        functionName = in.readUTF();
         args = (Varargs)in.readObject();
         varargs = (Varargs)in.readObject();
 
@@ -155,13 +158,14 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    public final void prepareCall(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
-            int returnCount) {
+    public final void prepareCall(LuaFunction func, Varargs args, String functionName,
+            StackFrame parent, int returnBase, int returnCount) {
 
         final Prototype p = getPrototype(func);
 
         this.status = Status.FRESH;
         this.func = func;
+        this.functionName = functionName;
 
         this.parent = parent;
         this.parentCount = (parent != null ? parent.size() : 0);
@@ -194,7 +198,7 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    public final void prepareTailcall(LuaFunction func, Varargs args) {
+    public final void prepareTailcall(LuaFunction func, Varargs args, String functionName) {
         closeUpValues(); //We're clobbering the stack, save the upvalues first
 
         final Prototype p = getPrototype(func);
@@ -202,6 +206,7 @@ final class StackFrame implements Externalizable {
         //Don't change status
 
         this.func = func;
+        this.functionName = functionName;
         this.args = args;
         this.varargs = extractVarargs(p, args);
 
