@@ -114,16 +114,17 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    private void resetExecutionState(int minStackSize, int subFunctionCount) {
-        if (stack.length != minStackSize) {
+    private void resetExecutionState(int minStackSize, int upValueCount) {
+        if (stack.length < minStackSize) {
             stack = new LuaValue[minStackSize];
         }
         Arrays.fill(stack, NIL);
 
-        if (subFunctionCount == 0) {
-            openups = UpValue.NOUPVALUES;
+        // (re)size upValue array
+        if (openups.length < upValueCount) {
+            openups = new UpValue[upValueCount];
         } else {
-            openups = new UpValue[minStackSize];
+            Arrays.fill(openups, null);
         }
 
         v = NONE;
@@ -170,7 +171,7 @@ final class StackFrame implements Externalizable {
         if (p == null) {
             resetExecutionState(0, 0);
         } else {
-            resetExecutionState(p.maxstacksize, p.p.length);
+            resetExecutionState(p.maxstacksize, p.nups);
         }
 
         setArgs(args);
@@ -209,7 +210,7 @@ final class StackFrame implements Externalizable {
         if (p == null) {
             resetExecutionState(0, 0);
         } else {
-            resetExecutionState(p.maxstacksize, p.p.length);
+            resetExecutionState(p.maxstacksize, p.nups);
 
             //Push params on stack
             for (int i = 0; i < p.numparams; i++) {

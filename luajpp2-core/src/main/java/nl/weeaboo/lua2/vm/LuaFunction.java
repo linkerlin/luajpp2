@@ -81,7 +81,9 @@ public abstract class LuaFunction extends LuaValue implements Serializable {
 
     @Override
     public LuaValue getmetatable() {
-        return LuaRunState.getCurrent().getMetatables().getFunctionMetatable();
+        return LuaRunState.getCurrent()
+                .getMetatables()
+                .getFunctionMetatable();
     }
 
     @Override
