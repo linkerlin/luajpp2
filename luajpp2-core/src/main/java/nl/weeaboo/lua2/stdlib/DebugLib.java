@@ -3,7 +3,6 @@ package nl.weeaboo.lua2.stdlib;
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
-import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TBOOLEAN;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
@@ -55,6 +54,7 @@ public final class DebugLib extends LuaModule {
     private static final LuaString FUNC = valueOf("func");
     private static final LuaString NAME = valueOf("name");
     private static final LuaString LINE = valueOf("line");
+    private static final LuaString CALL = valueOf("call");
     private static final LuaString COUNT = valueOf("count");
     private static final LuaString RETURN = valueOf("return");
     private static final LuaString NUPS = valueOf("nups");
@@ -591,7 +591,7 @@ public final class DebugLib extends LuaModule {
         LOG.trace("debugOnCall: {}", di);
 
         if (!ds.inhook && ds.hookcall) {
-            ds.callHookFunc(META_CALL, NIL);
+            ds.callHookFunc(CALL, NIL);
         }
     }
 
