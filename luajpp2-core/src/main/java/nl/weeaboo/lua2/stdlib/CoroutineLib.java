@@ -8,11 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nl.weeaboo.lua2.LuaException;
+import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.LuaBoundFunction;
 import nl.weeaboo.lua2.lib.VarArgFunction;
 import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaClosure;
+import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaThreadStatus;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -42,9 +44,8 @@ public final class CoroutineLib extends LuaModule {
     @LuaBoundFunction
     public Varargs create(Varargs args) {
         final LuaClosure func = args.checkclosure(1);
-        final LuaThread running = LuaThread.getRunning();
 
-        LuaThread thread = new LuaThread(running, func);
+        LuaThread thread = LuaRunState.getCurrent().newThread(func, LuaConstants.NONE);
         thread.setfenv(func.getfenv());
         return thread;
     }
@@ -162,8 +163,8 @@ public final class CoroutineLib extends LuaModule {
     @LuaBoundFunction
     public Varargs wrap(Varargs args) {
         final LuaClosure func = args.checkclosure(1);
-        final LuaThread running = LuaThread.getRunning();
-        final LuaThread thread = new LuaThread(running, func);
+
+        LuaThread thread = LuaRunState.getCurrent().newThread(func, LuaConstants.NONE);
         thread.setSleep(-1);
         thread.setfenv(func.getfenv());
 

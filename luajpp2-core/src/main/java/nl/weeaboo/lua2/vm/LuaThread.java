@@ -25,6 +25,7 @@ package nl.weeaboo.lua2.vm;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
@@ -45,10 +46,15 @@ import nl.weeaboo.lua2.stdlib.DebugTrace;
 public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
+    private static final AtomicInteger threadIdGenerator = new AtomicInteger();
+
+    private final int threadId = threadIdGenerator.incrementAndGet();
     private LuaRunState luaRunState;
     private LuaValue env;
+    private String name = Integer.toHexString(threadId);
+
     private LuaThreadStatus status = LuaThreadStatus.INITIAL;
     private int callstackMin;
     private boolean isMainThread;
@@ -67,8 +73,8 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     public LuaThread(LuaRunState lrs, LuaValue environment) {
-        luaRunState = lrs;
-        env = environment;
+        this.luaRunState = lrs;
+        this.env = environment;
 
         callstack = null;
     }
@@ -77,7 +83,10 @@ public final class LuaThread extends LuaValue implements Serializable {
      * Create a LuaThread around a function and environment
      *
      * @param function The function to execute
+     *
+     * @deprecated Use {@link LuaRunState#newThread(LuaClosure, Varargs)} instead.
      */
+    @Deprecated
     public LuaThread(LuaThread parent, LuaClosure function) {
         this(parent.luaRunState, parent.getfenv());
 
@@ -90,6 +99,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     @Deprecated
     public static LuaThread createMainThread(LuaRunState lrs, LuaValue env) {
         LuaThread thread = new LuaThread(lrs, env);
+        thread.setName("main");
         thread.isMainThread = true;
         thread.isPersistent = true;
         return thread;
@@ -105,9 +115,17 @@ public final class LuaThread extends LuaValue implements Serializable {
         debugState = null;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
-    public String toString() {
-        return (isMainThread ? "main" : "") + super.toString();
+    public String tojstring() {
+        return typename() + ": " + name;
     }
 
     @Override

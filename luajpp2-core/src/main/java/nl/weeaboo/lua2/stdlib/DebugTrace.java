@@ -139,7 +139,7 @@ public final class DebugTrace {
     /**
      * Returns the Lua call stack of the given thread.
      *
-     * @param offset Return stack trace from this call depth onwards.
+     * @param offset Skip the deepest {@code offset} levels of the call stack.
      * @param count Traverse at most this number of levels.
      */
     public static List<LuaStackTraceElement> stackTrace(LuaThread thread, int offset, int count) {
