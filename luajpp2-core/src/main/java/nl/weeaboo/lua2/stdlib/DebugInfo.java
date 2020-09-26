@@ -144,6 +144,10 @@ final class DebugInfo implements Externalizable {
         return closure.getPrototype().getlocalname(index, pc);
     }
 
+    public LuaValue getLocalValue(int index) {
+        return stack[index - 1];
+    }
+
     public LuaStackTraceElement getStackTraceElement() {
         return new LuaStackTraceElement(source(), currentline(), functionName);
     }

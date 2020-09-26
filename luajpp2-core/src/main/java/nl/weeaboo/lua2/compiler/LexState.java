@@ -264,8 +264,11 @@ final class LexState {
 
     String token2str(int token) {
         if (token < FIRST_RESERVED) {
-            return iscntrl(token) ? luaC.pushfstring("char(" + token + ")") : luaC.pushfstring(String
-                    .valueOf((char) token));
+            if (iscntrl(token)) {
+                return "char(" + token + ")";
+            } else {
+                return String.valueOf((char)token);
+            }
         } else {
             return luaX_tokens[token - FIRST_RESERVED];
         }
@@ -287,12 +290,9 @@ final class LexState {
     }
 
     void lexerror(String msg, int token) {
-        // TODO: get source name from source
         String cid = chunkid(source.tojstring());
-        luaC.pushfstring(cid + ":" + linenumber + ": " + msg);
         if (token != 0) {
             msg += " near '" + txtToken(token) + "'";
-            luaC.pushfstring("syntax error: " + msg);
         }
         throw new LuaException(cid + ":" + linenumber + ": " + msg);
     }
@@ -799,7 +799,7 @@ final class LexState {
      */
 
     void error_expected(int token) {
-        syntaxerror(luaC.pushfstring(luaQS(token2str(token)) + " expected"));
+        syntaxerror(luaQS(token2str(token)) + " expected");
     }
 
     boolean testnext(int c) {
@@ -833,8 +833,8 @@ final class LexState {
             if (where == linenumber) {
                 error_expected(what);
             } else {
-                syntaxerror(luaC.pushfstring(luaQS(token2str(what)) + " expected " + "(to close "
-                        + luaQS(token2str(who)) + " at line " + where + ")"));
+                syntaxerror(luaQS(token2str(what)) + " expected " + "(to close " + luaQS(token2str(who)) + " at line "
+                        + where + ")");
             }
         }
     }
@@ -891,13 +891,8 @@ final class LexState {
         LuaString varname = this.str_checkname();
         FuncState fs = getCurrentFuncState();
         if (fs.singlevaraux(varname, var, 1) == VGLOBAL) {
-            var.u.s.info = fs.stringK(varname); /*
-                                                                                                 * info
-                                                                                                 * points
-                                                                                                 * to
-                                                                                                 * global
-                                                                                                 * name
-                                                                                                 */
+            // info points to global name
+            var.u.s.info = fs.stringK(varname);
         }
     }
 
@@ -993,10 +988,6 @@ final class LexState {
         // LuaC._assert (CheckCode.checkcode(f));
         LuaC.luaAssert(fs.bl == null);
         this.fs = fs.prev;
-        // L.top -= 2; /* remove table and prototype from the stack */
-        // /* last token read was anchored in defunct function; must reanchor it
-        // */
-        // if (fs!=null) ls.anchor_token();
     }
 
     /* ============================================================ */
@@ -1170,6 +1161,7 @@ final class LexState {
         fs.reserveregs(fs.nactvar); /* reserve register for parameters */
     }
 
+    /* body -> `(' parlist `)' chunk END */
     void body(ExpDesc e, boolean needself, int line) {
         /* body -> `(' parlist `)' chunk END */
         FuncState newFS = new FuncState();

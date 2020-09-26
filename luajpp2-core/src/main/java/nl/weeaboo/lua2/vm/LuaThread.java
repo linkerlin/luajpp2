@@ -270,6 +270,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     /**
      * Returns the function at the requested call stack offset.
+     * @param level 1-based offset, where 1 is the current level.
      * @return The function, or {@code null} if not found.
      */
     public @Nullable LuaFunction getCallstackFunction(int level) {
@@ -277,6 +278,13 @@ public final class LuaThread extends LuaValue implements Serializable {
             return null;
         }
         return callstack.getCallstackFunction(level);
+    }
+
+    @Nullable StackFrame getStackFrame(int level) {
+        if (callstack == null) {
+            return null;
+        }
+        return callstack.getStackFrame(level);
     }
 
     /**

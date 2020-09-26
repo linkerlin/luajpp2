@@ -202,8 +202,7 @@ public final class DebugLib extends LuaModule {
 
         LuaString name = di.getlocalname(index);
         if (name != null) {
-            LuaValue value = di.stack[index - 1];
-            return varargsOf(name, value);
+            return varargsOf(name, di.getLocalValue(index));
         } else {
             return NIL;
         }

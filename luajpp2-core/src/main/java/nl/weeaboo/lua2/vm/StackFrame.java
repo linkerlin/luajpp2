@@ -117,15 +117,15 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    private void resetExecutionState(int minStackSize, int upValueCount) {
+    private void resetExecutionState(int minStackSize) {
         if (stack.length < minStackSize) {
             stack = new LuaValue[minStackSize];
         }
         Arrays.fill(stack, NIL);
 
         // (re)size upValue array
-        if (openups.length < upValueCount) {
-            openups = new UpValue[upValueCount];
+        if (openups.length < minStackSize) {
+            openups = new UpValue[minStackSize];
         } else {
             Arrays.fill(openups, null);
         }
@@ -140,6 +140,14 @@ final class StackFrame implements Externalizable {
     }
 
     public @Nullable LuaFunction getCallstackFunction(int level) {
+        StackFrame sf = getStackFrame(level);
+        if (sf == null) {
+            return null;
+        }
+        return sf.func;
+    }
+
+    public @Nullable StackFrame getStackFrame(int level) {
         StackFrame sf = this;
         while (--level >= 1) {
             sf = sf.parent;
@@ -147,7 +155,7 @@ final class StackFrame implements Externalizable {
                 return null;
             }
         }
-        return sf.func;
+        return sf;
     }
 
     private static @Nullable Prototype getPrototype(LuaFunction func) {
@@ -173,9 +181,9 @@ final class StackFrame implements Externalizable {
         this.returnCount = returnCount;
 
         if (p == null) {
-            resetExecutionState(0, 0);
+            resetExecutionState(0);
         } else {
-            resetExecutionState(p.maxstacksize, p.nups);
+            resetExecutionState(p.maxstacksize);
         }
 
         setArgs(args);
@@ -213,9 +221,9 @@ final class StackFrame implements Externalizable {
         //Don't change parent
 
         if (p == null) {
-            resetExecutionState(0, 0);
+            resetExecutionState(0);
         } else {
-            resetExecutionState(p.maxstacksize, p.nups);
+            resetExecutionState(p.maxstacksize);
 
             //Push params on stack
             for (int i = 0; i < p.numparams; i++) {
@@ -259,6 +267,10 @@ final class StackFrame implements Externalizable {
         int a = ((i >> 6) & 0xff);
         int c = (i >> 14) & 0x1ff;
         LuaInterpreter.pushReturnValues(this, args, a, c);
+    }
+
+    public LuaValue getLocalValue(int index) {
+        return stack[index - 1];
     }
 
 }

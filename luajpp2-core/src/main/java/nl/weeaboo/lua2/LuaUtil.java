@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.weeaboo.lua2.compiler.LoadState;
+import nl.weeaboo.lua2.compiler.LuaEval;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -64,7 +65,10 @@ public final class LuaUtil {
     /**
      * Compiles and runs a piece of Lua code in the given thread.
      * @throws LuaException If an error occurs while trying to compare or run the code.
+     *
+     * @deprecated Use {@link LuaEval#eval} instead.
      */
+    @Deprecated
     public static Varargs eval(LuaThread thread, String code) throws LuaException {
         LuaClosure function = compileForEval(code, thread.getfenv());
         return thread.callFunctionInThread(function, LuaConstants.NONE);
@@ -73,7 +77,9 @@ public final class LuaUtil {
     /**
      * Compiles a snippet of Lua code as a runnable closure.
      * @throws LuaException If an error occurs while trying to compile the code.
+     * @deprecated Use LuaEval#compileForEval instead.
      */
+    @Deprecated
     public static LuaClosure compileForEval(String code, LuaValue env) throws LuaException {
         final String chunkName = "(eval)";
         try {

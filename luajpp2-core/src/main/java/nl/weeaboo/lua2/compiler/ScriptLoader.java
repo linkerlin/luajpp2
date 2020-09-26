@@ -6,6 +6,8 @@ import static nl.weeaboo.lua2.vm.LuaValue.varargsOf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.lib.LuaResource;
@@ -53,11 +55,9 @@ public final class ScriptLoader {
             LuaThread running = LuaThread.getRunning();
             return LoadState.load(is, chunkname, running.getfenv());
         } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = "";
-            }
-            return varargsOf(NIL, valueOf(message));
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            return varargsOf(NIL, valueOf(sw.toString()));
         }
     }
 

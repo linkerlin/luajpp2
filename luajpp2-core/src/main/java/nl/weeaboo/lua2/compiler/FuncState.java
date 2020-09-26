@@ -157,8 +157,12 @@ final class FuncState {
     }
 
     void errorlimit(int limit, String what) {
-        String msg = (f.linedefined == 0) ? luaC.pushfstring("main function has more than " + limit + " " + what)
-                : luaC.pushfstring("function at line " + f.linedefined + " has more than " + limit + " " + what);
+        String msg;
+        if (f.linedefined == 0) {
+            msg = "main function has more than " + limit + " " + what;
+        } else {
+            msg = "function at line " + f.linedefined + " has more than " + limit + " " + what;
+        }
         ls.lexerror(msg, 0);
     }
 
@@ -235,20 +239,6 @@ final class FuncState {
         this.bl = bl;
         luaAssert(this.freereg == this.nactvar);
     }
-
-    //
-    // void leaveblock (FuncState *fs) {
-    // BlockCnt *bl = this.bl;
-    // this.bl = bl.previous;
-    // removevars(this.ls, bl.nactvar);
-    // if (bl.upval)
-    // this.codeABC(OP_CLOSE, bl.nactvar, 0, 0);
-    // /* a block either controls scope or breaks (never both) */
-    // assert(!bl.isbreakable || !bl.upval);
-    // assert(bl.nactvar == this.nactvar);
-    // this.freereg = this.nactvar; /* free registers */
-    // this.patchtohere(bl.breaklist);
-    // }
 
     void leaveblock() {
         BlockCnt bl = this.bl;

@@ -82,7 +82,7 @@ public final class LuaC extends Lua implements ILuaCompiler {
      * @see #compile(InputStream, String)
      */
     public static Prototype compile(String source, String name) throws IOException {
-        return compile(new ByteArrayInputStream(source.getBytes("UTF-8")), name);
+        return new LuaC().compileLua(source, name);
     }
 
     /**
@@ -91,11 +91,19 @@ public final class LuaC extends Lua implements ILuaCompiler {
      * @throws IOException If an I/O error occurs.
      */
     public static Prototype compile(InputStream stream, String name) throws IOException {
+        return new LuaC().compileLua(stream, name);
+    }
+
+    Prototype compileLua(String source, String name) throws IOException {
+        return compileLua(new ByteArrayInputStream(source.getBytes("UTF-8")), name);
+    }
+
+    Prototype compileLua(InputStream stream, String name) throws IOException {
         int firstByte = stream.read();
         if (firstByte == '\033') {
             return LoadState.loadBinaryChunk(firstByte, stream, name);
         } else {
-            return new LuaC().luaY_parser(firstByte, stream, name);
+            return luaY_parser(firstByte, stream, name);
         }
     }
 
@@ -103,10 +111,9 @@ public final class LuaC extends Lua implements ILuaCompiler {
     private Prototype luaY_parser(int firstByte, InputStream z, String name) {
         LexState lexstate = new LexState(this, z);
         FuncState funcstate = new FuncState();
-        // lexstate.buff = buff;
         lexstate.setinput(this, firstByte, z, LuaValue.valueOf(name));
         lexstate.open_func(funcstate);
-        /* main func. is always vararg */
+        // Main function is always vararg
         funcstate.f.isVararg = Lua.VARARG_ISVARARG;
         funcstate.f.source = LuaValue.valueOf(name);
         lexstate.next(); /* read first token */
@@ -133,10 +140,6 @@ public final class LuaC extends Lua implements ILuaCompiler {
             strings.put(v, v);
         }
         return v;
-    }
-
-    String pushfstring(String string) {
-        return string;
     }
 
     protected static void luaAssert(boolean b) {

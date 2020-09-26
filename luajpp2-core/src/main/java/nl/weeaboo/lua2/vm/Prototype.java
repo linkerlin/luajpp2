@@ -110,7 +110,7 @@ public final class Prototype implements Externalizable {
     /**
      * Get the name of a local variable.
      *
-     * @param number the local variable number to look up
+     * @param number the local variable number to look up (starts at 1)
      * @param pc the program counter
      * @return the name, or null if not found
      */
