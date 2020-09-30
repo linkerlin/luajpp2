@@ -19,7 +19,7 @@ public final class LuaEvalTest extends AbstractLuaTest {
         thread.resume(LuaConstants.NONE);
 
         // Read locals
-        Assert.assertEquals(LuaInteger.valueOf(2), LuaEval.eval(thread, "y"));
+        Assert.assertEquals(LuaInteger.valueOf(4), LuaEval.eval(thread, "y"));
         // Read upvalues
         Assert.assertEquals(LuaInteger.valueOf(1), LuaEval.eval(thread, "x"));
 

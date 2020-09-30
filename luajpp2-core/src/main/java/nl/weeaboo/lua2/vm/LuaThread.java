@@ -115,6 +115,10 @@ public final class LuaThread extends LuaValue implements Serializable {
         debugState = null;
     }
 
+    public int getThreadId() {
+        return threadId;
+    }
+
     public String getName() {
         return name;
     }
