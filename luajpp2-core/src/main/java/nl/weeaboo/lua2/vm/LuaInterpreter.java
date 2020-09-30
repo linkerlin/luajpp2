@@ -172,9 +172,6 @@ final class LuaInterpreter {
             // Only check this flag once, and not between every instruction
             final boolean debugEnabled = lrs.isDebugEnabled();
 
-            int b;
-            int c;
-            LuaValue o;
             while (thread.isRunning()) {
                 // Pull out instruction
                 int i;
@@ -191,65 +188,59 @@ final class LuaInterpreter {
 
                 pc++;
 
-                // process the opcode
-                int a = ((i >> 6) & 0xff);
+                // Process the opcode
                 final int opcode = i & 0x3f;
+                int a = ((i >> 6) & 0xff);
                 switch (opcode) {
-
                 case Lua.OP_MOVE:/* A B R(A):= R(B) */
                     stack[a] = stack[i >>> 23];
                     continue;
-
                 case Lua.OP_LOADK:/* A Bx R(A):= Kst(Bx) */
                     stack[a] = k[i >>> 14];
                     continue;
-
                 case Lua.OP_LOADBOOL:/* A B C R(A):= (Bool)B: if (C) pc++ */
                     stack[a] = (i >>> 23 != 0) ? TRUE : FALSE;
                     if ((i & (0x1ff << 14)) != 0) {
                         pc++; // Skip next instruction (if C)
                     }
                     continue;
-
-                case Lua.OP_LOADNIL: /* A B R(A):= ...:= R(B):= nil */
-                    for (b = i >>> 23; a <= b;) {
+                case Lua.OP_LOADNIL: { /* A B R(A):= ...:= R(B):= nil */
+                    for (int b = i >>> 23; a <= b;) {
                         stack[a++] = NIL;
                     }
                     continue;
-
+                }
                 case Lua.OP_GETUPVAL: /* A B R(A):= UpValue[B] */
                     stack[a] = upValues[i >>> 23].getValue();
                     continue;
-
                 case Lua.OP_GETGLOBAL: /* A Bx R(A):= Gbl[Kst(Bx)] */
                     stack[a] = closure.getfenv().get(k[i >>> 14]);
                     continue;
-
-                case Lua.OP_GETTABLE: /* A B C R(A):= R(B)[RK(C)] */
-                    stack[a] = stack[i >>> 23].get((c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]);
+                case Lua.OP_GETTABLE: { /* A B C R(A):= R(B)[RK(C)] */
+                    int c = (i >> 14) & 0x1ff;
+                    stack[a] = stack[i >>> 23].get(c > 0xff ? k[c & 0x0ff] : stack[c]);
                     continue;
-
+                }
                 case Lua.OP_SETGLOBAL: /* A Bx Gbl[Kst(Bx)]:= R(A) */
                     closure.getfenv().set(k[i >>> 14], stack[a]);
                     continue;
-
                 case Lua.OP_SETUPVAL: /* A B UpValue[B]:= R(A) */
                     upValues[i >>> 23].setValue(stack[a]);
                     continue;
-
-                case Lua.OP_SETTABLE: /* A B C R(A)[RK(B)]:= RK(C) */
-                    stack[a].set(((b = i >>> 23) > 0xff ? k[b & 0x0ff] : stack[b]),
-                            (c = (i >> 14) & 0x1ff) > 0xff ? k[c & 0x0ff] : stack[c]);
+                case Lua.OP_SETTABLE: { /* A B C R(A)[RK(B)]:= RK(C) */
+                    int b = i >>> 23;
+                    int c = (i >> 14) & 0x1ff;
+                    stack[a].set(
+                            b > 0xff ? k[b & 0x0ff] : stack[b],
+                            c > 0xff ? k[c & 0x0ff] : stack[c]);
                     continue;
-
+                }
                 case Lua.OP_NEWTABLE: /* A B C R(A):= {} (size = B,C) */
                     stack[a] = new LuaTable(i >>> 23, (i >> 14) & 0x1ff);
                     continue;
-
                 case Lua.OP_SELF:
                     opSelf(i, a);
                     continue;
-
                 case Lua.OP_ADD:
                 case Lua.OP_SUB:
                 case Lua.OP_MUL:
@@ -258,50 +249,34 @@ final class LuaInterpreter {
                 case Lua.OP_POW:
                     stack[a] = binaryArithmeticOp(i);
                     continue;
-
                 case Lua.OP_UNM: /* A B R(A):= -R(B) */
                     stack[a] = stack[i >>> 23].neg();
                     continue;
-
                 case Lua.OP_NOT: /* A B R(A):= not R(B) */
                     stack[a] = stack[i >>> 23].not();
                     continue;
-
                 case Lua.OP_LEN: /* A B R(A):= length of R(B) */
                     stack[a] = stack[i >>> 23].len();
                     continue;
-
                 case Lua.OP_CONCAT:
                     opConcat(i, a);
                     continue;
-
                 case Lua.OP_JMP: /* sBx pc+=sBx */
                     pc += (i >>> 14) - 0x1ffff;
                     continue;
-
                 case Lua.OP_EQ:
                 case Lua.OP_LT:
                 case Lua.OP_LE:
                     opCompare(i, a);
                     continue;
-
                 case Lua.OP_TEST: /* A C if not (R(A) <=> C) then pc++ */
                     if (stack[a].toboolean() != ((i & (0x1ff << 14)) != 0)) {
                         ++pc;
                     }
                     continue;
-
-                case Lua.OP_TESTSET: /*
-                                      * A B C if (R(B) <=> C) then R(A):= R(B) else pc++
-                                      */
-                    /* note: doc appears to be reversed */
-                    if ((o = stack[i >>> 23]).toboolean() != ((i & (0x1ff << 14)) != 0)) {
-                        ++pc;
-                    } else {
-                        stack[a] = o; // TODO: should be sBx?
-                    }
+                case Lua.OP_TESTSET:
+                    opTestSet(i, a);
                     continue;
-
                 case Lua.OP_CALL: {
                     Varargs result = opCall(i, a);
                     if (result != null) {
@@ -309,7 +284,6 @@ final class LuaInterpreter {
                     }
                     continue;
                 }
-
                 case Lua.OP_TAILCALL: {
                     Varargs result = opTailCall(i, a);
                     if (result != null) {
@@ -317,45 +291,29 @@ final class LuaInterpreter {
                     }
                     continue;
                 }
-
                 case Lua.OP_RETURN:
                     return opReturn(i, a);
-
                 case Lua.OP_FORLOOP:
                     opForLoop(i, a);
                     continue;
-
                 case Lua.OP_FORPREP:
                     opForPrep(i, a);
                     continue;
-
                 case Lua.OP_TFORLOOP:
                     opTForLoop(i, a);
                     continue;
-
                 case Lua.OP_SETLIST:
                     opSetList(i, a);
                     continue;
-
-                case Lua.OP_CLOSE: /*
-                                    * A close all variables in the stack up to (>=) R(A)
-                                    */
-                    for (b = openups.length; --b >= a;) {
-                        if (openups[b] != null) {
-                            openups[b].close();
-                            openups[b] = null;
-                        }
-                    }
+                case Lua.OP_CLOSE:
+                    opClose(a);
                     continue;
-
                 case Lua.OP_CLOSURE:
                     opClosure(i, a);
                     continue;
-
                 case Lua.OP_VARARG:
                     opVararg(i, a);
                     continue;
-
                 default:
                     throw new LuaException("Unsupported opcode: " + opcode);
                 }
@@ -692,6 +650,27 @@ final class LuaInterpreter {
                 for (int j = 1; j < b; ++j) {
                     stack[a + j - 1] = varargs.arg(j);
                 }
+            }
+        }
+
+        /** Closes all variables in the stack up to (>=) R(A) */
+        private void opClose(int a) {
+            for (int b = openups.length; --b >= a;) {
+                if (openups[b] != null) {
+                    openups[b].close();
+                    openups[b] = null;
+                }
+            }
+        }
+
+        /** A B C if (R(B) <=> C) then R(A):= R(B) else pc++ */
+        private void opTestSet(int i, int a) {
+            LuaValue o;
+            /* note: doc appears to be reversed */
+            if ((o = stack[i >>> 23]).toboolean() != ((i & (0x1ff << 14)) != 0)) {
+                ++pc;
+            } else {
+                stack[a] = o; // TODO: should be sBx?
             }
         }
 

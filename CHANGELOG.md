@@ -1,7 +1,7 @@
 
 # v3.2.0
 
-- eval now has (read-only) access to local variables in the top-most frame of the call stack
+- eval now has read/write access to variables in the top-most frame of the call stack
 - Better stack traces (available through `DebugTrace.stackTrace()`)
 - Threads now have a changeable name
 - Turned a few array parameters into varargs where possibly (notably `LuaValue.varargsof()`)

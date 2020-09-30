@@ -273,4 +273,8 @@ final class StackFrame implements Externalizable {
         return stack[index - 1];
     }
 
+    public void setLocalValue(int index, LuaValue value) {
+        stack[index - 1] = value;
+    }
+
 }

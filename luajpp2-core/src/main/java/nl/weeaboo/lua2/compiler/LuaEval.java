@@ -35,7 +35,8 @@ public final class LuaEval {
             }
 
             LuaTable mt = new LuaTable();
-            mt.rawset(LuaConstants.META_INDEX, new ThreadEvalEnv(thread));
+            mt.rawset(LuaConstants.META_INDEX, ThreadEvalEnv.getter(thread));
+            mt.rawset(LuaConstants.META_NEWINDEX, ThreadEvalEnv.setter(thread));
 
             LuaTable evalEnvTable = new LuaTable();
             evalEnvTable.setmetatable(mt);

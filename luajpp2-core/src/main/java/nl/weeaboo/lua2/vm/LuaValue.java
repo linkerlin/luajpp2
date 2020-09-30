@@ -2855,7 +2855,7 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
     protected LuaValue checkmetatag(LuaValue tag, String reason) {
         LuaValue h = this.metatag(tag);
         if (h.isnil()) {
-            throw new LuaException(reason + debugName());
+            throw new LuaException(reason + debugName() + " (" + this + ")");
         }
         return h;
     }

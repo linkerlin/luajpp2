@@ -18,14 +18,15 @@ public final class LuaEvalTest extends AbstractLuaTest {
         LuaThread thread = loadScript("compiler/eval-locals.lua");
         thread.resume(LuaConstants.NONE);
 
-        // Access locals
+        // Read locals
         Assert.assertEquals(LuaInteger.valueOf(2), LuaEval.eval(thread, "y"));
+        // Read upvalues
+        Assert.assertEquals(LuaInteger.valueOf(1), LuaEval.eval(thread, "x"));
 
-        // Access upvalues
-        // Doesn't work yet
-        // Assert.assertEquals(LuaInteger.valueOf(1), LuaEval.eval(thread, "x"));
-
-        // TODO: Also allow writing to variables
+        // Write locals
+        Assert.assertEquals(LuaInteger.valueOf(20), LuaEval.eval(thread, "y = 20\nreturn y"));
+        // Write upvalues
+        Assert.assertEquals(LuaInteger.valueOf(10), LuaEval.eval(thread, "x = 10\nreturn x"));
     }
 
 }

@@ -162,6 +162,11 @@ public final class LuaClosure extends LuaFunction {
         return upValues;
     }
 
+    /** Returns the upvalue with the given index (0-based) */
+    public UpValue getUpValue(int index) {
+        return upValues[index];
+    }
+
     /** Returns the number of upvalues for this closure. */
     public int getUpValueCount() {
         return upValues.length;
