@@ -53,7 +53,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     private final int threadId = threadIdGenerator.incrementAndGet();
     private LuaRunState luaRunState;
     private LuaValue env;
-    private String name = Integer.toHexString(threadId);
+    private String name = Integer.toString(threadId);
 
     private LuaThreadStatus status = LuaThreadStatus.INITIAL;
     private int callstackMin;
@@ -261,6 +261,7 @@ public final class LuaThread extends LuaValue implements Serializable {
         Varargs result;
         int oldSleep = getSleep();
         try {
+            sleep = 0;
             result = resume(1);
         } finally {
             setSleep(oldSleep);
