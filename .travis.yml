@@ -10,7 +10,7 @@ android:
     - tools
     - build-tools-29.0.2
     - platform-tools
-    - android-15
+    - android-28
 
 script:
   ./gradlew clean build jacocoTestReport --info
