@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import nl.weeaboo.lua2.compiler.ScriptLoader;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -49,7 +50,8 @@ public abstract class AbstractLuaTest {
                 break;
             }
         }
-        Assert.assertTrue(luaRunState.isFinished());
+        Assert.assertTrue("Current stack trace: " + DebugTrace.stackTrace(luaRunState.getMainThread()),
+                luaRunState.isFinished());
     }
 
 }

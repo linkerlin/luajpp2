@@ -45,8 +45,9 @@ public final class CoroutineLib extends LuaModule {
     public Varargs create(Varargs args) {
         final LuaClosure func = args.checkclosure(1);
 
-        LuaThread thread = LuaRunState.getCurrent().newThread(func, LuaConstants.NONE);
-        thread.setfenv(func.getfenv());
+        // Coroutines aren't added to any thread group; they must be scheduled manually by other code
+        LuaThread thread = new LuaThread(LuaRunState.getCurrent(), func.getfenv());
+        thread.pushPending(func, LuaConstants.NONE);
         return thread;
     }
 
@@ -164,9 +165,10 @@ public final class CoroutineLib extends LuaModule {
     public Varargs wrap(Varargs args) {
         final LuaClosure func = args.checkclosure(1);
 
-        LuaThread thread = LuaRunState.getCurrent().newThread(func, LuaConstants.NONE);
+        // Coroutines aren't added to any thread group; they must be scheduled manually by other code
+        LuaThread thread = new LuaThread(LuaRunState.getCurrent(), func.getfenv());
+        thread.pushPending(func, LuaConstants.NONE);
         thread.setSleep(-1);
-        thread.setfenv(func.getfenv());
 
         return new WrappedFunction(thread);
     }

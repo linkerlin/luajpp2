@@ -124,8 +124,8 @@ final class StackFrame implements Externalizable {
         Arrays.fill(stack, NIL);
 
         // (re)size upValue array
-        if (openups.length < minStackSize) {
-            openups = new UpValue[minStackSize];
+        if (openups.length < stack.length) {
+            openups = new UpValue[stack.length];
         } else {
             Arrays.fill(openups, null);
         }
@@ -136,7 +136,7 @@ final class StackFrame implements Externalizable {
     }
 
     public int size() {
-        return parentCount + 1; //(parent != null ? parentCount + 1 : 1);
+        return parentCount + 1;
     }
 
     public @Nullable LuaFunction getCallstackFunction(int level) {
@@ -207,25 +207,25 @@ final class StackFrame implements Externalizable {
     }
 
     public final void prepareTailcall(LuaFunction func, Varargs args, String functionName) {
-        closeUpValues(); //We're clobbering the stack, save the upvalues first
+        closeUpValues(); // We're clobbering the stack, save the upvalues first
 
         final Prototype p = getPrototype(func);
 
-        //Don't change status
+        // Don't change status
 
         this.func = func;
         this.functionName = functionName;
         this.args = args;
         this.varargs = extractVarargs(p, args);
 
-        //Don't change parent
+        // Don't change parent
 
         if (p == null) {
             resetExecutionState(0);
         } else {
             resetExecutionState(p.maxstacksize);
 
-            //Push params on stack
+            // Push params on stack
             for (int i = 0; i < p.numparams; i++) {
                 stack[top + i] = args.arg(i + 1);
             }
