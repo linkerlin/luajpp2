@@ -148,7 +148,10 @@ public final class DebugTrace {
     public static List<LuaStackTraceElement> stackTrace(LuaThread thread, int offset, int count) {
         List<LuaStackTraceElement> result = new ArrayList<>();
         for (int n = 0; n < count; n++) {
-            result.add(stackTraceElem(thread, offset + n));
+            LuaStackTraceElement elem = stackTraceElem(thread, offset + n);
+            if (elem != null) {
+                result.add(elem);
+            }
         }
         return Collections.unmodifiableList(result);
     }
