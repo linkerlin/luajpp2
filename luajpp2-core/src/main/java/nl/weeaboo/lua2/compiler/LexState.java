@@ -549,11 +549,10 @@ final class LexState {
                     continue; /* will raise an error next loop */
                 default: {
                     if (!isdigit(current)) {
-                        save_and_next(); /*
-                                                                 * handles \\, \",
-                                                                 * \', and \?
-                                                                 */
-                    } else { /* \xxx */
+                        // handles \\, \",  \', and \?
+                        save_and_next();
+                    } else {
+                        // \xxx
                         int i = 0;
                         c = 0;
                         do {
@@ -1507,7 +1506,7 @@ final class LexState {
         BlockCnt bl = new BlockCnt();
         fs.enterblock(bl, false);
         this.chunk();
-        LuaC.luaAssert(bl.breaklist.i == NO_JUMP);
+        LuaC.luaAssert(bl.breakList.i == NO_JUMP);
         fs.leaveblock();
     }
 
@@ -1610,8 +1609,8 @@ final class LexState {
         FuncState fs = getCurrentFuncState();
         BlockCnt bl = fs.bl;
         boolean upval = false;
-        while (bl != null && !bl.isbreakable) {
-            upval |= bl.upval;
+        while (bl != null && !bl.isBreakable) {
+            upval |= bl.containsUpValue;
             bl = bl.previous;
         }
 
@@ -1619,9 +1618,9 @@ final class LexState {
             this.syntaxerror("no loop to break");
         } else {
             if (upval) {
-                fs.codeABC(Lua.OP_CLOSE, bl.nactvar, 0, 0);
+                fs.codeABC(Lua.OP_CLOSE, bl.activeLocalVarCount, 0, 0);
             }
-            fs.concat(bl.breaklist, fs.jump());
+            fs.concat(bl.breakList, fs.jump());
         }
     }
 
@@ -1656,7 +1655,7 @@ final class LexState {
         this.chunk();
         this.check_match(TK_UNTIL, TK_REPEAT, line);
         int condexit = this.cond(); /* read condition (inside scope block) */
-        if (!bl2.upval) { /* no upvalues? */
+        if (!bl2.containsUpValue) { /* no upvalues? */
             fs.leaveblock(); /* finish scope */
             fs.patchlist(condexit, repeat_init); /* close the loop */
         } else { /* complete semantics when there are upvalues */

@@ -9,7 +9,13 @@ public enum LuaThreadStatus {
     SUSPENDED,
     RUNNING,
     END_CALL,
+
+    /**
+     * @deprecated No longer used.
+     */
+    @Deprecated
     ERROR,
+
     DEAD;
 
 }

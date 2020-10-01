@@ -37,13 +37,13 @@ final class LC {
 
     private boolean list;
     private String output;
-    private boolean parseonly;
-    private boolean stripdebug;
-    private boolean littleendian;
-    private int numberformat;
-    private boolean versioninfo;
+    private boolean parseOnly;
+    private boolean stripDebug;
+    private boolean littleEndian;
+    private int numberFormat;
+    private boolean versionInfo;
     private boolean processing;
-    private boolean multiwrite;
+    private boolean multiWrite;
 
     private final List<String> args = new ArrayList<>();
     private final List<Exception> errors = new ArrayList<>();
@@ -55,13 +55,13 @@ final class LC {
     private void reset() {
         list = false;
         output = "luac.out";
-        parseonly = false;
-        stripdebug = false;
-        littleendian = false;
-        numberformat = DumpState.NUMBER_FORMAT_DEFAULT;
-        versioninfo = false;
+        parseOnly = false;
+        stripDebug = false;
+        littleEndian = false;
+        numberFormat = DumpState.NUMBER_FORMAT_DEFAULT;
+        versionInfo = false;
         processing = true;
-        multiwrite = false;
+        multiWrite = false;
 
         args.clear();
         errors.clear();
@@ -85,25 +85,25 @@ final class LC {
                     output = args[i];
                     break;
                 case 'w':
-                    multiwrite = true;
+                    multiWrite = true;
                     break;
                 case 'p':
-                    parseonly = true;
+                    parseOnly = true;
                     break;
                 case 's':
-                    stripdebug = true;
+                    stripDebug = true;
                     break;
                 case 'e':
-                    littleendian = true;
+                    littleEndian = true;
                     break;
                 case 'i':
                     if (args[i].length() <= 2) {
                         usageExit();
                     }
-                    numberformat = Integer.parseInt(args[i].substring(2));
+                    numberFormat = Integer.parseInt(args[i].substring(2));
                     break;
                 case 'v':
-                    versioninfo = true;
+                    versionInfo = true;
                     break;
                 case '-':
                     if (args[i].length() > 2) {
@@ -124,7 +124,7 @@ final class LC {
         try {
 
             // echo version
-            if (versioninfo) {
+            if (versionInfo) {
                 System.out.println(LuaConstants.getEngineVersion());
             }
 
@@ -159,13 +159,13 @@ final class LC {
                         in = System.in;
                     }
 
-                    if ((isFileInput || isStdIn) && (multiwrite || fos == null)) {
+                    if ((isFileInput || isStdIn) && (multiWrite || fos == null)) {
                         if (fos != null) {
                             fos.close();
                         }
 
                         String fn = output;
-                        if (multiwrite && isFileInput) {
+                        if (multiWrite && isFileInput) {
                             fn = currentArg;
                         }
                         fos = new BufferedOutputStream(new FileOutputStream(fn));
@@ -221,8 +221,8 @@ final class LC {
                 }
 
                 // write out the chunk
-                if (!parseonly) {
-                    DumpState.dump(chunk, out, stripdebug, numberformat, littleendian);
+                if (!parseOnly) {
+                    DumpState.dump(chunk, out, stripDebug, numberFormat, littleEndian);
                 }
             } catch (Exception e) {
                 errors.add(e);

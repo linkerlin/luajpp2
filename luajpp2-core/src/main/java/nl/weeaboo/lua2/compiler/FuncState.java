@@ -199,11 +199,11 @@ final class FuncState {
 
     void markupval(int level) {
         BlockCnt bl = this.bl;
-        while (bl != null && bl.nactvar > level) {
+        while (bl != null && bl.activeLocalVarCount > level) {
             bl = bl.previous;
         }
         if (bl != null) {
-            bl.upval = true;
+            bl.containsUpValue = true;
         }
     }
 
@@ -231,10 +231,10 @@ final class FuncState {
     }
 
     void enterblock(BlockCnt bl, boolean isbreakable) {
-        bl.breaklist.i = LexState.NO_JUMP;
-        bl.isbreakable = isbreakable;
-        bl.nactvar = this.nactvar;
-        bl.upval = false;
+        bl.breakList.i = LexState.NO_JUMP;
+        bl.isBreakable = isbreakable;
+        bl.activeLocalVarCount = this.nactvar;
+        bl.containsUpValue = false;
         bl.previous = this.bl;
         this.bl = bl;
         luaAssert(this.freereg == this.nactvar);
@@ -243,15 +243,15 @@ final class FuncState {
     void leaveblock() {
         BlockCnt bl = this.bl;
         this.bl = bl.previous;
-        ls.removevars(bl.nactvar);
-        if (bl.upval) {
-            codeABC(OP_CLOSE, bl.nactvar, 0, 0);
+        ls.removevars(bl.activeLocalVarCount);
+        if (bl.containsUpValue) {
+            codeABC(OP_CLOSE, bl.activeLocalVarCount, 0, 0);
         }
         /* a block either controls scope or breaks (never both) */
-        luaAssert(!bl.isbreakable || !bl.upval);
-        luaAssert(bl.nactvar == this.nactvar);
+        luaAssert(!bl.isBreakable || !bl.containsUpValue);
+        luaAssert(bl.activeLocalVarCount == this.nactvar);
         this.freereg = this.nactvar; /* free registers */
-        this.patchtohere(bl.breaklist.i);
+        this.patchtohere(bl.breakList.i);
     }
 
     void closelistfield(ConsControl cc) {

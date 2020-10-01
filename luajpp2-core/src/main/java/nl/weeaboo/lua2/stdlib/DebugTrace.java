@@ -89,6 +89,7 @@ public final class DebugTrace {
      *
      * @return String identifying the file and line of the nearest lua closure, or the function name of the
      *         Java call if no closure is being called.
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
     @Deprecated
     public static @Nullable String fileline() {
@@ -106,6 +107,7 @@ public final class DebugTrace {
 
     /**
      * @see #fileline(LuaThread, int)
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
     @Deprecated
     public static @Nullable String fileline(int level) {
@@ -117,6 +119,7 @@ public final class DebugTrace {
      *
      * @param level 1-based index of level to get
      * @return String containing file and line info if available
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
     @Deprecated
     public static @Nullable String fileline(LuaThread running, int level) {
@@ -144,20 +147,23 @@ public final class DebugTrace {
      */
     public static List<LuaStackTraceElement> stackTrace(LuaThread thread, int offset, int count) {
         List<LuaStackTraceElement> result = new ArrayList<>();
-        DebugState ds = DebugLib.getDebugState(thread);
-        for (int level = 1; level <= count; level++) {
-            DebugInfo di = ds.getDebugInfo(offset + level);
-            if (di == null) {
-                continue;
-            }
-
-            LuaStackTraceElement trace = di.getStackTraceElement();
-            if (trace == null) {
-                break;
-            }
-            result.add(trace);
+        for (int n = 0; n < count; n++) {
+            result.add(stackTraceElem(thread, offset + n));
         }
         return Collections.unmodifiableList(result);
+    }
+
+    /**
+     * Returns the stack trace element at the given offset.
+     * @param offset Skip the deepest {@code offset} levels of the call stack.
+     */
+    public static @Nullable LuaStackTraceElement stackTraceElem(LuaThread thread, int offset) {
+        DebugState ds = DebugLib.getDebugState(thread);
+        DebugInfo di = ds.getDebugInfo(1 + offset);
+        if (di == null) {
+            return null;
+        }
+        return di.getStackTraceElement();
     }
 
     private static void lua_assert(boolean x) {
