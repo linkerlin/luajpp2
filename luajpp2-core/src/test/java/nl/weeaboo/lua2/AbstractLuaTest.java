@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import nl.weeaboo.lua2.compiler.ScriptLoader;
+import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaThread;
@@ -21,6 +22,7 @@ public abstract class AbstractLuaTest {
     @Before
     public void initLuaRunState() throws LuaException {
         luaRunState = LuaRunState.create();
+        luaRunState.setExceptionHandler(new FailLuaExceptionHandler());
     }
 
     @After
@@ -52,6 +54,26 @@ public abstract class AbstractLuaTest {
         }
         Assert.assertTrue("Current stack trace: " + DebugTrace.stackTrace(luaRunState.getMainThread()),
                 luaRunState.isFinished());
+    }
+
+    @LuaSerializable
+    private static final class FailLuaExceptionHandler implements ILuaExceptionHandler {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void onScriptException(LuaThread thread, Exception exception) {
+            String message = "Uncaught exception in thread: " + thread;
+            if (thread.isMainThread()) {
+                if (exception instanceof RuntimeException) {
+                    throw (RuntimeException)exception;
+                } else {
+                    throw new RuntimeException(message, exception);
+                }
+            }
+            throw new AssertionError(message, exception);
+        }
+
     }
 
 }

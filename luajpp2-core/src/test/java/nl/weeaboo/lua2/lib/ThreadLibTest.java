@@ -47,7 +47,7 @@ public class ThreadLibTest extends AbstractLuaTest {
     public void invalidJump() {
         loadScript("lib/thread/jumpinvalid.lua");
 
-        runToCompletion();
+        Assert.assertThrows(RuntimeException.class, () -> runToCompletion());
 
         LuaThread mainThread = luaRunState.getMainThread();
         Assert.assertEquals(false, mainThread.isRunnable());

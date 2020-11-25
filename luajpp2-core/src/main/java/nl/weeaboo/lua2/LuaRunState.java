@@ -296,4 +296,11 @@ public final class LuaRunState implements ILuaResourceFinder {
         return typeCoercions;
     }
 
+    /**
+     * The global exception handler is notified when Lua code throws an exception.
+     */
+    public void setExceptionHandler(ILuaExceptionHandler handler) {
+        threadGroup.setExceptionHandler(handler);
+    }
+
 }
