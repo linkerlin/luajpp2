@@ -7,7 +7,7 @@ interface IArith {
     /**
      * Unary minus: return negative value {@code (-this)} as defined by lua unary minus operator
      *
-     * @return boolean inverse as {@link LuaBoolean} if boolean or nil, numeric inverse as {@LuaNumber} if
+     * @return boolean inverse as {@link LuaBoolean} if boolean or nil, numeric inverse as {@link LuaNumber} if
      *         numeric, or metatag processing result if {@link LuaConstants#META_UNM} metatag is defined
      * @throws LuaException if {@code this} is not a table or string, and has no {@link LuaConstants#META_UNM} metatag
      */

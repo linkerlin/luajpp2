@@ -1,4 +1,7 @@
 
+# v3.3.0
+- `LuaRunState` now has a user-settable exception handler.
+
 # v3.2.0
 
 - eval now has read/write access to variables in the top-most frame of the call stack

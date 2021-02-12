@@ -446,7 +446,7 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
      * Remove the element at a position in a list-table.
      *
      * @param pos the position to remove
-     * @return The removed item, or {@link #NONE} if not removed
+     * @return The removed item, or {@link LuaConstants#NONE} if not removed
      */
     public LuaValue remove(int pos) {
         int n = rawlen();

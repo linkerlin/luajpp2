@@ -124,7 +124,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.close([file]) -> void
+     * {@code io.close([file]) -> void}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -135,7 +135,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.flush() -> bool
+     * {@code io.flush() -> bool}
      * @param args Not used.
      * @throws IOException if this operation fails.
      */
@@ -148,7 +148,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.input([file]) -> file
+     * {@code io.input([file]) -> file}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -164,7 +164,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.output(filename) -> file
+     * {@code io.output(filename) -> file}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -180,7 +180,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.lines(filename) -> iterator
+     * {@code io.lines(filename) -> iterator}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -200,7 +200,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.open(filename, [mode]) -> file | nil,err
+     * {@code io.open(filename, [mode]) -> file | nil,err}
      */
     @LuaBoundFunction
     public Varargs open(Varargs args) {
@@ -216,7 +216,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.popen(prog, [mode]) -> file
+     * {@code io.popen(prog, [mode]) -> file}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -227,7 +227,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.read(...) -> (...)
+     * {@code io.read(...) -> (...)}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -299,7 +299,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.write(...) -> void
+     * {@code io.write(...) -> void}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -317,7 +317,7 @@ public final class IoLib extends LuaModule {
     }
 
     /**
-     * io.tmpfile() -> file
+     * {@code io.tmpfile() -> file}
      * @param args Not used.
      * @throws IOException if this operation fails.
      */
@@ -326,7 +326,7 @@ public final class IoLib extends LuaModule {
         return impl.createTempFile(fileTable);
     }
 
-    /** io.type(obj) -> "file" | "closed file" | nil */
+    /** {@code io.type(obj) -> "file" | "closed file" | nil} */
     @LuaBoundFunction
     public Varargs type(Varargs args) {
         LuaFileHandle f = optfile(args.arg(1));

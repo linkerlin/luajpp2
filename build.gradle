@@ -1,19 +1,14 @@
 buildscript {
     repositories {
-        jcenter()
         google()
     }
     dependencies {
         // Plugins for Android
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.1.0'
     }
 }
 
 plugins {
-    // Plugin for uploading to bintray
-    // Note: Causes a classpath conflict for org.apache.tools.zip
-    id 'com.jfrog.bintray' version '1.8.4'
-
     // Google error-prone
     id 'net.ltgt.errorprone' version '1.1.1' apply false
 }
@@ -23,52 +18,21 @@ apply from: 'dependencies.gradle'
 allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-    apply plugin: 'com.jfrog.bintray'
 
     group = 'nl.weeaboo.luajpp2'
     version = '3.3.0'
 
     repositories {
-        google()
-        jcenter()
+        mavenCentral()
     }
-
-    bintray {   
-        user = System.getenv('BINTRAY_USER')
-        key = System.getenv('BINTRAY_KEY')
-        pkg {
-            repo = 'luajpp2'
-            name = 'luajpp2'
-            licenses = ['MIT']
-            vcsUrl = 'https://github.com/anonl/luajpp2.git'
-            version {
-                name = project.version
-            }
-        }
-    }    
 }
 
 subprojects {
-    apply plugin: 'jacoco'
-    apply plugin: 'maven-publish'
-
-    ext {
-        javaVersion = JavaVersion.VERSION_1_8
-
-        pomLicenseConfig = {
-           licenses {
-                license {
-                    name 'MIT'
-                    url 'https://opensource.org/licenses/mit-license.php'
-                    distribution 'repo'
-                }
-            }
-        }
-        pomLicenseConfig.resolveStrategy = Closure.DELEGATE_ONLY // Otherwise 'license' elem is missing
-    }
-
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = javaVersion
+        project.apply plugin: 'jacoco'
+
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
 
         tasks.withType(JavaCompile) {
             options.encoding = 'UTF-8'
@@ -87,11 +51,6 @@ subprojects {
             reports {
                 xml.enabled true
             }
-        }
-
-        task sourceJar(type: Jar) {
-            from sourceSets.main.allJava
-            classifier "sources"
         }
 
         project.apply from: rootProject.file('errorprone.gradle')

@@ -181,7 +181,7 @@ public final class MathLib extends LuaModule {
     /**
      * math.pow (x)
      * <p>
-     * Returns x<pow>y</pow>. (You can also use the expression x^y to compute this value.)
+     * Returns {@code x<pow>y</pow>}. (You can also use the expression {@code x^y} to compute this value.)
      */
     @LuaBoundFunction
     public Varargs pow(Varargs args) {

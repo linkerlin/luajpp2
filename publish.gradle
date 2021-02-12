@@ -1,0 +1,66 @@
+def isSnapshot = version.endsWith('SNAPSHOT')
+
+def repoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+if (isSnapshot) {
+    repoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+publishing {
+    repositories {
+        maven {
+            url = repoUrl
+            credentials {
+                // These values are typically defined in gradle.properties in your user home
+                username = project.hasProperty('ossrhUsername') ? ossrhUsername : 'user-undefined'
+                password = project.hasProperty('ossrhPassword') ? ossrhPassword : 'password-undefined'
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                groupId = project.group
+                name = project.name
+                description = 'Fork of LuaJ with added serialization support'
+                url = 'https://github.com/anonl/LuaJPP2'
+                from components.java
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'anonl'
+                        email = 'mail@weeaboo.nl'
+                    }
+                }
+                scm {
+                    connection = 'scm:git://github.com/anonl/luajpp2.git'
+                    developerConnection = 'scm:git:ssh://github.com:anonl/luajpp2.git'
+                    url = 'https://github.com/anonl/luajpp2'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+publishMavenJavaPublicationToMavenRepository {
+    doFirst {
+        logger.lifecycle("Maven publish user: ${ossrhUsername}")
+    }
+}

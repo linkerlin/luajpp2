@@ -412,7 +412,8 @@ interface IComparable {
      * Only strings can be compared, meaning each operand must derive from {@link LuaString}.
      *
      * @param rhs The right-hand-side value to perform the comparison with
-     * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
+     * @return {@code int < 0} for {@code (this < rhs)}, {@code int > 0} for {@code (this > rhs)}, or 0 when
+     *          same string.
      * @throws LuaException if either operand is not a string
      */
     int strcmp(LuaValue rhs);
@@ -424,7 +425,8 @@ interface IComparable {
      * Only strings can be compared, meaning each operand must derive from {@link LuaString}.
      *
      * @param rhs The right-hand-side value to perform the comparison with
-     * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
+     * @return {@code int < 0} for {@code (this < rhs)}, {@code int > 0} for {@code (this > rhs)}, or 0 when
+     *          same string.
      * @throws LuaException if this is not a string
      */
     int strcmp(LuaString rhs);

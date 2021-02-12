@@ -18,14 +18,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility javaVersion
-        targetCompatibility javaVersion
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     lintOptions {
         textOutput 'stdout'
         textReport true
     }
+}
+
+repositories {
+    google()
+    jcenter() // Required for org.jetbrains.trove4j:trove4j:20160824, see https://youtrack.jetbrains.com/issue/IDEA-261387
 }
 
 dependencies {
