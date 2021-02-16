@@ -952,8 +952,8 @@ public abstract class LuaValue extends Varargs implements IArith, IComparable {
      *
      * @param key the key to look up, must not be {@link LuaNil#NIL} or null
      * @return {@link LuaValue} for that key, or {@link LuaNil#NIL} if not found and no metatag
-     * @throws LuaException if {@code this} is not a table, or there is no {@link LuaConstants#META_INDEX} metatag, or key
-     *         is {@link LuaNil#NIL}
+     * @throws LuaException if {@code this} is not a table, or there is no {@link LuaConstants#META_INDEX}
+     *         metatag, or key is {@link LuaNil#NIL}
      * @see #get(int)
      * @see #get(String)
      * @see #rawget(LuaValue)
