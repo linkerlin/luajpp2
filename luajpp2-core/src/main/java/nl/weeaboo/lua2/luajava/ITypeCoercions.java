@@ -51,6 +51,6 @@ public interface ITypeCoercions extends Serializable {
      *
      * @return The similarity score, lower scores are better matches
      */
-    int scoreParam(LuaValue arg, Class<?> class1);
+    int scoreParam(LuaValue arg, Class<?> javaParamType);
 
 }

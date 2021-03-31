@@ -1,4 +1,7 @@
 
+# v3.4.0
+- `LuaRunState` now has user-settable type coercions.
+
 # v3.3.0
 - `LuaRunState` now has a user-settable exception handler.
 
