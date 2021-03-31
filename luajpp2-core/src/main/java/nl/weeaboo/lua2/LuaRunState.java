@@ -297,6 +297,13 @@ public final class LuaRunState implements ILuaResourceFinder {
     }
 
     /**
+     * @see #getTypeCoercions()
+     */
+    public void setTypeCoercions(ITypeCoercions typeCoercions) {
+        this.typeCoercions = typeCoercions;
+    }
+
+    /**
      * The global exception handler is notified when Lua code throws an exception.
      */
     public void setExceptionHandler(ILuaExceptionHandler handler) {
