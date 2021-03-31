@@ -12,6 +12,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Table library
+ */
 @LuaSerializable
 public final class TableLib extends LuaModule {
 
@@ -22,7 +25,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "getn" (table) -> number
+     * {@code "getn" (table) -> number}
      */
     @LuaBoundFunction
     public Varargs getn(Varargs args) {
@@ -30,7 +33,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "maxn" (table) -> number
+     * {@code "maxn" (table) -> number}
      */
     @LuaBoundFunction
     public Varargs maxn(Varargs args) {
@@ -38,7 +41,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "remove" (table [, pos]) -> removed-ele
+     * {@code "remove" (table [, pos]) -> removed-ele}
      */
     @LuaBoundFunction
     public Varargs remove(Varargs args) {
@@ -48,7 +51,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "concat" (table [, sep [, i [, j]]]) -> string
+     * {@code "concat" (table [, sep [, i [, j]]]) -> string}
      */
     @LuaBoundFunction
     public Varargs concat(Varargs args) {
@@ -60,7 +63,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "insert" (table, [pos,] value) -> prev-ele
+     * {@code "insert" (table, [pos,] value) -> prev-ele}
      */
     @LuaBoundFunction
     public Varargs insert(Varargs args) {
@@ -72,7 +75,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "sort" (table [, comp]) -> void
+     * {@code "sort" (table [, comp]) -> void}
      */
     @LuaBoundFunction
     public Varargs sort(Varargs args) {
@@ -83,7 +86,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "foreach" (table, func) -> void
+     * {@code "foreach" (table, func) -> void}
      */
     @LuaBoundFunction
     public Varargs foreach(Varargs args) {
@@ -91,7 +94,7 @@ public final class TableLib extends LuaModule {
     }
 
     /**
-     * "foreachi" (table, func) -> void
+     * {@code "foreachi" (table, func) -> void}
      */
     @LuaBoundFunction
     public Varargs foreachi(Varargs args) {

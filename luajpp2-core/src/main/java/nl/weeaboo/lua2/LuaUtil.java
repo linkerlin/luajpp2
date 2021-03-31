@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.weeaboo.lua2.compiler.LoadState;
+import nl.weeaboo.lua2.compiler.LuaEval;
 import nl.weeaboo.lua2.luajava.LuajavaLib;
 import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -21,6 +22,9 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Contains various useful functions that didn't fit anywhere else.
+ */
 public final class LuaUtil {
 
     private static final LuaString NEW = valueOf("new");
@@ -61,7 +65,10 @@ public final class LuaUtil {
     /**
      * Compiles and runs a piece of Lua code in the given thread.
      * @throws LuaException If an error occurs while trying to compare or run the code.
+     *
+     * @deprecated Use {@link LuaEval#eval} instead.
      */
+    @Deprecated
     public static Varargs eval(LuaThread thread, String code) throws LuaException {
         LuaClosure function = compileForEval(code, thread.getfenv());
         return thread.callFunctionInThread(function, LuaConstants.NONE);
@@ -70,7 +77,9 @@ public final class LuaUtil {
     /**
      * Compiles a snippet of Lua code as a runnable closure.
      * @throws LuaException If an error occurs while trying to compile the code.
+     * @deprecated Use LuaEval#compileForEval instead.
      */
+    @Deprecated
     public static LuaClosure compileForEval(String code, LuaValue env) throws LuaException {
         final String chunkName = "(eval)";
         try {
@@ -129,14 +138,20 @@ public final class LuaUtil {
     /**
      * Returns the current call stack of the active Lua thread, or an empty list if no thread is active.
      * @see #getLuaStack()
+     *
+     * @deprecated Use {@link DebugTrace#stackTrace(LuaThread)} instead.
      */
+    @Deprecated
     public static List<String> getLuaStack() {
         return getLuaStack(LuaThread.getRunning());
     }
 
     /**
      * Returns the call stack of the given thread.
+     *
+     * @deprecated Use {@link DebugTrace#stackTrace(LuaThread)} instead.
      */
+    @Deprecated
     public static List<String> getLuaStack(LuaThread thread) {
         if (thread == null) {
             return Collections.emptyList();
@@ -202,16 +217,16 @@ public final class LuaUtil {
     }
 
     private static final char[] escapeList = {
-        '\"', '\"',
-        '\'', '\'',
-        '\\', '\\',
-        'n', '\n',
-        'r', '\r',
-        't', '\t',
-        'f', '\f',
-        'a', '\u0007', // Bell character
-        'b', '\b',
-        'v', '\u000B',
+            '\"', '\"',
+            '\'', '\'',
+            '\\', '\\',
+            'n', '\n',
+            'r', '\r',
+            't', '\t',
+            'f', '\f',
+            'a', '\u0007', // Bell character
+            'b', '\b',
+            'v', '\u000B',
     };
 
     /**

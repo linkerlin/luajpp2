@@ -23,6 +23,7 @@ final class StackFrame implements Externalizable {
     // --- Uses manual serialization, don't add variables ---
     Status status;
     LuaFunction func;  //The function that's being called
+    String functionName; // The name of 'func' at the place where it's being called from
     Varargs args;      //The args given
     Varargs varargs;   //The varargs part of the arguments given
 
@@ -42,11 +43,11 @@ final class StackFrame implements Externalizable {
     public StackFrame() {
     }
 
-    static StackFrame newInstance(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
-            int returnCount) {
+    static StackFrame newInstance(LuaFunction func, Varargs args, String functionName,
+            StackFrame parent, int returnBase, int returnCount) {
 
         StackFrame frame = new StackFrame();
-        frame.prepareCall(func, args, parent, returnBase, returnCount);
+        frame.prepareCall(func, args, functionName, parent, returnBase, returnCount);
         return frame;
     }
 
@@ -63,6 +64,7 @@ final class StackFrame implements Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(status);
         out.writeObject(func);
+        out.writeUTF(functionName);
         out.writeObject(args);
         out.writeObject(varargs);
 
@@ -82,6 +84,7 @@ final class StackFrame implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         status = (Status)in.readObject();
         func = (LuaClosure)in.readObject();
+        functionName = in.readUTF();
         args = (Varargs)in.readObject();
         varargs = (Varargs)in.readObject();
 
@@ -114,16 +117,17 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    private void resetExecutionState(int minStackSize, int subFunctionCount) {
-        if (stack.length != minStackSize) {
+    private void resetExecutionState(int minStackSize) {
+        if (stack.length < minStackSize) {
             stack = new LuaValue[minStackSize];
         }
         Arrays.fill(stack, NIL);
 
-        if (subFunctionCount == 0) {
-            openups = UpValue.NOUPVALUES;
+        // (re)size upValue array
+        if (openups.length < stack.length) {
+            openups = new UpValue[stack.length];
         } else {
-            openups = new UpValue[minStackSize];
+            Arrays.fill(openups, null);
         }
 
         v = NONE;
@@ -132,10 +136,18 @@ final class StackFrame implements Externalizable {
     }
 
     public int size() {
-        return parentCount + 1; //(parent != null ? parentCount + 1 : 1);
+        return parentCount + 1;
     }
 
     public @Nullable LuaFunction getCallstackFunction(int level) {
+        StackFrame sf = getStackFrame(level);
+        if (sf == null) {
+            return null;
+        }
+        return sf.func;
+    }
+
+    public @Nullable StackFrame getStackFrame(int level) {
         StackFrame sf = this;
         while (--level >= 1) {
             sf = sf.parent;
@@ -143,7 +155,7 @@ final class StackFrame implements Externalizable {
                 return null;
             }
         }
-        return sf.func;
+        return sf;
     }
 
     private static @Nullable Prototype getPrototype(LuaFunction func) {
@@ -154,13 +166,14 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    public final void prepareCall(LuaFunction func, Varargs args, StackFrame parent, int returnBase,
-            int returnCount) {
+    public final void prepareCall(LuaFunction func, Varargs args, String functionName,
+            StackFrame parent, int returnBase, int returnCount) {
 
         final Prototype p = getPrototype(func);
 
         this.status = Status.FRESH;
         this.func = func;
+        this.functionName = functionName;
 
         this.parent = parent;
         this.parentCount = (parent != null ? parent.size() : 0);
@@ -168,9 +181,9 @@ final class StackFrame implements Externalizable {
         this.returnCount = returnCount;
 
         if (p == null) {
-            resetExecutionState(0, 0);
+            resetExecutionState(0);
         } else {
-            resetExecutionState(p.maxstacksize, p.p.length);
+            resetExecutionState(p.maxstacksize);
         }
 
         setArgs(args);
@@ -193,25 +206,26 @@ final class StackFrame implements Externalizable {
         }
     }
 
-    public final void prepareTailcall(LuaFunction func, Varargs args) {
-        closeUpValues(); //We're clobbering the stack, save the upvalues first
+    public final void prepareTailcall(LuaFunction func, Varargs args, String functionName) {
+        closeUpValues(); // We're clobbering the stack, save the upvalues first
 
         final Prototype p = getPrototype(func);
 
-        //Don't change status
+        // Don't change status
 
         this.func = func;
+        this.functionName = functionName;
         this.args = args;
         this.varargs = extractVarargs(p, args);
 
-        //Don't change parent
+        // Don't change parent
 
         if (p == null) {
-            resetExecutionState(0, 0);
+            resetExecutionState(0);
         } else {
-            resetExecutionState(p.maxstacksize, p.p.length);
+            resetExecutionState(p.maxstacksize);
 
-            //Push params on stack
+            // Push params on stack
             for (int i = 0; i < p.numparams; i++) {
                 stack[top + i] = args.arg(i + 1);
             }
@@ -253,6 +267,14 @@ final class StackFrame implements Externalizable {
         int a = ((i >> 6) & 0xff);
         int c = (i >> 14) & 0x1ff;
         LuaInterpreter.pushReturnValues(this, args, a, c);
+    }
+
+    public LuaValue getLocalValue(int index) {
+        return stack[index - 1];
+    }
+
+    public void setLocalValue(int index, LuaValue value) {
+        stack[index - 1] = value;
     }
 
 }

@@ -78,7 +78,7 @@ public final class LocVars implements Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    public void readExternal(ObjectInput in) throws IOException {
         int len = in.readInt();
         byte[] bytes = new byte[len];
         in.readFully(bytes);

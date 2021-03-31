@@ -35,6 +35,9 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Basic Lua library
+ */
 @LuaSerializable
 public final class BaseLib extends LuaLib {
 
@@ -66,7 +69,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( opt [,arg] ) -> value
+     * {@code ( opt [,arg] ) -> value}
      */
     @LuaBoundFunction
     public Varargs collectgarbage(Varargs args) {
@@ -123,7 +126,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( message [,level] ) -> ERR
+     * {@code ( message [,level] ) -> ERR}
      */
     @LuaBoundFunction
     public Varargs error(Varargs args) {
@@ -131,7 +134,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (f, table) -> void
+     * {@code (f, table) -> void}
      */
     @LuaBoundFunction
     public Varargs setfenv(Varargs args) {
@@ -142,7 +145,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( v [,message] ) -> v, message | ERR
+     * {@code ( v [,message] ) -> v, message | ERR}
      */
     @LuaBoundFunction(luaName = "assert")
     public Varargs assert_(Varargs args) {
@@ -157,7 +160,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( filename ) -> result1, ...
+     * {@code ( filename ) -> result1, ...}
      */
     @LuaBoundFunction
     public Varargs dofile(Varargs args) {
@@ -175,7 +178,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( [f] ) -> env
+     * {@code ( [f] ) -> env}
      */
     @LuaBoundFunction
     public Varargs getfenv(Varargs args) {
@@ -185,7 +188,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( object ) -> table
+     * {@code ( object ) -> table}
      */
     @LuaBoundFunction
     public Varargs getmetatable(Varargs args) {
@@ -197,7 +200,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( func [,chunkname] ) -> chunk | nil, msg
+     * {@code ( func [,chunkname] ) -> chunk | nil, msg}
      */
     @LuaBoundFunction
     public Varargs load(Varargs args) {
@@ -217,7 +220,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( [filename] ) -> chunk | nil, msg
+     * {@code ( [filename] ) -> chunk | nil, msg}
      */
     @LuaBoundFunction
     public Varargs loadfile(Varargs args) {
@@ -229,7 +232,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * ( string [,chunkname] ) -> chunk | nil, msg
+     * {@code ( string [,chunkname] ) -> chunk | nil, msg}
      */
     @LuaBoundFunction
     public Varargs loadstring(Varargs args) {
@@ -239,7 +242,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (f, arg1, ...) -> status, result1, ...
+     * {@code (f, arg1, ...) -> status, result1, ...}
      */
     @LuaBoundFunction
     public Varargs pcall(Varargs args) {
@@ -250,7 +253,7 @@ public final class BaseLib extends LuaLib {
     /**
      * @param errfunc is ignored, should replace thread's errfunc which it doesn't have anymore
      */
-    private static Varargs pcall(LuaValue func, Varargs args, LuaValue errfunc) {
+    private static Varargs pcall(LuaValue func, Varargs args, @SuppressWarnings("unused") LuaValue errfunc) {
         try {
             Varargs funcResult = func.invoke(args);
             return varargsOf(TRUE, funcResult);
@@ -265,7 +268,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (f, err) -> result1, ...
+     * {@code (f, err) -> result1, ...}
      */
     @LuaBoundFunction
     public Varargs xpcall(Varargs args) {
@@ -273,7 +276,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (...) -> void
+     * {@code (...) -> void}
      */
     @LuaBoundFunction
     public Varargs print(Varargs args) {
@@ -296,7 +299,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (f, ...) -> value1, ...
+     * {@code (f, ...) -> value1, ...}
      */
     @LuaBoundFunction
     public Varargs select(Varargs args) {
@@ -312,15 +315,14 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (list [,i [,j]]) -> result1, ...
+     * {@code (list [,i [,j]]) -> result1, ...}
      */
     @LuaBoundFunction
     public Varargs unpack(Varargs args) {
         LuaTable t = args.checktable(1);
-        int n = t.length();
         int i = args.optint(2, 1);
         int j = args.isnil(3) ? t.getn().checkint() : args.checkint(3);
-        n = j - i + 1;
+        int n = j - i + 1;
         if (n < 0) {
             return NONE;
         }
@@ -338,7 +340,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (v) -> value
+     * {@code (v) -> value}
      */
     @LuaBoundFunction
     public Varargs type(Varargs args) {
@@ -346,7 +348,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (v1, v2) -> boolean
+     * {@code (v1, v2) -> boolean}
      */
     @LuaBoundFunction
     public Varargs rawequal(Varargs args) {
@@ -354,7 +356,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (table, index) -> value
+     * {@code (table, index) -> value}
      */
     @LuaBoundFunction
     public Varargs rawget(Varargs args) {
@@ -362,7 +364,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (table, index, value) -> table
+     * {@code (table, index, value) -> table}
      */
     @LuaBoundFunction
     public Varargs rawset(Varargs args) {
@@ -372,7 +374,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (table, metatable) -> table
+     * {@code (table, metatable) -> table}
      */
     @LuaBoundFunction
     public Varargs setmetatable(Varargs args) {
@@ -386,7 +388,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (e) -> value
+     * {@code (e) -> value}
      */
     @LuaBoundFunction
     public Varargs tostring(Varargs args) {
@@ -403,7 +405,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * (e [,base]) -> value
+     * {@code (e [,base]) -> value}
      */
     @LuaBoundFunction
     public Varargs tonumber(Varargs args) {
@@ -420,7 +422,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * "pairs" (t) -> iter-func, t, nil
+     * {@code "pairs" (t) -> iter-func, t, nil}
      */
     @LuaBoundFunction
     public Varargs pairs(Varargs args) {
@@ -429,7 +431,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * "ipairs", // (t) -> iter-func, t, 0
+     * {@code "ipairs", // (t) -> iter-func, t, 0}
      */
     @LuaBoundFunction
     public Varargs ipairs(Varargs args) {
@@ -438,7 +440,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * "next" ( table, [index] ) -> next-index, next-value
+     * {@code "next" ( table, [index] ) -> next-index, next-value}
      */
     @LuaBoundFunction
     public Varargs next(Varargs args) {
@@ -446,7 +448,7 @@ public final class BaseLib extends LuaLib {
     }
 
     /**
-     * "inext" ( table, [int-index] ) -> next-index, next-value
+     * {@code "inext" ( table, [int-index] ) -> next-index, next-value}
      */
     @LuaBoundFunction(luaName = "__inext")
     public Varargs inext(Varargs args) {

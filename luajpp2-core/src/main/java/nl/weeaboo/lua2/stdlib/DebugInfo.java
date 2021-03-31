@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.vm.LuaClosure;
 import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.LuaStackTraceElement;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -30,6 +31,7 @@ final class DebugInfo implements Externalizable {
 
     // --- Uses manual serialization, don't add variables ---
     LuaValue func;
+    String functionName;
     @Nullable LuaClosure closure;
     LuaValue[] stack;
     Varargs varargs;
@@ -44,7 +46,7 @@ final class DebugInfo implements Externalizable {
 
     DebugInfo(LuaValue func) {
         pc = -1;
-        setfunction(func);
+        setfunction(func, "?");
     }
 
     @Override
@@ -74,9 +76,10 @@ final class DebugInfo implements Externalizable {
         this.stack = stack;
     }
 
-    void setfunction(LuaValue func) {
+    void setfunction(LuaValue func, String functionName) {
         this.func = func;
         this.closure = (func instanceof LuaClosure ? (LuaClosure)func : null);
+        this.functionName = functionName;
     }
 
     void clear() {
@@ -87,8 +90,16 @@ final class DebugInfo implements Externalizable {
         pc = top = 0;
     }
 
-    public @Nullable LuaString[] getfunckind() {
+    public @Nullable LuaString[] getnamewhat() {
         return DebugTrace.getobjname(this, getStackPos());
+    }
+
+    String getObjectName() {
+        LuaString[] namewhat = getnamewhat();
+        if (namewhat == null || namewhat.length == 0) {
+            return "?";
+        }
+        return namewhat[0].tojstring();
     }
 
     int getStackPos() {
@@ -123,11 +134,7 @@ final class DebugInfo implements Externalizable {
     }
 
     public String tracename() {
-        LuaString[] kind = getfunckind();
-        if (kind == null || kind.length <= 0) {
-            return "function ?";
-        }
-        return "function " + kind[0].tojstring();
+        return "function" + getObjectName();
     }
 
     public @Nullable LuaString getlocalname(int index) {
@@ -137,13 +144,17 @@ final class DebugInfo implements Externalizable {
         return closure.getPrototype().getlocalname(index, pc);
     }
 
-    public String tojstring() {
-        return tracename() + " " + sourceline();
+    public LuaValue getLocalValue(int index) {
+        return stack[index - 1];
+    }
+
+    public LuaStackTraceElement getStackTraceElement() {
+        return new LuaStackTraceElement(source(), currentline(), functionName);
     }
 
     @Override
     public String toString() {
-        return tojstring();
+        return getStackTraceElement().toString();
     }
 
 }

@@ -15,6 +15,9 @@ import nl.weeaboo.lua2.vm.LuaInteger;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Math library
+ */
 @LuaSerializable
 public final class MathLib extends LuaModule {
 
@@ -178,7 +181,7 @@ public final class MathLib extends LuaModule {
     /**
      * math.pow (x)
      * <p>
-     * Returns x<pow>y</pow>. (You can also use the expression x^y to compute this value.)
+     * Returns {@code x<pow>y</pow>}. (You can also use the expression {@code x^y} to compute this value.)
      */
     @LuaBoundFunction
     public Varargs pow(Varargs args) {
@@ -303,7 +306,7 @@ public final class MathLib extends LuaModule {
             return varargsOf(LuaInteger.valueOf(0), LuaInteger.valueOf(0));
         }
         long bits = Double.doubleToLongBits(x);
-        double m = ((bits & (~(-1L << 52))) + (1L << 52))
+        double m = ((bits & ~(-1L << 52)) + (1L << 52))
                 * ((bits >= 0) ? (.5 / (1L << 52)) : (-.5 / (1L << 52)));
         double e = (((int)(bits >> 52)) & 0x7ff) - 1022;
         return varargsOf(valueOf(m), valueOf(e));

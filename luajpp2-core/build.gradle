@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+
+processResources {
+    filesMatching('**/*.properties') {
+        filter {
+            // Engine version number
+            it.replace('@VERSION@', version)
+        }
+    }
+}
+
+apply from: rootProject.file('publish.gradle')

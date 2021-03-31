@@ -2,7 +2,7 @@ package nl.weeaboo.lua2.vm;
 
 import nl.weeaboo.lua2.LuaException;
 
-public interface IComparable {
+interface IComparable {
 
     /**
      * Equals: Perform equality comparison with another value including metatag processing using
@@ -412,7 +412,8 @@ public interface IComparable {
      * Only strings can be compared, meaning each operand must derive from {@link LuaString}.
      *
      * @param rhs The right-hand-side value to perform the comparison with
-     * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
+     * @return {@code int < 0} for {@code (this < rhs)}, {@code int > 0} for {@code (this > rhs)}, or 0 when
+     *          same string.
      * @throws LuaException if either operand is not a string
      */
     int strcmp(LuaValue rhs);
@@ -424,7 +425,8 @@ public interface IComparable {
      * Only strings can be compared, meaning each operand must derive from {@link LuaString}.
      *
      * @param rhs The right-hand-side value to perform the comparison with
-     * @returns int < 0 for {@code (this < rhs)}, int > 0 for {@code (this > rhs)}, or 0 when same string.
+     * @return {@code int < 0} for {@code (this < rhs)}, {@code int > 0} for {@code (this > rhs)}, or 0 when
+     *          same string.
      * @throws LuaException if this is not a string
      */
     int strcmp(LuaString rhs);

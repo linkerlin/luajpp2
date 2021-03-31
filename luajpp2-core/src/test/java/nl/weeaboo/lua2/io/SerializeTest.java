@@ -4,6 +4,8 @@ import static nl.weeaboo.lua2.vm.LuaNil.NIL;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -103,7 +105,7 @@ public final class SerializeTest extends AbstractLuaTest {
         Assert.assertSame(table3, sub1.get(1));
     }
 
-    private LuaValue getWeakRef(int index) {
+    private @Nullable LuaValue getWeakRef(int index) {
         return LuaTestUtil.getGlobal("weakRef" + index);
     }
 

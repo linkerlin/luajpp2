@@ -1,5 +1,8 @@
 package nl.weeaboo.lua2.vm;
 
+/**
+ * Test helper functions related to {@link LuaTable}.
+ */
 public final class TableTester {
 
     /** Creates a new weak table. */

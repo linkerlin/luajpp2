@@ -10,6 +10,9 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 
+/**
+ * Base class for a file-like objects.
+ */
 @LuaSerializable
 public abstract class LuaFileHandle extends LuaValue implements Serializable {
 
@@ -53,7 +56,7 @@ public abstract class LuaFileHandle extends LuaValue implements Serializable {
      *               <li>"end": Skip relative to the end of the file.
      *               </ul>
      * @param bytecount Skip relative by this number of bytes.
-     * @returns The new position
+     * @return The new position
      * @throws IOException If seeking isn't supported, or this seek operation failed for some other reason.
      */
     public int seek(String whence, int bytecount) throws IOException {

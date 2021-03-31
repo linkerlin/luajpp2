@@ -1,6 +1,6 @@
 ext.deps = [:]
 
-ext.errorProneVersion = '2.3.1'
+ext.errorProneVersion = '2.3.3'
 
 def slf4jVersion = '1.7.21'
 
@@ -12,7 +12,7 @@ deps.static_analysis_annotations = [
 ]
 
 deps.junit = [
-    "junit:junit:4.12"
+    "junit:junit:4.13.1"
 ]
 
 deps.slf4j_api = [

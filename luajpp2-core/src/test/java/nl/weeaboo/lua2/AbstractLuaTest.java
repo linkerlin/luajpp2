@@ -1,14 +1,12 @@
 package nl.weeaboo.lua2;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.LogManager;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
 import nl.weeaboo.lua2.compiler.ScriptLoader;
+import nl.weeaboo.lua2.io.LuaSerializable;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 import nl.weeaboo.lua2.vm.LuaConstants;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
@@ -17,8 +15,6 @@ public abstract class AbstractLuaTest {
 
     static {
         System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
-
-        configureLogging();
     }
 
     protected LuaRunState luaRunState;
@@ -26,20 +22,7 @@ public abstract class AbstractLuaTest {
     @Before
     public void initLuaRunState() throws LuaException {
         luaRunState = LuaRunState.create();
-    }
-
-    private static void configureLogging() {
-        LogManager logManager = LogManager.getLogManager();
-        try {
-            InputStream in = AbstractLuaTest.class.getResourceAsStream("/logging.debug.properties");
-            try {
-                logManager.readConfiguration(in);
-            } finally {
-                in.close();
-            }
-        } catch (IOException ioe) {
-            throw new AssertionError(ioe);
-        }
+        luaRunState.setExceptionHandler(new FailLuaExceptionHandler());
     }
 
     @After
@@ -69,7 +52,28 @@ public abstract class AbstractLuaTest {
                 break;
             }
         }
-        Assert.assertTrue(luaRunState.isFinished());
+        Assert.assertTrue("Current stack trace: " + DebugTrace.stackTrace(luaRunState.getMainThread()),
+                luaRunState.isFinished());
+    }
+
+    @LuaSerializable
+    private static final class FailLuaExceptionHandler implements ILuaExceptionHandler {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void onScriptException(LuaThread thread, Exception exception) {
+            String message = "Uncaught exception in thread: " + thread;
+            if (thread.isMainThread()) {
+                if (exception instanceof RuntimeException) {
+                    throw (RuntimeException)exception;
+                } else {
+                    throw new RuntimeException(message, exception);
+                }
+            }
+            throw new AssertionError(message, exception);
+        }
+
     }
 
 }

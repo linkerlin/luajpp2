@@ -26,10 +26,18 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Writes Lua objects to a binary stream.
+ *
+ * @see LuaSerializer
+ */
 public class ObjectSerializer extends ObjectOutputStream {
 
+    /**
+     * Problem level.
+     */
     public enum ErrorLevel {
-        NONE, WARNING, ERROR;
+        NONE, WARNING, ERROR
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectSerializer.class);

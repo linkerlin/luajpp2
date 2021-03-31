@@ -24,6 +24,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * File library
+ */
 @LuaSerializable
 public final class FileLib extends LuaLib {
 
@@ -45,7 +48,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:close() -> void.
+     * {@code file:close() -> void}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -58,7 +61,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:flush() -> void.
+     * {@code file:flush() -> void}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -68,7 +71,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:setvbuf(mode,[size]) -> void.
+     * {@code file:setvbuf(mode,[size]) -> void}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -82,7 +85,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:lines() -> iterator.
+     * {@code file:lines() -> iterator}
      */
     @LuaBoundFunction
     public Varargs lines(Varargs args) {
@@ -91,7 +94,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:seek([whence][,offset]) -> pos | nil,error.
+     * {@code file:seek([whence][,offset]) -> pos | nil,error}
      * @throws IOException if this operation fails.
      */
     @LuaBoundFunction
@@ -104,7 +107,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:read(...) -> (...)
+     * {@code file:read(...) -> (...)}
      */
     @LuaBoundFunction
     public Varargs read(Varargs args) {
@@ -119,7 +122,7 @@ public final class FileLib extends LuaLib {
     }
 
     /**
-     * file:write(...) -> void
+     * {@code file:write(...) -> void}
      */
     @LuaBoundFunction
     public Varargs write(Varargs args) {
@@ -146,7 +149,7 @@ public final class FileLib extends LuaLib {
             this.shouldClose = shouldClose;
         }
 
-        /** lines iterator(s,var) -> var'. */
+        /** {@code lines iterator(s,var) -> var'} */
         @Override
         public Varargs invoke(Varargs args) {
             try {

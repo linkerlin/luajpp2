@@ -35,6 +35,9 @@ import nl.weeaboo.lua2.vm.LuaUserdata;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Special library for accessing Java functionality from Lua.
+ */
 @LuaSerializable
 public final class LuajavaLib extends LuaModule {
 
@@ -109,6 +112,10 @@ public final class LuajavaLib extends LuaModule {
      * defined in {@code clazz}.
      */
     public static LuaUserdata toUserdata(Object object, Class<?> clazz) {
+        if (!clazz.isInstance(object)) {
+            throw new LuaException("Java value " + object + " is incompatible with declared type " + clazz);
+        }
+
         JavaClass info = getClassInfo(clazz);
         return LuaUserdata.userdataOf(object, info.getMetatable());
     }

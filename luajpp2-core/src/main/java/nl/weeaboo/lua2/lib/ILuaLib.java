@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import nl.weeaboo.lua2.LuaException;
 
+/**
+ * Library of Lua functions.
+ */
 public interface ILuaLib extends Serializable {
 
     /**

@@ -34,6 +34,9 @@ import javax.annotation.Nullable;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.io.LuaSerializable;
 
+/**
+ * Lua userdata. Wraps a Java object for use in Lua.
+ */
 @LuaSerializable
 public class LuaUserdata extends LuaValue implements Serializable {
 

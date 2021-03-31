@@ -18,14 +18,15 @@ import nl.weeaboo.lua2.vm.LuaValue;
 @LuaSerializable
 final class LuaThreadGroup implements Serializable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     private static final Logger LOG = LoggerFactory.getLogger(LuaThreadGroup.class);
 
     private final LuaRunState luaRunState;
     private final LuaValue environment;
 
+    // This list is treated as immutable; it will never be modified once assigned
     private List<LuaThread> threads = Collections.emptyList();
-
+    private ILuaExceptionHandler exceptionHandler = new DefaultLuaExceptionHandler();
     private boolean destroyed;
 
     public LuaThreadGroup(LuaRunState lrs) {
@@ -72,7 +73,7 @@ final class LuaThreadGroup implements Serializable {
     void add(LuaThread thread) {
         checkDestroyed();
 
-        List<LuaThread> newThreads = copy(threads);
+        List<LuaThread> newThreads = new ArrayList<>(threads);
         newThreads.add(thread);
         threads = newThreads;
     }
@@ -86,7 +87,7 @@ final class LuaThreadGroup implements Serializable {
                 try {
                     thread.resume(NONE);
                 } catch (RuntimeException e) {
-                    LOG.warn("Error running thread: {}", thread, e);
+                    exceptionHandler.onScriptException(thread, e);
                 }
             }
 
@@ -119,14 +120,14 @@ final class LuaThreadGroup implements Serializable {
         }
 
         if (toRemove != null) {
-            List<LuaThread> newThreads = copy(threads);
+            List<LuaThread> newThreads = new ArrayList<>(threads);
             newThreads.removeAll(toRemove);
             threads = newThreads;
         }
     }
 
-    private static <T> List<T> copy(List<T> list) {
-        return new ArrayList<>(list);
+    public void setExceptionHandler(ILuaExceptionHandler handler) {
+        this.exceptionHandler = handler;
     }
 
 }

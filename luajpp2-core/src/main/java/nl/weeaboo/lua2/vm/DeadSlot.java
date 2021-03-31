@@ -84,7 +84,9 @@ final class DeadSlot implements ISlot {
     @Override
     public ISlot remove(IStrongSlot target) {
         if (key() != null) {
-            next = next.remove(target);
+            if (next != null) {
+                next = next.remove(target);
+            }
             return this;
         } else {
             ISlot result = next;

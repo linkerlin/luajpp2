@@ -24,6 +24,9 @@ import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Package library
+ */
 @LuaSerializable
 public final class PackageLib extends LuaModule {
 

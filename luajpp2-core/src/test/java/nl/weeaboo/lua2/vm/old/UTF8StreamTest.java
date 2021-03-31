@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.LuaRunState;
-import nl.weeaboo.lua2.LuaUtil;
+import nl.weeaboo.lua2.compiler.LuaEval;
 import nl.weeaboo.lua2.vm.LuaThread;
 
 public class UTF8StreamTest {
@@ -48,7 +48,7 @@ public class UTF8StreamTest {
                 + "return x";
 
         LuaThread link = lrs.newThread();
-        String str = LuaUtil.eval(link, script).tojstring(1);
+        String str = LuaEval.eval(link, script).tojstring(1);
         Assert.assertEquals(value, str);
     }
 

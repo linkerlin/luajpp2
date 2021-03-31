@@ -3,6 +3,7 @@ package nl.weeaboo.lua2.stdlib;
 import static nl.weeaboo.lua2.vm.LuaValue.valueOf;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -10,11 +11,15 @@ import javax.annotation.Nullable;
 import nl.weeaboo.lua2.LuaException;
 import nl.weeaboo.lua2.vm.Lua;
 import nl.weeaboo.lua2.vm.LuaConstants;
+import nl.weeaboo.lua2.vm.LuaStackTraceElement;
 import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
 
+/**
+ * Provides access to debugging information for the currently executing Lua thread.
+ */
 public final class DebugTrace {
 
     private static final LuaString QMARK = valueOf("?");
@@ -33,6 +38,8 @@ public final class DebugTrace {
      * @param thread LuaThread to provide stack trace for
      * @param level 0-based level to start reporting on
      * @return String containing the stack trace.
+     *
+     * @see #stackTrace(LuaThread)
      */
     public static String traceback(LuaThread thread, int level) {
         DebugState ds = DebugLib.getDebugState(thread);
@@ -82,7 +89,9 @@ public final class DebugTrace {
      *
      * @return String identifying the file and line of the nearest lua closure, or the function name of the
      *         Java call if no closure is being called.
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
+    @Deprecated
     public static @Nullable String fileline() {
         LuaThread running = LuaThread.getRunning();
         DebugState ds = DebugLib.getDebugState(running);
@@ -98,7 +107,9 @@ public final class DebugTrace {
 
     /**
      * @see #fileline(LuaThread, int)
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
+    @Deprecated
     public static @Nullable String fileline(int level) {
         return fileline(LuaThread.getRunning(), level);
     }
@@ -108,7 +119,9 @@ public final class DebugTrace {
      *
      * @param level 1-based index of level to get
      * @return String containing file and line info if available
+     * @deprecated Use {@link #stackTraceElem(LuaThread, int)} instead.
      */
+    @Deprecated
     public static @Nullable String fileline(LuaThread running, int level) {
         DebugState ds = DebugLib.getDebugState(running);
         DebugInfo di = ds.getDebugInfo(level);
@@ -119,10 +132,62 @@ public final class DebugTrace {
         return di.sourceline();
     }
 
+    /**
+     * Returns the Lua call stack of the given thread.
+     */
+    public static List<LuaStackTraceElement> stackTrace(LuaThread thread) {
+        return stackTrace(thread, 0, 8);
+    }
+
+    /**
+     * Returns the Lua call stack of the given thread.
+     *
+     * @param offset Skip the deepest {@code offset} levels of the call stack.
+     * @param count Traverse at most this number of levels.
+     */
+    public static List<LuaStackTraceElement> stackTrace(LuaThread thread, int offset, int count) {
+        List<LuaStackTraceElement> result = new ArrayList<>();
+        for (int n = 0; n < count; n++) {
+            LuaStackTraceElement elem = stackTraceElem(thread, offset + n);
+            if (elem != null) {
+                result.add(elem);
+            }
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    /**
+     * Returns the stack trace element at the given offset.
+     * @param offset Skip the deepest {@code offset} levels of the call stack.
+     */
+    public static @Nullable LuaStackTraceElement stackTraceElem(LuaThread thread, int offset) {
+        DebugState ds = DebugLib.getDebugState(thread);
+        DebugInfo di = ds.getDebugInfo(1 + offset);
+        if (di == null) {
+            return null;
+        }
+        return di.getStackTraceElement();
+    }
+
     private static void lua_assert(boolean x) {
         if (!x) {
             throw new LuaException("lua_assert failed");
         }
+    }
+
+    /**
+     * The name of the function that the given thread is currently in the process of calling. A function can
+     * be known by multiple names. This is the name used to call the function in this particular case.
+     */
+    public static String getCalledFunctionName(LuaThread thread) {
+        DebugState ds = DebugLib.getDebugState(thread);
+        if (ds != null) {
+            DebugInfo di = ds.getDebugInfo();
+            if (di != null) {
+                return di.getObjectName();
+            }
+        }
+        return "?";
     }
 
     /**
@@ -240,7 +305,7 @@ public final class DebugTrace {
     }
 
     private static boolean checkopenop(Prototype pt, int pc) {
-        int i = pt.code[(pc) + 1];
+        int i = pt.code[pc + 1];
 
         switch (Lua.getOpcode(i)) {
         case Lua.OP_CALL:
@@ -282,7 +347,7 @@ public final class DebugTrace {
         last = pt.code.length - 1; /*
                                     * points to final return (a `neutral' instruction)
                                     */
-        if (!(precheck(pt))) {
+        if (!precheck(pt)) {
             return 0;
         }
         for (int pc = 0; pc < lastpc; pc++) {
@@ -374,7 +439,7 @@ public final class DebugTrace {
             }
             case Lua.OP_GETGLOBAL:
             case Lua.OP_SETGLOBAL: {
-                if (!(pt.k[b].isstring())) {
+                if (!pt.k[b].isstring()) {
                     return 0;
                 }
                 break;
@@ -434,7 +499,7 @@ public final class DebugTrace {
                 }
                 c--; /* c = num. returns */
                 if (c == Lua.LUA_MULTRET) {
-                    if (!(checkopenop(pt, pc))) {
+                    if (!checkopenop(pt, pc)) {
                         return 0;
                     }
                 } else if (c != 0) {
@@ -492,7 +557,7 @@ public final class DebugTrace {
                 }
                 b--;
                 if (b == Lua.LUA_MULTRET) {
-                    if (!(checkopenop(pt, pc))) {
+                    if (!checkopenop(pt, pc)) {
                         return 0;
                     }
                 }

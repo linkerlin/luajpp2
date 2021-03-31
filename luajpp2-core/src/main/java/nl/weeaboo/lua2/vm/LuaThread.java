@@ -25,6 +25,7 @@ package nl.weeaboo.lua2.vm;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
@@ -36,15 +37,24 @@ import nl.weeaboo.lua2.LuaRunState;
 import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.stdlib.CoroutineLib;
 import nl.weeaboo.lua2.stdlib.DebugLib;
+import nl.weeaboo.lua2.stdlib.DebugTrace;
 
+/**
+ * Lua thread object
+ */
 @LuaSerializable
 public final class LuaThread extends LuaValue implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuaThread.class);
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
+    private static final AtomicInteger threadIdGenerator = new AtomicInteger();
+
+    private final int threadId = threadIdGenerator.incrementAndGet();
     private LuaRunState luaRunState;
     private LuaValue env;
+    private String name = Integer.toString(threadId);
+
     private LuaThreadStatus status = LuaThreadStatus.INITIAL;
     private int callstackMin;
     private boolean isMainThread;
@@ -63,8 +73,8 @@ public final class LuaThread extends LuaValue implements Serializable {
     }
 
     public LuaThread(LuaRunState lrs, LuaValue environment) {
-        luaRunState = lrs;
-        env = environment;
+        this.luaRunState = lrs;
+        this.env = environment;
 
         callstack = null;
     }
@@ -73,11 +83,14 @@ public final class LuaThread extends LuaValue implements Serializable {
      * Create a LuaThread around a function and environment
      *
      * @param function The function to execute
+     *
+     * @deprecated Use {@link LuaRunState#newThread(LuaClosure, Varargs)} instead.
      */
+    @Deprecated
     public LuaThread(LuaThread parent, LuaClosure function) {
         this(parent.luaRunState, parent.getfenv());
 
-        callstack = StackFrame.newInstance(function, NONE, null, 0, 0);
+        callstack = StackFrame.newInstance(function, NONE, function.tojstring(), null, 0, 0);
     }
 
     /**
@@ -86,6 +99,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     @Deprecated
     public static LuaThread createMainThread(LuaRunState lrs, LuaValue env) {
         LuaThread thread = new LuaThread(lrs, env);
+        thread.setName("main");
         thread.isMainThread = true;
         thread.isPersistent = true;
         return thread;
@@ -101,9 +115,21 @@ public final class LuaThread extends LuaValue implements Serializable {
         debugState = null;
     }
 
+    public int getThreadId() {
+        return threadId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
-    public String toString() {
-        return (isMainThread ? "main" : "") + super.toString();
+    public String tojstring() {
+        return typename() + ": " + name;
     }
 
     @Override
@@ -179,7 +205,7 @@ public final class LuaThread extends LuaValue implements Serializable {
     void preCall(StackFrame sf) {
         if (DebugLib.isDebugEnabled()) {
             DebugLib.debugSetupCall(this, sf.args, sf.stack);
-            DebugLib.debugOnCall(this, sf.func);
+            DebugLib.debugOnCall(this, sf.func, sf.functionName);
 
             LOG.trace(">>({}) {}", sf.size(), sf);
         }
@@ -213,7 +239,8 @@ public final class LuaThread extends LuaValue implements Serializable {
                     callstack);
         }
 
-        callstack = StackFrame.newInstance(func, args, callstack, returnBase, returnCount);
+        String funcName = DebugTrace.getCalledFunctionName(this);
+        callstack = StackFrame.newInstance(func, args, funcName, callstack, returnBase, returnCount);
 
         /*
          * When adding something to the call stack, change the status from initial to something else.
@@ -238,6 +265,7 @@ public final class LuaThread extends LuaValue implements Serializable {
         Varargs result;
         int oldSleep = getSleep();
         try {
+            sleep = 0;
             result = resume(1);
         } finally {
             setSleep(oldSleep);
@@ -247,6 +275,7 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     /**
      * Returns the function at the requested call stack offset.
+     * @param level 1-based offset, where 1 is the current level.
      * @return The function, or {@code null} if not found.
      */
     public @Nullable LuaFunction getCallstackFunction(int level) {
@@ -254,6 +283,13 @@ public final class LuaThread extends LuaValue implements Serializable {
             return null;
         }
         return callstack.getCallstackFunction(level);
+    }
+
+    @Nullable StackFrame getStackFrame(int level) {
+        if (callstack == null) {
+            return null;
+        }
+        return callstack.getStackFrame(level);
     }
 
     /**
@@ -390,9 +426,12 @@ public final class LuaThread extends LuaValue implements Serializable {
 
     void popStackFrame() {
         final StackFrame sf = callstack;
+        if (sf == null) {
+            throw new IllegalStateException("Unable to pop stack frame; callstack is empty");
+        }
 
         // Pop from call stack
-        callstack = callstack.parent;
+        callstack = sf.parent;
 
         // Close stack frame
         sf.close();
@@ -411,8 +450,12 @@ public final class LuaThread extends LuaValue implements Serializable {
      */
     @Deprecated
     public LuaValue getCallEnv() {
-        if (callstack != null) {
-            return callstack.getCallstackFunction(1).getfenv();
+        StackFrame sf = callstack;
+        if (sf != null) {
+            LuaFunction func = sf.getCallstackFunction(1);
+            if (func != null) {
+                return func.getfenv();
+            }
         }
         return getfenv();
     }

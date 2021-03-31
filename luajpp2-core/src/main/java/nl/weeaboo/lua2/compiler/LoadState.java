@@ -88,14 +88,10 @@ import nl.weeaboo.lua2.vm.Prototype;
  * @see ILuaCompiler
  * @see LuaClosure
  * @see LuaFunction
- * @see LoadState#compiler
  * @see LoadState#load(InputStream, String, LuaValue)
  * @see LuaC
  */
 public final class LoadState {
-
-    /** Compiler instance, if installed. */
-    private static final ILuaCompiler compiler = new LuaC();
 
     /** Signature byte indicating the file is a compiled binary chunk. */
     private static final byte[] LUA_SIGNATURE = { '\033', 'L', 'u', 'a' };
@@ -379,16 +375,7 @@ public final class LoadState {
      * @throws IOException if an IOException occurs
      */
     public static LuaFunction load(InputStream stream, String name, LuaValue env) throws IOException {
-        if (compiler != null) {
-            return compiler.load(stream, name, env);
-        } else {
-            int firstByte = stream.read();
-            if (firstByte != LUA_SIGNATURE[0]) {
-                throw new LuaException("no compiler");
-            }
-            Prototype p = loadBinaryChunk(firstByte, stream, name);
-            return new LuaClosure(p, env);
-        }
+        return new LuaC().load(stream, name, env);
     }
 
     /**
@@ -405,8 +392,10 @@ public final class LoadState {
             throws IOException {
 
         // check rest of signature
-        if (firstByte != LUA_SIGNATURE[0] || stream.read() != LUA_SIGNATURE[1]
-                || stream.read() != LUA_SIGNATURE[2] || stream.read() != LUA_SIGNATURE[3]) {
+        if (firstByte != LUA_SIGNATURE[0]
+                || stream.read() != LUA_SIGNATURE[1]
+                || stream.read() != LUA_SIGNATURE[2]
+                || stream.read() != LUA_SIGNATURE[3]) {
             throw new IllegalArgumentException("bad signature");
         }
 

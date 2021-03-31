@@ -13,6 +13,11 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Reads Lua objects from a binary stream.
+ *
+ * @see LuaSerializer
+ */
 public class ObjectDeserializer extends ObjectInputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectDeserializer.class);
@@ -79,7 +84,7 @@ public class ObjectDeserializer extends ObjectInputStream {
     }
 
     @Override
-    protected Object resolveObject(Object obj) throws IOException {
+    protected Object resolveObject(Object obj) {
         Class<?> clazz = obj.getClass();
 
         if (collectStats) {

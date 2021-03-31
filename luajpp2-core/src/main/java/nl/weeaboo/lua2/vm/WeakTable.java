@@ -129,7 +129,7 @@ final class WeakTable implements IMetatable, Serializable {
 
         protected @Nullable Object key;
         protected @Nullable Object value;
-        protected @Nullable ISlot next;
+        protected ISlot next;
 
         protected WeakSlot(Object key, Object value, ISlot next) {
             this.key = key;

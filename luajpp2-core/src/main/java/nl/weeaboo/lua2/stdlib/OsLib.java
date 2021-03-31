@@ -17,6 +17,9 @@ import nl.weeaboo.lua2.vm.LuaBoolean;
 import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * OS library
+ */
 @LuaSerializable
 public final class OsLib extends LuaModule {
 

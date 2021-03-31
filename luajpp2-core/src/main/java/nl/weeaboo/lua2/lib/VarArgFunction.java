@@ -34,7 +34,7 @@ import nl.weeaboo.lua2.vm.Varargs;
  * <p>
  * Subclasses need only implement {@link LuaValue#invoke(Varargs)} to complete this class, simplifying
  * development. All other uses of {@link #call(LuaValue)}, {@link #invoke()},etc, are routed through this
- * method by this class, converting arguments to {@linnk Varargs} and dropping or extending return values with
+ * method by this class, converting arguments to {@link Varargs} and dropping or extending return values with
  * {@code nil} values as required.
  * <p>
  * If between one and three arguments are required, and only one return value is returned,

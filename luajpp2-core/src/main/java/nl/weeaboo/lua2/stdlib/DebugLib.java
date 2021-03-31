@@ -3,7 +3,6 @@ package nl.weeaboo.lua2.stdlib;
 import static nl.weeaboo.lua2.vm.LuaBoolean.FALSE;
 import static nl.weeaboo.lua2.vm.LuaBoolean.TRUE;
 import static nl.weeaboo.lua2.vm.LuaConstants.EMPTYSTRING;
-import static nl.weeaboo.lua2.vm.LuaConstants.META_CALL;
 import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
 import static nl.weeaboo.lua2.vm.LuaConstants.TBOOLEAN;
 import static nl.weeaboo.lua2.vm.LuaConstants.TFUNCTION;
@@ -39,6 +38,9 @@ import nl.weeaboo.lua2.vm.Prototype;
 import nl.weeaboo.lua2.vm.UpValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Optional debug library
+ */
 @LuaSerializable
 public final class DebugLib extends LuaModule {
 
@@ -52,6 +54,7 @@ public final class DebugLib extends LuaModule {
     private static final LuaString FUNC = valueOf("func");
     private static final LuaString NAME = valueOf("name");
     private static final LuaString LINE = valueOf("line");
+    private static final LuaString CALL = valueOf("call");
     private static final LuaString COUNT = valueOf("count");
     private static final LuaString RETURN = valueOf("return");
     private static final LuaString NUPS = valueOf("nups");
@@ -199,8 +202,7 @@ public final class DebugLib extends LuaModule {
 
         LuaString name = di.getlocalname(index);
         if (name != null) {
-            LuaValue value = di.stack[index - 1];
-            return varargsOf(name, value);
+            return varargsOf(name, di.getLocalValue(index));
         } else {
             return NIL;
         }
@@ -409,7 +411,7 @@ public final class DebugLib extends LuaModule {
 
                 DebugInfo parentInfo = ds.getDebugInfo(level + 1);
                 if (parentInfo != null) {
-                    namewhat = parentInfo.getfunckind();
+                    namewhat = parentInfo.getnamewhat();
                 }
             } else {
                 di = new DebugInfo(thread.getCallstackFunction(1));
@@ -548,11 +550,13 @@ public final class DebugLib extends LuaModule {
         }
     }
 
-    static @Nullable DebugState getDebugState(LuaThread thread) {
-        if (thread.debugState == null) {
-            thread.debugState = new DebugState(thread);
+    static DebugState getDebugState(LuaThread thread) {
+        DebugState result = (DebugState)thread.debugState;
+        if (result == null) {
+            result = new DebugState(thread);
+            thread.debugState = result;
         }
-        return (DebugState)thread.debugState;
+        return result;
     }
 
     /**
@@ -577,16 +581,16 @@ public final class DebugLib extends LuaModule {
      * @param thread the thread for the call
      * @param func the function called
      */
-    public static void debugOnCall(LuaThread thread, LuaFunction func) {
+    public static void debugOnCall(LuaThread thread, LuaFunction func, String functionName) {
         DebugState ds = getDebugState(thread);
 
         DebugInfo di = ds.pushInfo();
-        di.setfunction(func);
+        di.setfunction(func, functionName);
 
         LOG.trace("debugOnCall: {}", di);
 
         if (!ds.inhook && ds.hookcall) {
-            ds.callHookFunc(META_CALL, NIL);
+            ds.callHookFunc(CALL, NIL);
         }
     }
 
@@ -621,8 +625,11 @@ public final class DebugLib extends LuaModule {
             return; // No debug information available
         }
 
+        LuaClosure closure = di.closure;
         if (TRACE) {
-            Print.printOpCode(System.out, di.closure.getPrototype(), pc);
+            if (closure != null) {
+                Print.printOpCode(System.out, closure.getPrototype(), pc);
+            }
         }
 
         di.pc = pc;
@@ -637,10 +644,10 @@ public final class DebugLib extends LuaModule {
             }
         }
 
-        if (ds.hookline) {
+        if (ds.hookline && closure != null) {
             int newline = di.currentline();
             if (newline != ds.line) {
-                int c = di.closure.getPrototype().code[pc];
+                int c = closure.getPrototype().code[pc];
                 if ((c & 0x3f) != Lua.OP_JMP || ((c >>> 14) - 0x1ffff) >= 0) {
                     ds.line = newline;
                     ds.callHookFunc(LINE, valueOf(newline));

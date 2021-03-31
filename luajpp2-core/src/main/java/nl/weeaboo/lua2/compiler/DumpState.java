@@ -42,6 +42,9 @@ import nl.weeaboo.lua2.vm.LuaString;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Prototype;
 
+/**
+ * Writes compiled Lua code to an output stream.
+ */
 public final class DumpState {
 
     /**
@@ -186,12 +189,12 @@ public final class DumpState {
     }
 
     void dumpDebug(final Prototype f) throws IOException {
-        int n = (strip) ? 0 : f.lineinfo.length;
+        int n = strip ? 0 : f.lineinfo.length;
         dumpInt(n);
         for (int i = 0; i < n; i++) {
             dumpInt(f.lineinfo[i]);
         }
-        n = (strip) ? 0 : f.locvars.length;
+        n = strip ? 0 : f.locvars.length;
         dumpInt(n);
         for (int i = 0; i < n; i++) {
             LocVars lvi = f.locvars[i];
@@ -199,7 +202,7 @@ public final class DumpState {
             dumpInt(lvi.startpc);
             dumpInt(lvi.endpc);
         }
-        n = (strip) ? 0 : f.upvalues.length;
+        n = strip ? 0 : f.upvalues.length;
         dumpInt(n);
         for (int i = 0; i < n; i++) {
             dumpString(f.upvalues[i]);

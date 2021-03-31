@@ -25,6 +25,9 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaValue;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * String library
+ */
 @LuaSerializable
 public final class StringLib extends LuaModule {
 
@@ -331,7 +334,9 @@ public final class StringLib extends LuaModule {
      * used as the replacement string; otherwise, if it is false or nil, then there is no replacement (that
      * is, the original match is kept in the string).
      *
-     * Here are some examples: x = string.gsub("hello world", "(%w+)", "%1 %1") --> x= "hello hello world
+     * Here are some examples:
+     * <pre>{@code
+     * x = string.gsub("hello world", "(%w+)", "%1 %1") --> x= "hello hello world
      * world"
      *
      * x = string.gsub("hello world", "%w+", "%0 %0", 1) --> x="hello hello world"
@@ -346,6 +351,7 @@ public final class StringLib extends LuaModule {
      *
      * local t = {name="lua", version="5.1"} x = string.gsub("$name-$version.tar.gz", "%$(%w+)", t) -->
      * x="lua-5.1.tar.gz"
+     * }</pre>
      */
     @LuaBoundFunction
     public Varargs gsub(Varargs args) {

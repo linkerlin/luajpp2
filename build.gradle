@@ -1,22 +1,16 @@
 buildscript {
     repositories {
         google()
-        jcenter()
-        maven { url 'http://plugins.gradle.org/m2/' }
     }
     dependencies {
         // Plugins for Android
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:4.1.0'
     }
 }
 
 plugins {
-    // Plugin for uploading to bintray
-    // Note: Causes a classpath conflict for org.apache.tools.zip
-    id 'com.jfrog.bintray' version '1.8.0'
-
     // Google error-prone
-    id 'net.ltgt.errorprone' version '0.0.16' apply false
+    id 'net.ltgt.errorprone' version '1.1.1' apply false
 }
 
 apply from: 'dependencies.gradle'
@@ -24,52 +18,21 @@ apply from: 'dependencies.gradle'
 allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-    apply plugin: 'com.jfrog.bintray'
-    
+
     group = 'nl.weeaboo.luajpp2'
-    version = '3.0.3'
+    version = '3.3.0'
 
     repositories {
-        google()
-        jcenter()
+        mavenCentral()
     }
-    
-    bintray {   
-        user = System.getenv('BINTRAY_USER')
-        key = System.getenv('BINTRAY_KEY')
-        pkg {
-            repo = 'luajpp2'
-            name = 'luajpp2'
-            licenses = ['MIT']
-            vcsUrl = 'https://github.com/anonl/luajpp2.git'
-            version {
-                name = project.version
-            }
-        }
-    }    
 }
 
 subprojects {
-    apply plugin: 'jacoco'
-    apply plugin: 'maven-publish'
-
-    ext {
-        javaVersion = JavaVersion.VERSION_1_8
-
-        pomLicenseConfig = {
-           licenses {
-                license {
-                    name 'MIT'
-                    url 'https://opensource.org/licenses/mit-license.php'
-                    distribution 'repo'
-                }
-            }
-        }
-        pomLicenseConfig.resolveStrategy = Closure.DELEGATE_ONLY // Otherwise 'license' elem is missing
-    }
-    
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = javaVersion
+        project.apply plugin: 'jacoco'
+
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
 
         tasks.withType(JavaCompile) {
             options.encoding = 'UTF-8'
@@ -90,117 +53,6 @@ subprojects {
             }
         }
 
-        task sourceJar(type: Jar) {
-            from sourceSets.main.allJava
-            classifier "sources"
-        }
-
         project.apply from: rootProject.file('errorprone.gradle')
     }
 }
-
-project(':luajpp2-core') {
-    apply plugin: 'java-library'
-
-    processResources {
-        filesMatching('**/*.properties') {
-            filter {
-                // Engine version number
-                it.replace('@VERSION@', version)
-            }
-        }
-    }
-    
-    publishing {
-        publications {
-            core(MavenPublication) {
-                from components.java            
-                artifactId = 'luajpp2-core'
-                artifact(sourceJar)
-
-                pom.withXml {
-                    asNode().children().last() + project.ext.pomLicenseConfig
-                }  
-            }
-        }
-    }    
-
-    bintray {
-        publications = ['core']
-    }
-}
-
-project(':luajpp2-plugin') {
-    apply plugin: 'java-library'
-
-    dependencies {
-        api project(':luajpp2-core')
-    }
-
-    publishing {
-        publications {
-            plugin(MavenPublication) {
-                from components.java            
-                artifactId = 'luajpp2-plugin'
-                artifact(sourceJar)
-
-                pom.withXml {
-                    asNode().children().last() + project.ext.pomLicenseConfig
-                }  
-            }
-        }
-    }    
-
-    bintray {
-        publications = ['plugin']
-    }
-}
-
-project(':luajpp2-android') {
-    apply plugin: 'com.android.application'
-
-    android {
-        buildToolsVersion '28.0.2'
-        compileSdkVersion 15
-
-        defaultConfig {
-            minSdkVersion 15
-            targetSdkVersion 15
-        }
-
-        // Add source folders of the core module so we can test/lint them to check for Android compatibility
-        sourceSets {
-            main.java.srcDirs += '../luajpp2-core/src/main/java'
-            main.resources.srcDirs += '../luajpp2-core/src/main/resources'
-            test.java.srcDirs += '../luajpp2-core/src/test/java'
-            test.resources.srcDirs += '../luajpp2-core/src/test/resources'
-        }
-
-        compileOptions {
-            sourceCompatibility javaVersion
-            targetCompatibility javaVersion
-        }
-
-        lintOptions {
-            textOutput 'stdout'
-            textReport true
-        }
-    }
-    
-    eclipse {
-        sourceSets {
-            main.java.srcDirs 'src/main/java'
-            test.java.srcDirs 'src/test/java'
-        }
-    }
-
-    dependencies {
-        compileOnly deps.static_analysis_annotations
-        implementation deps.slf4j_api
-
-        testCompileOnly deps.static_analysis_annotations
-        testImplementation deps.junit
-        testRuntimeOnly deps.slf4j_desktop
-    }
-}
-

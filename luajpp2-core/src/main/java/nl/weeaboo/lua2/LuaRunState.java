@@ -2,7 +2,6 @@ package nl.weeaboo.lua2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
 
 import javax.annotation.Nullable;
 
@@ -13,6 +12,7 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 import nl.weeaboo.lua2.lib.ClassLoaderResourceFinder;
 import nl.weeaboo.lua2.lib.ILuaResourceFinder;
 import nl.weeaboo.lua2.lib.LuaResource;
+import nl.weeaboo.lua2.luajava.ITypeCoercions;
 import nl.weeaboo.lua2.stdlib.DebugLib;
 import nl.weeaboo.lua2.stdlib.StandardLibrary;
 import nl.weeaboo.lua2.vm.LuaClosure;
@@ -20,10 +20,13 @@ import nl.weeaboo.lua2.vm.LuaTable;
 import nl.weeaboo.lua2.vm.LuaThread;
 import nl.weeaboo.lua2.vm.Varargs;
 
+/**
+ * Global Lua VM state.
+ */
 @LuaSerializable
-public final class LuaRunState implements Serializable, ILuaResourceFinder {
+public final class LuaRunState implements ILuaResourceFinder {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private static final Logger LOG = LoggerFactory.getLogger(LuaRunState.class);
 
     private static ThreadLocal<LuaRunState> threadInstance = new ThreadLocal<>();
@@ -39,6 +42,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     private int instructionCountLimit = 10 * 1000 * 1000;
 
     private ILuaResourceFinder resourceFinder = new ClassLoaderResourceFinder();
+    private ITypeCoercions typeCoercions = ITypeCoercions.getDefault();
 
     private transient @Nullable LuaThread currentThread;
     private transient int instructionCount;
@@ -52,7 +56,7 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
     }
 
     /**
-     * Creates a new instance using the stoch standard library.
+     * Creates a new instance using the default {@link StandardLibrary}.
      *
      * @throws LuaException If no run state could be created.
      * @see #create(StandardLibrary)
@@ -283,6 +287,20 @@ public final class LuaRunState implements Serializable, ILuaResourceFinder {
      */
     public Metatables getMetatables() {
         return metatables;
+    }
+
+    /**
+     * The global type coercion functions for converting between Java and Lua values.
+     */
+    public ITypeCoercions getTypeCoercions() {
+        return typeCoercions;
+    }
+
+    /**
+     * The global exception handler is notified when Lua code throws an exception.
+     */
+    public void setExceptionHandler(ILuaExceptionHandler handler) {
+        threadGroup.setExceptionHandler(handler);
     }
 
 }

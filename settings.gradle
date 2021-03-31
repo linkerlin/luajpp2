@@ -1,4 +1,3 @@
 
 include ':luajpp2-core'
-include ':luajpp2-plugin'
 include ':luajpp2-android'
