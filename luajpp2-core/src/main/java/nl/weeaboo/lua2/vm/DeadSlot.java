@@ -13,8 +13,6 @@ import nl.weeaboo.lua2.io.LuaSerializable;
 @LuaSerializable
 final class DeadSlot implements ISlot {
 
-    private static final long serialVersionUID = 1L;
-
     private final Object key;
     private @Nullable ISlot next;
 

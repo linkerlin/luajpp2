@@ -20,7 +20,7 @@ allprojects {
     apply plugin: 'idea'
 
     group = 'nl.weeaboo.luajpp2'
-    version = '3.4.0'
+    version = '3.4.1'
 
     repositories {
         mavenCentral()
@@ -43,6 +43,7 @@ subprojects {
             implementation deps.slf4j_api
 
             testCompileOnly deps.static_analysis_annotations
+            testImplementation deps.guava_testlib
             testImplementation deps.junit
             testRuntimeOnly deps.slf4j_desktop
         }

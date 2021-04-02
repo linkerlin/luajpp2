@@ -1,44 +1,15 @@
 package nl.weeaboo.lua2.vm;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import javax.annotation.Nullable;
 
-import nl.weeaboo.lua2.io.LuaSerializable;
+final class LinkSlot implements IStrongSlot {
 
-@LuaSerializable
-final class LinkSlot implements IStrongSlot, Externalizable {
-
-    private static final long serialVersionUID = 1L;
-
-    // --- Uses manual serialization ---
     private Entry entry;
     private ISlot next;
-    // --- Uses manual serialization ---
-
-    /** Exists for serialization */
-    @Deprecated
-    public LinkSlot() {
-    }
 
     public LinkSlot(Entry entry, ISlot next) {
         this.entry = entry;
         setNext(next);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(entry);
-        out.writeObject(next);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        entry = (Entry)in.readObject();
-        next = (ISlot)in.readObject();
     }
 
     @Override

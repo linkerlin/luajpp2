@@ -98,6 +98,8 @@ import nl.weeaboo.lua2.io.LuaSerializer;
 @LuaSerializable
 public class LuaTable extends LuaValue implements IMetatable, Externalizable {
 
+    private static final long serialVersionUID = 2L;
+
     private static final int MIN_HASH_CAPACITY = 2;
     private static final LuaString N = valueOf("n");
 
@@ -227,13 +229,29 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             out.writeObject(array[n]);
         }
 
-        out.writeInt(hashEntries);
-        // Use writeDelayed to reduce recursion depth
+        writeHashEntries(out, hash);
+    }
+
+    private void writeHashEntries(ObjectOutput out, ISlot[] hashSlots) throws IOException {
+        List<LuaValue> keysAndValues = new ArrayList<>();
+        for (ISlot chain : hashSlots) {
+            while (chain != null) {
+                IStrongSlot cur = chain.first();
+                if (cur != null) {
+                    keysAndValues.add(cur.key());
+                    keysAndValues.add(cur.value());
+                }
+                chain = chain.rest();
+            }
+        }
+
+        // Write the number of entries, followed by all key/value pairs
+        Object[] keysAndValuesArray = keysAndValues.toArray();
         LuaSerializer ls = LuaSerializer.getCurrent();
         if (ls != null) {
-            ls.writeDelayed(hash);
+            ls.writeDelayed(keysAndValuesArray);
         } else {
-            out.writeObject(hash);
+            out.writeObject(keysAndValuesArray);
         }
     }
 
@@ -248,18 +266,25 @@ public class LuaTable extends LuaValue implements IMetatable, Externalizable {
             array[n] = (LuaValue)in.readObject();
         }
 
-        hashEntries = in.readInt();
+        readHashEntries(in);
+    }
+
+    private void readHashEntries(ObjectInput in) throws IOException, ClassNotFoundException {
+        DelayedReader r = new DelayedReader() {
+            @Override
+            public void onRead(Object obj) {
+                Object[] array = (Object[])obj;
+                for (int n = 0; n < array.length; n += 2) {
+                    hashset((LuaValue)array[n], (LuaValue)array[n + 1]);
+                }
+            }
+        };
 
         LuaSerializer ls = LuaSerializer.getCurrent();
         if (ls != null) {
-            ls.readDelayed(new DelayedReader() {
-                @Override
-                public void onRead(Object obj) {
-                    hash = (ISlot[])obj;
-                }
-            });
+            ls.readDelayed(r);
         } else {
-            hash = (ISlot[])in.readObject();
+            r.onRead(in.readObject());
         }
     }
 

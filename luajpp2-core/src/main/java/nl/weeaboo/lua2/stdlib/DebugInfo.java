@@ -31,7 +31,7 @@ final class DebugInfo implements Externalizable {
 
     // --- Uses manual serialization, don't add variables ---
     LuaValue func;
-    String functionName;
+    String functionName = "?";
     @Nullable LuaClosure closure;
     LuaValue[] stack;
     Varargs varargs;
@@ -79,7 +79,7 @@ final class DebugInfo implements Externalizable {
     void setfunction(LuaValue func, String functionName) {
         this.func = func;
         this.closure = (func instanceof LuaClosure ? (LuaClosure)func : null);
-        this.functionName = functionName;
+        this.functionName = functionName != null ? functionName : "?";
     }
 
     void clear() {

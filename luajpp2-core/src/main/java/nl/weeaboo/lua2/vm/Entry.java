@@ -1,10 +1,5 @@
 package nl.weeaboo.lua2.vm;
 
-import static nl.weeaboo.lua2.vm.LuaConstants.NONE;
-import static nl.weeaboo.lua2.vm.LuaNil.NIL;
-
-import java.io.Externalizable;
-
 import javax.annotation.Nullable;
 
 /**
@@ -12,9 +7,7 @@ import javax.annotation.Nullable;
  * <p>
  * If the key may be an integer, the {@link #arraykey(int)} method must be overridden to handle that case.
  */
-abstract class Entry extends Varargs implements IStrongSlot, Externalizable {
-
-    private static final long serialVersionUID = 1L;
+abstract class Entry implements IStrongSlot {
 
     @Override
     public abstract LuaValue key();
@@ -47,43 +40,8 @@ abstract class Entry extends Varargs implements IStrongSlot, Externalizable {
     }
 
     @Override
-    public LuaValue arg(int i) {
-        switch (i) {
-        case 1:
-            return key();
-        case 2:
-            return value();
-        }
-        return NIL;
-    }
-
-    @Override
-    public int narg() {
-        return 2;
-    }
-
-    /**
-     * Subclasses should redefine as "return this;" whenever possible.
-     */
-    @Override
     public Varargs toVarargs() {
         return LuaTable.varargsOf(key(), value());
-    }
-
-    @Override
-    public LuaValue arg1() {
-        return key();
-    }
-
-    @Override
-    public Varargs subargs(int start) {
-        switch (start) {
-        case 1:
-            return this;
-        case 2:
-            return value();
-        }
-        return NONE;
     }
 
     @Override

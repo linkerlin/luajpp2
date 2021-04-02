@@ -1,13 +1,11 @@
 package nl.weeaboo.lua2.vm;
 
-import java.io.Serializable;
-
 import javax.annotation.Nullable;
 
 /**
  * Represents a slot in the hash table.
  */
-interface ISlot extends Serializable {
+interface ISlot {
 
     /** Return hash{pow2,mod}( first().key().hashCode(), sizeMask ) */
     int keyindex(int hashMask);

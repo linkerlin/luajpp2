@@ -125,8 +125,6 @@ final class WeakTable implements IMetatable, Serializable {
 
     private abstract static class WeakSlot implements ISlot {
 
-        private static final long serialVersionUID = 1L;
-
         protected @Nullable Object key;
         protected @Nullable Object value;
         protected ISlot next;
@@ -253,8 +251,6 @@ final class WeakTable implements IMetatable, Serializable {
     @LuaSerializable
     private static class WeakKeySlot extends WeakSlot {
 
-        private static final long serialVersionUID = 1L;
-
         private final int keyhash;
 
         protected WeakKeySlot(LuaValue key, LuaValue value, ISlot next) {
@@ -293,8 +289,6 @@ final class WeakTable implements IMetatable, Serializable {
     @LuaSerializable
     private static class WeakValueSlot extends WeakSlot {
 
-        private static final long serialVersionUID = 1L;
-
         protected WeakValueSlot(LuaValue key, LuaValue value, ISlot next) {
             super(key, weaken(value), next);
         }
@@ -327,8 +321,6 @@ final class WeakTable implements IMetatable, Serializable {
 
     @LuaSerializable
     private static class WeakKeyAndValueSlot extends WeakSlot {
-
-        private static final long serialVersionUID = 1L;
 
         private final int keyhash;
 
